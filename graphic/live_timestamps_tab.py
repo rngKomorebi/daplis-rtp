@@ -19,8 +19,12 @@ import numpy as np
 class LiveTimestamps(QtWidgets.QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
-        uic.loadUi(r"C:/Users/bruce/Documents/Python Scripts/LinoSPAD2_app/"
-                   "app/graphic/ui/LiveTimestamps_tab_c.ui", self)
+        os.chdir(r"graphic/ui")
+        uic.loadUi(
+            r"LiveTimestamps_tab_c.ui",
+            self,
+        )
+        os.chdir("../..")
 
         self.show()
 
@@ -78,6 +82,10 @@ class LiveTimestamps(QtWidgets.QWidget):
         self.checkBox_linearScale.stateChanged.connect(self._slot_checkplotscale)
 
         self.pushButton_resetMask.clicked.connect(self._reset_pix_mask)
+
+        self.path_to_main = os.getcwd()
+
+        self.comboBox_mask.activated.connect(self._reset_pix_mask)
 
         # Refresh plot and start stream buttons
 
@@ -180,30 +188,12 @@ class LiveTimestamps(QtWidgets.QWidget):
                 self.maskValidPixels[i] = 1
 
     def _preset_mask_pixels(self):
-        mask = [
-            15,
-            16,
-            29,
-            39,
-            40,
-            50,
-            52,
-            66,
-            73,
-            93,
-            95,
-            96,
-            98,
-            101,
-            109,
-            122,
-            127,
-            196,
-            210,
-            231,
-            236,
-            238,
-        ]
+
+        if os.getcwd() != self.path_to_main + "/masks":
+            os.chdir(self.path_to_main + "/masks")
+        file = glob.glob("*{}*".format(self.comboBox_mask.currentText()))[0]
+        mask = np.genfromtxt(file, delimiter=",", dtype="int")
+
         if self.checkBox_presetMask.isChecked():
             for i in mask:
                 self.maskValidPixels[i] = 0
