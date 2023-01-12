@@ -33,6 +33,7 @@ class HistCanvas(QWidget):
 
         self.setLayout(self.layout)
 
+# add combobox with board number
     def _plot_hist(self, pix):
 
         file = glob.glob("*.dat*")[0]
