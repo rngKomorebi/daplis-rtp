@@ -27,23 +27,23 @@ import os
 from tools.calibrate import calibrate_load
 
 
-def unpack_binary_flex(filename, lines_of_data: int = 512):
+def unpack_binary_flex(filename, timestamps: int = 512):
     """Unpacks the 'dat' data files with certain timestamps per acquistion
     cycle.
 
     Parameters
     ----------
     filename : str
-        File with data from LinoSPAD2 in which precisely lines_of_data lines
+        File with data from LinoSPAD2 in which precisely timestamps lines
         of data per acquistion cycle is written.
-    lines_of_data: int, optional
+    timestamps: int, optional
         Number of binary-encoded timestamps in the 'dat' file. The default
         value is 512.
 
     Returns
     -------
     data_matrix : array_like
-        A 2D matrix (256 pixels by lines_of_data X number-of-cycles) of
+        A 2D matrix (256 pixels by timestamps X number-of-cycles) of
         timestamps.
 
     """
@@ -73,8 +73,8 @@ def unpack_binary_flex(filename, lines_of_data: int = 512):
     # rows=#pixels, cols=#cycles
     data_matrix = np.zeros((256, int(len(timestamp_list) / 256)))
 
-    noc = len(timestamp_list) / lines_of_data / 256  # number of cycles,
-    # lines_of_data data lines per pixel per cycle, 256 pixels
+    noc = len(timestamp_list) / timestamps / 256  # number of cycles,
+    # timestamps data lines per pixel per cycle, 256 pixels
 
     # pack the data from a 1D array into a 2D matrix
     k = 0
@@ -82,24 +82,23 @@ def unpack_binary_flex(filename, lines_of_data: int = 512):
         i = 0
         while i < 256:
             data_matrix[i][
-                k * lines_of_data : k * lines_of_data + lines_of_data
+                k * timestamps : k * timestamps + timestamps
             ] = timestamp_list[
-                (i + 256 * k) * lines_of_data : (i + 256 * k) * lines_of_data
-                + lines_of_data
+                (i + 256 * k) * timestamps : (i + 256 * k) * timestamps + timestamps
             ]
             i = i + 1
         k = k + 1
     return data_matrix
 
 
-def unpack_numpy(filename, lines_of_data):
+def unpack_numpy(filename, timestamps):
     rawFile = np.fromfile(filename, dtype=np.uint32)  # read data
     data = (rawFile & 0xFFFFFFF).astype(int) * 17.857  # Multiply with the lowes bin
     data[np.where(rawFile < 0x80000000)] = -1  # Mask not valid data
-    nmrCycles = int(len(data) / lines_of_data / 256)  # number of cycles,
+    nmrCycles = int(len(data) / timestamps / 256)  # number of cycles,
     data_matrix = (
-        data.reshape((lines_of_data, nmrCycles * 256), order="F")
-        .reshape((lines_of_data, 256, -1), order="F")
+        data.reshape((timestamps, nmrCycles * 256), order="F")
+        .reshape((timestamps, 256, -1), order="F")
         .transpose((0, 2, 1))
         .reshape((-1, 256), order="F")
         .transpose()
@@ -161,4 +160,3 @@ def unpack_calib(filename, board_number: str, timestamps: int = 512):
             data_matrix[i, ind] - data_matrix[i, ind] % 140
         ) * 17.857 + cal_mat[i, (data_matrix[i, ind] % 140)]
     return data_matrix
-

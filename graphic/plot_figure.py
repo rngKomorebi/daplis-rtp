@@ -50,7 +50,7 @@ class PltCanvas(QWidget):
         for axis in ["top", "bottom", "left", "right"]:
             self.ax.spines[axis].set_linewidth(2)
 
-    def setPlotData(self, xdataplot, yplotdata, peak, xLim):
+    def setPlotData(self, xdataplot, yplotdata, xLim):
 
         # self.plot.set_xdata(xdataplot)
         self.plot.set_ydata(yplotdata)

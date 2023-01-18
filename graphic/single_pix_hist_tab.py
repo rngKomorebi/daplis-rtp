@@ -16,8 +16,12 @@ class SinglePixelHistogram(QtWidgets.QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
 
-        uic.loadUi(r"C:/Users/bruce/Documents/Python Scripts/LinoSPAD2_app/"
-                   "app/graphic/ui/SinglePixelHistogram_tab_c.ui", self)
+        os.chdir(r"graphic/ui")
+        uic.loadUi(
+            r"SinglePixelHistogram_tab_c.ui",
+            self,
+        )
+        os.chdir("../..")
         self.show()
 
         # Function presets: browse
@@ -58,11 +62,13 @@ class SinglePixelHistogram(QtWidgets.QWidget):
         self.pix = int(self.pixInput.text())
         os.chdir(self.folder)
 
-        self.figureWidget._plot_hist(self.pix)
+        self.figureWidget._plot_hist(
+            self.pix, timestamps=self.spinBox_timestamps.value()
+        )
 
     def _refresh_plot(self):
 
         self.pix = int(self.lineEdit_enterPixNumber.text())
         os.chdir(self.folder)
 
-        self.widget_figure._plot_hist(self.pix)
+        self.widget_figure._plot_hist(self.pix, timestamps=self.spinBox_timestamps.value())

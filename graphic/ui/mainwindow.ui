@@ -36,7 +36,7 @@
        </sizepolicy>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="tab">
        <property name="sizePolicy">
@@ -53,6 +53,11 @@
       <widget class="QWidget" name="tab_2">
        <attribute name="title">
         <string>Single Pixel Histogram</string>
+       </attribute>
+      </widget>
+      <widget class="QWidget" name="tab_3">
+       <attribute name="title">
+        <string>Delta t</string>
        </attribute>
       </widget>
      </widget>

@@ -34,11 +34,11 @@ class HistCanvas(QWidget):
         self.setLayout(self.layout)
 
 # add combobox with board number
-    def _plot_hist(self, pix):
+    def _plot_hist(self, pix, timestamps):
 
         file = glob.glob("*.dat*")[0]
 
-        data = unpk.unpack_calib(file, board_number="A5", timestamps=512)
+        data = unpk.unpack_calib(file, "A5", timestamps)
 
         bins = np.arange(0, 4e9, 17.867 * 1e6)  # bin size of 17.867 us
 
@@ -51,11 +51,3 @@ class HistCanvas(QWidget):
         # self.figure.tight_layout()
         self.canvas.draw()
         self.canvas.flush_events()
-
-        # try:
-        #     os.chdir("results/single pixel histograms")
-        # except Exception:
-        #     os.mkdir("results/single pixel histograms")
-        #     os.chdir("results/single pixel histograms")
-        # plt.savefig("{file}, pixel {pixel}.png".format(file=file, pixel=pix))
-        # os.chdir("../..")

@@ -159,14 +159,14 @@ class LiveTimestamps(QtWidgets.QWidget):
 
                 self.last_file_ctime = new_file_ctime
 
-                validtimestemps, peak = timestamp_computation.get_nmr_validtimestamps(
-                    self.pathtotimestamp + "/" + last_file, np.arange(145, 155, 1), 512
+                validtimestamps = timestamp_computation.get_nmr_validtimestamps(
+                    self.pathtotimestamp + "/" + last_file,
+                    timestamps=self.spinBox_timestamps.value()
                 )
-                validtimestemps = validtimestemps * self.maskValidPixels
+                validtimestamps = validtimestamps * self.maskValidPixels
                 self.widget_figure.setPlotData(
                     np.arange(0, 256, 1),
-                    validtimestemps,
-                    peak,
+                    validtimestamps,
                     [self.leftPosition, self.rightPosition],
                 )
         except ValueError:
