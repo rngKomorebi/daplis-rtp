@@ -1,15 +1,6 @@
-# from PyQt5.QtWidgets import QWidget
-# from app.graphic.ui.SinglePixelHistogram_ui import Ui_SinglePixelHistogram
 from PyQt5 import QtWidgets, QtCore, QtGui, uic
 from graphic.single_pixel_histogram import HistCanvas
 import os
-
-# class SinglePixelHistogram(QWidget, Ui_SinglePixelHistogram):
-#     def __init__(self, parent=None):
-
-#         super().__init__(parent)
-
-#         self.setupUi(self)
 
 
 class SinglePixelHistogram(QtWidgets.QWidget):
@@ -23,11 +14,6 @@ class SinglePixelHistogram(QtWidgets.QWidget):
         )
         os.chdir("../..")
         self.show()
-
-        # Function presets: browse
-        self.pathtotimestamp = ""
-        # Pixel number
-        self.pix = None
 
         # Browse button signal
         self.pushButton_browse.clicked.connect(self._get_dir)
@@ -69,6 +55,8 @@ class SinglePixelHistogram(QtWidgets.QWidget):
     def _refresh_plot(self):
 
         self.pix = int(self.lineEdit_enterPixNumber.text())
+        board_number = self.comboBox_boardNumber.currentText()
+        timestamps = self.spinBox_timestamps.value()
         os.chdir(self.folder)
 
-        self.widget_figure._plot_hist(self.pix, timestamps=self.spinBox_timestamps.value())
+        self.widget_figure._plot_hist(self.pix, timestamps, board_number)

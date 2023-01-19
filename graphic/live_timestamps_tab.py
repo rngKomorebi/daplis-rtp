@@ -5,16 +5,6 @@ import os
 from tools import timestamp_computation
 import numpy as np
 
-# from app.graphic.ui.LiveTimestamps_tab_ui import Ui_LiveTimestamps
-
-
-# class LiveTimestamps(QtWidgets.QWidget, Ui_LiveTimestamps):
-#     def __init__(self, parent=None):
-
-#         super().__init__(parent)
-
-#         self.setupUi(self)
-
 
 class LiveTimestamps(QtWidgets.QWidget):
     def __init__(self, parent=None):
@@ -150,27 +140,24 @@ class LiveTimestamps(QtWidgets.QWidget):
         self._mask_pixels()
         os.chdir(self.pathtotimestamp)
         DATA_FILES = glob.glob("*.dat*")
-        print("_update_time_stamp: timer running")
-        try:
-            last_file = max(DATA_FILES, key=os.path.getctime)
-            new_file_ctime = os.path.getctime(last_file)
 
-            if new_file_ctime > self.last_file_ctime:
+        last_file = max(DATA_FILES, key=os.path.getctime)
+        new_file_ctime = os.path.getctime(last_file)
 
-                self.last_file_ctime = new_file_ctime
+        if new_file_ctime > self.last_file_ctime:
 
-                validtimestamps = timestamp_computation.get_nmr_validtimestamps(
-                    self.pathtotimestamp + "/" + last_file,
-                    timestamps=self.spinBox_timestamps.value()
-                )
-                validtimestamps = validtimestamps * self.maskValidPixels
-                self.widget_figure.setPlotData(
-                    np.arange(0, 256, 1),
-                    validtimestamps,
-                    [self.leftPosition, self.rightPosition],
-                )
-        except ValueError:
-            print("_update_time_stamp:  waiting for a file")
+            self.last_file_ctime = new_file_ctime
+
+            validtimestamps = timestamp_computation.get_nmr_validtimestamps(
+                self.pathtotimestamp + "/" + last_file,
+                timestamps=self.spinBox_timestamps.value(),
+            )
+            validtimestamps = validtimestamps * self.maskValidPixels
+            self.widget_figure.setPlotData(
+                np.arange(0, 256, 1),
+                validtimestamps,
+                [self.leftPosition, self.rightPosition],
+            )
 
     def _mask_pixels(self):
         """
