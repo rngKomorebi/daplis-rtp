@@ -12,6 +12,7 @@ from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as Navigatio
 import glob
 import numpy as np
 import tools.unpack_data as unpk
+import matplotlib.pyplot as plt
 
 
 class HistCanvas(QWidget):
@@ -32,6 +33,22 @@ class HistCanvas(QWidget):
         self.layout.addWidget(self.toolbar)
 
         self.setLayout(self.layout)
+
+        self._setplotparameters()
+
+    def _setplotparameters(self):
+        plt.rcParams.update({"font.size": 18})
+        self.axes.set_xlabel("Time [ps]")
+        self.axes.set_ylabel("# of timestamps [-]")
+
+        self.axes.tick_params(which="both", width=2, direction="in")
+        self.axes.tick_params(which="major", length=7, direction="in")
+        self.axes.tick_params(which="minor", length=4, direction="in")
+        self.axes.yaxis.set_ticks_position("both")
+        self.axes.xaxis.set_ticks_position("both")
+
+        for axis in ["top", "bottom", "left", "right"]:
+            self.axes.spines[axis].set_linewidth(2)
 
     def _plot_hist(self, pix, timestamps, board_number):
 

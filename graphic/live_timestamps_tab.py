@@ -83,6 +83,10 @@ class LiveTimestamps(QtWidgets.QWidget):
 
         self.pushButton_startStream.clicked.connect(self._slot_startstream)
 
+        # Check box for plotting 3 vertical lines at position x=64, 128, 192 (FW 2208)
+        self.grouping = False
+        self.checkBox_grouping.stateChanged.connect(self._slot_checkBox_grouping)
+
         # Timer preset
         self.timer = QtCore.QTimer()
         self.timerRunning = False
@@ -157,6 +161,7 @@ class LiveTimestamps(QtWidgets.QWidget):
                 np.arange(0, 256, 1),
                 validtimestamps,
                 [self.leftPosition, self.rightPosition],
+                self.grouping,
             )
 
     def _mask_pixels(self):
@@ -206,3 +211,10 @@ class LiveTimestamps(QtWidgets.QWidget):
             cb = self.scrollAreaWidgetContentslayout.itemAt(i).widget()
             cb.setChecked(False)
         self.checkBox_presetMask.setChecked(False)
+
+    def _slot_checkBox_grouping(self):
+
+        if self.checkBox_grouping.isChecked():
+            self.grouping = True
+        else:
+            self.grouping = False

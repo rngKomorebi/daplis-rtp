@@ -6,10 +6,10 @@ from matplotlib.figure import Figure
 
 
 class PltCanvas(QWidget):
-    def __init__(self, parent=None, width=5, height=4, dpi=100):
+    def __init__(self, parent=None, width=5.8, height=5.8, dpi=100):
         super(PltCanvas, self).__init__(parent)
         # a figure instance to plot on
-        self.figure = Figure(figsize=(width, height), dpi=dpi)
+        self.figure = Figure(figsize=(width, height), dpi=100)
         self.canvas = FigureCanvas(self.figure)
         self.toolbar = NavigationToolbar(self.canvas, self)
 
@@ -24,7 +24,7 @@ class PltCanvas(QWidget):
         plt.rcParams.update({"font.size": 18})
         self.figure.clear()
         self.ax = self.figure.add_subplot(111)
-        (self.plot,) = self.ax.plot([1 for i in range(256)], "-ok")
+        (self.plot,) = self.ax.plot([1 for i in range(256)], "-o", color="indianred")
         self.setplotparameters()
         self.canvas.draw()
         self.figure.tight_layout()
@@ -50,10 +50,14 @@ class PltCanvas(QWidget):
         for axis in ["top", "bottom", "left", "right"]:
             self.ax.spines[axis].set_linewidth(2)
 
-    def setPlotData(self, xdataplot, yplotdata, xLim):
+    def setPlotData(self, xdataplot, yplotdata, xLim, grouping: bool = False):
 
         # self.plot.set_xdata(xdataplot)
-        self.plot.set_ydata(yplotdata)
+        # self.plot.set_ydata(yplotdata)
+        self.ax.cla()
+        self.ax.plot(yplotdata, "-o", color="indianred")
+        if grouping is True:
+            self.ax.vlines(x=(64, 128, 192), ymin=0, ymax=yplotdata.max(), color="teal")
         self.ax.relim()
         self.ax.autoscale_view()
         self.setplotparameters()

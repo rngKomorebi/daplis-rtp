@@ -7,6 +7,7 @@ import os
 from glob import glob
 from tools.unpack_data import unpack_calib
 import numpy as np
+import matplotlib.pyplot as plt
 
 
 class Delta_tCanvas(QWidget):
@@ -25,6 +26,22 @@ class Delta_tCanvas(QWidget):
         self.layout.addWidget(self.toolbar)
 
         self.setLayout(self.layout)
+
+        self._setplotparameters()
+
+    def _setplotparameters(self):
+        plt.rcParams.update({"font.size": 18})
+        self.axes.set_xlabel("Time [ps]")
+        self.axes.set_ylabel("# of timestamps [-]")
+
+        self.axes.tick_params(which="both", width=2, direction="in")
+        self.axes.tick_params(which="major", length=7, direction="in")
+        self.axes.tick_params(which="minor", length=4, direction="in")
+        self.axes.yaxis.set_ticks_position("both")
+        self.axes.xaxis.set_ticks_position("both")
+
+        for axis in ["top", "bottom", "left", "right"]:
+            self.axes.spines[axis].set_linewidth(2)
 
     def _plot_delta(
         self, pix1, pix2, timestamps, board_number, range_left, range_right
