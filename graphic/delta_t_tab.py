@@ -15,16 +15,13 @@ class Delta_t(QtWidgets.QWidget):
 
         self.show()
 
-        # # Pixel number
-        # self.pix1 = None
-        # self.pix2 = None
-
         # Browse button
         self.pushButton_browse.clicked.connect(self._get_dir)
 
         # Figure widget
         self.widget_figure = Delta_tCanvas()
-        self.widget_figure.setMinimumSize(500, 400)
+        # self.widget_figure.setMinimumSize(500, 400)
+        self.widget_figure.setFixedSize(500, 425)
         self.widget_figure.setObjectName("widget")
         self.gridLayout.addWidget(self.widget_figure, 1, 0, 4, 3)
 

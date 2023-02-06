@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 
 
 class HistCanvas(QWidget):
-    def __init__(self, height=4, width=4, dpi=100):
+    def __init__(self, width=7, height=4, dpi=100):
         super().__init__()
 
         # figure initialization
@@ -24,8 +24,8 @@ class HistCanvas(QWidget):
         self.canvas = FigureCanvasQTAgg(self.figure)
         self.axes = self.figure.add_subplot(111)
         self.toolbar = NavigationToolbar(self.canvas, self)
-        # self.figure.tight_layout()
-        self.figure.subplots_adjust(left=0.17, bottom=0.154, right=0.990, top=0.917)
+
+        self.figure.subplots_adjust(left=0.15, right=0.97, top=0.98, bottom=0.17)
 
         # creating a Vertical Box layout
         self.layout = QVBoxLayout(self)
@@ -36,8 +36,9 @@ class HistCanvas(QWidget):
 
         self._setplotparameters()
 
+
     def _setplotparameters(self):
-        plt.rcParams.update({"font.size": 18})
+        plt.rcParams.update({"font.size": 12})
         self.axes.set_xlabel("Time [ps]")
         self.axes.set_ylabel("# of timestamps [-]")
 
@@ -64,6 +65,5 @@ class HistCanvas(QWidget):
         self.axes.set_ylabel("# of timestamps [-]")
         self.axes.set_title("Pixel {} histogram".format(pix))
         self.axes.ticklabel_format(axis="y", style="sci", scilimits=(0, 0))
-        # self.figure.tight_layout()
         self.canvas.draw()
         self.canvas.flush_events()

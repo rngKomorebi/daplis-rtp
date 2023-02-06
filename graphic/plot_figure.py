@@ -6,12 +6,14 @@ from matplotlib.figure import Figure
 
 
 class PltCanvas(QWidget):
-    def __init__(self, parent=None, width=5.8, height=5.8, dpi=100):
+    def __init__(self, parent=None, width=7, height=4, dpi=100):
         super(PltCanvas, self).__init__(parent)
         # a figure instance to plot on
         self.figure = Figure(figsize=(width, height), dpi=100)
         self.canvas = FigureCanvas(self.figure)
         self.toolbar = NavigationToolbar(self.canvas, self)
+        self.ax = self.figure.add_subplot(111)
+        self.figure.subplots_adjust(left=0.15, right=0.97, top=0.98, bottom=0.17)
 
         # creating a Vertical Box layout
         self.layout = QVBoxLayout(self)
@@ -20,26 +22,12 @@ class PltCanvas(QWidget):
 
         self.setLayout(self.layout)
 
-        # Create initial plot with initial data set to 1
-        plt.rcParams.update({"font.size": 18})
-        self.figure.clear()
-        self.ax = self.figure.add_subplot(111)
-        (self.plot,) = self.ax.plot([1 for i in range(256)], "-o", color="indianred")
         self.setplotparameters()
-        self.canvas.draw()
-        self.figure.tight_layout()
-
-    # def setplotion(self):
-    #     self.figure.ion()
 
     def setplotparameters(self):
-        plt.rcParams.update({"font.size": 18})
+        plt.rcParams.update({"font.size": 12})
         self.ax.set_xlabel("Pixel [-]")
         self.ax.set_ylabel("Valid timestamps [-]")
-
-        # plt.box(bool(1))
-        # plt.grid(False)
-        # plt.subplots_adjust(left=0.15)
 
         self.ax.tick_params(which="both", width=2, direction="in")
         self.ax.tick_params(which="major", length=7, direction="in")
@@ -52,8 +40,6 @@ class PltCanvas(QWidget):
 
     def setPlotData(self, xdataplot, yplotdata, xLim, grouping: bool = False):
 
-        # self.plot.set_xdata(xdataplot)
-        # self.plot.set_ydata(yplotdata)
         self.ax.cla()
         self.ax.plot(yplotdata, "-o", color="indianred")
         if grouping is True:
@@ -62,7 +48,7 @@ class PltCanvas(QWidget):
         self.ax.autoscale_view()
         self.setplotparameters()
         self.ax.set_xlim(xLim[0], xLim[1])
-        self.figure.tight_layout()
+        self.ax.ticklabel_format(axis="y", style="sci", scilimits=(0, 0))
         self.figure.canvas.draw()
         self.figure.canvas.flush_events()
 

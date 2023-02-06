@@ -11,14 +11,14 @@ import matplotlib.pyplot as plt
 
 
 class Delta_tCanvas(QWidget):
-    def __init__(self, parent=None, width=5, height=8, dpi=100):
+    def __init__(self, parent=None, width=7, height=4, dpi=100):
         super(Delta_tCanvas, self).__init__(parent)
         # a figure instance to plot on
         self.figure = Figure(figsize=(width, height), dpi=dpi)
         self.canvas = FigureCanvas(self.figure)
         self.toolbar = NavigationToolbar(self.canvas, self)
         self.axes = self.figure.add_subplot(111)
-        self.figure.tight_layout()
+        self.figure.subplots_adjust(left=0.15, right=0.97, top=0.98, bottom=0.17)
 
         # creating a Vertical Box layout
         self.layout = QVBoxLayout(self)
@@ -30,8 +30,8 @@ class Delta_tCanvas(QWidget):
         self._setplotparameters()
 
     def _setplotparameters(self):
-        plt.rcParams.update({"font.size": 18})
-        self.axes.set_xlabel("Time [ps]")
+        plt.rcParams.update({"font.size": 12})
+        self.axes.set_xlabel("\u0394t [ps]")
         self.axes.set_ylabel("# of timestamps [-]")
 
         self.axes.tick_params(which="both", width=2, direction="in")
@@ -62,7 +62,6 @@ class Delta_tCanvas(QWidget):
         self.axes.hist(deltas, bins=bins, color="salmon")
         self.axes.set_xlabel("\u0394t [ps]")
         self.axes.set_ylabel("# of timestamps [-]")
-        # self.axes.set_title("Pixels {p1}-{p2}".format(p1=pix1, p2=pix2))
-        self.figure.tight_layout()
+        self.axes.ticklabel_format(axis="y", style="sci", scilimits=(0, 0))
         self.canvas.draw()
         self.canvas.flush_events()

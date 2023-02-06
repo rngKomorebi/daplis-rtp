@@ -20,7 +20,41 @@
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="3" column="2">
+   <item row="0" column="0">
+    <widget class="QPushButton" name="pushButton_browse">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>28</height>
+      </size>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>9</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Browse</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1">
+    <widget class="QLineEdit" name="lineEdit_browse">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>400</width>
+       <height>28</height>
+      </size>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="2" rowspan="2">
     <spacer name="horizontalSpacer">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -30,33 +64,73 @@
      </property>
      <property name="sizeHint" stdset="0">
       <size>
-       <width>10</width>
-       <height>10</height>
+       <width>5</width>
+       <height>20</height>
       </size>
      </property>
     </spacer>
    </item>
-   <item row="6" column="3">
-    <spacer name="verticalSpacer">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
+   <item row="0" column="3" rowspan="2">
+    <layout class="QFormLayout" name="formLayout_4">
+     <property name="bottomMargin">
+      <number>10</number>
      </property>
-     <property name="sizeHint" stdset="0">
+     <item row="0" column="0">
+      <widget class="QLabel" name="label_5">
+       <property name="font">
+        <font>
+         <pointsize>12</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>LinoSPAD2 board</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QComboBox" name="comboBox_boardNumber">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>28</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>12</pointsize>
+        </font>
+       </property>
+       <item>
+        <property name="text">
+         <string>NL11</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>A5</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="1" column="0" rowspan="4" colspan="2">
+    <widget class="QWidget" name="widget_figure" native="true">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize">
       <size>
-       <width>20</width>
-       <height>40</height>
+       <width>500</width>
+       <height>425</height>
       </size>
-     </property>
-    </spacer>
-   </item>
-   <item row="7" column="3">
-    <widget class="QPushButton" name="pushButton_refreshPlot">
-     <property name="text">
-      <string>Refresh plot</string>
      </property>
     </widget>
    </item>
-   <item row="1" column="3" rowspan="2">
+   <item row="2" column="3">
     <layout class="QFormLayout" name="formLayout_3">
      <item row="1" column="0">
       <widget class="QLabel" name="label_timestamps">
@@ -84,6 +158,12 @@
      </item>
      <item row="1" column="1">
       <widget class="QSpinBox" name="spinBox_timestamps">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>28</height>
+        </size>
+       </property>
        <property name="font">
         <font>
          <pointsize>10</pointsize>
@@ -101,6 +181,15 @@
    </item>
    <item row="3" column="3">
     <layout class="QFormLayout" name="formLayout">
+     <property name="sizeConstraint">
+      <enum>QLayout::SetDefaultConstraint</enum>
+     </property>
+     <property name="verticalSpacing">
+      <number>7</number>
+     </property>
+     <property name="bottomMargin">
+      <number>0</number>
+     </property>
      <item row="0" column="0">
       <widget class="QLabel" name="label_pix1">
        <property name="font">
@@ -133,6 +222,12 @@
      </item>
      <item row="0" column="1">
       <widget class="QSpinBox" name="spinBox_pix1">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>28</height>
+        </size>
+       </property>
        <property name="maximum">
         <number>256</number>
        </property>
@@ -140,6 +235,12 @@
      </item>
      <item row="1" column="1">
       <widget class="QSpinBox" name="spinBox_pix2">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>28</height>
+        </size>
+       </property>
        <property name="maximum">
         <number>256</number>
        </property>
@@ -208,6 +309,12 @@
      </item>
      <item row="0" column="1">
       <widget class="QSpinBox" name="spinBox_rangeLeft">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>28</height>
+        </size>
+       </property>
        <property name="font">
         <font>
          <pointsize>12</pointsize>
@@ -229,6 +336,12 @@
      </item>
      <item row="1" column="1">
       <widget class="QSpinBox" name="spinBox_rangeRight">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>28</height>
+        </size>
+       </property>
        <property name="font">
         <font>
          <pointsize>12</pointsize>
@@ -250,79 +363,29 @@
      </item>
     </layout>
    </item>
-   <item row="0" column="3">
-    <layout class="QFormLayout" name="formLayout_4">
-     <property name="bottomMargin">
-      <number>10</number>
+   <item row="5" column="3">
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
      </property>
-     <item row="0" column="0">
-      <widget class="QLabel" name="label_5">
-       <property name="font">
-        <font>
-         <pointsize>12</pointsize>
-        </font>
-       </property>
-       <property name="text">
-        <string>LinoSPAD2 board</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="1">
-      <widget class="QComboBox" name="comboBox_boardNumber">
-       <property name="font">
-        <font>
-         <pointsize>12</pointsize>
-        </font>
-       </property>
-       <item>
-        <property name="text">
-         <string>NL11</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>A5</string>
-        </property>
-       </item>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item row="0" column="0">
-    <widget class="QPushButton" name="pushButton_browse">
-     <property name="minimumSize">
+     <property name="sizeHint" stdset="0">
       <size>
-       <width>0</width>
-       <height>28</height>
+       <width>20</width>
+       <height>40</height>
       </size>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>9</pointsize>
-      </font>
+    </spacer>
+   </item>
+   <item row="6" column="3">
+    <widget class="QPushButton" name="pushButton_refreshPlot">
+     <property name="minimumSize">
+      <size>
+       <width>360</width>
+       <height>0</height>
+      </size>
      </property>
      <property name="text">
-      <string>Browse</string>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="1">
-    <widget class="QLineEdit" name="lineEdit_browse">
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>28</height>
-      </size>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="0" rowspan="7" colspan="2">
-    <widget class="QWidget" name="widget_figure" native="true">
-     <property name="minimumSize">
-      <size>
-       <width>450</width>
-       <height>4</height>
-      </size>
+      <string>Refresh plot</string>
      </property>
     </widget>
    </item>

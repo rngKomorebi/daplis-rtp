@@ -47,7 +47,8 @@ class LiveTimestamps(QtWidgets.QWidget):
         # Figure widget
 
         self.widget_figure = PltCanvas()
-        self.widget_figure.setMinimumSize(500, 400)
+        # self.widget_figure.setMinimumSize(500, 400)
+        self.widget_figure.setFixedSize(500, 425)
         self.widget_figure.setObjectName("widget")
         self.gridLayout.addWidget(self.widget_figure, 1, 0, 4, 3)
 
