@@ -4,6 +4,7 @@ import glob
 import os
 from tools import timestamp_computation
 import numpy as np
+import sys
 
 
 class LiveTimestamps(QtWidgets.QWidget):
@@ -145,25 +146,39 @@ class LiveTimestamps(QtWidgets.QWidget):
         self._mask_pixels()
         os.chdir(self.pathtotimestamp)
         DATA_FILES = glob.glob("*.dat*")
+        try:
+            last_file = max(DATA_FILES, key=os.path.getctime)
+            new_file_ctime = os.path.getctime(last_file)
+        except ValueError:
+            msg_window = QtWidgets.QMessageBox()
+            msg_window.setText("No data files found, check the working directory.")
+            msg_window.setWindowTitle("Error")
+            msg_window.exec_()
 
-        last_file = max(DATA_FILES, key=os.path.getctime)
-        new_file_ctime = os.path.getctime(last_file)
 
-        if new_file_ctime > self.last_file_ctime:
+        try:
+            if new_file_ctime > self.last_file_ctime:
 
-            self.last_file_ctime = new_file_ctime
+                self.last_file_ctime = new_file_ctime
 
-            validtimestamps = timestamp_computation.get_nmr_validtimestamps(
-                self.pathtotimestamp + "/" + last_file,
-                timestamps=self.spinBox_timestamps.value(),
-            )
-            validtimestamps = validtimestamps * self.maskValidPixels
-            self.widget_figure.setPlotData(
-                np.arange(0, 256, 1),
-                validtimestamps,
-                [self.leftPosition, self.rightPosition],
-                self.grouping,
-            )
+                validtimestamps = timestamp_computation.get_nmr_validtimestamps(
+                    self.pathtotimestamp + "/" + last_file,
+                    board_number=self.comboBox_mask.currentText(),
+                    fw_ver=self.comboBox_FW.currentText(),
+                    timestamps=self.spinBox_timestamps.value(),
+                )
+                validtimestamps = validtimestamps * self.maskValidPixels
+                self.widget_figure.setPlotData(
+                    np.arange(0, 256, 1),
+                    validtimestamps,
+                    [self.leftPosition, self.rightPosition],
+                    self.grouping,
+                )
+        except ValueError:
+            msg_window = QtWidgets.QMessageBox()
+            msg_window.setText("Cannot unpack data, check the timestamp setting.")
+            msg_window.setWindowTitle("Error")
+            msg_window.exec_()
 
     def _mask_pixels(self):
         """

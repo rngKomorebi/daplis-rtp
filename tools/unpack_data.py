@@ -160,3 +160,99 @@ def unpack_calib(filename, board_number: str, timestamps: int = 512):
             data_matrix[i, ind] - data_matrix[i, ind] % 140
         ) * 17.857 + cal_mat[i, (data_matrix[i, ind] % 140)]
     return data_matrix
+
+
+def unpack_2212(filename, board_number, fw_ver, timestamps: int = 512):
+    """Unpack binary data from LinoSPAD2 2212 firmware version.
+
+    Function for unpacking data into a dictionary for the firmware versions 2212 "skip"
+    and "block". Uses the calibration data.
+
+    Parameters
+    ----------
+    filename : str
+        The name of the ".dat" data file.
+    board_number : str
+        The LinoSPAD2 dautherboard number.
+    fw_ver : str
+        2212 firmware version: either "skip" or "block".
+    timestamps : int, optional
+        Number of timestamps per acquisition cycle per pixel. The default is 512.
+
+    Returns
+    -------
+    dict
+        Matrix of timestamps with 256 rows. Output is a dictionary as the number
+        of columns is different for each row.
+
+    """
+    timestamp_list = {}
+
+    for i in range(0, 256):
+        timestamp_list["{}".format(i)] = []
+
+    # Variables that follow the cycle and the TDC numbers
+    cycler = 0
+    tdc = 0
+
+    # Function for assigning pixel addresses bases on the type of the 2212
+    # firmware version
+    def _pix_num(tdc_num, pix_coor):
+        if fw_ver == "2212b":
+            out = 4 * tdc_num + pix_coor
+        elif fw_ver == "2212s":
+            out = tdc_num + 64 * pix_coor
+
+        return out
+
+    with open(filename, "rb") as f:
+        while True:
+            rawpacket = f.read(4)
+            # All steps are in units of 32 bits
+            # Reaching the end of a cycle, assign a '-1' to each pixel
+            if not cycler % (32 * 65 * timestamps) and cycler != 0:
+                for i in range(256):
+                    timestamp_list["{}".format(i)].append(-1)
+            # Next TDC
+            if not cycler % (32 * timestamps) and cycler != 0:
+                tdc += 1
+            cycler += 32
+            # Cut the 64th (TDC=[0,...63]) that does not contain timestamps
+            if tdc != 0 and tdc == 64:
+                continue
+            # Reset the TDC number - end of cycle
+            if tdc != 0 and tdc == 65:
+                tdc = 0
+            if not rawpacket:
+                break
+            packet = unpack("<I", rawpacket)
+            if (packet[0] >> 31) == 1:
+                pix_coor = (packet[0] >> 28) & 0x3
+                address = _pix_num(tdc, pix_coor)
+                timestamp_list["{}".format(address)].append((packet[0] & 0xFFFFFFF))
+
+    for key in timestamp_list:
+        timestamp_list[key] = np.array(timestamp_list[key]).astype(np.longlong)
+
+    # path to the current script, two levels up (the script itself is in the path) and
+    # one level down to the calibration data
+    path_calib_data = os.path.realpath(__file__) + "/../.." + "/calibration_data"
+
+    try:
+        cal_mat = calibrate_load(path_calib_data, board_number)
+    except FileNotFoundError:
+        print(
+            "No .csv file with the calibration data was found, check the path "
+            "or run the calibration."
+        )
+        sys.exit()
+    for i in range(256):
+        ind = np.where(np.array(timestamp_list["{}".format(i)]) >= 0)[0]
+        if not np.any(ind):
+            continue
+        timestamp_list["{}".format(i)][ind] = (
+            timestamp_list["{}".format(i)][ind]
+            - timestamp_list["{}".format(i)][ind] % 140
+        ) * 17.857 + cal_mat[i, (timestamp_list["{}".format(i)][ind] % 140)]
+
+    return timestamp_list
