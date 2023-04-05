@@ -52,7 +52,7 @@ class PltCanvas(QWidget):
         self.figure.canvas.draw()
         self.figure.canvas.flush_events()
 
-    def setPlotScale(self, scaleLin=True):
+    def setPlotScale(self, scaleLin):
         if scaleLin:
             self.ax.set_yscale("linear")
             self.canvas.draw()
