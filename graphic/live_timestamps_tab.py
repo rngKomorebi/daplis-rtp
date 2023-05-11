@@ -89,11 +89,22 @@ class LiveTimestamps(QtWidgets.QWidget):
         self.grouping = False
         self.checkBox_grouping.stateChanged.connect(self._slot_checkBox_grouping)
 
+        # Set directory if path was pasted instead of chosen with the 'Browse' button
+        self.lineEdit_browse.textChanged.connect(self._change_path)
+
         # Timer preset
         self.timer = QtCore.QTimer()
         self.timerRunning = False
         self.last_file_ctime = 0
         self.timer.timeout.connect(self._update_time_stamp)
+
+    def _slot_loadpath(self):
+        file = str(QtWidgets.QFileDialog.getExistingDirectory(self, "Select Directory"))
+        self.lineEdit_browse.setText(file)
+        self.pathtotimestamp = file
+
+    def _change_path(self):
+        self.pathtotimestamp = self.lineEdit_browse.text()
 
     def _slot_loadpath(self):
         file = str(QtWidgets.QFileDialog.getExistingDirectory(self, "Select Directory"))
