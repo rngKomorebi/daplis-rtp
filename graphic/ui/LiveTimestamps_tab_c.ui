@@ -49,8 +49,8 @@
     </widget>
    </item>
    <item row="3" column="3">
-    <layout class="QFormLayout" name="formLayout_3">
-     <item row="1" column="0">
+    <layout class="QHBoxLayout" name="horizontalLayout_5">
+     <item>
       <widget class="QLabel" name="label_timestamps">
        <property name="toolTip">
         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Number of timestamps per pixel per acquisition cycle. The default is 512.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -65,11 +65,11 @@
         <enum>Qt::PlainText</enum>
        </property>
        <property name="alignment">
-        <set>Qt::AlignCenter</set>
+        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
        </property>
       </widget>
      </item>
-     <item row="1" column="1">
+     <item>
       <widget class="QSpinBox" name="spinBox_timestamps">
        <property name="font">
         <font>
@@ -202,7 +202,7 @@
         <x>0</x>
         <y>0</y>
         <width>369</width>
-        <height>248</height>
+        <height>280</height>
        </rect>
       </property>
      </widget>

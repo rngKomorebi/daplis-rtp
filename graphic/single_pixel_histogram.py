@@ -25,7 +25,7 @@ class HistCanvas(QWidget):
         self.axes = self.figure.add_subplot(111)
         self.toolbar = NavigationToolbar(self.canvas, self)
 
-        self.figure.subplots_adjust(left=0.15, right=0.97, top=0.98, bottom=0.17)
+        self.figure.subplots_adjust(left=0.15, right=0.97, top=0.96, bottom=0.17)
 
         # creating a Vertical Box layout
         self.layout = QVBoxLayout(self)
@@ -51,16 +51,21 @@ class HistCanvas(QWidget):
         for axis in ["top", "bottom", "left", "right"]:
             self.axes.spines[axis].set_linewidth(2)
 
-    def _plot_hist(self, pix, timestamps, board_number):
+    def _plot_hist(self, pix, timestamps, board_number, file, fw_ver):
 
-        file = glob.glob("*.dat*")[0]
-
-        data = unpk.unpack_calib(file, board_number, timestamps)
+        # file = glob.glob("*.dat*")[0]
+        if fw_ver == "2208":
+            data = unpk.unpack_calib(file, board_number, timestamps)
+        elif fw_ver == "2212b":
+            data = unpk.unpack_2212(file, board_number, timestamps=timestamps, fw_ver="2212b")
 
         bins = np.arange(0, 4e9, 17.867 * 1e6)  # bin size of 17.867 us
 
         self.axes.cla()
-        self.axes.hist(data[pix], bins=bins, color="teal")
+        if fw_ver == "2208":
+            self.axes.hist(data[pix], bins=bins, color="teal")
+        if fw_ver == "2212b":
+            self.axes.hist(data["{}".format(pix)], bins=bins, color="teal")
         self.axes.set_xlabel("Time [ps]")
         self.axes.set_ylabel("# of timestamps [-]")
         self.axes.set_title("Pixel {} histogram".format(pix))

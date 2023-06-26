@@ -1,6 +1,7 @@
 from PyQt5 import QtWidgets, QtCore, QtGui, uic
 from graphic.single_pixel_histogram import HistCanvas
 import os
+import glob
 
 
 class SinglePixelHistogram(QtWidgets.QWidget):
@@ -29,20 +30,26 @@ class SinglePixelHistogram(QtWidgets.QWidget):
         self.pushButton_refreshPlot.clicked.connect(self._refresh_plot)
 
         # Pixel number input
-        self.lineEdit_enterPixNumber.setMinimumSize(QtCore.QSize(0, 28))
+        # self.lineEdit_enterPixNumber.setMinimumSize(QtCore.QSize(0, 28))
         self.lineEdit_enterPixNumber.setValidator(QtGui.QIntValidator())
         self.lineEdit_enterPixNumber.setMaxLength(3)
         self.lineEdit_enterPixNumber.setAlignment(QtCore.Qt.AlignCenter)
-        self.lineEdit_enterPixNumber.setFont(QtGui.QFont("Arial", 20))
+        # self.lineEdit_enterPixNumber.setFont(QtGui.QFont("Arial", 20))
 
         # Pixel number input signal
         self.lineEdit_enterPixNumber.returnPressed.connect(lambda: self._pix_input())
+
+        # Set directory if path was pasted instead of chosen with the 'Browse' button
+        self.lineEdit_browse.textChanged.connect(self._change_path)
 
     def _get_dir(self):
         self.folder = str(
             QtWidgets.QFileDialog.getExistingDirectory(self, "Select Directory")
         )
         self.lineEdit_browse.setText(self.folder)
+
+    def _change_path(self):
+        self.folder = self.lineEdit_browse.text()
 
     def _pix_input(self):
 
@@ -60,4 +67,15 @@ class SinglePixelHistogram(QtWidgets.QWidget):
         timestamps = self.spinBox_timestamps.value()
         os.chdir(self.folder)
 
-        self.widget_figure._plot_hist(self.pix, timestamps, board_number)
+        files = glob.glob("*.dat*")
+
+        try:
+            last_file = max(files, key=os.path.getctime)
+            new_file_ctime = os.path.getctime(last_file)
+        except ValueError:
+            msg_window = QtWidgets.QMessageBox()
+            msg_window.setText("No data files found, check the working directory.")
+            msg_window.setWindowTitle("Error")
+            msg_window.exec_()
+
+        self.widget_figure._plot_hist(self.pix, timestamps, board_number, last_file, fw_ver=self.comboBox_FW.currentText())

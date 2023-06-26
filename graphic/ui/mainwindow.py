@@ -9,7 +9,7 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from graphic.live_timestamps_tab import LiveTimestamps
 from graphic.single_pix_hist_tab import SinglePixelHistogram
-from graphic.delta_t_tab import Delta_t
+# from graphic.delta_t_tab import Delta_t
 
 
 class Ui_MainWindow(object):
@@ -63,9 +63,9 @@ class Ui_MainWindow(object):
         self.tab_2.setObjectName("tab_2")
         self.tabWidget.addTab(self.tab_2, "")
         # self.tab_3 = QtWidgets.QWidget()
-        self.tab_3 = Delta_t(self)
-        self.tab_3.setObjectName("tab_3")
-        self.tabWidget.addTab(self.tab_3, "")
+        # self.tab_3 = Delta_t(self)
+        # self.tab_3.setObjectName("tab_3")
+        # self.tabWidget.addTab(self.tab_3, "")
         self.gridLayout_2.addWidget(self.tabWidget, 0, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
@@ -90,6 +90,6 @@ class Ui_MainWindow(object):
             self.tabWidget.indexOf(self.tab_2),
             _translate("MainWindow", "Single Pixel Histogram"),
         )
-        self.tabWidget.setTabText(
-            self.tabWidget.indexOf(self.tab_3), _translate("MainWindow", "Delta t")
-        )
+        # self.tabWidget.setTabText(
+        #     self.tabWidget.indexOf(self.tab_3), _translate("MainWindow", "Delta t")
+        # )

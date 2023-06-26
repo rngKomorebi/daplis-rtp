@@ -18,7 +18,7 @@ class Delta_tCanvas(QWidget):
         self.canvas = FigureCanvas(self.figure)
         self.toolbar = NavigationToolbar(self.canvas, self)
         self.axes = self.figure.add_subplot(111)
-        self.figure.subplots_adjust(left=0.15, right=0.97, top=0.98, bottom=0.17)
+        self.figure.subplots_adjust(left=0.15, right=0.97, top=0.96, bottom=0.17)
 
         # creating a Vertical Box layout
         self.layout = QVBoxLayout(self)

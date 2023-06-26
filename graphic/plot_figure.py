@@ -13,7 +13,7 @@ class PltCanvas(QWidget):
         self.canvas = FigureCanvas(self.figure)
         self.toolbar = NavigationToolbar(self.canvas, self)
         self.ax = self.figure.add_subplot(111)
-        self.figure.subplots_adjust(left=0.15, right=0.97, top=0.98, bottom=0.17)
+        self.figure.subplots_adjust(left=0.15, right=0.97, top=0.96, bottom=0.17)
 
         # creating a Vertical Box layout
         self.layout = QVBoxLayout(self)
@@ -27,7 +27,7 @@ class PltCanvas(QWidget):
     def setplotparameters(self):
         plt.rcParams.update({"font.size": 12})
         self.ax.set_xlabel("Pixel [-]")
-        self.ax.set_ylabel("Valid timestamps [-]")
+        self.ax.set_ylabel("# of timestamps [-]")
 
         self.ax.tick_params(which="both", width=2, direction="in")
         self.ax.tick_params(which="major", length=7, direction="in")
