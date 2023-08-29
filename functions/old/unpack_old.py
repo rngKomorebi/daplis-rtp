@@ -1,11 +1,4 @@
-"""Unpack data from LinoSPAD2
-
-Functions for unpacking either 'txt' of 'dat' data files of LinoSPAD2.
-Functions for either 10, 512 or a given number of timestamps per acquisition
-cycle per pixel are available.
-
-This file can also be imported as a module and contains the following
-functions:
+"""This module is a collection of old functions.
 
     * unpack_txt_512 - unpacks the 'txt' data files with 512 timestamps
     per acquisition cycle

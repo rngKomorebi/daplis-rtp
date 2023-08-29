@@ -487,6 +487,11 @@
        </item>
        <item>
         <property name="text">
+         <string>2212s</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
          <string>2212b</string>
         </property>
        </item>

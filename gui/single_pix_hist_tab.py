@@ -1,11 +1,29 @@
+"""This script generates the tab for single pixel histograms.
+
+The tab itself could be used for checking the LinoSPAD2 output for
+homogenity (the histogram should be more or less flattop).
+"""
+
 from PyQt5 import QtWidgets, QtCore, QtGui, uic
-from graphic.single_pixel_histogram import HistCanvas
+from gui.single_pixel_histogram import HistCanvas
 import os
 import glob
 
 
 class SinglePixelHistogram(QtWidgets.QWidget):
     def __init__(self, parent=None):
+        """Tab creation.
+
+        Tab is created with combo boxes for LinoSPAD2 daughterboard
+        number and firmware version, a spin box for the number of
+        timestamps per pixel/TDC per cycle, and a line edit for the
+        pixel number input. A 'browse' button with a line edit for
+        showing/inserting the file address are generated. A button for
+        refreshing the plot is generated. The figure widget size is set
+        constant across all tabs to achieve the same look for plots.
+        An ui file generated with Qt5 designer is used.
+
+        """
         super().__init__(parent)
 
         os.chdir(r"graphic/ui")
@@ -37,21 +55,38 @@ class SinglePixelHistogram(QtWidgets.QWidget):
         # self.lineEdit_enterPixNumber.setFont(QtGui.QFont("Arial", 20))
 
         # Pixel number input signal
-        self.lineEdit_enterPixNumber.returnPressed.connect(lambda: self._pix_input())
+        self.lineEdit_enterPixNumber.returnPressed.connect(
+            lambda: self._pix_input()
+        )
 
-        # Set directory if path was pasted instead of chosen with the 'Browse' button
+        # Set directory if path was pasted instead of chosen with the
+        # 'Browse' button
         self.lineEdit_browse.textChanged.connect(self._change_path)
 
     def _get_dir(self):
+        """Called when "browse" button is pressed.
+
+        Used for file searching and selecting. The file should be the
+        '.dat' data file.
+        """
         self.folder = str(
-            QtWidgets.QFileDialog.getExistingDirectory(self, "Select Directory")
+            QtWidgets.QFileDialog.getExistingDirectory(
+                self, "Select Directory"
+            )
         )
         self.lineEdit_browse.setText(self.folder)
 
     def _change_path(self):
+        """Called when text is inserted to the browse line edit.
+
+        Used for updating the path variable when text is inserted to the
+        line edit.
+
+        """
         self.folder = self.lineEdit_browse.text()
 
     def _pix_input(self):
+        """Input for the pixel number."""
 
         self.pix = int(self.pixInput.text())
         os.chdir(self.folder)
@@ -61,6 +96,7 @@ class SinglePixelHistogram(QtWidgets.QWidget):
         )
 
     def _refresh_plot(self):
+        """Button for refreshing the plot."""
 
         self.pix = int(self.lineEdit_enterPixNumber.text())
         board_number = self.comboBox_boardNumber.currentText()
@@ -71,11 +107,19 @@ class SinglePixelHistogram(QtWidgets.QWidget):
 
         try:
             last_file = max(files, key=os.path.getctime)
-            new_file_ctime = os.path.getctime(last_file)
+            # new_file_ctime = os.path.getctime(last_file)
         except ValueError:
             msg_window = QtWidgets.QMessageBox()
-            msg_window.setText("No data files found, check the working directory.")
+            msg_window.setText(
+                "No data files found, check the working directory."
+            )
             msg_window.setWindowTitle("Error")
             msg_window.exec_()
 
-        self.widget_figure._plot_hist(self.pix, timestamps, board_number, last_file, fw_ver=self.comboBox_FW.currentText())
+        self.widget_figure._plot_hist(
+            self.pix,
+            timestamps,
+            board_number,
+            last_file,
+            fw_ver=self.comboBox_FW.currentText(),
+        )

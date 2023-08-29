@@ -1,14 +1,43 @@
+"""This script generates the tab for online sensor population plotting.
+
+The tab can be used to introduce changes into the setup while following
+the changes in real-time (dependning on the actual data file size, the
+plottign can take minutes).
+
+"""
+
 from PyQt5 import QtCore, QtWidgets, uic
-from graphic.plot_figure import PltCanvas
+from gui.plot_figure import PltCanvas
 import glob
 import os
-from tools import timestamp_computation
-import numpy as np
 import sys
+import numpy as np
+
+sys.path.append("..")
+from functions.sen_pop import sen_pop
 
 
 class LiveTimestamps(QtWidgets.QWidget):
     def __init__(self, parent=None):
+        """Creation of the tab.
+
+        The tab is generated with a 'Browse' button along with a line
+        edit field for looking for/inserting the address of the data
+        file to plot. Combo boxes for LinoSPAD2 daughterboard number and
+        the firmware version are generated. A check box for applying and
+        a button for resetting the mask are generated. A spin box for
+        number of timestamps per pixel/TDC per cycle is provided. A
+        widget with a grid of 4x64 of check boxes with pixel numbers
+        for masking single pixels is generated. A check box for swtiching
+        between a linear and a logarithmic scale of the plot along with
+        a check box for plotting vertical lines at positiong 64, 128, and
+        192 are provided (the latter can be used for firmware versions
+        2208 and 2212s for setup alignment). Buttons 'Refresh plot' for
+        refreshing the current plot and 'Start stream' for plotting the
+        last file found are created. Two sliders for left and right
+        limit for the x axis are created.
+
+        """
         super().__init__(parent)
         os.chdir(r"graphic/ui")
         uic.loadUi(
@@ -22,7 +51,7 @@ class LiveTimestamps(QtWidgets.QWidget):
         self.pathtotimestamp = ""
 
         # Browse button
-        self.pushButton_browse.clicked.connect(self._slot_loadpath)
+        self.pushButton_browse.clicked.connect(self._get_dir)
 
         # Scroll area with check boxes
         self.scrollAreaWidgetContents = QtWidgets.QWidget()
@@ -54,7 +83,9 @@ class LiveTimestamps(QtWidgets.QWidget):
         self.gridLayout.addWidget(self.widget_figure, 1, 0, 4, 3)
 
         # Sliders
-        self.horizontalSlider_leftXLim.valueChanged.connect(self._slot_updateLeftSlider)
+        self.horizontalSlider_leftXLim.valueChanged.connect(
+            self._slot_updateLeftSlider
+        )
         self.horizontalSlider_rightXLim.valueChanged.connect(
             self._slot_updateRightSlider
         )
@@ -71,7 +102,9 @@ class LiveTimestamps(QtWidgets.QWidget):
 
         self.checkBox_presetMask.stateChanged.connect(self._preset_mask_pixels)
 
-        self.checkBox_linearScale.stateChanged.connect(self._slot_checkplotscale)
+        self.checkBox_linearScale.stateChanged.connect(
+            self._slot_checkplotscale
+        )
 
         self.pushButton_resetMask.clicked.connect(self._reset_pix_mask)
 
@@ -85,11 +118,15 @@ class LiveTimestamps(QtWidgets.QWidget):
 
         self.pushButton_startStream.clicked.connect(self._slot_startstream)
 
-        # Check box for plotting 3 vertical lines at position x=64, 128, 192 (FW 2208)
+        # Check box for plotting 3 vertical lines at position x=64,
+        # 128, 192 (FW 2208)
         self.grouping = False
-        self.checkBox_grouping.stateChanged.connect(self._slot_checkBox_grouping)
+        self.checkBox_grouping.stateChanged.connect(
+            self._slot_checkBox_grouping
+        )
 
-        # Set directory if path was pasted instead of chosen with the 'Browse' button
+        # Set directory if path was pasted instead of chosen with the
+        # 'Browse' button
         self.lineEdit_browse.textChanged.connect(self._change_path)
 
         # Timer preset
@@ -98,20 +135,35 @@ class LiveTimestamps(QtWidgets.QWidget):
         self.last_file_ctime = 0
         self.timer.timeout.connect(self._update_time_stamp)
 
-    def _slot_loadpath(self):
-        file = str(QtWidgets.QFileDialog.getExistingDirectory(self, "Select Directory"))
+    def _get_dir(self):
+        """Called when the 'browse' button is pressed.
+
+        Sets the path variable to the address chosen.
+
+        """
+        file = str(
+            QtWidgets.QFileDialog.getExistingDirectory(
+                self, "Select Directory"
+            )
+        )
         self.lineEdit_browse.setText(file)
         self.pathtotimestamp = file
 
     def _change_path(self):
+        """Called when address is inserted to the line edit.
+
+        Sets the path variable to the address inserted.
+
+        """
         self.pathtotimestamp = self.lineEdit_browse.text()
 
-    def _slot_loadpath(self):
-        file = str(QtWidgets.QFileDialog.getExistingDirectory(self, "Select Directory"))
-        self.lineEdit_browse.setText(file)
-        self.pathtotimestamp = file
-
     def _slot_startstream(self):
+        """Called when the 'Start stream' button is pressed.
+
+        Starts an infinite cycle of refreshing the plot when new files
+        are found in the folder.
+
+        """
         self.last_file_ctime = 0
 
         if self.timerRunning is True:
@@ -124,16 +176,28 @@ class LiveTimestamps(QtWidgets.QWidget):
             self.timerRunning = True
 
     def _slot_checkplotscale(self):
+        """Called when state of the check box for scale is changed.
+
+        Switches between logarithmic and linear scale of the plot.
+
+        """
         if self.checkBox_linearScale.isChecked():
             self.widget_figure.setPlotScale(True)
         else:
             self.widget_figure.setPlotScale(False)
 
     def _slot_refresh(self):
+        """Called when the 'Refresh button' is pressed."""
         self._update_time_stamp()
         self.last_file_ctime = 0
 
     def _slot_updateLeftSlider(self):
+        """Called when left slider state has changed.
+
+        Updates the left x axis limit based on the position of the
+        slider.
+
+        """
         if (
             self.horizontalSlider_leftXLim.value()
             >= self.horizontalSlider_rightXLim.value()
@@ -144,6 +208,12 @@ class LiveTimestamps(QtWidgets.QWidget):
         self.leftPosition = self.horizontalSlider_leftXLim.value()
 
     def _slot_updateRightSlider(self):
+        """Called when right slider state has changed.
+
+        Updates the right x axis limit based on the position of the
+        slider.
+
+        """
         if (
             self.horizontalSlider_rightXLim.value()
             <= self.horizontalSlider_leftXLim.value()
@@ -154,6 +224,12 @@ class LiveTimestamps(QtWidgets.QWidget):
         self.rightPosition = self.horizontalSlider_rightXLim.value()
 
     def _update_time_stamp(self):
+        """Called during the cycle of real-time plotting.
+
+        Load data from the last data file found in the directory
+        provided.
+
+        """
         self._mask_pixels()
         os.chdir(self.pathtotimestamp)
         DATA_FILES = glob.glob("*.dat*")
@@ -162,17 +238,17 @@ class LiveTimestamps(QtWidgets.QWidget):
             new_file_ctime = os.path.getctime(last_file)
         except ValueError:
             msg_window = QtWidgets.QMessageBox()
-            msg_window.setText("No data files found, check the working directory.")
+            msg_window.setText(
+                "No data files found, check the working directory."
+            )
             msg_window.setWindowTitle("Error")
             msg_window.exec_()
 
-
         try:
             if new_file_ctime > self.last_file_ctime:
-
                 self.last_file_ctime = new_file_ctime
 
-                validtimestamps = timestamp_computation.get_nmr_validtimestamps(
+                validtimestamps = sen_pop(
                     self.pathtotimestamp + "/" + last_file,
                     board_number=self.comboBox_mask.currentText(),
                     fw_ver=self.comboBox_FW.currentText(),
@@ -187,7 +263,9 @@ class LiveTimestamps(QtWidgets.QWidget):
                 )
         except ValueError:
             msg_window = QtWidgets.QMessageBox()
-            msg_window.setText("Cannot unpack data, check the timestamp setting.")
+            msg_window.setText(
+                "Cannot unpack data, check the timestamp setting."
+            )
             msg_window.setWindowTitle("Error")
             msg_window.exec_()
 
@@ -207,7 +285,13 @@ class LiveTimestamps(QtWidgets.QWidget):
                 self.maskValidPixels[i] = 1
 
     def _preset_mask_pixels(self):
+        """Called when the check box 'Preset mask' is checked.
 
+        Uses the masking data provided in the 'params' folder for
+        masking of the warm/hot pixels. Uses the LinoSPAD2 daughterboard
+        number to load appropriate data.
+
+        """
         if os.getcwd() != self.path_to_main + "/masks":
             os.chdir(self.path_to_main + "/masks")
         file = glob.glob("*{}*".format(self.comboBox_mask.currentText()))[0]
@@ -240,7 +324,7 @@ class LiveTimestamps(QtWidgets.QWidget):
         self.checkBox_presetMask.setChecked(False)
 
     def _slot_checkBox_grouping(self):
-
+        """Called when check box for plotting lines state changed."""
         if self.checkBox_grouping.isChecked():
             self.grouping = True
         else:

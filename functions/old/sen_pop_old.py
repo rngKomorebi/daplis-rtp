@@ -1,10 +1,18 @@
+"""This module contains old functions.
+
+* get_nmr_validtimestamps
+
+"""
+
 import numpy as np
-import tools.unpack_data as unpk
+import sys
+
+sys.path.append("..")
+from tools.unpack import unpack_bin
+import sys
 
 
 def get_nmr_validtimestamps(path, board_number, fw_ver, timestamps: int = 512):
-
-
     if fw_ver == "2208":
         data = unpk.unpack_calib(path, board_number, timestamps)
 
