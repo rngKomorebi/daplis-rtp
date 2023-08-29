@@ -51,7 +51,5 @@ def sen_pop(file, board_number, fw_ver, timestamps: int = 512):
             ind = np.where(data[tdc].T[0] == pix)[0]
             ind1 = np.where(data[tdc].T[1][ind] > 0)[0]
             valid_per_pixel[i] += len(data[tdc].T[1][ind[ind1]])
-    else:
-        sys.exit()
 
     return valid_per_pixel
