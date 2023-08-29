@@ -68,8 +68,15 @@ instance/
 # Scrapy stuff:
 .scrapy
 
+# VS Code stuff
+.vscode
+
 # Sphinx documentation
 docs/_build/
+
+# Tox
+
+tox.ini
 
 # PyBuilder
 target/

@@ -1,10 +1,10 @@
-# Installation and usage
+## Installation and usage
 
 To start using the package, one can download the whole repo. The 'main.py'
 serves as the main hub for starting the app. "requirements.txt"
-collects all packages required for this project to run. One can create
+lists all packages required for this project to run. One can create
 an environment for this project either using conda or install the
-necessary packages using pip (for creating virtual envonments using pip
+necessary packages using pip (for creating virtual environments using pip
 see [this](https://packaging.python.org/en/latest/guides/installing-using-pip-and-virtual-environments/)).
 
 Using pip:
@@ -22,11 +22,13 @@ conda create --name NEW_ENVIRONMENT_NAME
 conda activate NEW_ENVIRONMENT NAME
 cd PATH/TO/THIS/PACKAGE
 conda install --file requirements.txt -c conda-forge
-conda install pyinstaller -c conda-forge
+pip install -e .
 ```
 Finally, to run the app, run the 'main.py' script.
 
-On windows, to create an executable, one can run the following: first,
+### Executable
+
+On Windows, to create an executable, one can run the following: first,
 a separate virtual environment is highly recommended for faster and
 smoother experience with the app, as pyinstaller packs everything it
 finds in the virtual environment; using pip:
@@ -36,7 +38,7 @@ pip install virtualenv
 py -m venv PATH/TO/NEW_ENVIRONMENT_NAME
 PATH/TO/NEW_ENVIRONMENT_NAME/Scripts/activate
 ```
-where the last command activate the environment. Here, all the necessary
+where the last command activates the environment. Here, all the necessary
 packages along with the app package itself should be installed. To do
 this, run from the environment (given the package was downloaded):
 ```
@@ -61,15 +63,15 @@ lines in the '__init__' functions to the following:
 ```
 def __init__(self, parent=None):
     super().__init__(parent)
-    os.chdir(r"FULL\PATH\TO\LinoSPAD2-app\graphic\ui")
+    os.chdir(r"FULL\PATH\TO\LinoSPAD2-app\gui\ui")
     uic.loadUi(
         r"LiveTimestamps_tab_c.ui",
         self,
     )
     os.chdir("../..")
 ```
-Full path to the '.ui' files should be provided as pyinstaller does not
-handle relative paths, as it's implented in the package. To run the app,
+A full path to the '.ui' files should be provided as pyinstaller does not
+handle relative paths, as it's implemented in the package. To run the app,
 run 'main.exe' in the 'dist' folder.
 
 If using conda, use the following chain of commands:

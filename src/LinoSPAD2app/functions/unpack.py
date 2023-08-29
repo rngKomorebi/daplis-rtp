@@ -16,9 +16,7 @@ import numpy as np
 from LinoSPAD2app.functions.calibrate import calibrate_load
 
 
-def unpack_bin(
-    filename, board_number: str, fw_ver: str, timestamps: int = 512
-):
+def unpack_bin(file, board_number: str, fw_ver: str, timestamps: int = 512):
     """Unpack binary data from LinoSPAD2.
 
     Unpacks binary-encoded .dat files with data from LinoSPAD2 into a
@@ -29,7 +27,7 @@ def unpack_bin(
 
     Parameters
     ----------
-    filename : str
+    file : str
         Name of the '.dat' data file to unpack.
     board_number : str
         LinoSPAD2 daugtherboard number.
@@ -51,7 +49,7 @@ def unpack_bin(
         Raised if no calibration data were found.
     """
     # read data by 32 bit words
-    rawFile = np.fromfile(filename, dtype=np.uint32)
+    rawFile = np.fromfile(file, dtype=np.uint32)
     # lowest 28 bits are the timestamp; convert to longlong, int is not enough
     data_t = (rawFile & 0xFFFFFFF).astype(np.longlong)
     # mask nonvalid data with '-1'
