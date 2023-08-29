@@ -8,10 +8,7 @@ Works with firmware versions 2208 and 2212.
 """
 
 import numpy as np
-import sys
-
-sys.path.append("..")
-from functions.unpack import unpack_bin
+from LinoSPAD2app.functions.unpack import unpack_bin
 
 
 def sen_pop(file, board_number, fw_ver, timestamps: int = 512):

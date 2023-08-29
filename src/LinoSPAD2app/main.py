@@ -5,13 +5,8 @@ Run this file in the terminal to start the application.
 """
 
 from PyQt5.QtWidgets import QMainWindow, QApplication
-import os
-
-os.chdir(r"c:\Users\bruce\Documents\GitHub\LinoSPAD2-app")
-from gui.ui.mainwindow import Ui_MainWindow
+from LinoSPAD2app.gui.ui.mainwindow import Ui_MainWindow
 import sys
-
-print(os.getcwd())
 
 
 class MainWindow(QMainWindow, Ui_MainWindow):
@@ -25,7 +20,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         QApplication.quit()
 
 
-app = QApplication(sys.argv)
-window = MainWindow()
-window.show()
-app.exec()
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+    window = MainWindow()
+    window.show()
+    app.exec()

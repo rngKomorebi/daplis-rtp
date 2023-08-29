@@ -6,9 +6,10 @@
 #
 # WARNING! All changes made in this file will be lost!
 
-from PyQt5 import QtCore, QtGui, QtWidgets
-from graphic.live_timestamps_tab import LiveTimestamps
-from graphic.single_pix_hist_tab import SinglePixelHistogram
+from PyQt5 import QtCore, QtWidgets
+from LinoSPAD2app.gui.live_timestamps_tab import LiveTimestamps
+from LinoSPAD2app.gui.single_pix_hist_tab import SinglePixelHistogram
+
 # from graphic.delta_t_tab import Delta_t
 
 
@@ -21,7 +22,9 @@ class Ui_MainWindow(object):
         )
         sizePolicy.setHorizontalStretch(1)
         sizePolicy.setVerticalStretch(1)
-        sizePolicy.setHeightForWidth(MainWindow.sizePolicy().hasHeightForWidth())
+        sizePolicy.setHeightForWidth(
+            MainWindow.sizePolicy().hasHeightForWidth()
+        )
         MainWindow.setSizePolicy(sizePolicy)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         sizePolicy = QtWidgets.QSizePolicy(
@@ -42,7 +45,9 @@ class Ui_MainWindow(object):
         )
         sizePolicy.setHorizontalStretch(1)
         sizePolicy.setVerticalStretch(1)
-        sizePolicy.setHeightForWidth(self.tabWidget.sizePolicy().hasHeightForWidth())
+        sizePolicy.setHeightForWidth(
+            self.tabWidget.sizePolicy().hasHeightForWidth()
+        )
         self.tabWidget.setSizePolicy(sizePolicy)
         self.tabWidget.setObjectName("tabWidget")
         # self.tab = QtWidgets.QWidget()
@@ -82,9 +87,12 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "LinoSPAD2 Data Analysis"))
+        MainWindow.setWindowTitle(
+            _translate("MainWindow", "LinoSPAD2 Data Analysis")
+        )
         self.tabWidget.setTabText(
-            self.tabWidget.indexOf(self.tab), _translate("MainWindow", "Online plot")
+            self.tabWidget.indexOf(self.tab),
+            _translate("MainWindow", "Online plot"),
         )
         self.tabWidget.setTabText(
             self.tabWidget.indexOf(self.tab_2),

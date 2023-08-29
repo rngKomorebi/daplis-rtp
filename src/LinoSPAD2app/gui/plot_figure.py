@@ -73,7 +73,11 @@ class PltCanvas(QWidget):
             self.ax.spines[axis].set_linewidth(2)
 
     def setPlotData(self, xdataplot, yplotdata, xLim, grouping: bool = False):
-        """_summary_
+        """Plot data.
+
+        Plot the provided data while following the state of x axis
+        limits and the switch for plotting vertical lines at positions
+        64, 128, and 192.
 
         Parameters
         ----------

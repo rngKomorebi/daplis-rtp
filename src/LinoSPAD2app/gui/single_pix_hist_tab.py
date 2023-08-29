@@ -5,7 +5,7 @@ homogenity (the histogram should be more or less flattop).
 """
 
 from PyQt5 import QtWidgets, QtCore, QtGui, uic
-from gui.single_pixel_histogram import HistCanvas
+from LinoSPAD2app.gui.single_pixel_histogram import HistCanvas
 import os
 import glob
 
@@ -26,7 +26,7 @@ class SinglePixelHistogram(QtWidgets.QWidget):
         """
         super().__init__(parent)
 
-        os.chdir(r"graphic/ui")
+        os.chdir(r"gui/ui")
         uic.loadUi(
             r"SinglePixelHistogram_tab_c.ui",
             self,
@@ -35,7 +35,7 @@ class SinglePixelHistogram(QtWidgets.QWidget):
         self.show()
 
         # Browse button signal
-        self.pushButton_browse.clicked.connect(self._get_dir)
+        self.pushButton_browse.clicked.connect(self.get_dir)
 
         # Histogram widget
         self.widget_figure = HistCanvas()
@@ -45,7 +45,7 @@ class SinglePixelHistogram(QtWidgets.QWidget):
         self.gridLayout.addWidget(self.widget_figure, 1, 0, 4, 3)
 
         # Refresh plot button signal
-        self.pushButton_refreshPlot.clicked.connect(self._refresh_plot)
+        self.pushButton_refreshPlot.clicked.connect(self.refresh_plot)
 
         # Pixel number input
         # self.lineEdit_enterPixNumber.setMinimumSize(QtCore.QSize(0, 28))
@@ -56,14 +56,14 @@ class SinglePixelHistogram(QtWidgets.QWidget):
 
         # Pixel number input signal
         self.lineEdit_enterPixNumber.returnPressed.connect(
-            lambda: self._pix_input()
+            lambda: self.pix_input()
         )
 
         # Set directory if path was pasted instead of chosen with the
         # 'Browse' button
-        self.lineEdit_browse.textChanged.connect(self._change_path)
+        self.lineEdit_browse.textChanged.connect(self.change_path)
 
-    def _get_dir(self):
+    def get_dir(self):
         """Called when "browse" button is pressed.
 
         Used for file searching and selecting. The file should be the
@@ -76,7 +76,7 @@ class SinglePixelHistogram(QtWidgets.QWidget):
         )
         self.lineEdit_browse.setText(self.folder)
 
-    def _change_path(self):
+    def change_path(self):
         """Called when text is inserted to the browse line edit.
 
         Used for updating the path variable when text is inserted to the
@@ -85,17 +85,17 @@ class SinglePixelHistogram(QtWidgets.QWidget):
         """
         self.folder = self.lineEdit_browse.text()
 
-    def _pix_input(self):
+    def pix_input(self):
         """Input for the pixel number."""
 
         self.pix = int(self.pixInput.text())
         os.chdir(self.folder)
 
-        self.figureWidget._plot_hist(
+        self.figureWidget.plot_hist(
             self.pix, timestamps=self.spinBox_timestamps.value()
         )
 
-    def _refresh_plot(self):
+    def refresh_plot(self):
         """Button for refreshing the plot."""
 
         self.pix = int(self.lineEdit_enterPixNumber.text())
@@ -116,10 +116,10 @@ class SinglePixelHistogram(QtWidgets.QWidget):
             msg_window.setWindowTitle("Error")
             msg_window.exec_()
 
-        self.widget_figure._plot_hist(
+        self.widget_figure.plot_hist(
+            last_file,
             self.pix,
             timestamps,
             board_number,
-            last_file,
             fw_ver=self.comboBox_FW.currentText(),
         )

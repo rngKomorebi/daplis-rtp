@@ -14,7 +14,7 @@ py -m venv NEW_ENVIRONMENT_NAME
 PATH/TO/NEW_ENVIRONMENT_NAME/Scripts/activate
 cd PATH/TO/THIS/PACKAGE
 pip install -r requirements.txt
-pip install .
+pip install -e .
 ```
 Using conda:
 ```
@@ -42,7 +42,7 @@ this, run from the environment (given the package was downloaded):
 ```
 cd PATH/TO/THIS/PACKAGE
 pip install -r requirements.txt
-pip install .
+pip install -e .
 ```
 where the latter command installs the package itself in the environment.
 To create the executable, pyinstaller should be installed, too:

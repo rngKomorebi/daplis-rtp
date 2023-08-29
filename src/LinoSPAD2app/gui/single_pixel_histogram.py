@@ -14,7 +14,7 @@ from matplotlib.backends.backend_qt5agg import (
     NavigationToolbar2QT as NavigationToolbar,
 )
 import numpy as np
-from functions.unpack import unpack_bin
+from LinoSPAD2app.functions.unpack import unpack_bin
 import matplotlib.pyplot as plt
 import sys
 
@@ -75,7 +75,7 @@ class HistCanvas(QWidget):
         for axis in ["top", "bottom", "left", "right"]:
             self.axes.spines[axis].set_linewidth(2)
 
-    def _plot_hist(self, file, pixel, timestamps, board_number, fw_ver):
+    def plot_hist(self, file, pixel, timestamps, board_number, fw_ver):
         """Plot histogram.
 
         Parameters

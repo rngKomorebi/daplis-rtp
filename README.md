@@ -35,7 +35,7 @@ py -m venv NEW_ENVIRONMENT_NAME
 PATH/TO/NEW_ENVIRONMENT_NAME/Scripts/activate
 cd PATH/TO/THIS/PACKAGE
 pip install -r requirements.txt
-pip install .
+pip install -e .
 ```
 Using conda:
 ```
@@ -63,7 +63,7 @@ this, run from the environment (given the package was downloaded):
 ```
 cd PATH/TO/THIS/PACKAGE
 pip install -r requirements.txt
-pip install .
+pip install -e .
 ```
 where the latter command installs the package itself in the environment.
 To create the executable, pyinstaller should be installed, too:
@@ -82,7 +82,7 @@ lines in the '__init__' functions to the following:
 ```
 def __init__(self, parent=None):
     super().__init__(parent)
-    os.chdir(r"FULL\PATH\TO\LinoSPAD2-app\graphic\ui")
+    os.chdir(r"FULL\PATH\TO\LinoSPAD2-app\gui\ui")
     uic.loadUi(
         r"LiveTimestamps_tab_c.ui",
         self,

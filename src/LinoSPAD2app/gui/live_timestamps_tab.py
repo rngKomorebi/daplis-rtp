@@ -7,14 +7,11 @@ plottign can take minutes).
 """
 
 from PyQt5 import QtCore, QtWidgets, uic
-from gui.plot_figure import PltCanvas
+from LinoSPAD2app.gui.plot_figure import PltCanvas
 import glob
 import os
-import sys
 import numpy as np
-
-sys.path.append("..")
-from functions.sen_pop import sen_pop
+from LinoSPAD2app.functions.sen_pop import sen_pop
 
 
 class LiveTimestamps(QtWidgets.QWidget):
@@ -39,7 +36,7 @@ class LiveTimestamps(QtWidgets.QWidget):
 
         """
         super().__init__(parent)
-        os.chdir(r"graphic/ui")
+        os.chdir(r"gui/ui")
         uic.loadUi(
             r"LiveTimestamps_tab_c.ui",
             self,
@@ -51,7 +48,7 @@ class LiveTimestamps(QtWidgets.QWidget):
         self.pathtotimestamp = ""
 
         # Browse button
-        self.pushButton_browse.clicked.connect(self._get_dir)
+        self.pushButton_browse.clicked.connect(self.get_dir)
 
         # Scroll area with check boxes
         self.scrollAreaWidgetContents = QtWidgets.QWidget()
@@ -84,10 +81,10 @@ class LiveTimestamps(QtWidgets.QWidget):
 
         # Sliders
         self.horizontalSlider_leftXLim.valueChanged.connect(
-            self._slot_updateLeftSlider
+            self.slot_updateLeftSlider
         )
         self.horizontalSlider_rightXLim.valueChanged.connect(
-            self._slot_updateRightSlider
+            self.slot_updateRightSlider
         )
 
         self.horizontalSlider_leftXLim.setMinimum(0)
@@ -100,42 +97,42 @@ class LiveTimestamps(QtWidgets.QWidget):
 
         # Pixel masking
 
-        self.checkBox_presetMask.stateChanged.connect(self._preset_mask_pixels)
+        self.checkBox_presetMask.stateChanged.connect(self.presetmask_pixels)
 
         self.checkBox_linearScale.stateChanged.connect(
-            self._slot_checkplotscale
+            self.slot_checkplotscale
         )
 
-        self.pushButton_resetMask.clicked.connect(self._reset_pix_mask)
+        self.pushButton_resetMask.clicked.connect(self.reset_pix_mask)
 
         self.path_to_main = os.getcwd()
 
-        self.comboBox_mask.activated.connect(self._reset_pix_mask)
+        self.comboBox_mask.activated.connect(self.reset_pix_mask)
 
         # Refresh plot and start stream buttons
 
-        self.pushButton_refreshPlot.clicked.connect(self._slot_refresh)
+        self.pushButton_refreshPlot.clicked.connect(self.slot_refresh)
 
-        self.pushButton_startStream.clicked.connect(self._slot_startstream)
+        self.pushButton_startStream.clicked.connect(self.slot_startstream)
 
         # Check box for plotting 3 vertical lines at position x=64,
         # 128, 192 (FW 2208)
         self.grouping = False
         self.checkBox_grouping.stateChanged.connect(
-            self._slot_checkBox_grouping
+            self.slot_checkBox_grouping
         )
 
         # Set directory if path was pasted instead of chosen with the
         # 'Browse' button
-        self.lineEdit_browse.textChanged.connect(self._change_path)
+        self.lineEdit_browse.textChanged.connect(self.change_path)
 
         # Timer preset
         self.timer = QtCore.QTimer()
         self.timerRunning = False
         self.last_file_ctime = 0
-        self.timer.timeout.connect(self._update_time_stamp)
+        self.timer.timeout.connect(self.update_time_stamp)
 
-    def _get_dir(self):
+    def get_dir(self):
         """Called when the 'browse' button is pressed.
 
         Sets the path variable to the address chosen.
@@ -149,7 +146,7 @@ class LiveTimestamps(QtWidgets.QWidget):
         self.lineEdit_browse.setText(file)
         self.pathtotimestamp = file
 
-    def _change_path(self):
+    def change_path(self):
         """Called when address is inserted to the line edit.
 
         Sets the path variable to the address inserted.
@@ -157,7 +154,7 @@ class LiveTimestamps(QtWidgets.QWidget):
         """
         self.pathtotimestamp = self.lineEdit_browse.text()
 
-    def _slot_startstream(self):
+    def slot_startstream(self):
         """Called when the 'Start stream' button is pressed.
 
         Starts an infinite cycle of refreshing the plot when new files
@@ -175,7 +172,7 @@ class LiveTimestamps(QtWidgets.QWidget):
             self.timer.start(100)
             self.timerRunning = True
 
-    def _slot_checkplotscale(self):
+    def slot_checkplotscale(self):
         """Called when state of the check box for scale is changed.
 
         Switches between logarithmic and linear scale of the plot.
@@ -186,12 +183,12 @@ class LiveTimestamps(QtWidgets.QWidget):
         else:
             self.widget_figure.setPlotScale(False)
 
-    def _slot_refresh(self):
+    def slot_refresh(self):
         """Called when the 'Refresh button' is pressed."""
-        self._update_time_stamp()
+        self.update_time_stamp()
         self.last_file_ctime = 0
 
-    def _slot_updateLeftSlider(self):
+    def slot_updateLeftSlider(self):
         """Called when left slider state has changed.
 
         Updates the left x axis limit based on the position of the
@@ -207,7 +204,7 @@ class LiveTimestamps(QtWidgets.QWidget):
             )
         self.leftPosition = self.horizontalSlider_leftXLim.value()
 
-    def _slot_updateRightSlider(self):
+    def slot_updateRightSlider(self):
         """Called when right slider state has changed.
 
         Updates the right x axis limit based on the position of the
@@ -223,14 +220,14 @@ class LiveTimestamps(QtWidgets.QWidget):
             )
         self.rightPosition = self.horizontalSlider_rightXLim.value()
 
-    def _update_time_stamp(self):
+    def update_time_stamp(self):
         """Called during the cycle of real-time plotting.
 
         Load data from the last data file found in the directory
         provided.
 
         """
-        self._mask_pixels()
+        self.mask_pixels()
         os.chdir(self.pathtotimestamp)
         DATA_FILES = glob.glob("*.dat*")
         try:
@@ -269,7 +266,7 @@ class LiveTimestamps(QtWidgets.QWidget):
             msg_window.setWindowTitle("Error")
             msg_window.exec_()
 
-    def _mask_pixels(self):
+    def mask_pixels(self):
         """
         Function for masking the chosen pixels.
 
@@ -284,7 +281,7 @@ class LiveTimestamps(QtWidgets.QWidget):
             else:
                 self.maskValidPixels[i] = 1
 
-    def _preset_mask_pixels(self):
+    def presetmask_pixels(self):
         """Called when the check box 'Preset mask' is checked.
 
         Uses the masking data provided in the 'params' folder for
@@ -292,8 +289,8 @@ class LiveTimestamps(QtWidgets.QWidget):
         number to load appropriate data.
 
         """
-        if os.getcwd() != self.path_to_main + "/masks":
-            os.chdir(self.path_to_main + "/masks")
+        if os.getcwd() != self.path_to_main + "/params/masks":
+            os.chdir(self.path_to_main + "/params/masks")
         file = glob.glob("*{}*".format(self.comboBox_mask.currentText()))[0]
         mask = np.genfromtxt(file, delimiter=",", dtype="int")
 
@@ -308,7 +305,7 @@ class LiveTimestamps(QtWidgets.QWidget):
                 cb = self.scrollAreaWidgetContentslayout.itemAt(i).widget()
                 cb.setChecked(False)
 
-    def _reset_pix_mask(self):
+    def reset_pix_mask(self):
         """
         Function for resetting the pixel masking by unchecking all pixel
         mask check boxes.
@@ -323,7 +320,7 @@ class LiveTimestamps(QtWidgets.QWidget):
             cb.setChecked(False)
         self.checkBox_presetMask.setChecked(False)
 
-    def _slot_checkBox_grouping(self):
+    def slot_checkBox_grouping(self):
         """Called when check box for plotting lines state changed."""
         if self.checkBox_grouping.isChecked():
             self.grouping = True

@@ -13,7 +13,7 @@ import os
 
 import numpy as np
 
-from functions.calibrate import calibrate_load
+from LinoSPAD2app.functions.calibrate import calibrate_load
 
 
 def unpack_bin(
@@ -119,7 +119,7 @@ def unpack_bin(
     # path to the current script, two levels up (the script itself is
     # in the path) and one level down to the calibration data
     path_calib_data = (
-        os.path.realpath(__file__) + "/../.." + "/calibration_data"
+        os.path.realpath(__file__) + "/../.." + "/params/calibration_data"
     )
 
     try:
