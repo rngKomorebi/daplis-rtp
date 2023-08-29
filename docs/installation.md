@@ -1,24 +1,3 @@
-# LinoSPAD2 app
-
-Package with an application for real-time plotting of sensor population
-for LinoSPAD2.
-
-![Tests](https://github.com/rngKomorebi/LinoSPAD2-app/actions/workflows/tests.yml/badge.svg)
-![Documentation](https://github.com/rngKomorebi/LinoSPAD2-app/actions/workflows/documentation.yml/badge.svg)
-
-## Introduction
-
-The main purpose of this application is real-time plotting of LinoSPAD2
-sensor population for easier handling of the setup. Given the detector 
-data acquisition is running and once a path to where data files should
-be saved to, scripts constantly wait for the latest saved file, unpack
-the data and plot it as a number of timestamps vs. pixel number.
-
-This repo was separated from the [main](https://github.com/rngKomorebi/LinoSPAD2)
-library of scripts for LinoSPAD2 data analysis. The reason is that
-the app requires its own 'main.py' to run and having it as a standalone
-makes it quite easy to generate an executable with [pyinstaller](https://pyinstaller.org/en/stable/).
-
 ## Installation and usage
 
 To start using the package, one can download the whole repo. The 'main.py'
@@ -91,7 +70,7 @@ def __init__(self, parent=None):
     )
     os.chdir("../..")
 ```
-Full path to the '.ui' files should be provided as pyinstaller does not
+A full path to the '.ui' files should be provided as pyinstaller does not
 handle relative paths, as it's implemented in the package. To run the app,
 run 'main.exe' in the 'dist' folder.
 
@@ -104,19 +83,3 @@ conda install --file requirements.txt -c conda-forge
 conda install pyinstaller -c conda-forge
 ```
 and the rest stay the same as for the installation using pip.
-
-## How to contribute
-
-This repo consists of two branches: 'main' serves as the release version
-of the package, tested, and proved to be functional and ready to use, while
-the 'develop' branch serves as the main hub for testing new stuff. To
-contribute, the best way would be to fork the 'develop' branch and
-submit via pull requests. Everyone willing to contribute is kindly asked
-to follow the [PEP 8](https://peps.python.org/pep-0008/) and
-[PEP 257](https://peps.python.org/pep-0257/) conventions.
-
-## License and contact info
-
-This package is available under the MIT license. See LICENSE for more
-information. If you'd like to contact me, the author, feel free to
-write at sergei.kulkov23@gmail.com.
