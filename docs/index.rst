@@ -19,8 +19,7 @@ and functions.
 
    intro
    installation
-   LinoSPAD2app.gui
-   LinoSPAD2app.functions
+   LinoSPAD2app
    contribute
    license
    acknowledgement

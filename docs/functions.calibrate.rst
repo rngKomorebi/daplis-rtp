@@ -1,5 +1,5 @@
-LinoSPAD2app.functions.calibrate module
-=======================================
+functions.calibrate module
+==========================
 
 .. automodule:: LinoSPAD2app.functions.calibrate
    :members:
