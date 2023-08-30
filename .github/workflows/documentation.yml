@@ -14,8 +14,8 @@ jobs:
       - name: Sphinx build
         run: |
           pip install -e .
-          sphinx-apidoc -f -e -M -o docs src/LinoSPAD2app.gui
-          sphinx-apidoc -f -e -M -o docs src/LinoSPAD2app.functions
+          sphinx-apidoc -f -e -M -o docs src/LinoSPAD2app/gui
+          sphinx-apidoc -f -e -M -o docs src/LinoSPAD2app/functions
           sphinx-build docs _build
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
