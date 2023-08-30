@@ -10,7 +10,7 @@ Package with an application for real-time plotting of sensor population
 for LinoSPAD2.
 
 This document aims to provide complete documentation on the LinoSPAD2
-data analysis moduled and a collection of all docstrings from modules
+application along with a collection of all docstrings from modules
 and functions.
 
 .. toctree::
@@ -19,7 +19,8 @@ and functions.
 
    intro
    installation
-   LinoSPAD2app
+   LinoSPAD2app.gui
+   LinoSPAD2app.functions
    contribute
    license
    acknowledgement

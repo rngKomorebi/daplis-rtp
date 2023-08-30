@@ -1,7 +1,7 @@
 # How to contribute
 
 This repo consists of two branches: 'main' serves as the release version
-of the package, tested, and proved to be functional and ready-to-use, while
+of the package, tested, and proved to be functional and ready to use, while
 the 'develop' branch serves as the main hub for testing new stuff. To
 contribute, the best way would be to fork the 'develop' branch and
 submit via pull requests. Everyone willing to contribute is kindly asked

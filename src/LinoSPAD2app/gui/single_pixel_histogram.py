@@ -1,6 +1,7 @@
 """Module for plotting single pixel histograms.
 
-Main usage is checking the homogenit of the LinoSPAD2 output.
+The main usage is checking the homogeneity of the LinoSPAD2 output. The
+output graph should be flat top.
 
 """
 
@@ -23,17 +24,17 @@ class HistCanvas(QWidget):
     def __init__(self, width=7, height=4, dpi=100):
         """Figure widget initialization.
 
-        Figure is intialized with the matplotlib navigation panel for
+        The figure is initialized with the matplotlib navigation panel for
         more control over the plot.
 
         Parameters
         ----------
         width : int, optional
-            Figure widget width, by default 7
+            Figure widget width, by default 7.
         height : int, optional
-            Figure widget height, by default 4
+            Figure widget height, by default 4.
         dpi : int, optional
-            Figure widget dpi, by default 100
+            Figure widget dpi, by default 100.
         """
         super().__init__()
 
@@ -59,7 +60,7 @@ class HistCanvas(QWidget):
     def _setplotparameters(self):
         """Figure parameters manipulation.
 
-        Sets font size, axes labels, width and orientation of axes ticks.
+        Sets font size, axes labels, width, and orientation of axes ticks.
 
         """
         plt.rcParams.update({"font.size": 12})
@@ -77,6 +78,9 @@ class HistCanvas(QWidget):
 
     def plot_hist(self, file, pixel, timestamps, board_number, fw_ver):
         """Plot histogram.
+
+        Plots a histogram of timestamps for a single pixel. Bin size is
+        set to 17.867 us.
 
         Parameters
         ----------

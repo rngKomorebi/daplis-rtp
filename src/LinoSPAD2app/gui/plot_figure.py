@@ -1,6 +1,6 @@
-"""Module for plotting the data in the real-time plotting tab.
+"""Module for plotting data in the real-time plotting tab.
 
-Plots the data provided as number of timestamps vs pixel number. Options
+Plots the data provided as number of timestamps vs. pixel number. Options
 for changing the plot scale (linear or logarithmic) and plotting of 
 vertical lines at positions 64, 128, and 192 are provided. The figure
 widget is generated with the matplotlib navigation bar for additional
@@ -22,16 +22,16 @@ class PltCanvas(QWidget):
     def __init__(self, parent=None, width=7, height=4, dpi=100):
         """Creation of the figure widget.
 
-        The widget is created along with the bar with options.
+        The widget is created with the bar with options.
 
         Parameters
         ----------
         width : int, optional
-            Figure widget width, by default 7
+            Figure widget width, by default 7.
         height : int, optional
-            Figure widget height, by default 4
+            Figure widget height, by default 4.
         dpi : int, optional
-            Figure widget dpi, by default 100
+            Figure widget dpi, by default 100.
         """
         super(PltCanvas, self).__init__(parent)
         # a figure instance to plot on
@@ -55,8 +55,8 @@ class PltCanvas(QWidget):
     def setplotparameters(self):
         """Figure parameters manipulation.
 
-        Set font size, axes labels. Set width and orientation of axes
-        ticks.
+        Set font size, axes labels. Set the width and orientation of the
+        axes ticks.
 
         """
         plt.rcParams.update({"font.size": 12})
@@ -75,18 +75,18 @@ class PltCanvas(QWidget):
     def setPlotData(self, xdataplot, yplotdata, xLim, grouping: bool = False):
         """Plot data.
 
-        Plot the provided data while following the state of x axis
+        Plot the provided data while following the state of the axis
         limits and the switch for plotting vertical lines at positions
         64, 128, and 192.
 
         Parameters
         ----------
         xdataplot : array
-            Data for the x axis: pixel numbers.
+            Data for the x-axis: pixel numbers.
         yplotdata : array-like
-            Data for the y axis: number of timestamps.
+            Data for the y-axis: number of timestamps.
         xLim : list
-            Limits for the x axis.
+            Limits for the x-axis.
         grouping : bool, optional
             Switch for plotting vertical lines at positiong 64, 128, and
             192, by default False.
