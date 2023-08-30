@@ -3,7 +3,7 @@
 To start using the package, one can download the whole repo. The 'main.py'
 serves as the main hub for starting the app. "requirements.txt"
 lists all packages required for this project to run. One can create
-an environment for this project either using conda or install the
+an environment for this project either using conda or installing the
 necessary packages using pip (for creating virtual environments using pip
 see [this](https://packaging.python.org/en/latest/guides/installing-using-pip-and-virtual-environments/)).
 
@@ -29,7 +29,7 @@ Finally, to run the app, run the 'main.py' script.
 ### Executable
 
 On Windows, to create an executable, one can run the following: first,
-a separate virtual environment is highly recommended for faster and
+a separate virtual environment is highly recommended for a faster and
 smoother experience with the app, as pyinstaller packs everything it
 finds in the virtual environment; using pip:
 
