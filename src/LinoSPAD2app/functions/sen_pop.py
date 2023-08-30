@@ -2,8 +2,10 @@
 
 Works with firmware versions 2208 and 2212.
 
-    * sen-pop - collects number of timestamps in each pixel for the data
-    file provided and returns it as an array.
+The following functions are provided.
+
+    * sen-pop - collects the number of timestamps in each pixel for the
+    data file provided and returns it as an array.
 
 """
 
@@ -14,7 +16,7 @@ from LinoSPAD2app.functions.unpack import unpack_bin
 def sen_pop(file, board_number, fw_ver, timestamps: int = 512):
     """Collect number of timestamps in each pixel.
 
-    The output is used for plotting sensor population. Works
+    The output is used for plotting the sensor population. Works
     with firmware versions 2208 and 2212.
 
     Parameters
@@ -27,7 +29,7 @@ def sen_pop(file, board_number, fw_ver, timestamps: int = 512):
         LinoSPAD2 firmware version.
     timestamps : int, optional
         Number of timestamps per acquisition cycle per pixel/TDC, by
-        default 512
+        default 512.
 
     Returns
     -------

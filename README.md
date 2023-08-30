@@ -12,7 +12,7 @@ The main purpose of this application is real-time plotting of LinoSPAD2
 sensor population for easier handling of the setup. Given the detector 
 data acquisition is running and once a path to where data files should
 be saved to, scripts constantly wait for the latest saved file, unpack
-the data and plot it as a number of timestamps vs. pixel number.
+the data, and plot it as a number of timestamps vs. pixel number.
 
 This repo was separated from the [main](https://github.com/rngKomorebi/LinoSPAD2)
 library of scripts for LinoSPAD2 data analysis. The reason is that
@@ -50,7 +50,7 @@ Finally, to run the app, run the 'main.py' script.
 ### Executable
 
 On Windows, to create an executable, one can run the following: first,
-a separate virtual environment is highly recommended for faster and
+a separate virtual environment is highly recommended for a faster and
 smoother experience with the app, as pyinstaller packs everything it
 finds in the virtual environment; using pip:
 

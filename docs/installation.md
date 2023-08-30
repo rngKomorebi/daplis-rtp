@@ -16,6 +16,11 @@ cd PATH/TO/THIS/PACKAGE
 pip install -r requirements.txt
 pip install -e .
 ```
+By default, pip installs the new environment in the current working
+directory. To change that, add the desirable path to the environment:
+```
+py -m venv PATH/TO/ENVIRONMENT/NEW_ENVIRONMENT_NAME
+```
 Using conda:
 ```
 conda create --name NEW_ENVIRONMENT_NAME
@@ -56,10 +61,11 @@ Then, given the current directory is set to where the package is, run
 pyinstaller --clean --onedir --noconsole main.py
 ```
 which packs everything in the package for the "main.exe" executable
-for the app. Options '--onedir' for installing everything into a single
-directory and '--noconsole' for running the app without a console are
-recommended. Additionally, in the '_tab.py' files, change the first
-lines in the '__init__' functions to the following: 
+for the app. Options 'onedir' for installing everything into a single
+directory and 'noconsole' for running the app without a console are
+recommended. Additionally, in the '_tab.py' files in the "src/LinoSPAD2app/gui"
+folder, change the first lines in the '__init__' functions to the
+following: 
 ```
 def __init__(self, parent=None):
     super().__init__(parent)

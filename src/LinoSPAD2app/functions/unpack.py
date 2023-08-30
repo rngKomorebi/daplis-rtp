@@ -22,7 +22,7 @@ def unpack_bin(file, board_number: str, fw_ver: str, timestamps: int = 512):
     Unpacks binary-encoded .dat files with data from LinoSPAD2 into a
     matrix with dimensions [256, # of timestamps*cycles] for firwmare
     2208, or [64, # of timestamps*cycles + cycles, 2] for firmware
-    version 2212 where the third axis contains timestamp and a pixel
+    version 2212 where the third axis contains the timestamp and a pixel
     coordinate in the particular TDC.
 
     Parameters

@@ -372,7 +372,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QSpinBox" name="spinBox_enterPixNumber">
+        <widget class="QLineEdit" name="lineEdit_enterPixNumber">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
            <horstretch>0</horstretch>
@@ -385,11 +385,16 @@
            <height>30</height>
           </size>
          </property>
-         <property name="maximum">
-          <number>255</number>
+         <property name="font">
+          <font>
+           <pointsize>8</pointsize>
+          </font>
          </property>
-         <property name="value">
-          <number>150</number>
+         <property name="mouseTracking">
+          <bool>false</bool>
+         </property>
+         <property name="text">
+          <string/>
          </property>
         </widget>
        </item>

@@ -1,8 +1,8 @@
 """This script generates the tab for online sensor population plotting.
 
-The tab can be used to introduce changes into the setup while following
-the changes in real-time (dependning on the actual data file size, the
-plottign can take minutes).
+The tab can be used to introduce changes to the setup while following
+the changes in real-time (depending on the actual data file size, the
+plotting can take minutes).
 
 """
 
@@ -19,20 +19,20 @@ class LiveTimestamps(QtWidgets.QWidget):
         """Creation of the tab.
 
         The tab is generated with a 'Browse' button along with a line
-        edit field for looking for/inserting the address of the data
+        edit field for choosing/inserting the address of the data
         file to plot. Combo boxes for LinoSPAD2 daughterboard number and
         the firmware version are generated. A check box for applying and
-        a button for resetting the mask are generated. A spin box for
-        number of timestamps per pixel/TDC per cycle is provided. A
-        widget with a grid of 4x64 of check boxes with pixel numbers
-        for masking single pixels is generated. A check box for swtiching
+        a button for undoing the mask are generated. A spin box for
+        the number of timestamps per pixel/TDC per cycle is provided. A
+        widget with a grid of 4x64 of checkboxes with pixel numbers
+        for masking single pixels is generated. A check box for switching
         between a linear and a logarithmic scale of the plot along with
-        a check box for plotting vertical lines at positiong 64, 128, and
+        a check box for plotting vertical lines at positions 64, 128, and
         192 are provided (the latter can be used for firmware versions
         2208 and 2212s for setup alignment). Buttons 'Refresh plot' for
-        refreshing the current plot and 'Start stream' for plotting the
-        last file found are created. Two sliders for left and right
-        limit for the x axis are created.
+        refreshing the plot and 'Start stream' for plotting the
+        last file found are created. Two sliders for the left and right
+        limits for the x-axis are created.
 
         """
         super().__init__(parent)
@@ -184,14 +184,19 @@ class LiveTimestamps(QtWidgets.QWidget):
             self.widget_figure.setPlotScale(False)
 
     def slot_refresh(self):
-        """Called when the 'Refresh button' is pressed."""
+        """Called when the 'Refresh button' is pressed.
+
+        Refreshes the plot, either the current one or updates with the
+        new data if new data were taken.
+
+        """
         self.update_time_stamp()
         self.last_file_ctime = 0
 
     def slot_updateLeftSlider(self):
         """Called when left slider state has changed.
 
-        Updates the left x axis limit based on the position of the
+        Updates the left x-axis limit based on the position of the
         slider.
 
         """
@@ -207,7 +212,7 @@ class LiveTimestamps(QtWidgets.QWidget):
     def slot_updateRightSlider(self):
         """Called when right slider state has changed.
 
-        Updates the right x axis limit based on the position of the
+        Updates the right x-axis limit based on the position of the
         slider.
 
         """
@@ -270,10 +275,6 @@ class LiveTimestamps(QtWidgets.QWidget):
         """
         Function for masking the chosen pixels.
 
-        Returns
-        -------
-        None.
-
         """
         for i in range(256):
             if self.checkBoxPixel[i].isChecked():
@@ -308,11 +309,7 @@ class LiveTimestamps(QtWidgets.QWidget):
     def reset_pix_mask(self):
         """
         Function for resetting the pixel masking by unchecking all pixel
-        mask check boxes.
-
-        Returns
-        -------
-        None.
+        mask checkboxes.
 
         """
         for i in range(256):

@@ -1,9 +1,10 @@
 """Module for handling calibration data.
 
-Following functions are provided:
+The following functions are provided:
 
     * calibrate_save - unpack the calibration data and save the output
     calibration matrix into a '.csv' file
+
     * calibrate_load - loads the calibration matrix from a '.csv' file
 
 """

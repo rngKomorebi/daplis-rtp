@@ -1,5 +1,5 @@
-functions.unpack module
-=======================
+LinoSPAD2app.functions.unpack module
+====================================
 
 .. automodule:: LinoSPAD2app.functions.unpack
    :members:
