@@ -27,7 +27,7 @@ conda create --name NEW_ENVIRONMENT_NAME
 conda activate NEW_ENVIRONMENT NAME
 cd PATH/TO/THIS/PACKAGE
 conda install --file requirements.txt -c conda-forge
-pip install -e .
+conda develop .
 ```
 Finally, to run the app, run the 'main.py' script.
 

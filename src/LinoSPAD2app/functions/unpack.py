@@ -51,7 +51,7 @@ def unpack_bin(file, board_number: str, fw_ver: str, timestamps: int = 512):
     # read data by 32 bit words
     rawFile = np.fromfile(file, dtype=np.uint32)
     # lowest 28 bits are the timestamp; convert to longlong, int is not enough
-    data_t = (rawFile & 0xFFFFFFF).astype(np.longlong)
+    data_t = (rawFile & 0xFFFFFFF).astype(np.longlong) * 17.857
     # mask nonvalid data with '-1'
     data_t[np.where(rawFile < 0x80000000)] = -1
     # number of acquisition cycles
@@ -114,42 +114,42 @@ def unpack_bin(file, board_number: str, fw_ver: str, timestamps: int = 512):
     else:
         pass
 
-    # path to the current script, two levels up (the script itself is
-    # in the path) and one level down to the calibration data
-    path_calib_data = (
-        os.path.realpath(__file__) + "/../.." + "/params/calibration_data"
-    )
+    # # path to the current script, two levels up (the script itself is
+    # # in the path) and one level down to the calibration data
+    # path_calib_data = (
+    #     os.path.realpath(__file__) + "../../.." + "/params/calibration_data"
+    # )
 
-    try:
-        cal_mat = calibrate_load(path_calib_data, board_number)
-    except FileNotFoundError:
-        raise FileNotFoundError(
-            "No .csv file with the calibration"
-            "data was found, check the path "
-            "or run the calibration."
-        )
+    # try:
+    #     cal_mat = calibrate_load(path_calib_data, board_number)
+    # except FileNotFoundError:
+    #     raise FileNotFoundError(
+    #         "No .csv file with the calibration"
+    #         "data was found, check the path "
+    #         "or run the calibration."
+    #     )
 
-    if fw_ver == "2208":
-        for i in range(256):
-            ind = np.where(data_matrix[i] >= 0)[0]
-            data_matrix[i, ind] = (
-                data_matrix[i, ind] - data_matrix[i, ind] % 140
-            ) * 17.857 + cal_mat[i, (data_matrix[i, ind] % 140)]
+    # if fw_ver == "2208":
+    #     for i in range(256):
+    #         ind = np.where(data_matrix[i] >= 0)[0]
+    #         data_matrix[i, ind] = (
+    #             data_matrix[i, ind] - data_matrix[i, ind] % 140
+    #         ) * 17.857 + cal_mat[i, (data_matrix[i, ind] % 140)]
 
-    elif fw_ver[:-1] == "2212":
-        for i in range(256):
-            # transform pixel number to TDC number and pixel coordinates in
-            # that TDC (from 0 to 3)
-            tdc, pix = np.argwhere(pix_coor == i)[0]
-            # find data from that pixel
-            ind = np.where(data_matrix[tdc].T[0] == pix)[0]
-            # cut non-valid timestamps ('-1's)
-            ind = ind[np.where(data_matrix[tdc].T[1][ind] >= 0)[0]]
-            if not np.any(ind):
-                continue
-            # apply calibration
-            data_matrix[tdc].T[1][ind] = (
-                data_matrix[tdc].T[1][ind] - data_matrix[tdc].T[1][ind] % 140
-            ) * 17.857 + cal_mat[i, (data_matrix[tdc].T[1][ind] % 140)]
+    # elif fw_ver[:-1] == "2212":
+    #     for i in range(256):
+    #         # transform pixel number to TDC number and pixel coordinates in
+    #         # that TDC (from 0 to 3)
+    #         tdc, pix = np.argwhere(pix_coor == i)[0]
+    #         # find data from that pixel
+    #         ind = np.where(data_matrix[tdc].T[0] == pix)[0]
+    #         # cut non-valid timestamps ('-1's)
+    #         ind = ind[np.where(data_matrix[tdc].T[1][ind] >= 0)[0]]
+    #         if not np.any(ind):
+    #             continue
+    #         # apply calibration
+    #         data_matrix[tdc].T[1][ind] = (
+    #             data_matrix[tdc].T[1][ind] - data_matrix[tdc].T[1][ind] % 140
+    #         ) * 17.857 + cal_mat[i, (data_matrix[tdc].T[1][ind] % 140)]
 
     return data_matrix

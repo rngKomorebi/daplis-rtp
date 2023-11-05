@@ -97,17 +97,17 @@ class LiveTimestamps(QtWidgets.QWidget):
 
         # Pixel masking
 
-        self.checkBox_presetMask.stateChanged.connect(self.presetmask_pixels)
+        self.checkBox_presetMask_2.stateChanged.connect(self.presetmask_pixels)
 
-        self.checkBox_linearScale.stateChanged.connect(
-            self.slot_checkplotscale
+        self.checkBox_presetMask_2.stateChanged.connect(
+            self.slot_checkplotscale_2
         )
 
-        self.pushButton_resetMask.clicked.connect(self.reset_pix_mask)
+        self.pushButton_resetMask_2.clicked.connect(self.reset_pix_mask)
 
         self.path_to_main = os.getcwd()
 
-        self.comboBox_mask.activated.connect(self.reset_pix_mask)
+        self.comboBox_mask_2.activated.connect(self.reset_pix_mask)
 
         # Refresh plot and start stream buttons
 
@@ -118,8 +118,8 @@ class LiveTimestamps(QtWidgets.QWidget):
         # Check box for plotting 3 vertical lines at position x=64,
         # 128, 192 (FW 2208)
         self.grouping = False
-        self.checkBox_grouping.stateChanged.connect(
-            self.slot_checkBox_grouping
+        self.checkBox_grouping_2.stateChanged.connect(
+            self.slot_checkBox_grouping_2
         )
 
         # Set directory if path was pasted instead of chosen with the
@@ -172,13 +172,19 @@ class LiveTimestamps(QtWidgets.QWidget):
             self.timer.start(100)
             self.timerRunning = True
 
-    def slot_checkplotscale(self):
+    def slot_stopstream(self):
+        self.timer.stop()
+        self.timerRunning = False
+        self.pushButton_startStream.setText("Start stream")
+        self.last_file_ctime = 0
+
+    def slot_checkplotscale_2(self):
         """Called when state of the check box for scale is changed.
 
         Switches between logarithmic and linear scale of the plot.
 
         """
-        if self.checkBox_linearScale.isChecked():
+        if self.checkBox_presetMask_2.isChecked():
             self.widget_figure.setPlotScale(True)
         else:
             self.widget_figure.setPlotScale(False)
@@ -232,6 +238,7 @@ class LiveTimestamps(QtWidgets.QWidget):
         provided.
 
         """
+        stopping = False
         self.mask_pixels()
         os.chdir(self.pathtotimestamp)
         DATA_FILES = glob.glob("*.dat*")
@@ -245,31 +252,34 @@ class LiveTimestamps(QtWidgets.QWidget):
             )
             msg_window.setWindowTitle("Error")
             msg_window.exec_()
+            self.slot_stopstream()
+            stopping = True
+        if stopping is False:
+            try:
+                if new_file_ctime > self.last_file_ctime:
+                    self.last_file_ctime = new_file_ctime
 
-        try:
-            if new_file_ctime > self.last_file_ctime:
-                self.last_file_ctime = new_file_ctime
-
-                validtimestamps = sen_pop(
-                    self.pathtotimestamp + "/" + last_file,
-                    board_number=self.comboBox_mask.currentText(),
-                    fw_ver=self.comboBox_FW.currentText(),
-                    timestamps=self.spinBox_timestamps.value(),
+                    validtimestamps = sen_pop(
+                        self.pathtotimestamp + "/" + last_file,
+                        board_number=self.comboBox_mask_2.currentText(),
+                        fw_ver=self.comboBox_FW_2.currentText(),
+                        timestamps=self.spinBox_timestamps_2.value(),
+                    )
+                    validtimestamps = validtimestamps * self.maskValidPixels
+                    self.widget_figure.setPlotData(
+                        np.arange(0, 256, 1),
+                        validtimestamps,
+                        [self.leftPosition, self.rightPosition],
+                        self.grouping,
+                    )
+            except ValueError:
+                msg_window = QtWidgets.QMessageBox()
+                msg_window.setText(
+                    "Cannot unpack data, check the timestamp setting and "
+                    "the firmware version."
                 )
-                validtimestamps = validtimestamps * self.maskValidPixels
-                self.widget_figure.setPlotData(
-                    np.arange(0, 256, 1),
-                    validtimestamps,
-                    [self.leftPosition, self.rightPosition],
-                    self.grouping,
-                )
-        except ValueError:
-            msg_window = QtWidgets.QMessageBox()
-            msg_window.setText(
-                "Cannot unpack data, check the timestamp setting."
-            )
-            msg_window.setWindowTitle("Error")
-            msg_window.exec_()
+                msg_window.setWindowTitle("Error")
+                msg_window.exec_()
 
     def mask_pixels(self):
         """
@@ -292,10 +302,15 @@ class LiveTimestamps(QtWidgets.QWidget):
         """
         if os.getcwd() != self.path_to_main + "/params/masks":
             os.chdir(self.path_to_main + "/params/masks")
-        file = glob.glob("*{}*".format(self.comboBox_mask.currentText()))[0]
+        file = glob.glob(
+            "*{}_{}*".format(
+                self.comboBox_mask_2.currentText(),
+                self.comboBox_mb_2.currentText(),
+            )
+        )[0]
         mask = np.genfromtxt(file, delimiter=",", dtype="int")
 
-        if self.checkBox_presetMask.isChecked():
+        if self.checkBox_presetMask_2.isChecked():
             for i in mask:
                 self.maskValidPixels[i] = 0
                 cb = self.scrollAreaWidgetContentslayout.itemAt(i).widget()
@@ -315,11 +330,11 @@ class LiveTimestamps(QtWidgets.QWidget):
         for i in range(256):
             cb = self.scrollAreaWidgetContentslayout.itemAt(i).widget()
             cb.setChecked(False)
-        self.checkBox_presetMask.setChecked(False)
+        self.checkBox_presetMask_2.setChecked(False)
 
-    def slot_checkBox_grouping(self):
+    def slot_checkBox_grouping_2(self):
         """Called when check box for plotting lines state changed."""
-        if self.checkBox_grouping.isChecked():
+        if self.checkBox_grouping_2.isChecked():
             self.grouping = True
         else:
             self.grouping = False
