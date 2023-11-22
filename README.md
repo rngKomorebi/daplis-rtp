@@ -6,6 +6,8 @@ for LinoSPAD2.
 ![Tests](https://github.com/rngKomorebi/LinoSPAD2-app/actions/workflows/tests.yml/badge.svg)
 ![Documentation](https://github.com/rngKomorebi/LinoSPAD2-app/actions/workflows/documentation.yml/badge.svg)
 
+Full documentation (including all docstrings) can be found [here](https://rngkomorebi.github.io/LinoSPAD2app/).
+
 ## Introduction
 
 The main purpose of this application is real-time plotting of LinoSPAD2
