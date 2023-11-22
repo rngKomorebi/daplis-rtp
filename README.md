@@ -63,7 +63,7 @@ where the last command activates the environment. Here, all the necessary
 packages along with the app package itself should be installed. To do
 this, run from the environment (given the package was downloaded):
 ```
-cd PATH/TO/THIS/PACKAGE
+cd PATH/TO/THIS/PACKAGE/src/LinoSPAD2app
 pip install -r requirements.txt
 pip install -e .
 ```
@@ -104,6 +104,29 @@ conda install --file requirements.txt -c conda-forge
 conda install pyinstaller -c conda-forge
 ```
 and the rest stay the same as for the installation using pip.
+
+## Dark theme app (Windows)
+
+For dark theme enthusiasts, there is an option to run the app in dark mode (tested on Windows only). To do that, in the environment where the app is running, install qdarkstyle
+```
+pip install qdarkstyle
+```
+or, using conda
+```
+conda install qdarkstyle -c conda-forge
+```
+Then, in the 'main.py', import (uncomment) qdarkstyle and uncomment the 5th line in the following code block
+```
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+    window = MainWindow()
+    # For dark theme
+    # app.setStyleSheet(qdarkstyle.load_stylesheet())
+    window.show()
+    app.exec()
+```
+that will run the app in dark mode. To apply dark theme for the
+matplotlib canvases as well, uncomment the 'plt.style.use()"dark_background")' in the 'plot_figure.py'.
 
 ## How to contribute
 

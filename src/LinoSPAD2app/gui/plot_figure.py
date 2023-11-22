@@ -34,9 +34,14 @@ class PltCanvas(QWidget):
             Figure widget dpi, by default 100.
         """
         super(PltCanvas, self).__init__(parent)
+
+        # For 'dark_background' style
+        # plt.style.use("dark_background")
+
         # a figure instance to plot on
         self.figure = Figure(figsize=(width, height), dpi=100)
         self.canvas = FigureCanvas(self.figure)
+
         self.toolbar = NavigationToolbar(self.canvas, self)
         self.ax = self.figure.add_subplot(111)
         self.figure.subplots_adjust(

@@ -8,6 +8,9 @@ from PyQt5.QtWidgets import QMainWindow, QApplication
 from LinoSPAD2app.gui.ui.mainwindow import Ui_MainWindow
 import sys
 
+# import qdarkstyle
+import os
+
 
 class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self, parent=None):
@@ -23,5 +26,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     window = MainWindow()
+    # For dark theme
+    # app.setStyleSheet(qdarkstyle.load_stylesheet())
     window.show()
     app.exec()
