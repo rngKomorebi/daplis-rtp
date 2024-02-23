@@ -262,6 +262,20 @@
      </layout>
     </item>
     <item>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="QCheckBox" name="checkBox_pix_add_fix">
+        <property name="text">
+         <string>Correct pixel addresing</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
      <layout class="QHBoxLayout" name="horizontalLayout_9">
       <property name="bottomMargin">
        <number>0</number>
@@ -573,8 +587,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>339</width>
-         <height>264</height>
+         <width>335</width>
+         <height>248</height>
         </rect>
        </property>
       </widget>
@@ -638,6 +652,7 @@
       <property name="font">
        <font>
         <pointsize>11</pointsize>
+        <weight>75</weight>
         <bold>true</bold>
        </font>
       </property>

@@ -13,7 +13,13 @@ import numpy as np
 from LinoSPAD2app.functions.unpack import unpack_bin
 
 
-def sen_pop(file, board_number, fw_ver, timestamps: int = 512):
+def sen_pop(
+    file,
+    board_number,
+    fw_ver,
+    timestamps: int = 512,
+    pix_add_fix: bool = False,
+):
     """Collect number of timestamps in each pixel.
 
     The output is used for plotting the sensor population. Works
@@ -53,5 +59,12 @@ def sen_pop(file, board_number, fw_ver, timestamps: int = 512):
             ind = np.where(data[tdc].T[0] == pix)[0]
             ind1 = np.where(data[tdc].T[1][ind] > 0)[0]
             valid_per_pixel[i] += len(data[tdc].T[1][ind[ind1]])
+
+    if pix_add_fix is True:
+        fix = np.zeros(len(valid_per_pixel))
+        fix[:128] = valid_per_pixel[128:]
+        fix[128:] = np.flip(valid_per_pixel[:128])
+        valid_per_pixel = fix
+        del fix
 
     return valid_per_pixel

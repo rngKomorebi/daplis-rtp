@@ -264,6 +264,7 @@ class LiveTimestamps(QtWidgets.QWidget):
                         board_number=self.comboBox_mask_2.currentText(),
                         fw_ver=self.comboBox_FW_2.currentText(),
                         timestamps=self.spinBox_timestamps_2.value(),
+                        pix_add_fix=self.checkBox_pix_add_fix.isChecked(),
                     )
                     validtimestamps = validtimestamps * self.maskValidPixels
                     self.widget_figure.setPlotData(
@@ -280,6 +281,8 @@ class LiveTimestamps(QtWidgets.QWidget):
                 )
                 msg_window.setWindowTitle("Error")
                 msg_window.exec_()
+                self.slot_stopstream()
+                stopping = True
 
     def mask_pixels(self):
         """
