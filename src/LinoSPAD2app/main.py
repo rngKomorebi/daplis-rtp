@@ -4,12 +4,13 @@ Run this file in the terminal to start the application.
 
 """
 
-from PyQt5.QtWidgets import QMainWindow, QApplication
-from LinoSPAD2app.gui.ui.mainwindow import Ui_MainWindow
+import os
 import sys
 
-# import qdarkstyle
-import os
+import qdarkstyle
+from PyQt5.QtWidgets import QApplication, QMainWindow
+
+from LinoSPAD2app.gui.ui.mainwindow import Ui_MainWindow
 
 
 class MainWindow(QMainWindow, Ui_MainWindow):
@@ -27,6 +28,6 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     window = MainWindow()
     # For dark theme
-    # app.setStyleSheet(qdarkstyle.load_stylesheet())
+    app.setStyleSheet(qdarkstyle.load_stylesheet())
     window.show()
     app.exec()

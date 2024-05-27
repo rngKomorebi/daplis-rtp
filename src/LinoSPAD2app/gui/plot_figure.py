@@ -7,15 +7,16 @@ widget is generated with the matplotlib navigation bar for additional
 control over the plot.
 
 """
-from PyQt5.QtWidgets import QWidget, QVBoxLayout
+
+import matplotlib.pyplot as plt
 from matplotlib.backends.backend_qt5agg import (
     FigureCanvasQTAgg as FigureCanvas,
 )
 from matplotlib.backends.backend_qt5agg import (
     NavigationToolbar2QT as NavigationToolbar,
 )
-import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
+from PyQt5.QtWidgets import QVBoxLayout, QWidget
 
 
 class PltCanvas(QWidget):
@@ -36,7 +37,7 @@ class PltCanvas(QWidget):
         super(PltCanvas, self).__init__(parent)
 
         # For 'dark_background' style
-        # plt.style.use("dark_background")
+        plt.style.use("dark_background")
 
         # a figure instance to plot on
         self.figure = Figure(figsize=(width, height), dpi=100)

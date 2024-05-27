@@ -6,12 +6,14 @@ plotting can take minutes).
 
 """
 
-from PyQt5 import QtCore, QtWidgets, uic
-from LinoSPAD2app.gui.plot_figure import PltCanvas
 import glob
 import os
+
 import numpy as np
+from PyQt5 import QtCore, QtWidgets, uic
+
 from LinoSPAD2app.functions.sen_pop import sen_pop
+from LinoSPAD2app.gui.plot_figure import PltCanvas
 
 
 class LiveTimestamps(QtWidgets.QWidget):
@@ -75,7 +77,7 @@ class LiveTimestamps(QtWidgets.QWidget):
 
         self.widget_figure = PltCanvas()
         # self.widget_figure.setMinimumSize(500, 400)
-        self.widget_figure.setFixedSize(500, 425)
+        # self.widget_figure.setFixedSize(500, 425)
         self.widget_figure.setObjectName("widget")
         self.gridLayout.addWidget(self.widget_figure, 1, 0, 4, 3)
 
