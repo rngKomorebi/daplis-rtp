@@ -59,6 +59,11 @@
           </item>
           <item>
            <property name="text">
+            <string>D2b</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
             <string>A5</string>
            </property>
           </item>
@@ -113,6 +118,11 @@
           <item>
            <property name="text">
             <string>#37</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>#4</string>
            </property>
           </item>
          </widget>
