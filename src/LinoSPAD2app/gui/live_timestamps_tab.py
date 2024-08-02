@@ -74,7 +74,6 @@ class LiveTimestamps(QtWidgets.QWidget):
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
 
         # Figure widget
-
         self.widget_figure = PltCanvas()
         # self.widget_figure.setMinimumSize(500, 400)
         # self.widget_figure.setFixedSize(500, 425)
@@ -98,7 +97,6 @@ class LiveTimestamps(QtWidgets.QWidget):
         self.rightPosition = 255
 
         # Pixel masking
-
         self.checkBox_presetMask_2.stateChanged.connect(self.presetmask_pixels)
 
         self.checkBox_presetMask_2.stateChanged.connect(
@@ -112,7 +110,6 @@ class LiveTimestamps(QtWidgets.QWidget):
         self.comboBox_mask_2.activated.connect(self.reset_pix_mask)
 
         # Refresh plot and start stream buttons
-
         self.pushButton_refreshPlot.clicked.connect(self.slot_refresh)
 
         self.pushButton_startStream.clicked.connect(self.slot_startstream)

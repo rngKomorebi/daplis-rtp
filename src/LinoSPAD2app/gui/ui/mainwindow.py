@@ -7,7 +7,9 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtWidgets
+
 from LinoSPAD2app.gui.live_timestamps_tab import LiveTimestamps
+from LinoSPAD2app.gui.MZI_tab import MZI
 from LinoSPAD2app.gui.single_pix_hist_tab import SinglePixelHistogram
 
 # from graphic.delta_t_tab import Delta_t
@@ -71,6 +73,9 @@ class Ui_MainWindow(object):
         # self.tab_3 = Delta_t(self)
         # self.tab_3.setObjectName("tab_3")
         # self.tabWidget.addTab(self.tab_3, "")
+        self.tab_4 = MZI(self)
+        self.tab_4.setObjectName("tab_4")
+        self.tabWidget.addTab(self.tab_4, "")
         self.gridLayout_2.addWidget(self.tabWidget, 0, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
@@ -101,3 +106,7 @@ class Ui_MainWindow(object):
         # self.tabWidget.setTabText(
         #     self.tabWidget.indexOf(self.tab_3), _translate("MainWindow", "Delta t")
         # )
+        self.tabWidget.setTabText(
+            self.tabWidget.indexOf(self.tab_4),
+            _translate("MainWindow", "MZI"),
+        )
