@@ -65,13 +65,17 @@ class PltCanvas(QWidget):
         axes ticks.
 
         """
-        plt.rcParams.update({"font.size": 12})
-        self.ax.set_xlabel("Pixel [-]")
-        self.ax.set_ylabel("# of timestamps [-]")
+        plt.rcParams.update({"font.size": 30})
+        self.ax.set_xlabel("Pixel (-)", fontsize=15)
+        self.ax.set_ylabel("# of timestamps (-)", fontsize=15)
 
         self.ax.tick_params(which="both", width=2, direction="in")
-        self.ax.tick_params(which="major", length=7, direction="in")
-        self.ax.tick_params(which="minor", length=4, direction="in")
+        self.ax.tick_params(
+            which="major", length=7, direction="in", labelsize=15
+        )
+        self.ax.tick_params(
+            which="minor", length=4, direction="in", labelsize=15
+        )
         self.ax.yaxis.set_ticks_position("both")
         self.ax.xaxis.set_ticks_position("both")
 

@@ -5,19 +5,18 @@ output graph should be flat top.
 
 """
 
-from PyQt5.QtWidgets import (
-    QWidget,
-    QVBoxLayout,
-)
-from matplotlib.figure import Figure
+import sys
+
+import matplotlib.pyplot as plt
+import numpy as np
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
 from matplotlib.backends.backend_qt5agg import (
     NavigationToolbar2QT as NavigationToolbar,
 )
-import numpy as np
+from matplotlib.figure import Figure
+from PyQt5.QtWidgets import QVBoxLayout, QWidget
+
 from LinoSPAD2app.functions.unpack import unpack_bin
-import matplotlib.pyplot as plt
-import sys
 
 
 class HistCanvas(QWidget):
@@ -63,9 +62,9 @@ class HistCanvas(QWidget):
         Sets font size, axes labels, width, and orientation of axes ticks.
 
         """
-        plt.rcParams.update({"font.size": 12})
-        self.axes.set_xlabel("Time [ps]")
-        self.axes.set_ylabel("# of timestamps [-]")
+        plt.rcParams.update({"font.size": 15})
+        self.axes.set_xlabel("Time (ps)")
+        self.axes.set_ylabel("# of timestamps (-)")
 
         self.axes.tick_params(which="both", width=2, direction="in")
         self.axes.tick_params(which="major", length=7, direction="in")
@@ -118,8 +117,8 @@ class HistCanvas(QWidget):
             print("\nFirmware version is not recognized, exiting.")
             sys.exit()
 
-        self.axes.set_xlabel("Time [ps]")
-        self.axes.set_ylabel("# of timestamps [-]")
+        self.axes.set_xlabel("Time (ps)")
+        self.axes.set_ylabel("# of timestamps (-)")
         self.axes.set_title("Pixel {}, 17.867 us bin".format(pixel))
         self.axes.ticklabel_format(axis="y", style="sci", scilimits=(0, 0))
         self.canvas.draw()
