@@ -62,20 +62,26 @@ class PltCanvas_MZI(QWidget):
         # Upper ylim for the plot
         self.upper_ylim = 0
 
-    def setplotparameters(self):
+    def setplotparameters(self, fontsize: int = 16):
         """Figure parameters manipulation.
 
         Set font size, axes labels. Set the width and orientation of the
         axes ticks.
 
         """
-        plt.rcParams.update({"font.size": 15})
+        plt.rcParams.update({"font.size": fontsize})
         self.ax.set_xlabel("Pixel (-)")
         self.ax.set_ylabel("# of timestamps (-)")
 
-        self.ax.tick_params(which="both", width=2, direction="in")
-        self.ax.tick_params(which="major", length=7, direction="in")
-        self.ax.tick_params(which="minor", length=4, direction="in")
+        self.ax.tick_params(
+            which="both", width=2, direction="in", labelsize=fontsize
+        )
+        self.ax.tick_params(
+            which="major", length=7, direction="in", labelsize=fontsize
+        )
+        self.ax.tick_params(
+            which="minor", length=4, direction="in", labelsize=fontsize
+        )
         self.ax.yaxis.set_ticks_position("both")
         self.ax.xaxis.set_ticks_position("both")
 

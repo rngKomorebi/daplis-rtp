@@ -96,6 +96,30 @@ class MZI(QtWidgets.QWidget):
         self.last_file_ctime = 0
         self.timer.timeout.connect(self.update_time_stamp)
 
+    # Testing adaptive fontsize
+    def resizeEvent(self, event):
+
+        # Define minimum and maximum width and corresponding font sizes
+        min_width = 908
+        max_width = 3810
+        min_fontsize = 16
+        max_fontsize = 40
+
+        # Get the current window width
+        current_width = self.size().width()
+
+        # Ensure the current width stays within the bounds
+        current_width = max(min_width, min(max_width, current_width))
+
+        # Calculate the new font size using linear interpolation
+        new_font_size = min_fontsize + (
+            (current_width - min_width) / (max_width - min_width)
+        ) * (max_fontsize - min_fontsize)
+
+        self.widget_figure.setplotparameters(fontsize=new_font_size)
+
+        super().resizeEvent(event)
+
     def get_dir(self):
         """Called when the 'browse' button is pressed.
 

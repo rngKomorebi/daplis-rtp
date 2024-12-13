@@ -99,7 +99,7 @@ class LiveTimestamps(QtWidgets.QWidget):
         # Pixel masking
         self.checkBox_presetMask_2.stateChanged.connect(self.presetmask_pixels)
 
-        self.checkBox_presetMask_2.stateChanged.connect(
+        self.checkBox_linearScale_2.stateChanged.connect(
             self.slot_checkplotscale_2
         )
 
@@ -130,6 +130,30 @@ class LiveTimestamps(QtWidgets.QWidget):
         self.timerRunning = False
         self.last_file_ctime = 0
         self.timer.timeout.connect(self.update_time_stamp)
+
+    # Testing adaptive fontsize
+    def resizeEvent(self, event):
+
+        # Define minimum and maximum width and corresponding font sizes
+        min_width = 908
+        max_width = 3810
+        min_fontsize = 16
+        max_fontsize = 40
+
+        # Get the current window width
+        current_width = self.size().width()
+
+        # Ensure the current width stays within the bounds
+        current_width = max(min_width, min(max_width, current_width))
+
+        # Calculate the new font size using linear interpolation
+        new_font_size = min_fontsize + (
+            (current_width - min_width) / (max_width - min_width)
+        ) * (max_fontsize - min_fontsize)
+
+        self.widget_figure.setplotparameters(fontsize=new_font_size)
+
+        super().resizeEvent(event)
 
     def get_dir(self):
         """Called when the 'browse' button is pressed.
@@ -183,7 +207,7 @@ class LiveTimestamps(QtWidgets.QWidget):
         Switches between logarithmic and linear scale of the plot.
 
         """
-        if self.checkBox_presetMask_2.isChecked():
+        if self.checkBox_linearScale_2.isChecked():
             self.widget_figure.setPlotScale(True)
         else:
             self.widget_figure.setPlotScale(False)
@@ -302,24 +326,35 @@ class LiveTimestamps(QtWidgets.QWidget):
         number to load appropriate data.
 
         """
-        if os.getcwd() != self.path_to_main + "/params/masks":
-            os.chdir(self.path_to_main + "/params/masks")
-        file = glob.glob(
-            "*{}_{}*".format(
-                self.comboBox_mask_2.currentText(),
-                self.comboBox_mb_2.currentText(),
-            )
-        )[0]
-        mask = np.genfromtxt(file, delimiter=",", dtype="int")
 
         if self.checkBox_presetMask_2.isChecked():
-            for i in mask:
-                self.maskValidPixels[i] = 0
-                cb = self.scrollAreaWidgetContentslayout.itemAt(i).widget()
-                cb.setChecked(True)
+            try:
+                if os.getcwd() != self.path_to_main + "/params/masks":
+                    os.chdir(self.path_to_main + "/params/masks")
+                file = glob.glob(
+                    "*{}_{}*".format(
+                        self.comboBox_mask_2.currentText(),
+                        self.comboBox_mb_2.currentText(),
+                    )
+                )[0]
+                mask = np.genfromtxt(file, delimiter=",", dtype="int")
+                for i in mask:
+                    self.maskValidPixels[i] = 0
+                    cb = self.scrollAreaWidgetContentslayout.itemAt(i).widget()
+                    cb.setChecked(True)
+            except IndexError:
+                self.checkBox_presetMask_2.setCheckState(0)
+                msg_window = QtWidgets.QMessageBox()
+                msg_window.setText(
+                    "No mask data were found for the given daughterboard, "
+                    "motherboard, and firmware combination."
+                )
+                msg_window.setWindowTitle("Error")
+                msg_window.exec_()
+
         else:
-            for i in mask:
-                self.maskValidPixels[i] = 0
+            for i in range(256):
+                # self.maskValidPixels[i] = 0
                 cb = self.scrollAreaWidgetContentslayout.itemAt(i).widget()
                 cb.setChecked(False)
 
