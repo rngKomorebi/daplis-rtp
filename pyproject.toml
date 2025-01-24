@@ -21,9 +21,10 @@ classifiers = [
 keywords = ["timestamp", "analysis", "LinoSPAD2"]
 
 dependencies = [
-    matplotlib>=3.6.2,
-    numpy>=1.23.5,
-    PyQt5>=5.15.7,
+    "matplotlib>=3.6.2",
+    "numpy>=1.23.5",
+    "PyQt5>=5.15.7",
+    "setuptools>=70.0",
 ]
 
 [tool.setuptools.packages.find]

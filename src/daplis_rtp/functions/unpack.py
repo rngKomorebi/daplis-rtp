@@ -13,7 +13,7 @@ import os
 
 import numpy as np
 
-from daplis_rtp.functions.calibrate import calibrate_load
+# from daplis_rtp.functions.calibrate import calibrate_load
 
 
 def unpack_bin(file, board_number: str, fw_ver: str, timestamps: int = 512):
