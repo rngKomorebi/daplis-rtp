@@ -1,7 +1,7 @@
 # Data Analysis Package for LInoSpad - Real-Time Plotting (DAPLIS-RTP).
 
 Package with an application for real-time plotting of sensor population
-for LinoSPAD2. A spin-off of the main data analysis package [daplis][https://github.com/rngKomorebi/LinoSPAD2]
+for LinoSPAD2. A spin-off of the main data analysis package [daplis](https://github.com/rngKomorebi/daplis)
 
 ![Tests](https://github.com/rngKomorebi/LinoSPAD2-app/actions/workflows/tests.yml/badge.svg)
 ![Documentation](https://github.com/rngKomorebi/LinoSPAD2-app/actions/workflows/documentation.yml/badge.svg)
@@ -24,7 +24,7 @@ if the distribution is uniform, the data is ok. The third tab can be used
 for plotting the number of photons from two pixels vs the data file as two 
 curves with primary application in Mach-Zehnder interferometer setup.
 
-This repo was separated from the [main](https://github.com/rngKomorebi/LinoSPAD2)
+This repo was separated from the [main](https://github.com/rngKomorebi/daplis)
 library of scripts for LinoSPAD2 data analysis. The reason is that
 the app requires its own 'main.py' to run and having it as a standalone
 makes it quite easy to generate an executable with [pyinstaller](https://pyinstaller.org/en/stable/).
