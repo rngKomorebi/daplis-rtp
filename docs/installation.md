@@ -63,13 +63,13 @@ pyinstaller --clean --onedir --noconsole main.py
 which packs everything in the package for the "main.exe" executable
 for the app. Options 'onedir' for installing everything into a single
 directory and 'noconsole' for running the app without a console are
-recommended. Additionally, in the '_tab.py' files in the "src/LinoSPAD2app/gui"
+recommended. Additionally, in the '_tab.py' files in the "src/daplis_rtp/gui"
 folder, change the first lines in the '__init__' functions to the
 following: 
 ```
 def __init__(self, parent=None):
     super().__init__(parent)
-    os.chdir(r"FULL\PATH\TO\LinoSPAD2-app\gui\ui")
+    os.chdir(r"FULL\PATH\TO\daplis_rtp\gui\ui")
     uic.loadUi(
         r"LiveTimestamps_tab_c.ui",
         self,

@@ -1,7 +1,7 @@
-# LinoSPAD2 app
+# Data Analysis Package for LInoSpad - Real-Time Plotting (DAPLIS-RTP).
 
 Package with an application for real-time plotting of sensor population
-for LinoSPAD2.
+for LinoSPAD2. A spin-off of the main data analysis package [daplis][https://github.com/rngKomorebi/LinoSPAD2]
 
 ![Tests](https://github.com/rngKomorebi/LinoSPAD2-app/actions/workflows/tests.yml/badge.svg)
 ![Documentation](https://github.com/rngKomorebi/LinoSPAD2-app/actions/workflows/documentation.yml/badge.svg)
