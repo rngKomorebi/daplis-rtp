@@ -1,7 +1,7 @@
-LinoSPAD2app.functions.sen\_pop module
+daplis_rtp.functions.sen\_pop module
 ======================================
 
-.. automodule:: LinoSPAD2app.functions.sen_pop
+.. automodule:: daplis_rtp.functions.sen_pop
    :members:
    :undoc-members:
    :show-inheritance:

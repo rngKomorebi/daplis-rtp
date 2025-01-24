@@ -1,7 +1,7 @@
-LinoSPAD2app.gui.single\_pixel\_histogram module
+daplis_rtp.gui.single\_pixel\_histogram module
 ================================================
 
-.. automodule:: LinoSPAD2app.gui.single_pixel_histogram
+.. automodule:: daplis_rtp.gui.single_pixel_histogram
    :members:
    :undoc-members:
    :show-inheritance:

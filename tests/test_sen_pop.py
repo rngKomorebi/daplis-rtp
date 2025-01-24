@@ -1,6 +1,7 @@
-import unittest
 import os
-from LinoSPAD2app.functions import sen_pop
+import unittest
+
+from daplis_rtp.functions import sen_pop
 
 
 class SenPopTestCase(unittest.TestCase):

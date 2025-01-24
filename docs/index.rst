@@ -17,8 +17,8 @@ and functions.
 
    intro
    installation
-   LinoSPAD2app.gui
-   LinoSPAD2app.functions
+   daplis_rtp.gui
+   daplis_rtp.functions
    contribute
    license
    acknowledgement

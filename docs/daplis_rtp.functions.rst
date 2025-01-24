@@ -1,7 +1,7 @@
-LinoSPAD2app.functions package
+daplis_rtp.functions package
 ==============================
 
-.. automodule:: LinoSPAD2app.functions
+.. automodule:: daplis_rtp.functions
    :members:
    :undoc-members:
    :show-inheritance:
@@ -12,6 +12,6 @@ Submodules
 .. toctree::
    :maxdepth: 4
 
-   LinoSPAD2app.functions.calibrate
-   LinoSPAD2app.functions.sen_pop
-   LinoSPAD2app.functions.unpack
+   daplis_rtp.functions.calibrate
+   daplis_rtp.functions.sen_pop
+   daplis_rtp.functions.unpack

@@ -1,7 +1,7 @@
-LinoSPAD2app.main module
+daplis_rtp.main module
 ========================
 
-.. automodule:: LinoSPAD2app.main
+.. automodule:: daplis_rtp.main
    :members:
    :undoc-members:
    :show-inheritance:

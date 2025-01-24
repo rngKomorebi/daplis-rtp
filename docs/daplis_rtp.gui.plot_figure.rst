@@ -1,7 +1,7 @@
-LinoSPAD2app.gui.plot\_figure module
+daplis_rtp.gui.plot\_figure module
 ====================================
 
-.. automodule:: LinoSPAD2app.gui.plot_figure
+.. automodule:: daplis_rtp.gui.plot_figure
    :members:
    :undoc-members:
    :show-inheritance:

@@ -1,7 +1,7 @@
-LinoSPAD2app package
+daplis_rtp package
 ====================
 
-.. automodule:: LinoSPAD2app
+.. automodule:: daplis_rtp
    :members:
    :undoc-members:
    :show-inheritance:
@@ -12,8 +12,8 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
-   LinoSPAD2app.functions
-   LinoSPAD2app.gui
+   daplis_rtp.functions
+   daplis_rtp.gui
 
 Submodules
 ----------
@@ -21,4 +21,4 @@ Submodules
 .. toctree::
    :maxdepth: 4
 
-   LinoSPAD2app.main
+   daplis_rtp.main
