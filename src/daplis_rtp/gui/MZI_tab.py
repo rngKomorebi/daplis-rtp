@@ -13,8 +13,8 @@ import os
 import numpy as np
 from PyQt5 import QtCore, QtWidgets, uic
 
-from LinoSPAD2app.functions.sen_pop import sen_pop
-from LinoSPAD2app.gui.plot_figure_MZI import PltCanvas_MZI
+from daplis_rtp.functions.sen_pop import sen_pop
+from daplis_rtp.gui.plot_figure_MZI import PltCanvas_MZI
 
 
 class MZI(QtWidgets.QWidget):
@@ -284,3 +284,27 @@ class MZI(QtWidgets.QWidget):
                 msg_window.exec_()
                 self.slot_stopstream()
                 stopping = True
+
+    # Testing adaptive fontsize
+    def resizeEvent(self, event):
+
+        # Define minimum and maximum width and corresponding font sizes
+        min_width = 908
+        max_width = 3810
+        min_fontsize = 16
+        max_fontsize = 40
+
+        # Get the current window width
+        current_width = self.size().width()
+
+        # Ensure the current width stays within the bounds
+        current_width = max(min_width, min(max_width, current_width))
+
+        # Calculate the new font size using linear interpolation
+        new_font_size = min_fontsize + (
+            (current_width - min_width) / (max_width - min_width)
+        ) * (max_fontsize - min_fontsize)
+
+        self.widget_figure.setplotparameters(fontsize=new_font_size)
+
+        super().resizeEvent(event)

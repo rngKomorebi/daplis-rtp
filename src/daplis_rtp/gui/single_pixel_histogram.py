@@ -16,11 +16,11 @@ from matplotlib.backends.backend_qt5agg import (
 from matplotlib.figure import Figure
 from PyQt5.QtWidgets import QVBoxLayout, QWidget
 
-from LinoSPAD2app.functions.unpack import unpack_bin
+from daplis_rtp.functions.unpack import unpack_bin
 
 
 class HistCanvas(QWidget):
-    def __init__(self, width=7, height=4, dpi=100):
+    def __init__(self, parent=None, width=7, height=4, dpi=100):
         """Figure widget initialization.
 
         The figure is initialized with the matplotlib navigation panel for
@@ -35,16 +35,16 @@ class HistCanvas(QWidget):
         dpi : int, optional
             Figure widget dpi, by default 100.
         """
-        super().__init__()
+        super(HistCanvas, self).__init__(parent)
 
         # figure initialization
-        self.figure = Figure(figsize=(width, height), dpi=dpi)
+        self.figure = Figure(figsize=(width, height), dpi=100)
         self.canvas = FigureCanvasQTAgg(self.figure)
-        self.axes = self.figure.add_subplot(111)
-        self.toolbar = NavigationToolbar(self.canvas, self)
 
+        self.toolbar = NavigationToolbar(self.canvas, self)
+        self.ax = self.figure.add_subplot(111)
         self.figure.subplots_adjust(
-            left=0.085, right=0.995, top=0.935, bottom=0.125
+            left=0.15, right=0.97, top=0.96, bottom=0.17
         )
 
         # creating a Vertical Box layout
@@ -56,26 +56,39 @@ class HistCanvas(QWidget):
 
         self._setplotparameters()
 
-    def _setplotparameters(self):
+    def _setplotparameters(self, fontsize: int = 16):
         """Figure parameters manipulation.
 
-        Sets font size, axes labels, width, and orientation of axes ticks.
+        Set font size, axes labels. Set the width and orientation of the
+        axes ticks.
 
         """
-        plt.rcParams.update({"font.size": 15})
-        self.axes.set_xlabel("Time (ps)")
-        self.axes.set_ylabel("# of timestamps (-)")
+        plt.rcParams.update({"font.size": 30})
+        self.ax.set_xlabel("Pixel (-)", fontsize=25)
+        self.ax.set_ylabel("# of timestamps (-)", fontsize=fontsize)
 
-        self.axes.tick_params(which="both", width=2, direction="in")
-        self.axes.tick_params(which="major", length=7, direction="in")
-        self.axes.tick_params(which="minor", length=4, direction="in")
-        self.axes.yaxis.set_ticks_position("both")
-        self.axes.xaxis.set_ticks_position("both")
+        self.ax.tick_params(which="both", width=2, direction="in")
+        self.ax.tick_params(
+            which="major", length=7, direction="in", labelsize=fontsize
+        )
+        self.ax.tick_params(
+            which="minor", length=4, direction="in", labelsize=fontsize
+        )
+        self.ax.yaxis.set_ticks_position("both")
+        self.ax.xaxis.set_ticks_position("both")
 
         for axis in ["top", "bottom", "left", "right"]:
-            self.axes.spines[axis].set_linewidth(2)
+            self.ax.spines[axis].set_linewidth(2)
 
-    def plot_hist(self, file, pixel, timestamps, board_number, fw_ver):
+    def plot_hist(
+        self,
+        file: str,
+        pixel: int,
+        timestamps: int,
+        board_number: str,
+        fw_ver: str,
+        cycle_length: float,
+    ):
         """Plot histogram.
 
         Plots a histogram of timestamps for a single pixel. Bin size is
@@ -96,12 +109,14 @@ class HistCanvas(QWidget):
         """
         data = unpack_bin(file, board_number, fw_ver, timestamps)
 
-        bins = np.arange(0, 4e9, 17.867 * 1e6)  # bin size of 17.867 us
+        bin_rounder = cycle_length / (2500 / 140) / 250
 
-        self.axes.cla()
+        bins = np.arange(0, cycle_length, 2500 / 140 * bin_rounder)
+
+        self.ax.cla()
 
         if fw_ver == "2208":
-            self.axes.hist(data[pixel], bins=bins, color="teal")
+            self.ax.hist(data[pixel], bins=bins, color="teal")
         elif fw_ver[:-1] == "2212":
             if fw_ver == "2212s":
                 pix_coor = np.arange(256).reshape(4, 64).T
@@ -112,14 +127,15 @@ class HistCanvas(QWidget):
             ind1 = np.where(data[tdc].T[1][ind] > 0)[0]
             data_to_plot = data[tdc].T[1][ind[ind1]]
 
-            self.axes.hist(data_to_plot, bins=bins, color="teal")
+            self.ax.hist(data_to_plot, bins=bins, color="teal")
         else:
             print("\nFirmware version is not recognized, exiting.")
             sys.exit()
 
-        self.axes.set_xlabel("Time (ps)")
-        self.axes.set_ylabel("# of timestamps (-)")
-        self.axes.set_title("Pixel {}, 17.867 us bin".format(pixel))
-        self.axes.ticklabel_format(axis="y", style="sci", scilimits=(0, 0))
+        self.ax.set_xlabel("Time (ps)")
+        self.ax.set_ylabel("# of timestamps (-)")
+        # self.ax.set_title("Pixel {}, 17.867 us bin".format(pixel))
+        self.ax.set_xlim(0, cycle_length + 100)
+        # self.ax.ticklabel_format(axis="y", style="sci", scilimits=(0, 0))
         self.canvas.draw()
         self.canvas.flush_events()

@@ -12,8 +12,8 @@ import os
 import numpy as np
 from PyQt5 import QtCore, QtWidgets, uic
 
-from LinoSPAD2app.functions.sen_pop import sen_pop
-from LinoSPAD2app.gui.plot_figure import PltCanvas
+from daplis_rtp.functions.sen_pop import sen_pop
+from daplis_rtp.gui.plot_figure import PltCanvas
 
 
 class LiveTimestamps(QtWidgets.QWidget):
@@ -296,6 +296,16 @@ class LiveTimestamps(QtWidgets.QWidget):
                         [self.leftPosition, self.rightPosition],
                         self.grouping,
                     )
+
+                    copy_for_max = np.sort(np.copy(validtimestamps))
+
+                    self.lcdTopMostPixel1.display(
+                        np.argwhere(validtimestamps == copy_for_max[-1])[0][0]
+                    )
+                    self.lcdTopMostPixel2.display(
+                        np.argwhere(validtimestamps == copy_for_max[-2])[0][0]
+                    )
+
             except ValueError:
                 msg_window = QtWidgets.QMessageBox()
                 msg_window.setText(

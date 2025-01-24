@@ -47,7 +47,7 @@ class PltCanvas_MZI(QWidget):
         self.ax = self.figure.add_subplot(111)
         self.ax2 = self.ax.twinx()
         self.figure.subplots_adjust(
-            left=0.15, right=0.915, top=0.96, bottom=0.17
+            left=0.15, right=0.9, top=0.96, bottom=0.17
         )
 
         # creating a Vertical Box layout
@@ -69,17 +69,21 @@ class PltCanvas_MZI(QWidget):
         axes ticks.
 
         """
-        plt.rcParams.update({"font.size": fontsize})
-        self.ax.set_xlabel("Pixel (-)")
-        self.ax.set_ylabel("# of timestamps (-)")
+        plt.rcParams.update({"font.size": 30})
+        self.ax.set_xlabel("Pixel (-)", fontsize=25)
+        self.ax.set_ylabel("# of timestamps (-)", fontsize=fontsize)
 
-        self.ax.tick_params(
-            which="both", width=2, direction="in", labelsize=fontsize
-        )
+        self.ax.tick_params(which="both", width=2, direction="in")
         self.ax.tick_params(
             which="major", length=7, direction="in", labelsize=fontsize
         )
         self.ax.tick_params(
+            which="minor", length=4, direction="in", labelsize=fontsize
+        )
+        self.ax2.tick_params(
+            which="major", length=7, direction="in", labelsize=fontsize
+        )
+        self.ax2.tick_params(
             which="minor", length=4, direction="in", labelsize=fontsize
         )
         self.ax.yaxis.set_ticks_position("both")

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>874</width>
-    <height>601</height>
+    <height>636</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -42,6 +42,11 @@
             <height>26</height>
            </size>
           </property>
+          <property name="font">
+           <font>
+            <pointsize>10</pointsize>
+           </font>
+          </property>
           <property name="text">
            <string>LinoSPAD2 daughterboard</string>
           </property>
@@ -67,14 +72,19 @@
             <height>0</height>
            </size>
           </property>
+          <property name="font">
+           <font>
+            <pointsize>10</pointsize>
+           </font>
+          </property>
           <item>
            <property name="text">
-            <string>NL11</string>
+            <string>B7d</string>
            </property>
           </item>
           <item>
            <property name="text">
-            <string>D2b</string>
+            <string>NL11</string>
            </property>
           </item>
           <item>
@@ -84,7 +94,7 @@
           </item>
           <item>
            <property name="text">
-            <string>B7d</string>
+            <string>D2b</string>
            </property>
           </item>
          </widget>
@@ -113,6 +123,11 @@
             <height>26</height>
            </size>
           </property>
+          <property name="font">
+           <font>
+            <pointsize>10</pointsize>
+           </font>
+          </property>
           <property name="text">
            <string>LinoSPAD2 motherboard</string>
           </property>
@@ -132,6 +147,16 @@
             <height>0</height>
            </size>
           </property>
+          <property name="font">
+           <font>
+            <pointsize>10</pointsize>
+           </font>
+          </property>
+          <item>
+           <property name="text">
+            <string>#28</string>
+           </property>
+          </item>
           <item>
            <property name="text">
             <string>#33</string>
@@ -159,11 +184,6 @@
           </item>
           <item>
            <property name="text">
-            <string>#28</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
             <string>#29</string>
            </property>
           </item>
@@ -176,13 +196,6 @@
         <property name="topMargin">
          <number>0</number>
         </property>
-        <item>
-         <widget class="QCheckBox" name="checkBox_pix_add_fix">
-          <property name="text">
-           <string>Correct pixel addresing</string>
-          </property>
-         </widget>
-        </item>
        </layout>
       </item>
       <item>
@@ -197,6 +210,11 @@
             <width>0</width>
             <height>26</height>
            </size>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>10</pointsize>
+           </font>
           </property>
           <property name="text">
            <string>Firmware version</string>
@@ -220,6 +238,11 @@
             <height>0</height>
            </size>
           </property>
+          <property name="font">
+           <font>
+            <pointsize>10</pointsize>
+           </font>
+          </property>
           <item>
            <property name="text">
             <string>2212b</string>
@@ -240,6 +263,79 @@
        </layout>
       </item>
       <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_11">
+        <item>
+         <widget class="QLabel" name="label_timestamps_2">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>26</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>10</pointsize>
+           </font>
+          </property>
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Number of timestamps per pixel per acquisition cycle. The default is 512.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="lineWidth">
+           <number>0</number>
+          </property>
+          <property name="text">
+           <string>Timestamps</string>
+          </property>
+          <property name="textFormat">
+           <enum>Qt::PlainText</enum>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSpinBox" name="spinBox_timestamps_2">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>100</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>10</pointsize>
+           </font>
+          </property>
+          <property name="maximum">
+           <number>1536</number>
+          </property>
+          <property name="value">
+           <number>300</number>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="checkBox_pix_add_fix">
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>Correct pixel addresing</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <layout class="QHBoxLayout" name="horizontalLayout_10">
         <property name="topMargin">
          <number>0</number>
@@ -257,6 +353,11 @@
             <width>0</width>
             <height>26</height>
            </size>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>10</pointsize>
+           </font>
           </property>
           <property name="text">
            <string>Preset mask</string>
@@ -395,6 +496,11 @@
             </disabled>
            </palette>
           </property>
+          <property name="font">
+           <font>
+            <pointsize>10</pointsize>
+           </font>
+          </property>
           <property name="cursor">
            <cursorShape>WhatsThisCursor</cursorShape>
           </property>
@@ -448,6 +554,11 @@
             <height>21</height>
            </size>
           </property>
+          <property name="font">
+           <font>
+            <pointsize>10</pointsize>
+           </font>
+          </property>
           <property name="text">
            <string>Reset Mask</string>
           </property>
@@ -456,56 +567,37 @@
        </layout>
       </item>
       <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_11">
+       <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <property name="topMargin">
+         <number>0</number>
+        </property>
         <item>
-         <widget class="QLabel" name="label_timestamps_2">
+         <widget class="QLabel" name="label_TopMostPixels">
           <property name="minimumSize">
            <size>
             <width>0</width>
             <height>26</height>
            </size>
           </property>
-          <property name="toolTip">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Number of timestamps per pixel per acquisition cycle. The default is 512.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-          </property>
-          <property name="lineWidth">
-           <number>0</number>
+          <property name="font">
+           <font>
+            <pointsize>10</pointsize>
+           </font>
           </property>
           <property name="text">
-           <string>Timestamps</string>
-          </property>
-          <property name="textFormat">
-           <enum>Qt::PlainText</enum>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+           <string>Top-most pixels:</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QSpinBox" name="spinBox_timestamps_2">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>100</width>
-            <height>0</height>
-           </size>
-          </property>
+         <widget class="QLCDNumber" name="lcdTopMostPixel1"/>
+        </item>
+        <item>
+         <widget class="QLCDNumber" name="lcdTopMostPixel2">
           <property name="font">
            <font>
-            <pointsize>9</pointsize>
+            <pointsize>8</pointsize>
            </font>
-          </property>
-          <property name="maximum">
-           <number>1536</number>
-          </property>
-          <property name="value">
-           <number>300</number>
           </property>
          </widget>
         </item>
@@ -541,6 +633,11 @@
         </property>
         <item>
          <widget class="QCheckBox" name="checkBox_linearScale_2">
+          <property name="font">
+           <font>
+            <pointsize>10</pointsize>
+           </font>
+          </property>
           <property name="text">
            <string>Linear scale</string>
           </property>
@@ -564,6 +661,11 @@
         </item>
         <item>
          <widget class="QCheckBox" name="checkBox_grouping_2">
+          <property name="font">
+           <font>
+            <pointsize>10</pointsize>
+           </font>
+          </property>
           <property name="toolTip">
            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Check to plot three vertical lines to help allign the peaks in a single group of 64 pixels.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
@@ -576,6 +678,11 @@
       </item>
       <item>
        <widget class="QPushButton" name="pushButton_refreshPlot">
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+         </font>
+        </property>
         <property name="text">
          <string>Refresh plot</string>
         </property>
@@ -591,7 +698,7 @@
         </property>
         <property name="font">
          <font>
-          <pointsize>11</pointsize>
+          <pointsize>10</pointsize>
           <weight>75</weight>
           <bold>true</bold>
          </font>
@@ -621,15 +728,21 @@
      <layout class="QGridLayout" name="gridLayout">
       <item row="0" column="0" colspan="2">
        <widget class="QPushButton" name="pushButton_browse">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="minimumSize">
          <size>
-          <width>0</width>
+          <width>100</width>
           <height>28</height>
          </size>
         </property>
         <property name="font">
          <font>
-          <pointsize>9</pointsize>
+          <pointsize>10</pointsize>
          </font>
         </property>
         <property name="text">
@@ -645,8 +758,13 @@
           <height>28</height>
          </size>
         </property>
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+         </font>
+        </property>
         <property name="text">
-         <string>Left xlim</string>
+         <string>Left x limit</string>
         </property>
        </widget>
       </item>
@@ -702,8 +820,13 @@
           <height>28</height>
          </size>
         </property>
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+         </font>
+        </property>
         <property name="text">
-         <string>Right xlim</string>
+         <string>Right x limit</string>
         </property>
        </widget>
       </item>

@@ -10,7 +10,8 @@ The following functions are provided.
 """
 
 import numpy as np
-from LinoSPAD2app.functions.unpack import unpack_bin
+
+from daplis_rtp.functions.unpack import unpack_bin
 
 
 def sen_pop(

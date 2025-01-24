@@ -4,10 +4,12 @@ The tab itself could be used for checking the LinoSPAD2 output for
 homogeneity (the histogram should be more or less flat top).
 """
 
-from PyQt5 import QtWidgets, QtCore, QtGui, uic
-from LinoSPAD2app.gui.single_pixel_histogram import HistCanvas
-import os
 import glob
+import os
+
+from PyQt5 import QtCore, QtGui, QtWidgets, uic
+
+from daplis_rtp.gui.single_pixel_histogram import HistCanvas
 
 
 class SinglePixelHistogram(QtWidgets.QWidget):
@@ -39,8 +41,8 @@ class SinglePixelHistogram(QtWidgets.QWidget):
 
         # Histogram widget
         self.widget_figure = HistCanvas()
-        self.widget_figure.setFixedSize(500, 425)
-        self.widget_figure.setObjectName("widget")
+        # self.widget_figure.setFixedSize(500, 425)
+        # self.widget_figure.setObjectName("widget")
         self.gridLayout.addWidget(self.widget_figure, 1, 0, 4, 3)
 
         # Refresh plot button signal
@@ -49,6 +51,13 @@ class SinglePixelHistogram(QtWidgets.QWidget):
         # Set directory if path was pasted instead of chosen with the
         # 'Browse' button
         self.lineEdit_browse.textChanged.connect(self.change_path)
+
+        # Standard cycle length is 4 ms
+        self.cycle_length = 4e9
+
+        self.lineEdit_cycleLength.editingFinished.connect(
+            self.cycle_length_change
+        )
 
     def get_dir(self):
         """Called when "browse" button is pressed.
@@ -103,4 +112,44 @@ class SinglePixelHistogram(QtWidgets.QWidget):
             timestamps,
             board_number,
             fw_ver=self.comboBox_FW.currentText(),
+            cycle_length=self.cycle_length,
         )
+
+    # Testing adaptive fontsize
+    def resizeEvent(self, event):
+
+        # Define minimum and maximum width and corresponding font sizes
+        min_width = 908
+        max_width = 3810
+        min_fontsize = 16
+        max_fontsize = 40
+
+        # Get the current window width
+        current_width = self.size().width()
+
+        # Ensure the current width stays within the bounds
+        current_width = max(min_width, min(max_width, current_width))
+
+        # Calculate the new font size using linear interpolation
+        new_font_size = min_fontsize + (
+            (current_width - min_width) / (max_width - min_width)
+        ) * (max_fontsize - min_fontsize)
+
+        self.widget_figure._setplotparameters(fontsize=new_font_size)
+
+        super().resizeEvent(event)
+
+    def cycle_length_change(self):
+
+        try:
+            self.cycle_length = float(self.lineEdit_cycleLength.text())
+        except ValueError:
+            msg_window = QtWidgets.QMessageBox()
+            msg_window.setText(
+                "Cycle length should be a float, i.e., 4e9. Resetting "
+                "to the default value."
+            )
+            msg_window.setWindowTitle("Error")
+            msg_window.exec_()
+            self.lineEdit_cycleLength.setText("4e9")
+            self.cycle_length = 4e9

@@ -10,7 +10,7 @@ import sys
 import qdarkstyle
 from PyQt5.QtWidgets import QApplication, QMainWindow
 
-from LinoSPAD2app.gui.ui.mainwindow import Ui_MainWindow
+from daplis_rtp.gui.ui.mainwindow import Ui_MainWindow
 
 
 class MainWindow(QMainWindow, Ui_MainWindow):

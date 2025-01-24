@@ -8,9 +8,9 @@
 
 from PyQt5 import QtCore, QtWidgets
 
-from LinoSPAD2app.gui.live_timestamps_tab import LiveTimestamps
-from LinoSPAD2app.gui.MZI_tab import MZI
-from LinoSPAD2app.gui.single_pix_hist_tab import SinglePixelHistogram
+from daplis_rtp.gui.live_timestamps_tab import LiveTimestamps
+from daplis_rtp.gui.MZI_tab import MZI
+from daplis_rtp.gui.single_pix_hist_tab import SinglePixelHistogram
 
 # from graphic.delta_t_tab import Delta_t
 
