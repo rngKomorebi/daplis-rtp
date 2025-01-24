@@ -5,6 +5,8 @@ for LinoSPAD2. A spin-off of the main data analysis package [daplis][https://git
 
 ![Tests](https://github.com/rngKomorebi/LinoSPAD2-app/actions/workflows/tests.yml/badge.svg)
 ![Documentation](https://github.com/rngKomorebi/LinoSPAD2-app/actions/workflows/documentation.yml/badge.svg)
+![PyPI - Version](https://img.shields.io/pypi/v/daplis-rtp)
+![PyPI - License](https://img.shields.io/pypi/l/daplis-rtp)
 
 Full documentation (including all docstrings) can be found [here](https://rngkomorebi.github.io/LinoSPAD2app/).
 
