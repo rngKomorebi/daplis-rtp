@@ -1,7 +1,7 @@
-LinoSPAD2app
+daplis_rtp
 ============
 
 .. toctree::
    :maxdepth: 4
 
-   LinoSPAD2app
+   daplis_rtp

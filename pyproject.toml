@@ -1,15 +1,37 @@
-[tool.black]
-line-length = 79
-include = '\.pyi?$'
-exclude = '''
-/(
-    \.git
-  | \.hg
-  | \.venv
-  | _build
-  | build
-)/
-'''
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=70.0", "wheel"]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "daplis-rtp"
+version = "0.9.0"
+description = "Data Analysis Package for LInoSpad - Real-Time Plotting"
+authors = [{ name = "Sergei Kulkov", email = "sergei.kulkov23@gmail.com" }]
+license = { text = "MIT" }
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
+keywords = ["timestamp", "analysis", "LinoSPAD2"]
+
+dependencies = [
+    "matplotlib>=3.6.2",
+    "numpy>=1.23.5",
+    "PyQt5>=5.15.7",
+    "setuptools>=70.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+daplis = ["*.txt", "*.csv"]
+
+[project.urls]
+Homepage = "https://github.com/rngKomorebi/daplis-rtp"

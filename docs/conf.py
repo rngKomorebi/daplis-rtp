@@ -29,12 +29,12 @@ def setup(app):
 
 # -- Project information -----------------------------------------------------
 
-project = "LinoSPAD2 application"
+project = "Data Analysis Package for LinoSPAD2 - Real-Time Plotting"
 copyright = "2023, Sergei Kulkov"
 author = "Sergei Kulkov"
 
 # The full version, including alpha/beta/rc tags
-release = "0.9.0"
+release = "1.0.0"
 
 
 # -- General configuration ---------------------------------------------------

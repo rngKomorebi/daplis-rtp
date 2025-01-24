@@ -1,7 +1,9 @@
-import unittest
-import numpy as np
 import os
-from LinoSPAD2app.functions.unpack import unpack_bin
+import unittest
+
+import numpy as np
+
+from daplis_rtp.functions.unpack import unpack_bin
 
 
 class TestUnpackBin(unittest.TestCase):

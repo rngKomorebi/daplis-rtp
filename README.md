@@ -1,7 +1,7 @@
-# LinoSPAD2 app
+# Data Analysis Package for LInoSpad - Real-Time Plotting (DAPLIS-RTP).
 
 Package with an application for real-time plotting of sensor population
-for LinoSPAD2.
+for LinoSPAD2. A spin-off of the main data analysis package [daplis][https://github.com/rngKomorebi/LinoSPAD2]
 
 ![Tests](https://github.com/rngKomorebi/LinoSPAD2-app/actions/workflows/tests.yml/badge.svg)
 ![Documentation](https://github.com/rngKomorebi/LinoSPAD2-app/actions/workflows/documentation.yml/badge.svg)
@@ -13,8 +13,14 @@ Full documentation (including all docstrings) can be found [here](https://rngkom
 The main purpose of this application is real-time plotting of LinoSPAD2
 sensor population for easier handling of the setup. Given the detector 
 data acquisition is running and once a path to where data files should
-be saved to, scripts constantly wait for the latest saved file, unpack
-the data, and plot it as a number of timestamps vs. pixel number.
+be saved to, the program constantly checks for the latest saved file, then 
+unpacks the data, and plots it as a number of photons detected in each pixel.
+
+Additionally, a separate tab for checking the data quality by looking at 
+the distribution of timestamps across the whole acquisition cycle is provided: 
+if the distribution is uniform, the data is ok. The third tab can be used
+for plotting the number of photons from two pixels vs the data file as two 
+curves with primary application in Mach-Zehnder interferometer setup.
 
 This repo was separated from the [main](https://github.com/rngKomorebi/LinoSPAD2)
 library of scripts for LinoSPAD2 data analysis. The reason is that
@@ -65,7 +71,7 @@ where the last command activates the environment. Here, all the necessary
 packages along with the app package itself should be installed. To do
 this, run from the environment (given the package was downloaded):
 ```
-cd PATH/TO/THIS/PACKAGE
+cd PATH/TO/THIS/PACKAGE/src/LinoSPAD2app
 pip install -r requirements.txt
 pip install -e .
 ```
@@ -106,6 +112,29 @@ conda install --file requirements.txt -c conda-forge
 conda install pyinstaller -c conda-forge
 ```
 and the rest stay the same as for the installation using pip.
+
+## Dark theme app (Windows)
+
+For dark theme enthusiasts, there is an option to run the app in dark mode (tested on Windows only). To do that, in the environment where the app is running, install qdarkstyle
+```
+pip install qdarkstyle
+```
+or, using conda
+```
+conda install qdarkstyle -c conda-forge
+```
+Then, in the 'main.py', import (uncomment) qdarkstyle and uncomment the 5th line in the following code block
+```
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+    window = MainWindow()
+    # For dark theme
+    # app.setStyleSheet(qdarkstyle.load_stylesheet())
+    window.show()
+    app.exec()
+```
+that will run the app in dark mode. To apply dark theme for the
+matplotlib canvases as well, uncomment the 'plt.style.use()"dark_background")' in the 'plot_figure.py'.
 
 ## How to contribute
 
