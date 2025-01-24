@@ -28,6 +28,6 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     window = MainWindow()
     # For dark theme
-    app.setStyleSheet(qdarkstyle.load_stylesheet())
+    # app.setStyleSheet(qdarkstyle.load_stylesheet())
     window.show()
     app.exec()

@@ -37,7 +37,7 @@ class PltCanvas_MZI(QWidget):
         super(PltCanvas_MZI, self).__init__(parent)
 
         # For 'dark_background' style
-        plt.style.use("dark_background")
+        # plt.style.use("dark_background")
 
         # a figure instance to plot on
         self.figure = Figure(figsize=(width, height), dpi=100)
