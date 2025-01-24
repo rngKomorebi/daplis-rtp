@@ -13,8 +13,14 @@ Full documentation (including all docstrings) can be found [here](https://rngkom
 The main purpose of this application is real-time plotting of LinoSPAD2
 sensor population for easier handling of the setup. Given the detector 
 data acquisition is running and once a path to where data files should
-be saved to, scripts constantly wait for the latest saved file, unpack
-the data, and plot it as a number of timestamps vs. pixel number.
+be saved to, the program constantly checks for the latest saved file, then 
+unpacks the data, and plots it as a number of photons detected in each pixel.
+
+Additionally, a separate tab for checking the data quality by looking at 
+the distribution of timestamps across the whole acquisition cycle is provided: 
+if the distribution is uniform, the data is ok. The third tab can be used
+for plotting the number of photons from two pixels vs the data file as two 
+curves with primary application in Mach-Zehnder interferometer setup.
 
 This repo was separated from the [main](https://github.com/rngKomorebi/LinoSPAD2)
 library of scripts for LinoSPAD2 data analysis. The reason is that
