@@ -8,7 +8,7 @@ for LinoSPAD2. A spin-off of the main data analysis package [daplis](https://git
 ![PyPI - Version](https://img.shields.io/pypi/v/daplis-rtp)
 ![PyPI - License](https://img.shields.io/pypi/l/daplis-rtp)
 
-Full documentation (including all docstrings) can be found [here](https://rngkomorebi.github.io/LinoSPAD2app/).
+Full documentation (including all docstrings) can be found [here](https://rngkomorebi.github.io/daplis-rtp/).
 
 ## Introduction
 
