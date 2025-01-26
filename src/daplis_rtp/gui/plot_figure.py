@@ -37,7 +37,7 @@ class PltCanvas(QWidget):
         super(PltCanvas, self).__init__(parent)
 
         # For 'dark_background' style
-        # plt.style.use("dark_background")
+        plt.style.use("dark_background")
 
         # a figure instance to plot on
         self.figure = Figure(figsize=(width, height), dpi=100)
@@ -46,7 +46,7 @@ class PltCanvas(QWidget):
         self.toolbar = NavigationToolbar(self.canvas, self)
         self.ax = self.figure.add_subplot(111)
         self.figure.subplots_adjust(
-            left=0.15, right=0.97, top=0.96, bottom=0.17
+            left=0.15, right=0.97, top=0.945, bottom=0.12
         )
 
         # creating a Vertical Box layout
@@ -65,8 +65,8 @@ class PltCanvas(QWidget):
         axes ticks.
 
         """
-        plt.rcParams.update({"font.size": 30})
-        self.ax.set_xlabel("Pixel (-)", fontsize=25)
+        plt.rcParams.update({"font.size": fontsize})
+        self.ax.set_xlabel("Pixel (-)", fontsize=fontsize)
         self.ax.set_ylabel("# of timestamps (-)", fontsize=fontsize)
 
         self.ax.tick_params(which="both", width=2, direction="in")
