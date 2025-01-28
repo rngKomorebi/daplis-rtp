@@ -13,9 +13,10 @@ Full documentation (including all docstrings) can be found [here](https://rngkom
 ## Introduction
 
 The main purpose of this application is real-time plotting of LinoSPAD2
-sensor population for easier handling of the setup. Given the detector 
+sensor population for easier alignment: introducing the changes into the setup,
+one can see the results instantly using this application. Given the detector 
 data acquisition is running and once a path to where data files should
-be saved to, the program constantly checks for the latest saved file, then 
+be saved to is provided, the program constantly checks for the latest saved file, then 
 unpacks the data, and plots it as a number of photons detected in each pixel.
 
 Additionally, a separate tab for checking the data quality by looking at 
@@ -29,7 +30,7 @@ library of scripts for LinoSPAD2 data analysis. The reason is that
 the app requires its own 'main.py' to run and having it as a standalone
 makes it quite easy to generate an executable with [pyinstaller](https://pyinstaller.org/en/stable/).
 
-## Installation and usage
+## Installation and how to run the application
 
 To start using the package, one can download the whole repo. The 'main.py'
 serves as the main hub for starting the app. "requirements.txt"
@@ -38,28 +39,66 @@ an environment for this project either using conda or install the
 necessary packages using pip (for creating virtual environments using pip
 see [this](https://packaging.python.org/en/latest/guides/installing-using-pip-and-virtual-environments/)).
 
-Using pip:
+Using pip, one can check if the virtualenv package is installed in the
+current python environment:
+```
+pip show virtualenv
+```
+or install it directly using:
+```
+pip install virtualenv
+```
+To create a new environment (it is highly recommended
+to keep the virtual environments in a separate folder), run the following:
+```
+py -m venv PATH/TO/NEW/ENVIRONMENT
+```
+E.g., for creating a 'daplis-rtp' environment, one can run (on Windows):
+```
+py -m venv C:/Users/USERNAME/venvs/daplis-rtp
+```
+To activate the environment, run (on Windows):
+```
+PATH/TO/NEW/ENVIRONMENT/Scripts/activate
+```
+or, on Linux:
+```
+source PATH/TO/NEW/ENVIRONMENT/bin/activate
+```
+
+There, the package can be installed from [PyPI](https://pypi.org/project/daplis-rtp/):
+```
+pip install daplis-rtp
+```
+
+The application can be run from the command line or terminal via
+```
+daplis-rtp
+```
+
+### Installation: using source code
+
+Alternatively, one can run the application using the source code. To do it this way, first, create a virtual environment for the package by running the following set of commands (on Windows):
+
 ```
 pip install virtualenv
 py -m venv NEW_ENVIRONMENT_NAME
 PATH/TO/NEW_ENVIRONMENT_NAME/Scripts/activate
+```
+
+Then, download the zip with the source code of this package from github, 
+extract and change directory to the folder with the code. There, first install the required packages ("requirements.txt"), and, finally, install the package itself locally.
+```
 cd PATH/TO/THIS/PACKAGE
 pip install -r requirements.txt
 pip install -e .
 ```
-Using conda:
-```
-conda create --name NEW_ENVIRONMENT_NAME
-conda activate NEW_ENVIRONMENT NAME
-cd PATH/TO/THIS/PACKAGE
-conda install --file requirements.txt -c conda-forge
-pip install -e .
-```
+
 Finally, to run the app, run the 'main.py' script.
 
-### Executable
+### Executable from the source code using pyinstaller
 
-On Windows, to create an executable, one can run the following: first,
+On Windows, to create an executable, one can do the following: first,
 a separate virtual environment is highly recommended for a faster and
 smoother experience with the app, as pyinstaller packs everything it
 finds in the virtual environment; using pip:
@@ -73,7 +112,7 @@ where the last command activates the environment. Here, all the necessary
 packages along with the app package itself should be installed. To do
 this, run from the environment (given the package was downloaded):
 ```
-cd PATH/TO/THIS/PACKAGE/src/LinoSPAD2app
+cd PATH/TO/THIS/PACKAGE
 pip install -r requirements.txt
 pip install -e .
 ```
@@ -82,6 +121,7 @@ To create the executable, pyinstaller should be installed, too:
 ```
 pip install pyinstaller
 ```
+
 Then, given the current directory is set to where the package is, run
 ```
 pyinstaller --clean --onedir --noconsole main.py
@@ -89,31 +129,7 @@ pyinstaller --clean --onedir --noconsole main.py
 which packs everything in the package for the "main.exe" executable
 for the app. Options '--onedir' for installing everything into a single
 directory and '--noconsole' for running the app without a console are
-recommended. Additionally, in the '_tab.py' files, change the first
-lines in the '__init__' functions to the following: 
-```
-def __init__(self, parent=None):
-    super().__init__(parent)
-    os.chdir(r"FULL\PATH\TO\LinoSPAD2-app\gui\ui")
-    uic.loadUi(
-        r"LiveTimestamps_tab_c.ui",
-        self,
-    )
-    os.chdir("../..")
-```
-Full path to the '.ui' files should be provided as pyinstaller does not
-handle relative paths, as it's implemented in the package. To run the app,
-run 'main.exe' in the 'dist' folder.
-
-If using conda, use the following chain of commands:
-```
-conda create --name NEW_ENVIRONMENT_NAME
-conda activate NEW_ENVIRONMENT NAME
-cd PATH/TO/THIS/PACKAGE
-conda install --file requirements.txt -c conda-forge
-conda install pyinstaller -c conda-forge
-```
-and the rest stay the same as for the installation using pip.
+recommended.
 
 ## Dark theme app (Windows)
 
@@ -136,7 +152,11 @@ if __name__ == "__main__":
     app.exec()
 ```
 that will run the app in dark mode. To apply dark theme for the
-matplotlib canvases as well, uncomment the 'plt.style.use()"dark_background")' in the 'plot_figure.py'.
+matplotlib canvases as well, uncomment the 
+```
+plt.style.use("dark_background")
+```
+in the 'plot_figure.py' and 'plot_figure_MZI.py'.
 
 ## How to contribute
 
