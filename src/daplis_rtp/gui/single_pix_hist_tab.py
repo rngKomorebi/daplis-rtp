@@ -7,9 +7,9 @@ homogeneity (the histogram should be more or less flat top).
 import glob
 import os
 
-from PyQt5 import QtCore, QtGui, QtWidgets, uic
-
 from daplis_rtp.gui.single_pixel_histogram import HistCanvas
+from daplis_rtp.gui.ui.SinglePixelHistogram_tab_c import Ui_Form
+from PyQt5 import QtCore, QtGui, QtWidgets, uic
 
 
 class SinglePixelHistogram(QtWidgets.QWidget):
@@ -28,12 +28,22 @@ class SinglePixelHistogram(QtWidgets.QWidget):
         """
         super().__init__(parent)
 
-        os.chdir(r"gui/ui")
-        uic.loadUi(
-            r"SinglePixelHistogram_tab_c.ui",
-            self,
-        )
-        os.chdir("../..")
+        # os.chdir(r"C:\Users\bruce\Documents\Python Scripts\daplis-rtp\src\daplis_rtp\gui\ui")
+        # uic.loadUi(
+        #     r"SinglePixelHistogram_tab_c.ui",
+        #     self,
+        # )
+        # os.chdir("../..")
+
+        self.ui = Ui_Form()
+        self.ui.setupUi(self)
+
+        # Dynamically bind all child widgets to `self`
+        for attr_name in dir(self.ui):
+            if not attr_name.startswith("__"):  # Skip dunder methods
+                attr = getattr(self.ui, attr_name)
+                setattr(self, attr_name, attr)
+
         self.show()
 
         # Browse button signal

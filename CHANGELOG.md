@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2025-01-28
+
+Adapted the package for installation via 'pip install'. Now, after
+the package is installed, one can run it via 'daplis-rtp' command.
+
+### Added
+
+- Requirement for the 'qdarkstyle' package for dark-themed GUI.
+
+### Changed
+
+- The 'pyproject.toml' setup file: added a link to the 'main.py' so that
+after installation the program can be run via 'daplis-rtp' from the 
+terminal/command line.
+
+### Removed
+
+- The '.ui' files since they were changed to '.py'. Also, removed the
+back-up copies of the second tab (single pixel histogram) UI.
+
 ## [1.0.1] - 2025-01-26
 
 Minor fixes in all tabs, specifically regarding the canvas widget.
