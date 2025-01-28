@@ -11,10 +11,10 @@ import glob
 import os
 
 import numpy as np
-from PyQt5 import QtCore, QtWidgets, uic
-
 from daplis_rtp.functions.sen_pop import sen_pop
 from daplis_rtp.gui.plot_figure_MZI import PltCanvas_MZI
+from daplis_rtp.gui.ui.MZI_tab import Ui_Form
+from PyQt5 import QtCore, QtWidgets, uic
 
 
 class MZI(QtWidgets.QWidget):
@@ -35,12 +35,21 @@ class MZI(QtWidgets.QWidget):
 
         """
         super().__init__(parent)
-        os.chdir(r"gui/ui")
-        uic.loadUi(
-            r"MZI_tab.ui",
-            self,
-        )
-        os.chdir("../..")
+        # os.chdir(r"C:\Users\bruce\Documents\Python Scripts\daplis-rtp\src\daplis_rtp\gui\ui")
+        # uic.loadUi(
+        #     r"MZI_tab.ui",
+        #     self,
+        # )
+        # os.chdir("../..")
+
+        self.ui = Ui_Form()
+        self.ui.setupUi(self)
+
+        # Dynamically bind all child widgets to `self`
+        for attr_name in dir(self.ui):
+            if not attr_name.startswith("__"):  # Skip dunder methods
+                attr = getattr(self.ui, attr_name)
+                setattr(self, attr_name, attr)
 
         self.show()
 

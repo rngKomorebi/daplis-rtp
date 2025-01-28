@@ -24,10 +24,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         QApplication.quit()
 
 
-if __name__ == "__main__":
+def main():
     app = QApplication(sys.argv)
     window = MainWindow()
     # For dark theme
     app.setStyleSheet(qdarkstyle.load_stylesheet())
     window.show()
     app.exec()
+
+
+if __name__ == "__main__":
+    main()
