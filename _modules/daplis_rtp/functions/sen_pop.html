@@ -1,0 +1,181 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>daplis_rtp.functions.sen_pop &mdash; Data Analysis Package for LinoSPAD2 - Real-Time Plotting 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Data Analysis Package for LinoSPAD2 - Real-Time Plotting
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation and usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../daplis_rtp.gui.html">daplis_rtp.gui package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../daplis_rtp.functions.html">daplis_rtp.functions package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contribute.html">How to contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../license.html">License and contact info</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../acknowledgement.html">Acknowledgement</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Data Analysis Package for LinoSPAD2 - Real-Time Plotting</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">daplis_rtp.functions.sen_pop</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for daplis_rtp.functions.sen_pop</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Module for collecting number of timestamps in each pixel.</span>
+
+<span class="sd">Works with firmware versions 2208 and 2212.</span>
+
+<span class="sd">The following functions are provided.</span>
+
+<span class="sd">    * sen-pop - collects the number of timestamps in each pixel for the</span>
+<span class="sd">    data file provided and returns it as an array.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">daplis_rtp.functions.unpack</span><span class="w"> </span><span class="kn">import</span> <span class="n">unpack_bin</span>
+
+
+<div class="viewcode-block" id="sen_pop">
+<a class="viewcode-back" href="../../../daplis_rtp.functions.sen_pop.html#daplis_rtp.functions.sen_pop.sen_pop">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">sen_pop</span><span class="p">(</span>
+    <span class="n">file</span><span class="p">,</span>
+    <span class="n">board_number</span><span class="p">,</span>
+    <span class="n">fw_ver</span><span class="p">,</span>
+    <span class="n">timestamps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">512</span><span class="p">,</span>
+    <span class="n">pix_add_fix</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Collect number of timestamps in each pixel.</span>
+
+<span class="sd">    The output is used for plotting the sensor population. Works</span>
+<span class="sd">    with firmware versions 2208 and 2212.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    file : str</span>
+<span class="sd">        Address of the data file.</span>
+<span class="sd">    board_number : str</span>
+<span class="sd">        LinoSPAD2 daughterboard number.</span>
+<span class="sd">    fw_ver : str</span>
+<span class="sd">        LinoSPAD2 firmware version.</span>
+<span class="sd">    timestamps : int, optional</span>
+<span class="sd">        Number of timestamps per acquisition cycle per pixel/TDC, by</span>
+<span class="sd">        default 512.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    valid_per_pixel: array-like</span>
+<span class="sd">        Array of number of timestamps in each pixel.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">fw_ver</span> <span class="o">==</span> <span class="s2">&quot;2208&quot;</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">unpack_bin</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">board_number</span><span class="p">,</span> <span class="n">fw_ver</span><span class="p">,</span> <span class="n">timestamps</span><span class="p">)</span>
+        <span class="n">valid_per_pixel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">256</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)):</span>
+            <span class="n">valid_per_pixel</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="k">elif</span> <span class="n">fw_ver</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;2212&quot;</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">unpack_bin</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">board_number</span><span class="p">,</span> <span class="n">fw_ver</span><span class="p">,</span> <span class="n">timestamps</span><span class="p">)</span>
+        <span class="n">valid_per_pixel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">256</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">fw_ver</span> <span class="o">==</span> <span class="s2">&quot;2212s&quot;</span><span class="p">:</span>
+            <span class="n">pix_coor</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">256</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">64</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+        <span class="k">elif</span> <span class="n">fw_ver</span> <span class="o">==</span> <span class="s2">&quot;2212b&quot;</span><span class="p">:</span>
+            <span class="n">pix_coor</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">256</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">64</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">256</span><span class="p">):</span>
+            <span class="n">tdc</span><span class="p">,</span> <span class="n">pix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span><span class="n">pix_coor</span> <span class="o">==</span> <span class="n">i</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">ind</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">tdc</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">pix</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">ind1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">tdc</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">ind</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">valid_per_pixel</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">tdc</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">ind</span><span class="p">[</span><span class="n">ind1</span><span class="p">]])</span>
+
+    <span class="k">if</span> <span class="n">pix_add_fix</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">fix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">valid_per_pixel</span><span class="p">))</span>
+        <span class="n">fix</span><span class="p">[:</span><span class="mi">128</span><span class="p">]</span> <span class="o">=</span> <span class="n">valid_per_pixel</span><span class="p">[</span><span class="mi">128</span><span class="p">:]</span>
+        <span class="n">fix</span><span class="p">[</span><span class="mi">128</span><span class="p">:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">flip</span><span class="p">(</span><span class="n">valid_per_pixel</span><span class="p">[:</span><span class="mi">128</span><span class="p">])</span>
+        <span class="n">valid_per_pixel</span> <span class="o">=</span> <span class="n">fix</span>
+        <span class="k">del</span> <span class="n">fix</span>
+
+    <span class="k">return</span> <span class="n">valid_per_pixel</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Sergei Kulkov.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

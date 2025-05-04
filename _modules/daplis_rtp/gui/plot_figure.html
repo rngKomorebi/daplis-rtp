@@ -1,0 +1,249 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>daplis_rtp.gui.plot_figure &mdash; Data Analysis Package for LinoSPAD2 - Real-Time Plotting 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Data Analysis Package for LinoSPAD2 - Real-Time Plotting
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation and usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../daplis_rtp.gui.html">daplis_rtp.gui package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../daplis_rtp.functions.html">daplis_rtp.functions package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contribute.html">How to contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../license.html">License and contact info</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../acknowledgement.html">Acknowledgement</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Data Analysis Package for LinoSPAD2 - Real-Time Plotting</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">daplis_rtp.gui.plot_figure</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for daplis_rtp.gui.plot_figure</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Module for plotting data in the real-time plotting tab.</span>
+
+<span class="sd">Plots the data provided as number of timestamps vs. pixel number. Options</span>
+<span class="sd">for changing the plot scale (linear or logarithmic) and plotting of </span>
+<span class="sd">vertical lines at positions 64, 128, and 192 are provided. The figure</span>
+<span class="sd">widget is generated with the matplotlib navigation bar for additional</span>
+<span class="sd">control over the plot.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.backends.backend_qt5agg</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">FigureCanvasQTAgg</span> <span class="k">as</span> <span class="n">FigureCanvas</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.backends.backend_qt5agg</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">NavigationToolbar2QT</span> <span class="k">as</span> <span class="n">NavigationToolbar</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.figure</span><span class="w"> </span><span class="kn">import</span> <span class="n">Figure</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">PyQt5.QtWidgets</span><span class="w"> </span><span class="kn">import</span> <span class="n">QVBoxLayout</span><span class="p">,</span> <span class="n">QWidget</span>
+
+
+<div class="viewcode-block" id="PltCanvas">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.plot_figure.html#daplis_rtp.gui.plot_figure.PltCanvas">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">PltCanvas</span><span class="p">(</span><span class="n">QWidget</span><span class="p">):</span>
+<div class="viewcode-block" id="PltCanvas.__init__">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.plot_figure.html#daplis_rtp.gui.plot_figure.PltCanvas.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Creation of the figure widget.</span>
+
+<span class="sd">        The widget is created with the bar with options.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        width : int, optional</span>
+<span class="sd">            Figure widget width, by default 7.</span>
+<span class="sd">        height : int, optional</span>
+<span class="sd">            Figure widget height, by default 4.</span>
+<span class="sd">        dpi : int, optional</span>
+<span class="sd">            Figure widget dpi, by default 100.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">PltCanvas</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+
+        <span class="c1"># For &#39;dark_background&#39; style</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">&quot;dark_background&quot;</span><span class="p">)</span>
+
+        <span class="c1"># a figure instance to plot on</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">figure</span> <span class="o">=</span> <span class="n">Figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">),</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span> <span class="o">=</span> <span class="n">FigureCanvas</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">toolbar</span> <span class="o">=</span> <span class="n">NavigationToolbar</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span>
+            <span class="n">left</span><span class="o">=</span><span class="mf">0.15</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="mf">0.97</span><span class="p">,</span> <span class="n">top</span><span class="o">=</span><span class="mf">0.945</span><span class="p">,</span> <span class="n">bottom</span><span class="o">=</span><span class="mf">0.12</span>
+        <span class="p">)</span>
+
+        <span class="c1"># creating a Vertical Box layout</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">layout</span> <span class="o">=</span> <span class="n">QVBoxLayout</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">toolbar</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">setLayout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layout</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">setplotparameters</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="PltCanvas.setplotparameters">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.plot_figure.html#daplis_rtp.gui.plot_figure.PltCanvas.setplotparameters">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setplotparameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fontsize</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">16</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Figure parameters manipulation.</span>
+
+<span class="sd">        Set font size, axes labels. Set the width and orientation of the</span>
+<span class="sd">        axes ticks.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;font.size&quot;</span><span class="p">:</span> <span class="n">fontsize</span><span class="p">})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Pixel (-)&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">fontsize</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;# of timestamps (-)&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">fontsize</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">which</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="s2">&quot;in&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span>
+            <span class="n">which</span><span class="o">=</span><span class="s2">&quot;major&quot;</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="s2">&quot;in&quot;</span><span class="p">,</span> <span class="n">labelsize</span><span class="o">=</span><span class="n">fontsize</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span>
+            <span class="n">which</span><span class="o">=</span><span class="s2">&quot;minor&quot;</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="s2">&quot;in&quot;</span><span class="p">,</span> <span class="n">labelsize</span><span class="o">=</span><span class="n">fontsize</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_ticks_position</span><span class="p">(</span><span class="s2">&quot;both&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_ticks_position</span><span class="p">(</span><span class="s2">&quot;both&quot;</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">axis</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;top&quot;</span><span class="p">,</span> <span class="s2">&quot;bottom&quot;</span><span class="p">,</span> <span class="s2">&quot;left&quot;</span><span class="p">,</span> <span class="s2">&quot;right&quot;</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="n">axis</span><span class="p">]</span><span class="o">.</span><span class="n">set_linewidth</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="PltCanvas.setPlotData">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.plot_figure.html#daplis_rtp.gui.plot_figure.PltCanvas.setPlotData">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setPlotData</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xdataplot</span><span class="p">,</span> <span class="n">yplotdata</span><span class="p">,</span> <span class="n">xLim</span><span class="p">,</span> <span class="n">grouping</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Plot data.</span>
+
+<span class="sd">        Plot the provided data while following the state of the axis</span>
+<span class="sd">        limits and the switch for plotting vertical lines at positions</span>
+<span class="sd">        64, 128, and 192.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        xdataplot : array</span>
+<span class="sd">            Data for the x-axis: pixel numbers.</span>
+<span class="sd">        yplotdata : array-like</span>
+<span class="sd">            Data for the y-axis: number of timestamps.</span>
+<span class="sd">        xLim : list</span>
+<span class="sd">            Limits for the x-axis.</span>
+<span class="sd">        grouping : bool, optional</span>
+<span class="sd">            Switch for plotting vertical lines at positiong 64, 128, and</span>
+<span class="sd">            192, by default False.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">cla</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">yplotdata</span><span class="p">,</span> <span class="s2">&quot;-o&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;indianred&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">grouping</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">vlines</span><span class="p">(</span>
+                <span class="n">x</span><span class="o">=</span><span class="p">(</span><span class="mi">64</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="mi">192</span><span class="p">),</span> <span class="n">ymin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ymax</span><span class="o">=</span><span class="n">yplotdata</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;teal&quot;</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">relim</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">autoscale_view</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setplotparameters</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">xLim</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">xLim</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">ticklabel_format</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;sci&quot;</span><span class="p">,</span> <span class="n">scilimits</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">flush_events</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="PltCanvas.setPlotScale">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.plot_figure.html#daplis_rtp.gui.plot_figure.PltCanvas.setPlotScale">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setPlotScale</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scaleLin</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Switches plot scale between logarithmic and linear.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">scaleLin</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_yscale</span><span class="p">(</span><span class="s2">&quot;linear&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">flush_events</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_yscale</span><span class="p">(</span><span class="s2">&quot;log&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">flush_events</span><span class="p">()</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Sergei Kulkov.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
