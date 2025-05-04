@@ -8,12 +8,14 @@ plotting can take minutes).
 
 import glob
 import os
+from importlib.resources import files
 
 import numpy as np
+from PyQt5 import QtCore, QtWidgets, uic
+
 from daplis_rtp.functions.sen_pop import sen_pop
 from daplis_rtp.gui.plot_figure import PltCanvas
 from daplis_rtp.gui.ui.LiveTimestamps_tab_c import Ui_Form
-from PyQt5 import QtCore, QtWidgets, uic
 
 
 class LiveTimestamps(QtWidgets.QWidget):
@@ -348,15 +350,20 @@ class LiveTimestamps(QtWidgets.QWidget):
 
         if self.checkBox_presetMask_2.isChecked():
             try:
-                if os.getcwd() != self.path_to_main + "/params/masks":
-                    os.chdir(self.path_to_main + "/params/masks")
-                file = glob.glob(
-                    "*{}_{}*".format(
-                        self.comboBox_mask_2.currentText(),
-                        self.comboBox_mb_2.currentText(),
-                    )
-                )[0]
-                mask = np.genfromtxt(file, delimiter=",", dtype="int")
+                # if os.getcwd() != self.path_to_main + "/params/masks":
+                #     os.chdir(self.path_to_main + "/params/masks")
+                # file = glob.glob(
+                #     "*{}_{}*".format(
+                #         self.comboBox_mask_2.currentText(),
+                #         self.comboBox_mb_2.currentText(),
+                #     )
+                # )[0]
+                file_w_mask = files("daplis_rtp.params.masks").joinpath(
+                    f"mask_{self.comboBox_mask_2.currentText()}_"
+                    f"{self.comboBox_mb_2.currentText()}.txt"
+                )
+                # file = glob.glob(path_to_file_mask)[0]
+                mask = np.genfromtxt(file_w_mask, delimiter=",", dtype="int")
                 for i in mask:
                     self.maskValidPixels[i] = 0
                     cb = self.scrollAreaWidgetContentslayout.itemAt(i).widget()
@@ -366,7 +373,7 @@ class LiveTimestamps(QtWidgets.QWidget):
                 msg_window = QtWidgets.QMessageBox()
                 msg_window.setText(
                     "No mask data were found for the given daughterboard, "
-                    "motherboard, and firmware combination."
+                    "and motherboard combination."
                 )
                 msg_window.setWindowTitle("Error")
                 msg_window.exec_()
