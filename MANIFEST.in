@@ -1,2 +1,2 @@
-include src/daplis/params/masks/*.txt
-include src/daplis/params/calibration_data/*.csv
+include src/daplis-rtp/params/masks/*.txt
+include src/daplis-rtp/params/calibration_data/*.csv
