@@ -7,9 +7,10 @@ homogeneity (the histogram should be more or less flat top).
 import glob
 import os
 
+from PyQt5 import QtCore, QtGui, QtWidgets, uic
+
 from daplis_rtp.gui.single_pixel_histogram import HistCanvas
 from daplis_rtp.gui.ui.SinglePixelHistogram_tab_c import Ui_Form
-from PyQt5 import QtCore, QtGui, QtWidgets, uic
 
 
 class SinglePixelHistogram(QtWidgets.QWidget):
@@ -108,7 +109,7 @@ class SinglePixelHistogram(QtWidgets.QWidget):
 
         try:
             last_file = max(files, key=os.path.getctime)
-        except ValueError:
+        except (IndexError, FileNotFoundError):
             msg_window = QtWidgets.QMessageBox()
             msg_window.setText(
                 "No data files found, check the working directory."

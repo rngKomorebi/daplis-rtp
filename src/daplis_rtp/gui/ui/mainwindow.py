@@ -93,7 +93,7 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(
-            _translate("MainWindow", "LinoSPAD2 Data Analysis")
+            _translate("MainWindow", "DAPLIS - Real Time Plotting")
         )
         self.tabWidget.setTabText(
             self.tabWidget.indexOf(self.tab),

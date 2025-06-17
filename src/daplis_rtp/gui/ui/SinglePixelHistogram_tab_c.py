@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_Form(object):
     def setupUi(self, Form):
         Form.setObjectName("Form")
-        Form.resize(874, 636)
+        Form.resize(883, 636)
         self.gridLayout_2 = QtWidgets.QGridLayout(Form)
         self.gridLayout_2.setObjectName("gridLayout_2")
         self.frame = QtWidgets.QFrame(Form)
@@ -98,6 +98,7 @@ class Ui_Form(object):
         font = QtGui.QFont()
         font.setPointSize(10)
         self.comboBox_boardNumber.setFont(font)
+        self.comboBox_boardNumber.setEditable(True)
         self.comboBox_boardNumber.setObjectName("comboBox_boardNumber")
         self.comboBox_boardNumber.addItem("")
         self.comboBox_boardNumber.addItem("")
@@ -127,6 +128,7 @@ class Ui_Form(object):
         font = QtGui.QFont()
         font.setPointSize(10)
         self.comboBox_mb_2.setFont(font)
+        self.comboBox_mb_2.setEditable(True)
         self.comboBox_mb_2.setObjectName("comboBox_mb_2")
         self.comboBox_mb_2.addItem("")
         self.comboBox_mb_2.addItem("")
