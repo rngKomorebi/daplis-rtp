@@ -1,0 +1,558 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>daplis_rtp.gui.live_timestamps_tab &mdash; Data Analysis Package for LinoSPAD2 - Real-Time Plotting 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Data Analysis Package for LinoSPAD2 - Real-Time Plotting
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation and usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../daplis_rtp.gui.html">daplis_rtp.gui package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../daplis_rtp.functions.html">daplis_rtp.functions package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contribute.html">How to contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../license.html">License and contact info</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../acknowledgement.html">Acknowledgement</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Data Analysis Package for LinoSPAD2 - Real-Time Plotting</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">daplis_rtp.gui.live_timestamps_tab</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for daplis_rtp.gui.live_timestamps_tab</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;This script generates the tab for online sensor population plotting.</span>
+
+<span class="sd">The tab can be used to introduce changes to the setup while following</span>
+<span class="sd">the changes in real-time (depending on the actual data file size, the</span>
+<span class="sd">plotting can take minutes).</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">glob</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">importlib.resources</span><span class="w"> </span><span class="kn">import</span> <span class="n">files</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">PyQt5</span><span class="w"> </span><span class="kn">import</span> <span class="n">QtCore</span><span class="p">,</span> <span class="n">QtWidgets</span><span class="p">,</span> <span class="n">uic</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">daplis_rtp.functions.sen_pop</span><span class="w"> </span><span class="kn">import</span> <span class="n">sen_pop</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">daplis_rtp.gui.plot_figure</span><span class="w"> </span><span class="kn">import</span> <span class="n">PltCanvas</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">daplis_rtp.gui.ui.LiveTimestamps_tab_c</span><span class="w"> </span><span class="kn">import</span> <span class="n">Ui_Form</span>
+
+
+<div class="viewcode-block" id="LiveTimestamps">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.live_timestamps_tab.html#daplis_rtp.gui.live_timestamps_tab.LiveTimestamps">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">LiveTimestamps</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QWidget</span><span class="p">):</span>
+<div class="viewcode-block" id="LiveTimestamps.__init__">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.live_timestamps_tab.html#daplis_rtp.gui.live_timestamps_tab.LiveTimestamps.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Creation of the tab.</span>
+
+<span class="sd">        The tab is generated with a &#39;Browse&#39; button along with a line</span>
+<span class="sd">        edit field for choosing/inserting the address of the data</span>
+<span class="sd">        file to plot. Combo boxes for LinoSPAD2 daughterboard number and</span>
+<span class="sd">        the firmware version are generated. A check box for applying and</span>
+<span class="sd">        a button for undoing the mask are generated. A spin box for</span>
+<span class="sd">        the number of timestamps per pixel/TDC per cycle is provided. A</span>
+<span class="sd">        widget with a grid of 4x64 of checkboxes with pixel numbers</span>
+<span class="sd">        for masking single pixels is generated. A check box for switching</span>
+<span class="sd">        between a linear and a logarithmic scale of the plot along with</span>
+<span class="sd">        a check box for plotting vertical lines at positions 64, 128, and</span>
+<span class="sd">        192 are provided (the latter can be used for firmware versions</span>
+<span class="sd">        2208 and 2212s for setup alignment). Buttons &#39;Refresh plot&#39; for</span>
+<span class="sd">        refreshing the plot and &#39;Start stream&#39; for plotting the</span>
+<span class="sd">        last file found are created. Two sliders for the left and right</span>
+<span class="sd">        limits for the x-axis are created.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+        <span class="c1"># os.chdir(r&quot;C:\Users\bruce\Documents\Python Scripts\daplis-rtp\src\daplis_rtp\gui\ui&quot;)</span>
+        <span class="c1"># uic.loadUi(</span>
+        <span class="c1">#     r&quot;LiveTimestamps_tab_c.ui&quot;,</span>
+        <span class="c1">#     self,</span>
+        <span class="c1"># )</span>
+        <span class="c1"># os.chdir(&quot;../..&quot;)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui</span> <span class="o">=</span> <span class="n">Ui_Form</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">setupUi</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="c1"># Dynamically bind all child widgets to `self`</span>
+        <span class="k">for</span> <span class="n">attr_name</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">attr_name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;__&quot;</span><span class="p">):</span>  <span class="c1"># Skip dunder methods</span>
+                <span class="n">attr</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="p">,</span> <span class="n">attr_name</span><span class="p">)</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr_name</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">pathtotimestamp</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+        <span class="c1"># Browse button</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_browse</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_dir</span><span class="p">)</span>
+
+        <span class="c1"># Scroll area with check boxes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scrollAreaWidgetContents</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QWidget</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scrollAreaWidgetContents</span><span class="o">.</span><span class="n">setGeometry</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">QRect</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">383</span><span class="p">,</span> <span class="mi">346</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">checkBoxPixel</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scrollAreaWidgetContentslayout</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QGridLayout</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">scrollAreaWidgetContents</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">maskValidPixels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">256</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">64</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">checkBoxPixel</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QCheckBox</span><span class="p">(</span>
+                        <span class="nb">str</span><span class="p">(</span><span class="n">row</span> <span class="o">+</span> <span class="n">col</span> <span class="o">*</span> <span class="mi">64</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">scrollAreaWidgetContents</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">scrollAreaWidgetContentslayout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">checkBoxPixel</span><span class="p">[</span><span class="n">row</span> <span class="o">+</span> <span class="n">col</span> <span class="o">*</span> <span class="mi">64</span><span class="p">],</span> <span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span>
+                <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scrollAreaWidgetContents</span><span class="o">.</span><span class="n">setObjectName</span><span class="p">(</span><span class="s2">&quot;scrollAreaWidgetContents&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scrollArea</span><span class="o">.</span><span class="n">setWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scrollAreaWidgetContents</span><span class="p">)</span>
+
+        <span class="c1"># Figure widget</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">widget_figure</span> <span class="o">=</span> <span class="n">PltCanvas</span><span class="p">()</span>
+        <span class="c1"># self.widget_figure.setMinimumSize(500, 400)</span>
+        <span class="c1"># self.widget_figure.setFixedSize(500, 425)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">widget_figure</span><span class="o">.</span><span class="n">setObjectName</span><span class="p">(</span><span class="s2">&quot;widget&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gridLayout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">widget_figure</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+
+        <span class="c1"># Sliders</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">horizontalSlider_leftXLim</span><span class="o">.</span><span class="n">valueChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">slot_updateLeftSlider</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">horizontalSlider_rightXLim</span><span class="o">.</span><span class="n">valueChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">slot_updateRightSlider</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">horizontalSlider_leftXLim</span><span class="o">.</span><span class="n">setMinimum</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">horizontalSlider_leftXLim</span><span class="o">.</span><span class="n">setMaximum</span><span class="p">(</span><span class="mi">255</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">horizontalSlider_rightXLim</span><span class="o">.</span><span class="n">setMinimum</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">horizontalSlider_rightXLim</span><span class="o">.</span><span class="n">setMaximum</span><span class="p">(</span><span class="mi">255</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">horizontalSlider_rightXLim</span><span class="o">.</span><span class="n">setSliderPosition</span><span class="p">(</span><span class="mi">255</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">leftPosition</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rightPosition</span> <span class="o">=</span> <span class="mi">255</span>
+
+        <span class="c1"># Pixel masking</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">checkBox_presetMask_2</span><span class="o">.</span><span class="n">stateChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">presetmask_pixels</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">checkBox_linearScale_2</span><span class="o">.</span><span class="n">stateChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">slot_checkplotscale_2</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_resetMask_2</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reset_pix_mask</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">path_to_main</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">comboBox_mask_2</span><span class="o">.</span><span class="n">activated</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reset_pix_mask</span><span class="p">)</span>
+
+        <span class="c1"># Refresh plot and start stream buttons</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_refreshPlot</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">slot_refresh</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_startStream</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">slot_startstream</span><span class="p">)</span>
+
+        <span class="c1"># Check box for plotting 3 vertical lines at position x=64,</span>
+        <span class="c1"># 128, 192 (FW 2208)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">grouping</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">checkBox_grouping_2</span><span class="o">.</span><span class="n">stateChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">slot_checkBox_grouping_2</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Set directory if path was pasted instead of chosen with the</span>
+        <span class="c1"># &#39;Browse&#39; button</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_browse</span><span class="o">.</span><span class="n">textChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">change_path</span><span class="p">)</span>
+
+        <span class="c1"># Timer preset</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timer</span> <span class="o">=</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">QTimer</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timerRunning</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_file_ctime</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">timeout</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">update_time_stamp</span><span class="p">)</span></div>
+
+
+    <span class="c1"># Testing adaptive fontsize</span>
+<div class="viewcode-block" id="LiveTimestamps.resizeEvent">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.live_timestamps_tab.html#daplis_rtp.gui.live_timestamps_tab.LiveTimestamps.resizeEvent">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">resizeEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+
+        <span class="c1"># Define minimum and maximum width and corresponding font sizes</span>
+        <span class="n">min_width</span> <span class="o">=</span> <span class="mi">908</span>
+        <span class="n">max_width</span> <span class="o">=</span> <span class="mi">3810</span>
+        <span class="n">min_fontsize</span> <span class="o">=</span> <span class="mi">16</span>
+        <span class="n">max_fontsize</span> <span class="o">=</span> <span class="mi">40</span>
+
+        <span class="c1"># Get the current window width</span>
+        <span class="n">current_width</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">()</span><span class="o">.</span><span class="n">width</span><span class="p">()</span>
+
+        <span class="c1"># Ensure the current width stays within the bounds</span>
+        <span class="n">current_width</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">min_width</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="n">max_width</span><span class="p">,</span> <span class="n">current_width</span><span class="p">))</span>
+
+        <span class="c1"># Calculate the new font size using linear interpolation</span>
+        <span class="n">new_font_size</span> <span class="o">=</span> <span class="n">min_fontsize</span> <span class="o">+</span> <span class="p">(</span>
+            <span class="p">(</span><span class="n">current_width</span> <span class="o">-</span> <span class="n">min_width</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">max_width</span> <span class="o">-</span> <span class="n">min_width</span><span class="p">)</span>
+        <span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">max_fontsize</span> <span class="o">-</span> <span class="n">min_fontsize</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">widget_figure</span><span class="o">.</span><span class="n">setplotparameters</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="n">new_font_size</span><span class="p">)</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">resizeEvent</span><span class="p">(</span><span class="n">event</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LiveTimestamps.get_dir">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.live_timestamps_tab.html#daplis_rtp.gui.live_timestamps_tab.LiveTimestamps.get_dir">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Called when the &#39;browse&#39; button is pressed.</span>
+
+<span class="sd">        Sets the path variable to the address chosen.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">file</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span>
+            <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QFileDialog</span><span class="o">.</span><span class="n">getExistingDirectory</span><span class="p">(</span>
+                <span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;Select Directory&quot;</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_browse</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pathtotimestamp</span> <span class="o">=</span> <span class="n">file</span></div>
+
+
+<div class="viewcode-block" id="LiveTimestamps.change_path">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.live_timestamps_tab.html#daplis_rtp.gui.live_timestamps_tab.LiveTimestamps.change_path">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">change_path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Called when address is inserted to the line edit.</span>
+
+<span class="sd">        Sets the path variable to the address inserted.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pathtotimestamp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_browse</span><span class="o">.</span><span class="n">text</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="LiveTimestamps.slot_startstream">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.live_timestamps_tab.html#daplis_rtp.gui.live_timestamps_tab.LiveTimestamps.slot_startstream">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">slot_startstream</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Called when the &#39;Start stream&#39; button is pressed.</span>
+
+<span class="sd">        Starts an infinite cycle of refreshing the plot when new files</span>
+<span class="sd">        are found in the folder.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_file_ctime</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">timerRunning</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">timerRunning</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_startStream</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;Start stream&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_startStream</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;Stop stream&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">timerRunning</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+
+<div class="viewcode-block" id="LiveTimestamps.slot_stopstream">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.live_timestamps_tab.html#daplis_rtp.gui.live_timestamps_tab.LiveTimestamps.slot_stopstream">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">slot_stopstream</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timerRunning</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_startStream</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;Start stream&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_file_ctime</span> <span class="o">=</span> <span class="mi">0</span></div>
+
+
+<div class="viewcode-block" id="LiveTimestamps.slot_checkplotscale_2">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.live_timestamps_tab.html#daplis_rtp.gui.live_timestamps_tab.LiveTimestamps.slot_checkplotscale_2">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">slot_checkplotscale_2</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Called when state of the check box for scale is changed.</span>
+
+<span class="sd">        Switches between logarithmic and linear scale of the plot.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">checkBox_linearScale_2</span><span class="o">.</span><span class="n">isChecked</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">widget_figure</span><span class="o">.</span><span class="n">setPlotScale</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">widget_figure</span><span class="o">.</span><span class="n">setPlotScale</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LiveTimestamps.slot_refresh">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.live_timestamps_tab.html#daplis_rtp.gui.live_timestamps_tab.LiveTimestamps.slot_refresh">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">slot_refresh</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Called when the &#39;Refresh button&#39; is pressed.</span>
+
+<span class="sd">        Refreshes the plot, either the current one or updates with the</span>
+<span class="sd">        new data if new data were taken.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_time_stamp</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_file_ctime</span> <span class="o">=</span> <span class="mi">0</span></div>
+
+
+<div class="viewcode-block" id="LiveTimestamps.slot_updateLeftSlider">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.live_timestamps_tab.html#daplis_rtp.gui.live_timestamps_tab.LiveTimestamps.slot_updateLeftSlider">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">slot_updateLeftSlider</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Called when left slider state has changed.</span>
+
+<span class="sd">        Updates the left x-axis limit based on the position of the</span>
+<span class="sd">        slider.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">horizontalSlider_leftXLim</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
+            <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">horizontalSlider_rightXLim</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
+        <span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">horizontalSlider_leftXLim</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">horizontalSlider_rightXLim</span><span class="o">.</span><span class="n">value</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">leftPosition</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">horizontalSlider_leftXLim</span><span class="o">.</span><span class="n">value</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="LiveTimestamps.slot_updateRightSlider">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.live_timestamps_tab.html#daplis_rtp.gui.live_timestamps_tab.LiveTimestamps.slot_updateRightSlider">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">slot_updateRightSlider</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Called when right slider state has changed.</span>
+
+<span class="sd">        Updates the right x-axis limit based on the position of the</span>
+<span class="sd">        slider.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">horizontalSlider_rightXLim</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
+            <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">horizontalSlider_leftXLim</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
+        <span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">horizontalSlider_rightXLim</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">horizontalSlider_leftXLim</span><span class="o">.</span><span class="n">value</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rightPosition</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">horizontalSlider_rightXLim</span><span class="o">.</span><span class="n">value</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="LiveTimestamps.update_time_stamp">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.live_timestamps_tab.html#daplis_rtp.gui.live_timestamps_tab.LiveTimestamps.update_time_stamp">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update_time_stamp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Called during the cycle of real-time plotting.</span>
+
+<span class="sd">        Load data from the last data file found in the directory</span>
+<span class="sd">        provided.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">stopping</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mask_pixels</span><span class="p">()</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pathtotimestamp</span><span class="p">)</span>
+        <span class="n">DATA_FILES</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;*.dat*&quot;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">last_file</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">DATA_FILES</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getctime</span><span class="p">)</span>
+            <span class="n">new_file_ctime</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getctime</span><span class="p">(</span><span class="n">last_file</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="n">msg_window</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QMessageBox</span><span class="p">()</span>
+            <span class="n">msg_window</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span>
+                <span class="s2">&quot;No data files found, check the working directory.&quot;</span>
+            <span class="p">)</span>
+            <span class="n">msg_window</span><span class="o">.</span><span class="n">setWindowTitle</span><span class="p">(</span><span class="s2">&quot;Error&quot;</span><span class="p">)</span>
+            <span class="n">msg_window</span><span class="o">.</span><span class="n">exec_</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">slot_stopstream</span><span class="p">()</span>
+            <span class="n">stopping</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="n">stopping</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">new_file_ctime</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_file_ctime</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">last_file_ctime</span> <span class="o">=</span> <span class="n">new_file_ctime</span>
+
+                    <span class="n">validtimestamps</span> <span class="o">=</span> <span class="n">sen_pop</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">pathtotimestamp</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="n">last_file</span><span class="p">,</span>
+                        <span class="n">board_number</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">comboBox_mask_2</span><span class="o">.</span><span class="n">currentText</span><span class="p">(),</span>
+                        <span class="n">fw_ver</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">comboBox_FW_2</span><span class="o">.</span><span class="n">currentText</span><span class="p">(),</span>
+                        <span class="n">timestamps</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">spinBox_timestamps_2</span><span class="o">.</span><span class="n">value</span><span class="p">(),</span>
+                        <span class="n">pix_add_fix</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">checkBox_pix_add_fix</span><span class="o">.</span><span class="n">isChecked</span><span class="p">(),</span>
+                    <span class="p">)</span>
+                    <span class="n">validtimestamps</span> <span class="o">=</span> <span class="n">validtimestamps</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">maskValidPixels</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">widget_figure</span><span class="o">.</span><span class="n">setPlotData</span><span class="p">(</span>
+                        <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">256</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+                        <span class="n">validtimestamps</span><span class="p">,</span>
+                        <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">leftPosition</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rightPosition</span><span class="p">],</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">grouping</span><span class="p">,</span>
+                    <span class="p">)</span>
+
+                    <span class="n">copy_for_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">validtimestamps</span><span class="p">))</span>
+
+                    <span class="bp">self</span><span class="o">.</span><span class="n">lcdTopMostPixel1</span><span class="o">.</span><span class="n">display</span><span class="p">(</span>
+                        <span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span><span class="n">validtimestamps</span> <span class="o">==</span> <span class="n">copy_for_max</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">lcdTopMostPixel2</span><span class="o">.</span><span class="n">display</span><span class="p">(</span>
+                        <span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span><span class="n">validtimestamps</span> <span class="o">==</span> <span class="n">copy_for_max</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">])[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="p">)</span>
+
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="n">msg_window</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QMessageBox</span><span class="p">()</span>
+                <span class="n">msg_window</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span>
+                    <span class="s2">&quot;Cannot unpack data, check the timestamp setting and &quot;</span>
+                    <span class="s2">&quot;the firmware version.&quot;</span>
+                <span class="p">)</span>
+                <span class="n">msg_window</span><span class="o">.</span><span class="n">setWindowTitle</span><span class="p">(</span><span class="s2">&quot;Error&quot;</span><span class="p">)</span>
+                <span class="n">msg_window</span><span class="o">.</span><span class="n">exec_</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">slot_stopstream</span><span class="p">()</span>
+                <span class="n">stopping</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+
+<div class="viewcode-block" id="LiveTimestamps.mask_pixels">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.live_timestamps_tab.html#daplis_rtp.gui.live_timestamps_tab.LiveTimestamps.mask_pixels">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">mask_pixels</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Function for masking the chosen pixels.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">256</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">checkBoxPixel</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">isChecked</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">maskValidPixels</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">maskValidPixels</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span></div>
+
+
+<div class="viewcode-block" id="LiveTimestamps.presetmask_pixels">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.live_timestamps_tab.html#daplis_rtp.gui.live_timestamps_tab.LiveTimestamps.presetmask_pixels">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">presetmask_pixels</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Called when the check box &#39;Preset mask&#39; is checked.</span>
+
+<span class="sd">        Uses the masking data provided in the &#39;params&#39; folder for</span>
+<span class="sd">        masking of the warm/hot pixels. Uses the LinoSPAD2 daughterboard</span>
+<span class="sd">        number to load appropriate data.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">checkBox_presetMask_2</span><span class="o">.</span><span class="n">isChecked</span><span class="p">():</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="c1"># if os.getcwd() != self.path_to_main + &quot;/params/masks&quot;:</span>
+                <span class="c1">#     os.chdir(self.path_to_main + &quot;/params/masks&quot;)</span>
+                <span class="c1"># file = glob.glob(</span>
+                <span class="c1">#     &quot;*{}_{}*&quot;.format(</span>
+                <span class="c1">#         self.comboBox_mask_2.currentText(),</span>
+                <span class="c1">#         self.comboBox_mb_2.currentText(),</span>
+                <span class="c1">#     )</span>
+                <span class="c1"># )[0]</span>
+                <span class="n">file_w_mask</span> <span class="o">=</span> <span class="n">files</span><span class="p">(</span><span class="s2">&quot;daplis_rtp.params.masks&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;mask_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">comboBox_mask_2</span><span class="o">.</span><span class="n">currentText</span><span class="p">()</span><span class="si">}</span><span class="s2">_&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">comboBox_mb_2</span><span class="o">.</span><span class="n">currentText</span><span class="p">()</span><span class="si">}</span><span class="s2">.txt&quot;</span>
+                <span class="p">)</span>
+                <span class="c1"># file = glob.glob(path_to_file_mask)[0]</span>
+                <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">genfromtxt</span><span class="p">(</span><span class="n">file_w_mask</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s2">&quot;,&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;int&quot;</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">mask</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">maskValidPixels</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+                    <span class="n">cb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scrollAreaWidgetContentslayout</span><span class="o">.</span><span class="n">itemAt</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">.</span><span class="n">widget</span><span class="p">()</span>
+                    <span class="n">cb</span><span class="o">.</span><span class="n">setChecked</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">except</span> <span class="p">(</span><span class="ne">IndexError</span><span class="p">,</span> <span class="ne">FileNotFoundError</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">checkBox_presetMask_2</span><span class="o">.</span><span class="n">setCheckState</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                <span class="n">msg_window</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QMessageBox</span><span class="p">()</span>
+                <span class="n">msg_window</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span>
+                    <span class="s2">&quot;No mask data were found for the given daughterboard, &quot;</span>
+                    <span class="s2">&quot;and motherboard combination.&quot;</span>
+                <span class="p">)</span>
+                <span class="n">msg_window</span><span class="o">.</span><span class="n">setWindowTitle</span><span class="p">(</span><span class="s2">&quot;Error&quot;</span><span class="p">)</span>
+                <span class="n">msg_window</span><span class="o">.</span><span class="n">exec_</span><span class="p">()</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">256</span><span class="p">):</span>
+                <span class="c1"># self.maskValidPixels[i] = 0</span>
+                <span class="n">cb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scrollAreaWidgetContentslayout</span><span class="o">.</span><span class="n">itemAt</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">.</span><span class="n">widget</span><span class="p">()</span>
+                <span class="n">cb</span><span class="o">.</span><span class="n">setChecked</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LiveTimestamps.reset_pix_mask">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.live_timestamps_tab.html#daplis_rtp.gui.live_timestamps_tab.LiveTimestamps.reset_pix_mask">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">reset_pix_mask</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Function for resetting the pixel masking by unchecking all pixel</span>
+<span class="sd">        mask checkboxes.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">256</span><span class="p">):</span>
+            <span class="n">cb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scrollAreaWidgetContentslayout</span><span class="o">.</span><span class="n">itemAt</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">.</span><span class="n">widget</span><span class="p">()</span>
+            <span class="n">cb</span><span class="o">.</span><span class="n">setChecked</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">checkBox_presetMask_2</span><span class="o">.</span><span class="n">setChecked</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LiveTimestamps.slot_checkBox_grouping_2">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.live_timestamps_tab.html#daplis_rtp.gui.live_timestamps_tab.LiveTimestamps.slot_checkBox_grouping_2">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">slot_checkBox_grouping_2</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Called when check box for plotting lines state changed.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">checkBox_grouping_2</span><span class="o">.</span><span class="n">isChecked</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">grouping</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">grouping</span> <span class="o">=</span> <span class="kc">False</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Sergei Kulkov.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

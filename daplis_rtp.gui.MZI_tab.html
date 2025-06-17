@@ -1,0 +1,234 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>daplis_rtp.gui.MZI_tab module &mdash; Data Analysis Package for LinoSPAD2 - Real-Time Plotting 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=8d563738"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="daplis_rtp.gui.live_timestamps_tab module" href="daplis_rtp.gui.live_timestamps_tab.html" />
+    <link rel="prev" title="daplis_rtp.gui package" href="daplis_rtp.gui.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Data Analysis Package for LinoSPAD2 - Real-Time Plotting
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation and usage</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="daplis_rtp.gui.html">daplis_rtp.gui package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="daplis_rtp.gui.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">daplis_rtp.gui.MZI_tab module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#daplis_rtp.gui.MZI_tab.MZI"><code class="docutils literal notranslate"><span class="pre">MZI</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.live_timestamps_tab.html">daplis_rtp.gui.live_timestamps_tab module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.plot_figure.html">daplis_rtp.gui.plot_figure module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.plot_figure_MZI.html">daplis_rtp.gui.plot_figure_MZI module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.single_pix_hist_tab.html">daplis_rtp.gui.single_pix_hist_tab module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.single_pixel_histogram.html">daplis_rtp.gui.single_pixel_histogram module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="daplis_rtp.functions.html">daplis_rtp.functions package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contribute.html">How to contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">License and contact info</a></li>
+<li class="toctree-l1"><a class="reference internal" href="acknowledgement.html">Acknowledgement</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Data Analysis Package for LinoSPAD2 - Real-Time Plotting</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="daplis_rtp.gui.html">daplis_rtp.gui package</a></li>
+      <li class="breadcrumb-item active">daplis_rtp.gui.MZI_tab module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/daplis_rtp.gui.MZI_tab.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-daplis_rtp.gui.MZI_tab">
+<span id="daplis-rtp-gui-mzi-tab-module"></span><h1>daplis_rtp.gui.MZI_tab module<a class="headerlink" href="#module-daplis_rtp.gui.MZI_tab" title="Link to this heading"></a></h1>
+<p>This script generates the tab for online photon count plotting.</p>
+<p>Two pixels are chosen for which the photon count registered is plotted
+side by side. Can be used in the Mach-Zehnder interferometer setup to
+follow the changes of the photon counts in two pixels, or in other
+setups for checking the stability.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="daplis_rtp.gui.MZI_tab.MZI">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">daplis_rtp.gui.MZI_tab.</span></span><span class="sig-name descname"><span class="pre">MZI</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/MZI_tab.html#MZI"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.MZI_tab.MZI" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">QWidget</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.MZI_tab.MZI.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/MZI_tab.html#MZI.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.MZI_tab.MZI.__init__" title="Link to this definition"></a></dt>
+<dd><p>Creation of the tab.</p>
+<p>The tab is generated with a ‘Browse’ button along with a line
+edit field for choosing/inserting the address of the data
+file to plot. Combo boxes for LinoSPAD2 daughterboard number and
+the firmware version are generated. A check box for applying and
+a button for undoing the mask are generated. A spin box for
+the number of timestamps per pixel/TDC per cycle is provided.
+A check box for switching between a linear and a logarithmic
+scale of the plot is also provided. Buttons ‘Refresh plot’ for
+refreshing the plot and ‘Start stream’ for plotting the last
+file found are created. Two sliders for the left x-axis left
+limit and lower y-axis limit are provided.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.MZI_tab.MZI.change_path">
+<span class="sig-name descname"><span class="pre">change_path</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/MZI_tab.html#MZI.change_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.MZI_tab.MZI.change_path" title="Link to this definition"></a></dt>
+<dd><p>Called when address is inserted to the line edit.</p>
+<p>Sets the path variable to the address inserted.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.MZI_tab.MZI.get_dir">
+<span class="sig-name descname"><span class="pre">get_dir</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/MZI_tab.html#MZI.get_dir"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.MZI_tab.MZI.get_dir" title="Link to this definition"></a></dt>
+<dd><p>Called when the ‘browse’ button is pressed.</p>
+<p>Sets the path variable to the address chosen.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.MZI_tab.MZI.resetPlot">
+<span class="sig-name descname"><span class="pre">resetPlot</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/MZI_tab.html#MZI.resetPlot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.MZI_tab.MZI.resetPlot" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.MZI_tab.MZI.resizeEvent">
+<span class="sig-name descname"><span class="pre">resizeEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a0</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">QResizeEvent</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/MZI_tab.html#MZI.resizeEvent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.MZI_tab.MZI.resizeEvent" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.MZI_tab.MZI.slot_checkplotscale_2">
+<span class="sig-name descname"><span class="pre">slot_checkplotscale_2</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/MZI_tab.html#MZI.slot_checkplotscale_2"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.MZI_tab.MZI.slot_checkplotscale_2" title="Link to this definition"></a></dt>
+<dd><p>Called when state of the check box for scale is changed.</p>
+<p>Switches between logarithmic and linear scale of the plot.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.MZI_tab.MZI.slot_refresh">
+<span class="sig-name descname"><span class="pre">slot_refresh</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/MZI_tab.html#MZI.slot_refresh"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.MZI_tab.MZI.slot_refresh" title="Link to this definition"></a></dt>
+<dd><p>Called when the ‘Refresh button’ is pressed.</p>
+<p>Refreshes the plot, either the current one or updates with the
+new data if new data were taken.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.MZI_tab.MZI.slot_startstream">
+<span class="sig-name descname"><span class="pre">slot_startstream</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/MZI_tab.html#MZI.slot_startstream"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.MZI_tab.MZI.slot_startstream" title="Link to this definition"></a></dt>
+<dd><p>Called when the ‘Start stream’ button is pressed.</p>
+<p>Starts an infinite cycle of refreshing the plot when new files
+are found in the folder.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.MZI_tab.MZI.slot_stopstream">
+<span class="sig-name descname"><span class="pre">slot_stopstream</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/MZI_tab.html#MZI.slot_stopstream"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.MZI_tab.MZI.slot_stopstream" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.MZI_tab.MZI.slot_updateLeftSlider">
+<span class="sig-name descname"><span class="pre">slot_updateLeftSlider</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/MZI_tab.html#MZI.slot_updateLeftSlider"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.MZI_tab.MZI.slot_updateLeftSlider" title="Link to this definition"></a></dt>
+<dd><p>Called when left slider state has changed.</p>
+<p>Updates the left x-axis limit based on the position of the
+slider.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.MZI_tab.MZI.slot_updateLowerSlider">
+<span class="sig-name descname"><span class="pre">slot_updateLowerSlider</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/MZI_tab.html#MZI.slot_updateLowerSlider"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.MZI_tab.MZI.slot_updateLowerSlider" title="Link to this definition"></a></dt>
+<dd><p>Called when left slider state has changed.</p>
+<p>Updates the left x-axis limit based on the position of the
+slider.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.MZI_tab.MZI.update_time_stamp">
+<span class="sig-name descname"><span class="pre">update_time_stamp</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/MZI_tab.html#MZI.update_time_stamp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.MZI_tab.MZI.update_time_stamp" title="Link to this definition"></a></dt>
+<dd><p>Called during the cycle of real-time plotting.</p>
+<p>Load data from the last data file found in the directory
+provided.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="daplis_rtp.gui.html" class="btn btn-neutral float-left" title="daplis_rtp.gui package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="daplis_rtp.gui.live_timestamps_tab.html" class="btn btn-neutral float-right" title="daplis_rtp.gui.live_timestamps_tab module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Sergei Kulkov.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

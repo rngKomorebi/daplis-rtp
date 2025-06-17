@@ -1,0 +1,7 @@
+daplis\_rtp.functions.unpack module
+===================================
+
+.. automodule:: daplis_rtp.functions.unpack
+   :members:
+   :show-inheritance:
+   :undoc-members:

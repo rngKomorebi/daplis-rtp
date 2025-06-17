@@ -1,0 +1,20 @@
+daplis\_rtp.gui package
+=======================
+
+.. automodule:: daplis_rtp.gui
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   daplis_rtp.gui.MZI_tab
+   daplis_rtp.gui.live_timestamps_tab
+   daplis_rtp.gui.plot_figure
+   daplis_rtp.gui.plot_figure_MZI
+   daplis_rtp.gui.single_pix_hist_tab
+   daplis_rtp.gui.single_pixel_histogram

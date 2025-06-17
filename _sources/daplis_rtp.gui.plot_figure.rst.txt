@@ -1,0 +1,7 @@
+daplis\_rtp.gui.plot\_figure module
+===================================
+
+.. automodule:: daplis_rtp.gui.plot_figure
+   :members:
+   :show-inheritance:
+   :undoc-members:
