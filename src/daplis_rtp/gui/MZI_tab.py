@@ -11,10 +11,11 @@ import glob
 import os
 
 import numpy as np
+from PyQt5 import QtCore, QtWidgets, uic
+
 from daplis_rtp.functions.sen_pop import sen_pop
 from daplis_rtp.gui.plot_figure_MZI import PltCanvas_MZI
 from daplis_rtp.gui.ui.MZI_tab import Ui_Form
-from PyQt5 import QtCore, QtWidgets, uic
 
 
 class MZI(QtWidgets.QWidget):
@@ -234,7 +235,7 @@ class MZI(QtWidgets.QWidget):
         try:
             last_file = max(DATA_FILES, key=os.path.getctime)
             new_file_ctime = os.path.getctime(last_file)
-        except ValueError:
+        except (IndexError, FileNotFoundError):
             msg_window = QtWidgets.QMessageBox()
             msg_window.setText(
                 "No data files found, check the working directory."

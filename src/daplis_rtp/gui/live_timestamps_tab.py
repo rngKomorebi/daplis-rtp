@@ -368,7 +368,7 @@ class LiveTimestamps(QtWidgets.QWidget):
                     self.maskValidPixels[i] = 0
                     cb = self.scrollAreaWidgetContentslayout.itemAt(i).widget()
                     cb.setChecked(True)
-            except IndexError:
+            except (IndexError, FileNotFoundError):
                 self.checkBox_presetMask_2.setCheckState(0)
                 msg_window = QtWidgets.QMessageBox()
                 msg_window.setText(

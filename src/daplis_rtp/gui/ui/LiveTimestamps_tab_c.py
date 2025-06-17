@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_Form(object):
     def setupUi(self, Form):
         Form.setObjectName("Form")
-        Form.resize(874, 636)
+        Form.resize(883, 655)
         self.gridLayout_2 = QtWidgets.QGridLayout(Form)
         self.gridLayout_2.setObjectName("gridLayout_2")
         self.frame_2 = QtWidgets.QFrame(Form)
@@ -50,6 +50,9 @@ class Ui_Form(object):
         font = QtGui.QFont()
         font.setPointSize(10)
         self.comboBox_mask_2.setFont(font)
+        self.comboBox_mask_2.setEditable(True)
+        self.comboBox_mask_2.setInsertPolicy(QtWidgets.QComboBox.InsertAtCurrent)
+        self.comboBox_mask_2.setPlaceholderText("")
         self.comboBox_mask_2.setObjectName("comboBox_mask_2")
         self.comboBox_mask_2.addItem("")
         self.comboBox_mask_2.addItem("")
@@ -79,6 +82,8 @@ class Ui_Form(object):
         font = QtGui.QFont()
         font.setPointSize(10)
         self.comboBox_mb_2.setFont(font)
+        self.comboBox_mb_2.setEditable(True)
+        self.comboBox_mb_2.setInsertPolicy(QtWidgets.QComboBox.InsertAtCurrent)
         self.comboBox_mb_2.setObjectName("comboBox_mb_2")
         self.comboBox_mb_2.addItem("")
         self.comboBox_mb_2.addItem("")
@@ -256,7 +261,7 @@ class Ui_Form(object):
         self.scrollArea.setWidgetResizable(True)
         self.scrollArea.setObjectName("scrollArea")
         self.scrollAreaWidgetContents_2 = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents_2.setGeometry(QtCore.QRect(0, 0, 256, 248))
+        self.scrollAreaWidgetContents_2.setGeometry(QtCore.QRect(0, 0, 304, 248))
         self.scrollAreaWidgetContents_2.setObjectName("scrollAreaWidgetContents_2")
         self.scrollArea.setWidget(self.scrollAreaWidgetContents_2)
         self.verticalLayout.addWidget(self.scrollArea)
@@ -363,12 +368,14 @@ class Ui_Form(object):
         self.gridLayout_2.addWidget(self.frame, 0, 0, 1, 1)
 
         self.retranslateUi(Form)
+        self.comboBox_mask_2.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(Form)
 
     def retranslateUi(self, Form):
         _translate = QtCore.QCoreApplication.translate
         Form.setWindowTitle(_translate("Form", "Form"))
         self.label_comboBox_mask_2.setText(_translate("Form", "LinoSPAD2 daughterboard"))
+        self.comboBox_mask_2.setCurrentText(_translate("Form", "B7d"))
         self.comboBox_mask_2.setItemText(0, _translate("Form", "B7d"))
         self.comboBox_mask_2.setItemText(1, _translate("Form", "NL11"))
         self.comboBox_mask_2.setItemText(2, _translate("Form", "A5"))
