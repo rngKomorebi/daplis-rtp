@@ -1,0 +1,7 @@
+daplis\_rtp.gui.synchronization\_tab module
+===========================================
+
+.. automodule:: daplis_rtp.gui.synchronization_tab
+   :members:
+   :show-inheritance:
+   :undoc-members:

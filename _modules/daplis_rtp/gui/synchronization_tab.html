@@ -1,0 +1,614 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>daplis_rtp.gui.synchronization_tab &mdash; Data Analysis Package for LinoSPAD2 - Real-Time Plotting 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Data Analysis Package for LinoSPAD2 - Real-Time Plotting
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation and usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../daplis_rtp.gui.html">daplis_rtp.gui package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../daplis_rtp.functions.html">daplis_rtp.functions package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contribute.html">How to contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../license.html">License and contact info</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../acknowledgement.html">Acknowledgement</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Data Analysis Package for LinoSPAD2 - Real-Time Plotting</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">daplis_rtp.gui.synchronization_tab</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for daplis_rtp.gui.synchronization_tab</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Synchronization tab — control two-board synchronized acquisition.</span>
+
+<span class="sd">This tab drives two running instances of ``LinoSPAD_synchro.exe`` over TCP (one</span>
+<span class="sd">per board): it enables the external clock, verifies both boards are locked, and</span>
+<span class="sd">starts acquisition on both **simultaneously**. It is the GUI equivalent of the</span>
+<span class="sd">``acquire.py`` command-line tool.</span>
+
+<span class="sd">Saving is handled by each board's own GUI: when a board acquires, if its</span>
+<span class="sd">``AutoSave`` is on it writes to the folder configured there (``SavePrefix``). This</span>
+<span class="sd">tab therefore does not choose a save location — set it in each LinoSPAD_synchro</span>
+<span class="sd">instance.</span>
+
+<span class="sd">Prerequisite: both board apps must already be running and "Listening" on their</span>
+<span class="sd">TCP ports (default 5555 / 5556) before using this tab. Use 25 MHz on the external</span>
+<span class="sd">clock (20 MHz never programs the DCM).</span>
+
+<span class="sd">The TCP calls run in a background :class:`AcquisitionWorker` (``RUNHISTOGRAMS``</span>
+<span class="sd">blocks until the acquisition finishes, so it must not run on the GUI thread).</span>
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">socket</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">threading</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">PyQt5</span><span class="w"> </span><span class="kn">import</span> <span class="n">QtCore</span><span class="p">,</span> <span class="n">QtGui</span><span class="p">,</span> <span class="n">QtWidgets</span>
+
+<span class="c1"># All instances are addressed on the local machine.</span>
+<span class="n">HOST</span> <span class="o">=</span> <span class="s2">"localhost"</span>
+
+<span class="c1"># Default location of the two-board GUI and the per-board settings files. These</span>
+<span class="c1"># are remembered per user via QSettings once changed in the tab.</span>
+<span class="n">DEFAULT_EXE</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="sa">r</span><span class="s2">"D:\ls2sw_synchro\release_2212\release_2212\shared_ver2"</span>
+    <span class="sa">r</span><span class="s2">"\LinoSPAD_synchro.exe"</span>
+<span class="p">)</span>
+<span class="n">DEFAULT_SETTINGS</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="s2">"settings_14.txt"</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="s2">"settings_23.txt"</span><span class="p">}</span>
+
+<span class="c1"># ── TCP protocol helpers (same wire protocol as acquire.py) ──────────────────</span>
+<span class="c1"># "On external and locked" = bit0 (external selected) AND bit2 (PLL locked).</span>
+<span class="c1"># bit31 (module clock valid) is true even on the internal oscillator, so it is</span>
+<span class="c1"># NOT a lock indicator on its own.</span>
+<span class="n">LOCK_MASK</span> <span class="o">=</span> <span class="mh">0x5</span>
+<span class="n">CONNECT_TIMEOUT</span> <span class="o">=</span> <span class="mi">5</span>
+
+
+<div class="viewcode-block" id="send_cmd">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.synchronization_tab.html#daplis_rtp.gui.synchronization_tab.send_cmd">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">send_cmd</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">cmd</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">CONNECT_TIMEOUT</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Send one newline-terminated command; return the response up to DONE."""</span>
+    <span class="k">with</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">()</span> <span class="k">as</span> <span class="n">s</span><span class="p">:</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">settimeout</span><span class="p">(</span><span class="n">CONNECT_TIMEOUT</span><span class="p">)</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">connect</span><span class="p">((</span><span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="p">))</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">sendall</span><span class="p">((</span><span class="n">cmd</span> <span class="o">+</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">settimeout</span><span class="p">(</span><span class="n">timeout</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">""</span>
+        <span class="k">while</span> <span class="sa">b</span><span class="s2">"DONE"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+            <span class="n">chunk</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">recv</span><span class="p">(</span><span class="mi">256</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">chunk</span><span class="p">:</span>
+                <span class="k">break</span>
+            <span class="n">data</span> <span class="o">+=</span> <span class="n">chunk</span>
+        <span class="k">return</span> <span class="n">data</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="is_locked">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.synchronization_tab.html#daplis_rtp.gui.synchronization_tab.is_locked">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">is_locked</span><span class="p">(</span><span class="n">status</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">status</span> <span class="o">&amp;</span> <span class="n">LOCK_MASK</span><span class="p">)</span> <span class="o">==</span> <span class="n">LOCK_MASK</span></div>
+
+
+
+<div class="viewcode-block" id="AcquisitionWorker">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.synchronization_tab.html#daplis_rtp.gui.synchronization_tab.AcquisitionWorker">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">AcquisitionWorker</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">QThread</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Run enable -&gt; check -&gt; acquire off the GUI thread.</span>
+
+<span class="sd">    Emits signals for logging, per-board clock status, and completion; never</span>
+<span class="sd">    touches widgets directly. Saving is left to each board's GUI (AutoSave).</span>
+<span class="sd">    """</span>
+
+    <span class="n">log</span> <span class="o">=</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">pyqtSignal</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+    <span class="c1"># board_id, status word (Python int, passed as object to avoid 32-bit</span>
+    <span class="c1"># signal overflow), locked</span>
+    <span class="n">clock</span> <span class="o">=</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">pyqtSignal</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">object</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
+    <span class="n">clock_fail</span> <span class="o">=</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">pyqtSignal</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+    <span class="n">done</span> <span class="o">=</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">pyqtSignal</span><span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+
+<div class="viewcode-block" id="AcquisitionWorker.__init__">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.synchronization_tab.html#daplis_rtp.gui.synchronization_tab.AcquisitionWorker.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">boards</span><span class="p">,</span> <span class="n">check_only</span><span class="p">,</span> <span class="n">acq_timeout</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">boards</span> <span class="o">=</span> <span class="n">boards</span>  <span class="c1"># {0: (host, port), 1: (host, port)}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_only</span> <span class="o">=</span> <span class="n">check_only</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">acq_timeout</span> <span class="o">=</span> <span class="n">acq_timeout</span></div>
+
+
+<div class="viewcode-block" id="AcquisitionWorker.run">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.synchronization_tab.html#daplis_rtp.gui.synchronization_tab.AcquisitionWorker.run">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># 1. ensure the external clock before acquiring. "Check clocks" is a</span>
+            <span class="c1">#    pure read and does not change the clock source.</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_only</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="s2">"Enabling external clock on both boards..."</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">bid</span><span class="p">,</span> <span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">boards</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">st</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span>
+                            <span class="n">send_cmd</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="s2">"SETCLOCKSTATE 1"</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+                        <span class="p">)</span>
+                    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>  <span class="c1"># noqa: BLE001 - report to the user</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">clock_fail</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">bid</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">done</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span>
+                            <span class="kc">False</span><span class="p">,</span>
+                            <span class="sa">f</span><span class="s2">"Board </span><span class="si">{</span><span class="n">bid</span><span class="si">}</span><span class="s2">: cannot reach LinoSPAD_synchro.exe "</span>
+                            <span class="sa">f</span><span class="s2">"on </span><span class="si">{</span><span class="n">host</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">port</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">). Is it running and "</span>
+                            <span class="s2">"'Listening'?"</span><span class="p">,</span>
+                        <span class="p">)</span>
+                        <span class="k">return</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">clock</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">bid</span><span class="p">,</span> <span class="n">st</span><span class="p">,</span> <span class="n">is_locked</span><span class="p">(</span><span class="n">st</span><span class="p">))</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">"  Board </span><span class="si">{</span><span class="n">bid</span><span class="si">}</span><span class="s2">: 0x</span><span class="si">{</span><span class="n">st</span><span class="si">:</span><span class="s2">08X</span><span class="si">}</span><span class="s2">  "</span>
+                        <span class="o">+</span> <span class="p">(</span>
+                            <span class="s2">"EXT LOCKED"</span>
+                            <span class="k">if</span> <span class="n">is_locked</span><span class="p">(</span><span class="n">st</span><span class="p">)</span>
+                            <span class="k">else</span> <span class="s2">"fell back to internal -- check CLK_IN (J11)"</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
+
+            <span class="c1"># 2. verify both boards are locked to the external clock</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="s2">"Checking clock status..."</span><span class="p">)</span>
+            <span class="n">all_locked</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">for</span> <span class="n">bid</span><span class="p">,</span> <span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">boards</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">st</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span>
+                        <span class="n">send_cmd</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="s2">"GETCLOCKSTATE"</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="p">)</span>
+                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>  <span class="c1"># noqa: BLE001 - report to the user</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">clock_fail</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">bid</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">done</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span>
+                        <span class="kc">False</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"Board </span><span class="si">{</span><span class="n">bid</span><span class="si">}</span><span class="s2">: connection failed (</span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">)."</span>
+                    <span class="p">)</span>
+                    <span class="k">return</span>
+                <span class="n">locked</span> <span class="o">=</span> <span class="n">is_locked</span><span class="p">(</span><span class="n">st</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">clock</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">bid</span><span class="p">,</span> <span class="n">st</span><span class="p">,</span> <span class="n">locked</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">"  Board </span><span class="si">{</span><span class="n">bid</span><span class="si">}</span><span class="s2">: 0x</span><span class="si">{</span><span class="n">st</span><span class="si">:</span><span class="s2">08X</span><span class="si">}</span><span class="s2">  -&gt;  "</span>
+                    <span class="o">+</span> <span class="p">(</span><span class="s2">"EXT LOCKED"</span> <span class="k">if</span> <span class="n">locked</span> <span class="k">else</span> <span class="s2">"NOT ON EXTERNAL CLOCK"</span><span class="p">)</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">locked</span><span class="p">:</span>
+                    <span class="n">all_locked</span> <span class="o">=</span> <span class="kc">False</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">all_locked</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">done</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span>
+                    <span class="kc">False</span><span class="p">,</span>
+                    <span class="s2">"One or both boards are NOT locked to the external "</span>
+                    <span class="s2">"clock. Nothing acquired.</span><span class="se">\n\n</span><span class="s2">Check: 25 MHz square wave on "</span>
+                    <span class="s2">"CLK_IN (J11) of both boards; the Ext MHz box reads 25 "</span>
+                    <span class="s2">"(not ~50); 25 MHz, not 20."</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="k">return</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_only</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">done</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="s2">"Both boards EXT LOCKED."</span><span class="p">)</span>
+                <span class="k">return</span>
+
+            <span class="c1"># 3. acquire on both boards simultaneously. Each board saves to its</span>
+            <span class="c1">#    own GUI 'Save' path (AutoSave) when the run finishes.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="s2">"Starting acquisition on both boards..."</span><span class="p">)</span>
+            <span class="n">errors</span> <span class="o">=</span> <span class="p">{}</span>
+
+            <span class="k">def</span><span class="w"> </span><span class="nf">_acquire_one</span><span class="p">(</span><span class="n">bid</span><span class="p">):</span>
+                <span class="n">host</span><span class="p">,</span> <span class="n">port</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">boards</span><span class="p">[</span><span class="n">bid</span><span class="p">]</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="sa">f</span><span class="s2">"[Board </span><span class="si">{</span><span class="n">bid</span><span class="si">}</span><span class="s2">] RUNHISTOGRAMS sent"</span><span class="p">)</span>
+                    <span class="n">send_cmd</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="s2">"RUNHISTOGRAMS"</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">acq_timeout</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="sa">f</span><span class="s2">"[Board </span><span class="si">{</span><span class="n">bid</span><span class="si">}</span><span class="s2">] acquisition complete"</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>  <span class="c1"># noqa: BLE001 - report to the user</span>
+                    <span class="n">errors</span><span class="p">[</span><span class="n">bid</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="sa">f</span><span class="s2">"[Board </span><span class="si">{</span><span class="n">bid</span><span class="si">}</span><span class="s2">] ERROR: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+            <span class="n">threads</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">_acquire_one</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">bid</span><span class="p">,))</span>
+                <span class="k">for</span> <span class="n">bid</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">boards</span>
+            <span class="p">]</span>
+            <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">threads</span><span class="p">:</span>
+                <span class="n">t</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>  <span class="c1"># both start within microseconds of each other</span>
+            <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">threads</span><span class="p">:</span>
+                <span class="n">t</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="n">errors</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">done</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"Errors during acquisition: </span><span class="si">{</span><span class="n">errors</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+                <span class="k">return</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">done</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span>
+                <span class="kc">True</span><span class="p">,</span>
+                <span class="s2">"Done. Both boards acquired. Each file was saved by its GUI "</span>
+                <span class="s2">"to the configured Save path (AutoSave)."</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>  <span class="c1"># noqa: BLE001 - never let the thread die silently</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">done</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"Unexpected error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="Synchronization">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.synchronization_tab.html#daplis_rtp.gui.synchronization_tab.Synchronization">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Synchronization</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QWidget</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Tab for controlling two-board synchronized acquisition over TCP."""</span>
+
+    <span class="c1"># board_id -&gt; (label text, default port)</span>
+    <span class="n">BOARD_INFO</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="mi">0</span><span class="p">:</span> <span class="p">(</span><span class="s2">"Board 0  (dev 0 / #33)"</span><span class="p">,</span> <span class="mi">5555</span><span class="p">),</span>
+        <span class="mi">1</span><span class="p">:</span> <span class="p">(</span><span class="s2">"Board 1  (dev 1 / #21)"</span><span class="p">,</span> <span class="mi">5556</span><span class="p">),</span>
+    <span class="p">}</span>
+
+<div class="viewcode-block" id="Synchronization.__init__">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.synchronization_tab.html#daplis_rtp.gui.synchronization_tab.Synchronization.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_worker</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_procs</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># board_id -&gt; Popen of a launched GUI</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_leds</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_status_labels</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ports</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_settings_edits</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_qsettings</span> <span class="o">=</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">QSettings</span><span class="p">(</span><span class="s2">"daplis-rtp"</span><span class="p">,</span> <span class="s2">"synchronization_tab"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_build_ui</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_connect</span><span class="p">()</span></div>
+
+
+    <span class="c1"># ── UI construction ──────────────────────────────────────────────────────</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_build_ui</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">font_header</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QFont</span><span class="p">()</span>  <span class="c1"># group-box titles</span>
+        <span class="n">font_header</span><span class="o">.</span><span class="n">setPointSize</span><span class="p">(</span><span class="mi">13</span><span class="p">)</span>
+        <span class="n">font_body</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QFont</span><span class="p">()</span>  <span class="c1"># widgets inside the boxes</span>
+        <span class="n">font_body</span><span class="o">.</span><span class="n">setPointSize</span><span class="p">(</span><span class="mi">11</span><span class="p">)</span>
+        <span class="n">font_btn</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QFont</span><span class="p">()</span>  <span class="c1"># buttons</span>
+        <span class="n">font_btn</span><span class="o">.</span><span class="n">setPointSize</span><span class="p">(</span><span class="mi">13</span><span class="p">)</span>
+        <span class="n">font_acq</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QFont</span><span class="p">()</span>  <span class="c1"># the Acquire button (bold)</span>
+        <span class="n">font_acq</span><span class="o">.</span><span class="n">setPointSize</span><span class="p">(</span><span class="mi">13</span><span class="p">)</span>
+        <span class="n">font_acq</span><span class="o">.</span><span class="n">setBold</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">root</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QVBoxLayout</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="n">title</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QLabel</span><span class="p">(</span><span class="s2">"Two-board synchronized acquisition"</span><span class="p">)</span>
+        <span class="n">tfont</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QFont</span><span class="p">()</span>
+        <span class="n">tfont</span><span class="o">.</span><span class="n">setPointSize</span><span class="p">(</span><span class="mi">13</span><span class="p">)</span>
+        <span class="n">tfont</span><span class="o">.</span><span class="n">setBold</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">title</span><span class="o">.</span><span class="n">setFont</span><span class="p">(</span><span class="n">tfont</span><span class="p">)</span>
+        <span class="n">root</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+
+        <span class="n">hint</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QLabel</span><span class="p">(</span>
+            <span class="s2">"Both LinoSPAD_synchro.exe instances must be running and "</span>
+            <span class="s2">"'Listening' first. Use 25 MHz on the external clock. Files are "</span>
+            <span class="s2">"saved by each board's own GUI to its configured Save path "</span>
+            <span class="s2">"(AutoSave) — set the location there."</span>
+        <span class="p">)</span>
+        <span class="n">hint</span><span class="o">.</span><span class="n">setWordWrap</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">hfont</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QFont</span><span class="p">()</span>
+        <span class="n">hfont</span><span class="o">.</span><span class="n">setPointSize</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+        <span class="n">hint</span><span class="o">.</span><span class="n">setFont</span><span class="p">(</span><span class="n">hfont</span><span class="p">)</span>
+        <span class="n">root</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">hint</span><span class="p">)</span>
+
+        <span class="c1"># ── Boards group: launch the two GUI instances from here ─────────────</span>
+        <span class="n">launch_group</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QGroupBox</span><span class="p">(</span><span class="s2">"Boards"</span><span class="p">)</span>
+        <span class="n">launch_group</span><span class="o">.</span><span class="n">setFont</span><span class="p">(</span><span class="n">font_header</span><span class="p">)</span>
+        <span class="n">lg</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QGridLayout</span><span class="p">(</span><span class="n">launch_group</span><span class="p">)</span>
+        <span class="n">lg</span><span class="o">.</span><span class="n">setHorizontalSpacing</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+
+        <span class="n">exe_lbl</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QLabel</span><span class="p">(</span><span class="s2">"LinoSPAD_synchro.exe:"</span><span class="p">)</span>
+        <span class="n">exe_lbl</span><span class="o">.</span><span class="n">setFont</span><span class="p">(</span><span class="n">font_body</span><span class="p">)</span>
+        <span class="n">lg</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">exe_lbl</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_exe</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QLineEdit</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_qsettings</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="s2">"exe"</span><span class="p">,</span> <span class="n">DEFAULT_EXE</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_exe</span><span class="o">.</span><span class="n">setFont</span><span class="p">(</span><span class="n">font_body</span><span class="p">)</span>
+        <span class="n">lg</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_exe</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_browseExe</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QPushButton</span><span class="p">(</span><span class="s2">"Browse"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_browseExe</span><span class="o">.</span><span class="n">setFont</span><span class="p">(</span><span class="n">font_body</span><span class="p">)</span>
+        <span class="n">lg</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pushButton_browseExe</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">bid</span><span class="p">,</span> <span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">_port</span><span class="p">))</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">BOARD_INFO</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">start</span><span class="o">=</span><span class="mi">1</span>
+        <span class="p">):</span>
+            <span class="n">s_lbl</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QLabel</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">  settings:"</span><span class="p">)</span>
+            <span class="n">s_lbl</span><span class="o">.</span><span class="n">setFont</span><span class="p">(</span><span class="n">font_body</span><span class="p">)</span>
+            <span class="n">lg</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">s_lbl</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="n">edit</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QLineEdit</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_qsettings</span><span class="o">.</span><span class="n">value</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">"settings_</span><span class="si">{</span><span class="n">bid</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">DEFAULT_SETTINGS</span><span class="p">[</span><span class="n">bid</span><span class="p">],</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">edit</span><span class="o">.</span><span class="n">setFont</span><span class="p">(</span><span class="n">font_body</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_settings_edits</span><span class="p">[</span><span class="n">bid</span><span class="p">]</span> <span class="o">=</span> <span class="n">edit</span>
+            <span class="n">lg</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">edit</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_launch</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QPushButton</span><span class="p">(</span><span class="s2">"Launch both boards"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_launch</span><span class="o">.</span><span class="n">setFont</span><span class="p">(</span><span class="n">font_btn</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_launch</span><span class="o">.</span><span class="n">setMinimumHeight</span><span class="p">(</span><span class="mi">32</span><span class="p">)</span>
+        <span class="n">lg</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pushButton_launch</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">BOARD_INFO</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="n">lg</span><span class="o">.</span><span class="n">setColumnStretch</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">root</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">launch_group</span><span class="p">)</span>
+
+        <span class="c1"># ── Connection group (host is always localhost) ──────────────────────</span>
+        <span class="n">conn_group</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QGroupBox</span><span class="p">(</span><span class="s2">"Connection  (host: localhost)"</span><span class="p">)</span>
+        <span class="n">conn_group</span><span class="o">.</span><span class="n">setFont</span><span class="p">(</span><span class="n">font_header</span><span class="p">)</span>
+        <span class="n">conn</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QGridLayout</span><span class="p">(</span><span class="n">conn_group</span><span class="p">)</span>
+        <span class="n">conn</span><span class="o">.</span><span class="n">setHorizontalSpacing</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">row</span><span class="p">,</span> <span class="p">(</span><span class="n">bid</span><span class="p">,</span> <span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">port</span><span class="p">))</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">BOARD_INFO</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+            <span class="n">board_lbl</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QLabel</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+            <span class="n">board_lbl</span><span class="o">.</span><span class="n">setFont</span><span class="p">(</span><span class="n">font_body</span><span class="p">)</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">board_lbl</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="n">port_lbl</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QLabel</span><span class="p">(</span><span class="s2">"Port:"</span><span class="p">)</span>
+            <span class="n">port_lbl</span><span class="o">.</span><span class="n">setFont</span><span class="p">(</span><span class="n">font_body</span><span class="p">)</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">port_lbl</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">port_spin</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QSpinBox</span><span class="p">()</span>
+            <span class="n">port_spin</span><span class="o">.</span><span class="n">setRange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">65535</span><span class="p">)</span>
+            <span class="n">port_spin</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="n">port</span><span class="p">)</span>
+            <span class="n">port_spin</span><span class="o">.</span><span class="n">setMaximumWidth</span><span class="p">(</span><span class="mi">90</span><span class="p">)</span>
+            <span class="n">port_spin</span><span class="o">.</span><span class="n">setFont</span><span class="p">(</span><span class="n">font_body</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_ports</span><span class="p">[</span><span class="n">bid</span><span class="p">]</span> <span class="o">=</span> <span class="n">port_spin</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">port_spin</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">conn</span><span class="o">.</span><span class="n">setColumnStretch</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># trailing space keeps label+port on the left</span>
+        <span class="n">root</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">conn_group</span><span class="p">)</span>
+
+        <span class="c1"># ── Options group ────────────────────────────────────────────────────</span>
+        <span class="n">opt_group</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QGroupBox</span><span class="p">(</span><span class="s2">"Options"</span><span class="p">)</span>
+        <span class="n">opt_group</span><span class="o">.</span><span class="n">setFont</span><span class="p">(</span><span class="n">font_header</span><span class="p">)</span>
+        <span class="n">opt</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QGridLayout</span><span class="p">(</span><span class="n">opt_group</span><span class="p">)</span>
+        <span class="n">opt</span><span class="o">.</span><span class="n">setHorizontalSpacing</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+        <span class="n">timeout_lbl</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QLabel</span><span class="p">(</span><span class="s2">"Acq. timeout (s):"</span><span class="p">)</span>
+        <span class="n">timeout_lbl</span><span class="o">.</span><span class="n">setFont</span><span class="p">(</span><span class="n">font_body</span><span class="p">)</span>
+        <span class="n">opt</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">timeout_lbl</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spinBox_timeout</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QSpinBox</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spinBox_timeout</span><span class="o">.</span><span class="n">setRange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3600</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spinBox_timeout</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="mi">300</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spinBox_timeout</span><span class="o">.</span><span class="n">setMaximumWidth</span><span class="p">(</span><span class="mi">90</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spinBox_timeout</span><span class="o">.</span><span class="n">setFont</span><span class="p">(</span><span class="n">font_body</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spinBox_timeout</span><span class="o">.</span><span class="n">setToolTip</span><span class="p">(</span>
+            <span class="s2">"How long to wait for each board's RUNHISTOGRAMS to finish."</span>
+        <span class="p">)</span>
+        <span class="n">opt</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spinBox_timeout</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">opt</span><span class="o">.</span><span class="n">setColumnStretch</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">root</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">opt_group</span><span class="p">)</span>
+
+        <span class="c1"># ── Clock status group ───────────────────────────────────────────────</span>
+        <span class="n">st_group</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QGroupBox</span><span class="p">(</span><span class="s2">"Clock status"</span><span class="p">)</span>
+        <span class="n">st_group</span><span class="o">.</span><span class="n">setFont</span><span class="p">(</span><span class="n">font_header</span><span class="p">)</span>
+        <span class="n">st</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QGridLayout</span><span class="p">(</span><span class="n">st_group</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">row</span><span class="p">,</span> <span class="p">(</span><span class="n">bid</span><span class="p">,</span> <span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">_p</span><span class="p">))</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">BOARD_INFO</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+            <span class="n">led</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QLabel</span><span class="p">(</span><span class="s2">"●"</span><span class="p">)</span>  <span class="c1"># ●</span>
+            <span class="n">led</span><span class="o">.</span><span class="n">setFixedWidth</span><span class="p">(</span><span class="mi">18</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_set_led</span><span class="p">(</span><span class="n">led</span><span class="p">,</span> <span class="s2">"grey"</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_leds</span><span class="p">[</span><span class="n">bid</span><span class="p">]</span> <span class="o">=</span> <span class="n">led</span>
+            <span class="n">st</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">led</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="n">board_lbl</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QLabel</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+            <span class="n">board_lbl</span><span class="o">.</span><span class="n">setFont</span><span class="p">(</span><span class="n">font_body</span><span class="p">)</span>
+            <span class="n">st</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">board_lbl</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QLabel</span><span class="p">(</span><span class="s2">"—"</span><span class="p">)</span>  <span class="c1"># em dash</span>
+            <span class="n">status</span><span class="o">.</span><span class="n">setFont</span><span class="p">(</span><span class="n">font_body</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_status_labels</span><span class="p">[</span><span class="n">bid</span><span class="p">]</span> <span class="o">=</span> <span class="n">status</span>
+            <span class="n">st</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">st</span><span class="o">.</span><span class="n">setColumnStretch</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">root</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">st_group</span><span class="p">)</span>
+
+        <span class="c1"># ── Buttons ──────────────────────────────────────────────────────────</span>
+        <span class="n">btn_row</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QHBoxLayout</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_check</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QPushButton</span><span class="p">(</span><span class="s2">"Check clocks"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_check</span><span class="o">.</span><span class="n">setFont</span><span class="p">(</span><span class="n">font_btn</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_check</span><span class="o">.</span><span class="n">setMinimumHeight</span><span class="p">(</span><span class="mi">36</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_acquire</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QPushButton</span><span class="p">(</span><span class="s2">"Acquire"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_acquire</span><span class="o">.</span><span class="n">setFont</span><span class="p">(</span><span class="n">font_acq</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_acquire</span><span class="o">.</span><span class="n">setMinimumHeight</span><span class="p">(</span><span class="mi">36</span><span class="p">)</span>
+        <span class="n">btn_row</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pushButton_check</span><span class="p">)</span>
+        <span class="n">btn_row</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pushButton_acquire</span><span class="p">)</span>
+        <span class="n">root</span><span class="o">.</span><span class="n">addLayout</span><span class="p">(</span><span class="n">btn_row</span><span class="p">)</span>
+
+        <span class="c1"># ── Log ──────────────────────────────────────────────────────────────</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plainTextEdit_log</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QPlainTextEdit</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plainTextEdit_log</span><span class="o">.</span><span class="n">setReadOnly</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plainTextEdit_log</span><span class="o">.</span><span class="n">setFont</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QFont</span><span class="p">(</span><span class="s2">"Consolas"</span><span class="p">,</span> <span class="mi">9</span><span class="p">))</span>
+        <span class="n">root</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">plainTextEdit_log</span><span class="p">,</span> <span class="n">stretch</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_connect</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_browseExe</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_browse_exe</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_launch</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_launch</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_check</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
+            <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_start</span><span class="p">(</span><span class="n">check_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_acquire</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
+            <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_start</span><span class="p">(</span><span class="n">check_only</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="c1"># ── launch the board GUIs ────────────────────────────────────────────────</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_browse_exe</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">path</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QFileDialog</span><span class="o">.</span><span class="n">getOpenFileName</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="s2">"Select LinoSPAD_synchro.exe"</span><span class="p">,</span> <span class="s2">""</span><span class="p">,</span> <span class="s2">"Executables (*.exe)"</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">path</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_exe</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_save_paths</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_qsettings</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="s2">"exe"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_exe</span><span class="o">.</span><span class="n">text</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+        <span class="k">for</span> <span class="n">bid</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">BOARD_INFO</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_qsettings</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"settings_</span><span class="si">{</span><span class="n">bid</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_settings_edits</span><span class="p">[</span><span class="n">bid</span><span class="p">]</span><span class="o">.</span><span class="n">text</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_launch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">exe</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_exe</span><span class="o">.</span><span class="n">text</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">exe</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">exe</span><span class="p">):</span>
+            <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QMessageBox</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="bp">self</span><span class="p">,</span> <span class="s2">"Launch boards"</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">"LinoSPAD_synchro.exe not found:</span><span class="se">\n</span><span class="si">{</span><span class="n">exe</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">return</span>
+        <span class="n">cwd</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">exe</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_save_paths</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_append</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">=== Launch boards ==="</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">bid</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">BOARD_INFO</span><span class="p">:</span>
+            <span class="n">proc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_procs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">bid</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">proc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">proc</span><span class="o">.</span><span class="n">poll</span><span class="p">()</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_append</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">"[Board </span><span class="si">{</span><span class="n">bid</span><span class="si">}</span><span class="s2">] already running (PID </span><span class="si">{</span><span class="n">proc</span><span class="o">.</span><span class="n">pid</span><span class="si">}</span><span class="s2">); skipped."</span>
+                <span class="p">)</span>
+                <span class="k">continue</span>
+            <span class="n">settings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_settings_edits</span><span class="p">[</span><span class="n">bid</span><span class="p">]</span><span class="o">.</span><span class="n">text</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="n">exe</span><span class="p">,</span> <span class="s2">"-d"</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">bid</span><span class="p">),</span> <span class="s2">"-s"</span><span class="p">,</span> <span class="n">settings</span><span class="p">]</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">proc</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">cwd</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>  <span class="c1"># noqa: BLE001 - report to the user</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"[Board </span><span class="si">{</span><span class="n">bid</span><span class="si">}</span><span class="s2">] launch failed: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+                <span class="k">continue</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_procs</span><span class="p">[</span><span class="n">bid</span><span class="p">]</span> <span class="o">=</span> <span class="n">proc</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_append</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"[Board </span><span class="si">{</span><span class="n">bid</span><span class="si">}</span><span class="s2">] launched (PID </span><span class="si">{</span><span class="n">proc</span><span class="o">.</span><span class="n">pid</span><span class="si">}</span><span class="s2">): "</span> <span class="o">+</span> <span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_append</span><span class="p">(</span>
+            <span class="s2">"In each board window: click 'Listen' (the port must match the "</span>
+            <span class="s2">"Connection port above) and set 25 MHz External. Then Acquire."</span>
+        <span class="p">)</span>
+
+    <span class="c1"># ── helpers ──────────────────────────────────────────────────────────────</span>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_set_led</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">color</span><span class="p">):</span>
+        <span class="n">label</span><span class="o">.</span><span class="n">setStyleSheet</span><span class="p">(</span><span class="sa">f</span><span class="s2">"color: </span><span class="si">{</span><span class="n">color</span><span class="si">}</span><span class="s2">; font-size: 16px;"</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_append</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plainTextEdit_log</span><span class="o">.</span><span class="n">appendPlainText</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_busy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">busy</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_check</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="ow">not</span> <span class="n">busy</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_acquire</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="ow">not</span> <span class="n">busy</span><span class="p">)</span>
+
+    <span class="c1"># ── run control ──────────────────────────────────────────────────────────</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">check_only</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_worker</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_worker</span><span class="o">.</span><span class="n">isRunning</span><span class="p">():</span>
+            <span class="k">return</span>
+
+        <span class="n">boards</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">bid</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">BOARD_INFO</span><span class="p">:</span>
+            <span class="n">boards</span><span class="p">[</span><span class="n">bid</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">HOST</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ports</span><span class="p">[</span><span class="n">bid</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">()))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_set_led</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_leds</span><span class="p">[</span><span class="n">bid</span><span class="p">],</span> <span class="s2">"grey"</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_status_labels</span><span class="p">[</span><span class="n">bid</span><span class="p">]</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">"…"</span><span class="p">)</span>  <span class="c1"># …</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_append</span><span class="p">(</span>
+            <span class="s2">"</span><span class="se">\n</span><span class="s2">=== "</span>
+            <span class="o">+</span> <span class="p">(</span><span class="s2">"Check clocks"</span> <span class="k">if</span> <span class="n">check_only</span> <span class="k">else</span> <span class="s2">"Acquire"</span><span class="p">)</span>
+            <span class="o">+</span> <span class="s2">" ==="</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_busy</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_worker</span> <span class="o">=</span> <span class="n">AcquisitionWorker</span><span class="p">(</span>
+            <span class="n">boards</span><span class="o">=</span><span class="n">boards</span><span class="p">,</span>
+            <span class="n">check_only</span><span class="o">=</span><span class="n">check_only</span><span class="p">,</span>
+            <span class="n">acq_timeout</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spinBox_timeout</span><span class="o">.</span><span class="n">value</span><span class="p">()),</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_worker</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_append</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_worker</span><span class="o">.</span><span class="n">clock</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_on_clock</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_worker</span><span class="o">.</span><span class="n">clock_fail</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_on_clock_fail</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_worker</span><span class="o">.</span><span class="n">done</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_on_done</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_worker</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+    <span class="c1"># ── worker signal slots ──────────────────────────────────────────────────</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_on_clock</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bid</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="n">locked</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_led</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_leds</span><span class="p">[</span><span class="n">bid</span><span class="p">],</span> <span class="s2">"limegreen"</span> <span class="k">if</span> <span class="n">locked</span> <span class="k">else</span> <span class="s2">"red"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_status_labels</span><span class="p">[</span><span class="n">bid</span><span class="p">]</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span>
+            <span class="p">(</span><span class="s2">"EXT LOCKED"</span> <span class="k">if</span> <span class="n">locked</span> <span class="k">else</span> <span class="s2">"NOT on external clock"</span><span class="p">)</span>
+            <span class="o">+</span> <span class="sa">f</span><span class="s2">"  (0x</span><span class="si">{</span><span class="n">status</span><span class="si">:</span><span class="s2">08X</span><span class="si">}</span><span class="s2">)"</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_on_clock_fail</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bid</span><span class="p">,</span> <span class="n">err</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_led</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_leds</span><span class="p">[</span><span class="n">bid</span><span class="p">],</span> <span class="s2">"grey"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_status_labels</span><span class="p">[</span><span class="n">bid</span><span class="p">]</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="sa">f</span><span class="s2">"unreachable (</span><span class="si">{</span><span class="n">err</span><span class="si">}</span><span class="s2">)"</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_on_done</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">success</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_busy</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_append</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">success</span><span class="p">:</span>
+            <span class="n">box</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QMessageBox</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+            <span class="n">box</span><span class="o">.</span><span class="n">setIcon</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QMessageBox</span><span class="o">.</span><span class="n">Warning</span><span class="p">)</span>
+            <span class="n">box</span><span class="o">.</span><span class="n">setWindowTitle</span><span class="p">(</span><span class="s2">"Acquisition stopped"</span><span class="p">)</span>
+            <span class="n">box</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+            <span class="n">box</span><span class="o">.</span><span class="n">exec_</span><span class="p">()</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Sergei Kulkov.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

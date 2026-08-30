@@ -1,0 +1,16 @@
+daplis\_rtp.params package
+==========================
+
+.. automodule:: daplis_rtp.params
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   daplis_rtp.params.calibration_data
+   daplis_rtp.params.masks
