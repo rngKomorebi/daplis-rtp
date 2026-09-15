@@ -7,7 +7,8 @@ be saved to is set, scripts constantly wait for the latest saved file,
 unpack the data, and plot it as a number of timestamps vs. pixel number.
 Options for applying masks and calibration of the TDC nonlinearities for
 LinoSPAD2 daughterboards A5 and NL11 are provided. Compatible with
-firmware versions 2208 and 2212 (both 'block' and 'skip' versions).
+firmware version 2212, both the 'block' ('2212b') and the 'skip'
+('2212s') variants.
 Additionally, a real-time masking option is available.
 
 This repo was separated from the [main](https://github.com/rngKomorebi/LinoSPAD2)

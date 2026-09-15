@@ -25,7 +25,35 @@ import numpy as np
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 from daplis_rtp.functions.sen_pop import sen_pop
+from daplis_rtp.functions.tdc_occupancy import pixel_to_tdc_map
+from daplis_rtp.gui.file_sync_check import FileSyncPanel
+from daplis_rtp.gui.pixel_mask_window import PixelMaskWindow, mask_summary
+from daplis_rtp.gui.plot_figure import reserve_toolbar_width
 from daplis_rtp.gui.plot_figure_dual import PltCanvasDual
+from daplis_rtp.gui.tdc_occupancy_panel import (
+    BoardOccupancy,
+    TdcOccupancyPanel,
+    pixels_of_interest,
+)
+
+
+# Width of every combo and spin box in the control column. The tabs
+# built from '.ui' files all give theirs a fixed 100 px, which is what
+# makes them line up down the column and stay put as the window is
+# resized - the label beside each one takes the slack instead. This tab
+# builds its column in code, so it has to say the same thing out loud.
+CONTROL_BOX_WIDTH = 100
+
+
+def size_like_ui_tabs(widget, width=CONTROL_BOX_WIDTH):
+    """Give a combo or spin box the size the '.ui' tabs give theirs."""
+    policy = QtWidgets.QSizePolicy(
+        QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed
+    )
+    policy.setHeightForWidth(widget.sizePolicy().hasHeightForWidth())
+    widget.setSizePolicy(policy)
+    widget.setMinimumSize(QtCore.QSize(width, 0))
+    return widget
 
 
 class LinoSPAD2Dual(QtWidgets.QWidget):
@@ -68,7 +96,7 @@ class LinoSPAD2Dual(QtWidgets.QWidget):
         hl_db.addWidget(lbl_db)
         self.comboBox_mask_2 = QtWidgets.QComboBox(self.frame_2)
         self.comboBox_mask_2.setFont(font10)
-        self.comboBox_mask_2.setMinimumSize(QtCore.QSize(80, 0))
+        size_like_ui_tabs(self.comboBox_mask_2)
         self.comboBox_mask_2.setEditable(True)
         self.comboBox_mask_2.setInsertPolicy(
             QtWidgets.QComboBox.InsertAtCurrent
@@ -88,7 +116,7 @@ class LinoSPAD2Dual(QtWidgets.QWidget):
         hl_mb1.addWidget(lbl_mb1)
         self.comboBox_mb_1 = QtWidgets.QComboBox(self.frame_2)
         self.comboBox_mb_1.setFont(font10)
-        self.comboBox_mb_1.setMinimumSize(QtCore.QSize(80, 0))
+        size_like_ui_tabs(self.comboBox_mb_1)
         self.comboBox_mb_1.setEditable(True)
         self.comboBox_mb_1.setInsertPolicy(QtWidgets.QComboBox.InsertAtCurrent)
         for item in ["#28", "#33", "#21", "#36", "#37", "#4", "#29"]:
@@ -106,7 +134,7 @@ class LinoSPAD2Dual(QtWidgets.QWidget):
         hl_mb2.addWidget(lbl_mb2)
         self.comboBox_mb_2 = QtWidgets.QComboBox(self.frame_2)
         self.comboBox_mb_2.setFont(font10)
-        self.comboBox_mb_2.setMinimumSize(QtCore.QSize(80, 0))
+        size_like_ui_tabs(self.comboBox_mb_2)
         self.comboBox_mb_2.setEditable(True)
         self.comboBox_mb_2.setInsertPolicy(QtWidgets.QComboBox.InsertAtCurrent)
         for item in ["#28", "#33", "#21", "#36", "#37", "#4", "#29"]:
@@ -123,8 +151,8 @@ class LinoSPAD2Dual(QtWidgets.QWidget):
         hl_fw.addWidget(lbl_fw)
         self.comboBox_FW_2 = QtWidgets.QComboBox(self.frame_2)
         self.comboBox_FW_2.setFont(font10)
-        self.comboBox_FW_2.setMinimumSize(QtCore.QSize(80, 0))
-        for item in ["2212b", "2208", "2212s"]:
+        size_like_ui_tabs(self.comboBox_FW_2)
+        for item in ["2212b", "2212s"]:
             self.comboBox_FW_2.addItem(item)
         hl_fw.addWidget(self.comboBox_FW_2)
         self.verticalLayout.addLayout(hl_fw)
@@ -140,7 +168,7 @@ class LinoSPAD2Dual(QtWidgets.QWidget):
         hl_ts.addWidget(lbl_ts)
         self.spinBox_timestamps_2 = QtWidgets.QSpinBox(self.frame_2)
         self.spinBox_timestamps_2.setFont(font10)
-        self.spinBox_timestamps_2.setMinimumSize(QtCore.QSize(80, 0))
+        size_like_ui_tabs(self.spinBox_timestamps_2)
         self.spinBox_timestamps_2.setMaximum(1536)
         self.spinBox_timestamps_2.setValue(300)
         hl_ts.addWidget(self.spinBox_timestamps_2)
@@ -182,62 +210,50 @@ class LinoSPAD2Dual(QtWidgets.QWidget):
         hl_pmask.addWidget(self.pushButton_resetMask_2)
         self.verticalLayout.addLayout(hl_pmask)
 
-        # --- Pixel mask: two scroll areas side by side ---
-        # Board 1 left, board 2 right; each 2 columns × 128 rows.
-        # Combined width ≈ original 4-column scroll area.
-        hl_scrolls = QtWidgets.QHBoxLayout()
-
-        self.scrollArea = QtWidgets.QScrollArea(self.frame_2)
-        self.scrollArea.setMinimumSize(QtCore.QSize(0, 250))
-        self.scrollArea.setWidgetResizable(True)
-        self.scrollAreaWidgetContents = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 140, 300))
-        self.scrollAreaWidgetContentslayout = QtWidgets.QGridLayout(
-            self.scrollAreaWidgetContents
-        )
-        self.checkBoxPixel = []
+        # --- Pixel mask: 256 check boxes per board, in a window ---
+        # Side by side in the column they took 250 px and showed a
+        # handful of the 128 rows at a time, while setting how tall the
+        # whole application opened. In their own window they can be put
+        # next to the plot and left there while the stream runs. The
+        # boxes are the same objects as before, so 'checkBoxPixel',
+        # 'checkBoxPixel_b2' and the two grid layouts still address
+        # pixel i as item i.
         self.maskValidPixels = np.zeros(256)
-        for col in range(2):
-            for row in range(128):
-                cb = QtWidgets.QCheckBox(
-                    str(row + col * 128), self.scrollAreaWidgetContents
-                )
-                self.checkBoxPixel.append(cb)
-                self.scrollAreaWidgetContentslayout.addWidget(
-                    cb, row, col, 1, 1
-                )
-        self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
-        self.scrollArea.setWidget(self.scrollAreaWidgetContents)
-
-        self.scrollArea_b2 = QtWidgets.QScrollArea(self.frame_2)
-        self.scrollArea_b2.setMinimumSize(QtCore.QSize(0, 250))
-        self.scrollArea_b2.setWidgetResizable(True)
-        self.scrollAreaWidgetContents_b2 = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents_b2.setGeometry(
-            QtCore.QRect(0, 0, 140, 300)
-        )
-        self.scrollAreaWidgetContentslayout_b2 = QtWidgets.QGridLayout(
-            self.scrollAreaWidgetContents_b2
-        )
-        self.checkBoxPixel_b2 = []
         self.maskValidPixels_b2 = np.zeros(256)
-        for col in range(2):
-            for row in range(128):
-                cb = QtWidgets.QCheckBox(
-                    str(row + col * 128), self.scrollAreaWidgetContents_b2
-                )
-                self.checkBoxPixel_b2.append(cb)
-                self.scrollAreaWidgetContentslayout_b2.addWidget(
-                    cb, row, col, 1, 1
-                )
-        self.scrollAreaWidgetContents_b2.setObjectName(
-            "scrollAreaWidgetContents_b2"
+        self.mask_window = PixelMaskWindow(
+            self,
+            boards=[("Board 1", 2, 128), ("Board 2", 2, 128)],
+            font=font10,
+            title="Pixel mask — Full Sensor",
         )
-        self.scrollArea_b2.setWidget(self.scrollAreaWidgetContents_b2)
+        self.checkBoxPixel = self.mask_window.boxes[0]
+        self.checkBoxPixel_b2 = self.mask_window.boxes[1]
+        self.scrollAreaWidgetContentslayout = self.mask_window.grids[0]
+        self.scrollAreaWidgetContentslayout_b2 = self.mask_window.grids[1]
+        self.mask_window.changed.connect(self.slot_mask_changed)
+        self.mask_window.clear_requested.connect(self.reset_pix_mask)
 
-        hl_scrolls.addWidget(self.scrollArea)
-        hl_scrolls.addWidget(self.scrollArea_b2)
-        self.verticalLayout.addLayout(hl_scrolls)
+        hl_mask = QtWidgets.QHBoxLayout()
+        self.pushButton_editMask = QtWidgets.QPushButton(
+            "Edit mask…", self.frame_2
+        )
+        self.pushButton_editMask.setFont(font10)
+        self.pushButton_editMask.setMinimumSize(QtCore.QSize(0, 26))
+        self.pushButton_editMask.setToolTip(
+            "Open the pixel mask for both boards in a window of its "
+            "own; it can be left open beside the plot while the stream "
+            "runs."
+        )
+        self.pushButton_editMask.clicked.connect(
+            self.mask_window.open_beside
+        )
+        hl_mask.addWidget(self.pushButton_editMask)
+        self.label_maskCount = QtWidgets.QLabel("b1: 0, b2: 0", self.frame_2)
+        self.label_maskCount.setFont(font10)
+        hl_mask.addWidget(self.label_maskCount)
+        hl_mask.addStretch(1)
+        self.verticalLayout.addLayout(hl_mask)
+        self.slot_mask_changed()
 
         # --- Linear scale + Grouping ---
         hl_opts = QtWidgets.QHBoxLayout()
@@ -265,6 +281,29 @@ class LinoSPAD2Dual(QtWidgets.QWidget):
         )
         hl_opts.addWidget(self.checkBox_grouping_2)
         self.verticalLayout.addLayout(hl_opts)
+
+        # --- Both boards in step (background check) ---
+        # Fed from the two browse rows on the left; started and stopped
+        # together with the stream, which runs for as long as the
+        # acquisition does.
+        self.fileSyncPanel = FileSyncPanel(
+            self.frame_2, font=font10, labels=("Board 1", "Board 2")
+        )
+        self.verticalLayout.addWidget(self.fileSyncPanel)
+
+        # --- TDC slot occupancy ---
+        # How close the readout is to saturation, in the same place as
+        # on the "Online plot" tab: last panel of the control column,
+        # just above the two buttons. The x-axis of this tab runs 0-511,
+        # so the box is told to accept pixel numbers over that whole
+        # range rather than a single half's 0-255.
+        self.panel_occupancy = TdcOccupancyPanel(
+            self.frame_2, font=font10, n_pixels=512
+        )
+        self.panel_occupancy.attach_timestamps_spinbox(
+            self.spinBox_timestamps_2
+        )
+        self.verticalLayout.addWidget(self.panel_occupancy)
 
         # --- Refresh + Start stream ---
         self.pushButton_refreshPlot = QtWidgets.QPushButton(
@@ -371,6 +410,8 @@ class LinoSPAD2Dual(QtWidgets.QWidget):
         self.last_file_ctime_1 = 0
         self.last_file_ctime_2 = 0
         self.canvas_fontsize = 16
+        # Guard against 'update_time_stamp' re-entering itself, see there
+        self._updating = False
 
         # ------------------------------------------------------------------
         # Plot widget — added programmatically (rows 2-5 of gridLayout)
@@ -378,6 +419,7 @@ class LinoSPAD2Dual(QtWidgets.QWidget):
         self.widget_figure = PltCanvasDual()
         self.widget_figure.setObjectName("widget_figure_dual")
         self.gridLayout.addWidget(self.widget_figure, 2, 0, 3, 3)
+        reserve_toolbar_width(self.frame, self.widget_figure)
 
         # ------------------------------------------------------------------
         # x-limit spin box configuration
@@ -475,21 +517,33 @@ class LinoSPAD2Dual(QtWidgets.QWidget):
             self.timer.stop()
             self.timerRunning = False
             self.pushButton_startStream.setText("Start stream")
+            self.fileSyncPanel.stop()
         else:
             self.pushButton_startStream.setText("Stop stream")
+            # A new run gets a new saturation warning, even if the last
+            # one was already dismissed
+            self.panel_occupancy.reset()
             self.timer.start(100)
             self.timerRunning = True
+            self.fileSyncPanel.set_paths(
+                self.pathtotimestamp_1, self.pathtotimestamp_2
+            )
+            self.fileSyncPanel.start()
 
     def slot_stopstream(self):
         self.timer.stop()
         self.timerRunning = False
         self.pushButton_startStream.setText("Start stream")
+        self.fileSyncPanel.stop()
         self.last_file_ctime_1 = 0
         self.last_file_ctime_2 = 0
 
     def slot_refresh(self):
         self.last_file_ctime_1 = 0
         self.last_file_ctime_2 = 0
+        # An explicit look again asks for the saturation warning again
+        # too - typically the 'Timestamps' setting has just been changed
+        self.panel_occupancy.reset()
         self.update_time_stamp()
 
     # ------------------------------------------------------------------
@@ -522,90 +576,194 @@ class LinoSPAD2Dual(QtWidgets.QWidget):
     # Data update
     # ------------------------------------------------------------------
 
+    def _report_error(self, text, details=None):
+        """Stop the stream and show an error message box.
+
+        The stream is stopped *before* the box is shown on purpose: a
+        modal box runs an event loop of its own, so a timer left running
+        would fire `update_time_stamp` again every 100 ms and stack a
+        new box on top of this one for as long as it stays open.
+
+        """
+        self.slot_stopstream()
+        msg = QtWidgets.QMessageBox()
+        msg.setText(text)
+        if details is not None:
+            msg.setDetailedText(str(details))
+        msg.setWindowTitle("Error")
+        msg.exec_()
+
+    @staticmethod
+    def _last_data_file(path):
+        """Return the newest '.dat' file in 'path', or None if there is none.
+
+        None is returned both when the directory holds no data files and
+        when the files - or the directory itself - are removed while the
+        stream is running: 'glob' lists the directory first and
+        'getctime' is called on the result afterwards, so a file that
+        disappears in between raises OSError instead of simply dropping
+        out of the list.
+
+        """
+        data_files = glob.glob(os.path.join(path, "*.dat*"))
+        try:
+            return max(data_files, key=os.path.getctime)
+        # ValueError: no data files at all; OSError (FileNotFoundError
+        # among them): a file vanished between the listing and the call
+        except (ValueError, OSError):
+            return None
+
     def update_time_stamp(self):
-        stopping = False
+        # Both the canvas 'flush_events' and the modal error box spin the
+        # event loop, so the 100 ms timer can fire again while this call
+        # is still running; without the guard those calls stack up.
+        if self._updating:
+            return
+        self._updating = True
+        try:
+            self._update_plot()
+        finally:
+            self._updating = False
+
+    def _update_plot(self):
         self.mask_pixels()
 
-        DATA_FILES_1 = glob.glob(
-            os.path.join(self.pathtotimestamp_1, "*.dat*")
-        )
-        DATA_FILES_2 = glob.glob(
-            os.path.join(self.pathtotimestamp_2, "*.dat*")
-        )
+        last_file_1 = self._last_data_file(self.pathtotimestamp_1)
+        last_file_2 = self._last_data_file(self.pathtotimestamp_2)
+
+        if last_file_1 is None or last_file_2 is None:
+            if last_file_1 is None and last_file_2 is None:
+                where = "either working directory"
+            elif last_file_1 is None:
+                where = "the working directory of board 1"
+            else:
+                where = "the working directory of board 2"
+            self._report_error(
+                f"No data files found in {where} — they may have been "
+                "removed. Check both working directories."
+            )
+            return
 
         try:
-            last_file_1 = max(DATA_FILES_1, key=os.path.getctime)
-            last_file_2 = max(DATA_FILES_2, key=os.path.getctime)
             new_ctime_1 = os.path.getctime(last_file_1)
             new_ctime_2 = os.path.getctime(last_file_2)
-        except ValueError:
-            msg = QtWidgets.QMessageBox()
-            msg.setText(
-                "No data files found — check both working directories."
-            )
-            msg.setWindowTitle("Error")
-            msg.exec_()
-            self.slot_stopstream()
-            stopping = True
 
-        if not stopping:
-            try:
-                if (
-                    new_ctime_1 > self.last_file_ctime_1
-                    or new_ctime_2 > self.last_file_ctime_2
-                ):
-                    self.last_file_ctime_1 = new_ctime_1
-                    self.last_file_ctime_2 = new_ctime_2
+            if (
+                new_ctime_1 > self.last_file_ctime_1
+                or new_ctime_2 > self.last_file_ctime_2
+            ):
+                self.last_file_ctime_1 = new_ctime_1
+                self.last_file_ctime_2 = new_ctime_2
 
-                    # Full-sensor data are always collected with the
-                    # absolute timestamps, needed to synchronize the two
-                    # boards, so no UI control is exposed for this.
-                    rates_1 = sen_pop(
-                        last_file_1,
-                        board_number=self.comboBox_mask_2.currentText(),
-                        fw_ver=self.comboBox_FW_2.currentText(),
-                        timestamps=self.spinBox_timestamps_2.value(),
-                        pix_add_fix=False,
-                        absolute_timestamps=True,
-                    )
-                    # Pixel-address correction is always applied to board 2.
-                    rates_2 = sen_pop(
-                        last_file_2,
-                        board_number=self.comboBox_mask_2.currentText(),
-                        fw_ver=self.comboBox_FW_2.currentText(),
-                        timestamps=self.spinBox_timestamps_2.value(),
-                        pix_add_fix=True,
-                        absolute_timestamps=True,
-                    )
+                fw_ver = self.comboBox_FW_2.currentText()
+                check_slots = self.panel_occupancy.enabled
 
-                    rates_1 = rates_1 * self.maskValidPixels
-                    rates_2 = rates_2 * self.maskValidPixels_b2
-                    combined = np.concatenate([rates_1, rates_2])
-
-                    self.widget_figure.setPlotData(
-                        np.arange(0, 512, 1),
-                        combined,
-                        [self.leftPosition, self.rightPosition],
-                        self.grouping,
-                        self.canvas_fontsize,
-                    )
-
-            except (ValueError, FileNotFoundError, OSError) as err:
-                msg = QtWidgets.QMessageBox()
-                msg.setText(
-                    "Cannot read data file — it may have been removed. "
-                    "Check the timestamp setting and the firmware "
-                    "version; full-sensor data must hold the absolute "
-                    "timestamps."
+                # Full-sensor data are always collected with the
+                # absolute timestamps, needed to synchronize the two
+                # boards, so no UI control is exposed for this.
+                result_1 = sen_pop(
+                    last_file_1,
+                    board_number=self.comboBox_mask_2.currentText(),
+                    fw_ver=fw_ver,
+                    timestamps=self.spinBox_timestamps_2.value(),
+                    pix_add_fix=False,
+                    absolute_timestamps=True,
+                    return_occupancy=check_slots,
                 )
-                msg.setDetailedText(str(err))
-                msg.setWindowTitle("Error")
-                msg.exec_()
-                self.slot_stopstream()
+                # Pixel-address correction is always applied to board 2.
+                result_2 = sen_pop(
+                    last_file_2,
+                    board_number=self.comboBox_mask_2.currentText(),
+                    fw_ver=fw_ver,
+                    timestamps=self.spinBox_timestamps_2.value(),
+                    pix_add_fix=True,
+                    absolute_timestamps=True,
+                    return_occupancy=check_slots,
+                )
+
+                if check_slots:
+                    rates_1, occupancy_1 = result_1
+                    rates_2, occupancy_2 = result_2
+                    self.report_occupancy(fw_ver, occupancy_1, occupancy_2)
+                else:
+                    rates_1, rates_2 = result_1, result_2
+                    self.panel_occupancy.clear("switched off")
+
+                rates_1 = rates_1 * self.maskValidPixels
+                rates_2 = rates_2 * self.maskValidPixels_b2
+                combined = np.concatenate([rates_1, rates_2])
+
+                self.widget_figure.setPlotData(
+                    np.arange(0, 512, 1),
+                    combined,
+                    [self.leftPosition, self.rightPosition],
+                    self.grouping,
+                    self.canvas_fontsize,
+                )
+
+        # A file removed while it is being read shows up here as
+        # OSError; a truncated or half-written one as ValueError or
+        # IndexError from the unpacking
+        except (ValueError, IndexError, OSError) as err:
+            self._report_error(
+                "Cannot read data file — it may have been removed. "
+                "Check the timestamp setting and the firmware "
+                "version; full-sensor data must hold the absolute "
+                "timestamps.",
+                err,
+            )
+
+    # ------------------------------------------------------------------
+    # TDC slot occupancy
+    # ------------------------------------------------------------------
+
+    def report_occupancy(self, fw_ver, occupancy_1, occupancy_2):
+        """Hand one refresh's slot occupancy to the status box.
+
+        The pixels of interest are given on the 0-511 x-axis of this
+        tab, so each board takes the part of them that falls on its own
+        half and maps it to TDCs with the 'pix_add_fix' its rates were
+        built with - always off for board 1 and on for board 2.
+
+        """
+        try:
+            explicit = self.panel_occupancy.explicit_pixels()
+        except ValueError as err:
+            # A half-typed pixel list should not blank the readout, and
+            # it certainly should not raise into the plotting path
+            self.panel_occupancy.clear("pixels of interest: {}".format(err))
+            return
+
+        x_lim = (self.leftPosition, self.rightPosition)
+        boards = []
+        for label, occupancy, mask, offset, pix_add_fix in (
+            ("board 1", occupancy_1, self.maskValidPixels, 0, False),
+            ("board 2", occupancy_2, self.maskValidPixels_b2, 256, True),
+        ):
+            pixels = pixels_of_interest(explicit, mask, x_lim, offset)
+            boards.append(
+                BoardOccupancy(
+                    label,
+                    occupancy,
+                    pixel_to_tdc_map(fw_ver, pix_add_fix)[pixels],
+                )
+            )
+        self.panel_occupancy.show_result(boards)
 
     # ------------------------------------------------------------------
     # Pixel masking
     # ------------------------------------------------------------------
+
+    def slot_mask_changed(self):
+        """Keep the count beside the button in step with the boxes.
+
+        The mask arrays themselves are rebuilt by 'mask_pixels' on the
+        next refresh, so ticking a box never races the plotting.
+
+        """
+        self.label_maskCount.setText(
+            mask_summary(self.mask_window.masked_counts())
+        )
 
     def mask_pixels(self):
         for i in range(256):

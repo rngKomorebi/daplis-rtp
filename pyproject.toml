@@ -44,7 +44,14 @@ version = { attr = "daplis_rtp.__version__" }
 where = ["src"]
 
 [tool.setuptools.package-data]
-"daplis_rtp" = ["params/masks/*.txt", "params/calibration_data/*.csv"]
+"daplis_rtp" = [
+    "params/masks/*.txt",
+    "params/calibration_data/*.csv",
+    # The rendered application icon. The 1024 px master it comes from
+    # stays in "assets" and is deliberately not shipped.
+    "resources/*.png",
+    "resources/*.ico",
+]
 
 [project.scripts]
 daplis-rtp = "daplis_rtp.main:main"

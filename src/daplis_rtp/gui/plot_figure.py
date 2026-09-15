@@ -19,6 +19,73 @@ from matplotlib.backends.backend_qt5agg import (
 from matplotlib.figure import Figure
 from PyQt5.QtWidgets import QVBoxLayout, QWidget
 
+# The readout the navigation toolbar writes while the cursor is over the
+# axes: the pixel number under the mouse, which is the quickest way to
+# tell which pixel a peak belongs to. matplotlib writes it as two lines,
+# the coordinates and the colour beneath them.
+TOOLBAR_READOUT_SAMPLE = (
+    "(x, y) = (255.0, 2000.0)\n[0.957, 0.514, 0.514, 0.0857]"
+)
+
+# Below this the plot is not worth looking at. Kept at the largest
+# value that costs the window no height of its own: above 240 the
+# canvas, rather than the controls beside it, starts deciding how tall
+# the application opens.
+MIN_CANVAS_HEIGHT = 240
+
+
+def toolbar_min_width(toolbar, sample=TOOLBAR_READOUT_SAMPLE):
+    """Width at which every toolbar button and the readout still fit.
+
+    A QToolBar squeezed below its contents hides them behind a '>>'
+    overflow button rather than forcing its parent wider - its own
+    'minimumSizeHint' is barely wider than that button - and the
+    coordinate readout, being the widest item, is the first to go. It is
+    also empty until the cursor reaches the axes, so nothing in the
+    toolbar's size hints reserves room for it while it is not needed.
+
+    The width is measured rather than assumed: the readout is asked how
+    wide it would be with a full reading in it, which picks up the
+    application's font and any padding the style adds, both of which
+    differ between machines.
+
+    """
+    label = getattr(toolbar, "locLabel", None)
+    readout = 0
+    if label is not None:
+        previous = label.text()
+        label.setText(sample)
+        readout = label.sizeHint().width()
+        label.setText(previous)
+
+    buttons = 0
+    for child in toolbar.children():
+        if not isinstance(child, QWidget) or child is label:
+            continue
+        # The overflow button is the thing we are sizing to avoid
+        if child.objectName() == "qt_toolbar_ext_button":
+            continue
+        buttons += child.sizeHint().width()
+
+    # Layout margins, the spacing between the buttons, and the frame
+    return buttons + readout + 32
+
+
+def reserve_toolbar_width(frame, canvas):
+    """Make the plot's frame wide enough to keep the whole toolbar.
+
+    The canvas carries its own minimum width, but between it and the
+    window sit two frames whose layouts do not pass that minimum all the
+    way up, so the plot is squeezed and the toolbar folds its readout
+    away regardless. An explicit minimum on the frame is respected, and
+    is what actually reaches the window.
+
+    """
+    margins = frame.layout().contentsMargins()
+    frame.setMinimumWidth(
+        canvas.minimumWidth() + margins.left() + margins.right() + 2
+    )
+
 
 class PltCanvas(QWidget):
     def __init__(self, parent=None, width=7, height=4, dpi=100):
@@ -56,6 +123,13 @@ class PltCanvas(QWidget):
         self.layout.addWidget(self.toolbar)
 
         self.setLayout(self.layout)
+
+        # Keep the whole toolbar reachable: the pixel number under the
+        # cursor is read off it, and it is the first thing a narrow
+        # window hides.
+        self.setMinimumSize(
+            toolbar_min_width(self.toolbar), MIN_CANVAS_HEIGHT
+        )
 
         self.setplotparameters()
 

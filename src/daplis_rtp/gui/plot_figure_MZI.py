@@ -18,6 +18,8 @@ from matplotlib.backends.backend_qt5agg import (
 from matplotlib.figure import Figure
 from PyQt5.QtWidgets import QVBoxLayout, QWidget
 
+from daplis_rtp.gui.plot_figure import MIN_CANVAS_HEIGHT, toolbar_min_width
+
 
 class PltCanvas_MZI(QWidget):
     def __init__(self, parent=None, width=7, height=4, dpi=100):
@@ -56,6 +58,13 @@ class PltCanvas_MZI(QWidget):
         self.layout.addWidget(self.toolbar)
 
         self.setLayout(self.layout)
+
+        # Keep the whole toolbar reachable: the coordinates under the
+        # cursor are read off it, and they are the first thing a narrow
+        # window hides.
+        self.setMinimumSize(
+            toolbar_min_width(self.toolbar), MIN_CANVAS_HEIGHT
+        )
 
         self.setplotparameters()
 

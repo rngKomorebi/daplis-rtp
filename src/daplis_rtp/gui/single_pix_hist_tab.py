@@ -9,6 +9,7 @@ import os
 
 from PyQt5 import QtCore, QtGui, QtWidgets, uic
 
+from daplis_rtp.gui.plot_figure import reserve_toolbar_width
 from daplis_rtp.gui.single_pixel_histogram import HistCanvas
 from daplis_rtp.gui.ui.SinglePixelHistogram_tab_c import Ui_Form
 
@@ -51,10 +52,19 @@ class SinglePixelHistogram(QtWidgets.QWidget):
         self.pushButton_browse.clicked.connect(self.get_dir)
 
         # Histogram widget
+        # The '.ui' file carries a 500x425 placeholder where the canvas
+        # goes. The real canvas is added over it just below, but the
+        # placeholder stays in the grid, and its minimum size alone
+        # decided how tall and wide the application had to open.
+        self.gridLayout.removeWidget(self.ui.widget_figure)
+        self.ui.widget_figure.setParent(None)
+        self.ui.widget_figure.deleteLater()
+
         self.widget_figure = HistCanvas()
         # self.widget_figure.setFixedSize(500, 425)
         # self.widget_figure.setObjectName("widget")
         self.gridLayout.addWidget(self.widget_figure, 1, 0, 4, 3)
+        reserve_toolbar_width(self.frame, self.widget_figure)
 
         # Refresh plot button signal
         self.pushButton_refreshPlot.clicked.connect(self.refresh_plot)
@@ -125,11 +135,18 @@ class SinglePixelHistogram(QtWidgets.QWidget):
                 fw_ver=self.comboBox_FW.currentText(),
                 cycle_length=self.cycle_length,
             )
-        except (FileNotFoundError, OSError):
+        # ValueError: the firmware version or the number of timestamps
+        # does not match the file - previously this called 'sys.exit()'
+        # deep in the plotting and took the whole app down; OSError
+        # (FileNotFoundError among them): the file went away between
+        # the listing and the read
+        except (ValueError, FileNotFoundError, OSError) as err:
             msg_window = QtWidgets.QMessageBox()
             msg_window.setText(
-                "Data file was removed before it could be read."
+                "Cannot read data file — it may have been removed. "
+                "Check the timestamp setting and the firmware version."
             )
+            msg_window.setDetailedText(str(err))
             msg_window.setWindowTitle("Error")
             msg_window.exec_()
 

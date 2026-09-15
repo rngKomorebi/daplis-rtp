@@ -5,8 +5,6 @@ output graph should be flat top.
 
 """
 
-import sys
-
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
@@ -17,6 +15,7 @@ from matplotlib.figure import Figure
 from PyQt5.QtWidgets import QVBoxLayout, QWidget
 
 from daplis_rtp.functions.unpack import unpack_bin
+from daplis_rtp.gui.plot_figure import MIN_CANVAS_HEIGHT, toolbar_min_width
 
 
 class HistCanvas(QWidget):
@@ -53,6 +52,13 @@ class HistCanvas(QWidget):
         self.layout.addWidget(self.toolbar)
 
         self.setLayout(self.layout)
+
+        # Keep the whole toolbar reachable: the coordinates under the
+        # cursor are read off it, and they are the first thing a narrow
+        # window hides.
+        self.setMinimumSize(
+            toolbar_min_width(self.toolbar), MIN_CANVAS_HEIGHT
+        )
 
         self._setplotparameters()
 
@@ -105,7 +111,13 @@ class HistCanvas(QWidget):
         board_number : str
             LinoSPAD2 daughterboard number.
         fw_ver : str
-            LinoSPAD2 firmware version.
+            LinoSPAD2 firmware version, '2212b' or '2212s'.
+
+        Raises
+        ------
+        ValueError
+            Raised by 'unpack_bin' if the firmware version is not one
+            it handles.
         """
         data = unpack_bin(file, board_number, fw_ver, timestamps)
 
@@ -115,22 +127,18 @@ class HistCanvas(QWidget):
 
         self.ax.cla()
 
-        if fw_ver == "2208":
-            self.ax.hist(data[pixel], bins=bins, color="teal")
-        elif fw_ver[:-1] == "2212":
-            if fw_ver == "2212s":
-                pix_coor = np.arange(256).reshape(4, 64).T
-            elif fw_ver == "2212b":
-                pix_coor = np.arange(256).reshape(64, 4)
-            tdc, pix = np.argwhere(pix_coor == pixel)[0]
-            ind = np.where(data[tdc].T[0] == pix)[0]
-            ind1 = np.where(data[tdc].T[1][ind] > 0)[0]
-            data_to_plot = data[tdc].T[1][ind[ind1]]
+        # 'unpack_bin' above rejects any other firmware version
+        pix_coor = (
+            np.arange(256).reshape(4, 64).T
+            if fw_ver == "2212s"
+            else np.arange(256).reshape(64, 4)
+        )
+        tdc, pix = np.argwhere(pix_coor == pixel)[0]
+        ind = np.where(data[tdc].T[0] == pix)[0]
+        ind1 = np.where(data[tdc].T[1][ind] > 0)[0]
+        data_to_plot = data[tdc].T[1][ind[ind1]]
 
-            self.ax.hist(data_to_plot, bins=bins, color="teal")
-        else:
-            print("\nFirmware version is not recognized, exiting.")
-            sys.exit()
+        self.ax.hist(data_to_plot, bins=bins, color="teal")
 
         self.ax.set_xlabel("Time (ps)")
         self.ax.set_ylabel("# of timestamps (-)")

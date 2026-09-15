@@ -5,7 +5,7 @@ functions:
 
     * unpack_bin - function for unpacking data from LinoSPAD2. Utilizes
     the numpy library to speed up the process. Works with firmware
-    versions 2208 and 2212.
+    versions 2212b and 2212s.
 
 """
 
@@ -14,6 +14,13 @@ import os
 import numpy as np
 
 # from daplis_rtp.functions.calibrate import calibrate_load
+
+# Firmware versions the package handles. Both read the sensor out
+# through 64 TDCs of four pixels each, differing only in which four:
+# '2212b' takes them in blocks of four consecutive pixels, '2212s' in
+# steps of 64. Firmware 2208, which read every pixel out on its own and
+# so had no shared per-TDC memory, is no longer supported.
+FW_VERSIONS = ("2212b", "2212s")
 
 
 def unpack_bin(
@@ -26,10 +33,9 @@ def unpack_bin(
     """Unpack binary data from LinoSPAD2.
 
     Unpacks binary-encoded .dat files with data from LinoSPAD2 into a
-    matrix with dimensions [256, # of timestamps*cycles] for firwmare
-    2208, or [64, # of timestamps*cycles + cycles, 2] for firmware
-    version 2212 where the third axis contains the timestamp and a pixel
-    coordinate in the particular TDC.
+    matrix with dimensions [64, # of timestamps*cycles + cycles, 2],
+    where the third axis contains the timestamp and a pixel coordinate
+    in the particular TDC.
 
     Parameters
     ----------
@@ -38,10 +44,10 @@ def unpack_bin(
     board_number : str
         LinoSPAD2 daugtherboard number.
     fw_ver : str
-        LinoSPAD2 firmware version.
+        LinoSPAD2 firmware version, '2212b' or '2212s'.
     timestamps : int, optional
-        Number of timetstamps per pixel (firmware 2208) or per TDC
-        firmware 2212 and per acquisition cycle, by default 512.
+        Number of timestamps per TDC per acquisition cycle, by default
+        512.
     absolute_timestamps : bool, optional
         Indicator for data files collected with absolute timestamps. In
         such files, each acquisition cycle is preceded by two 32-bit
@@ -52,22 +58,27 @@ def unpack_bin(
     Returns
     -------
     data_matrix: ndarray
-        Matrix of timestamps in each pixel (firmware 2208) or in each
-        TDC with pixel number in that TDC (firmware 2212).
+        Matrix of timestamps in each TDC, with the pixel number in that
+        TDC alongside each of them.
 
     Raises
     ------
-    FileNotFoundError
-        Raised if no calibration data were found.
+    ValueError
+        Raised if the firmware version is not one of 'FW_VERSIONS', or
+        if the file does not match the 'absolute_timestamps' setting.
     """
+    if fw_ver not in FW_VERSIONS:
+        raise ValueError(
+            "Unknown firmware version '{}'; expected one of {}.".format(
+                fw_ver, ", ".join(FW_VERSIONS)
+            )
+        )
+
     # read data by 32 bit words
     rawFile = np.fromfile(file, dtype=np.uint32)
 
     # Number of words with pixel data in a single acquisition cycle
-    if fw_ver == "2208":
-        words_per_cycle = 256 * timestamps
-    else:
-        words_per_cycle = 65 * timestamps
+    words_per_cycle = 65 * timestamps
 
     # Data files with absolute timestamps hold two extra 32-bit words at
     # the start of each acquisition cycle - the lower and the higher
@@ -107,65 +118,49 @@ def unpack_bin(
     data_t = (rawFile & 0xFFFFFFF).astype(np.longlong) * 17.857
     # mask nonvalid data with '-1'
     data_t[np.where(rawFile < 0x80000000)] = -1
+    # bits 28 and 29 are the pixel's coordinate inside its TDC
+    data_p = ((rawFile >> 28) & 0x3).astype(np.longlong)
     # number of acquisition cycles
-    if fw_ver == "2208":
-        cycles = int(len(data_t) / timestamps / 256)
+    cycles = int(len(data_t) / timestamps / 65)
+    data_matrix_p = (
+        data_p.reshape(cycles, 65, timestamps)
+        .transpose((1, 0, 2))
+        .reshape(65, timestamps * cycles)
+    )
 
-        data_matrix = (
-            data_t.reshape(cycles, 256, timestamps)
-            .transpose((1, 0, 2))
-            .reshape(256, timestamps * cycles)
-        )
-    # firmware 2212 additions
-    if fw_ver[:-1] == "2212":
-        data_p = ((rawFile >> 28) & 0x3).astype(np.longlong)
-        cycles = int(len(data_t) / timestamps / 65)
-        data_matrix_p = (
-            data_p.reshape(cycles, 65, timestamps)
-            .transpose((1, 0, 2))
-            .reshape(65, timestamps * cycles)
-        )
+    data_matrix_t = (
+        data_t.reshape(cycles, 65, timestamps)
+        .transpose((1, 0, 2))
+        .reshape(65, timestamps * cycles)
+    )
 
-        data_matrix_t = (
-            data_t.reshape(cycles, 65, timestamps)
-            .transpose((1, 0, 2))
-            .reshape(65, timestamps * cycles)
-        )
-
-        # cut the 65th TDC that does not hold any actual data from pixels
-        data_matrix_p = data_matrix_p[:-1]
-        data_matrix_t = data_matrix_t[:-1]
-        # insert '-2' at the end of each cycle
-        data_matrix_p = np.insert(
-            data_matrix_p,
-            np.linspace(timestamps, cycles * timestamps, cycles).astype(
-                np.longlong
-            ),
-            -2,
-            1,
-        )
-
-        data_matrix_t = np.insert(
-            data_matrix_t,
-            np.linspace(timestamps, cycles * timestamps, cycles).astype(
-                np.longlong
-            ),
-            -2,
-            1,
-        )
-
-        # combine both matrices into a single one, where each cell holds pix
-        # coordinates in the TDC and the timestamp
-        data_matrix = np.stack((data_matrix_p, data_matrix_t), axis=2).astype(
+    # cut the 65th TDC that does not hold any actual data from pixels
+    data_matrix_p = data_matrix_p[:-1]
+    data_matrix_t = data_matrix_t[:-1]
+    # insert '-2' at the end of each cycle
+    data_matrix_p = np.insert(
+        data_matrix_p,
+        np.linspace(timestamps, cycles * timestamps, cycles).astype(
             np.longlong
-        )
+        ),
+        -2,
+        1,
+    )
 
-    if fw_ver == "2212s":
-        pix_coor = np.arange(256).reshape(4, 64).T
-    elif fw_ver == "2212b":
-        pix_coor = np.arange(256).reshape(64, 4)
-    else:
-        pass
+    data_matrix_t = np.insert(
+        data_matrix_t,
+        np.linspace(timestamps, cycles * timestamps, cycles).astype(
+            np.longlong
+        ),
+        -2,
+        1,
+    )
+
+    # combine both matrices into a single one, where each cell holds pix
+    # coordinates in the TDC and the timestamp
+    data_matrix = np.stack((data_matrix_p, data_matrix_t), axis=2).astype(
+        np.longlong
+    )
 
     # # path to the current script, two levels up (the script itself is
     # # in the path) and one level down to the calibration data
@@ -182,27 +177,24 @@ def unpack_bin(
     #         "or run the calibration."
     #     )
 
-    # if fw_ver == "2208":
-    #     for i in range(256):
-    #         ind = np.where(data_matrix[i] >= 0)[0]
-    #         data_matrix[i, ind] = (
-    #             data_matrix[i, ind] - data_matrix[i, ind] % 140
-    #         ) * 17.857 + cal_mat[i, (data_matrix[i, ind] % 140)]
-
-    # elif fw_ver[:-1] == "2212":
-    #     for i in range(256):
-    #         # transform pixel number to TDC number and pixel coordinates in
-    #         # that TDC (from 0 to 3)
-    #         tdc, pix = np.argwhere(pix_coor == i)[0]
-    #         # find data from that pixel
-    #         ind = np.where(data_matrix[tdc].T[0] == pix)[0]
-    #         # cut non-valid timestamps ('-1's)
-    #         ind = ind[np.where(data_matrix[tdc].T[1][ind] >= 0)[0]]
-    #         if not np.any(ind):
-    #             continue
-    #         # apply calibration
-    #         data_matrix[tdc].T[1][ind] = (
-    #             data_matrix[tdc].T[1][ind] - data_matrix[tdc].T[1][ind] % 140
-    #         ) * 17.857 + cal_mat[i, (data_matrix[tdc].T[1][ind] % 140)]
+    # pix_coor = (
+    #     np.arange(256).reshape(4, 64).T
+    #     if fw_ver == "2212s"
+    #     else np.arange(256).reshape(64, 4)
+    # )
+    # for i in range(256):
+    #     # transform pixel number to TDC number and pixel coordinates
+    #     # in that TDC (from 0 to 3)
+    #     tdc, pix = np.argwhere(pix_coor == i)[0]
+    #     # find data from that pixel
+    #     ind = np.where(data_matrix[tdc].T[0] == pix)[0]
+    #     # cut non-valid timestamps ('-1's)
+    #     ind = ind[np.where(data_matrix[tdc].T[1][ind] >= 0)[0]]
+    #     if not np.any(ind):
+    #         continue
+    #     # apply calibration
+    #     data_matrix[tdc].T[1][ind] = (
+    #         data_matrix[tdc].T[1][ind] - data_matrix[tdc].T[1][ind] % 140
+    #     ) * 17.857 + cal_mat[i, (data_matrix[tdc].T[1][ind] % 140)]
 
     return data_matrix
