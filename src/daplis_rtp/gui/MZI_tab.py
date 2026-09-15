@@ -13,6 +13,7 @@ import os
 from PyQt5 import QtCore, QtGui, QtWidgets, uic
 
 from daplis_rtp.functions.sen_pop import sen_pop
+from daplis_rtp.gui.plot_figure import reserve_toolbar_width
 from daplis_rtp.gui.plot_figure_MZI import PltCanvas_MZI
 from daplis_rtp.gui.ui.MZI_tab import Ui_Form
 
@@ -61,11 +62,20 @@ class MZI(QtWidgets.QWidget):
         self.pushButton_browse.clicked.connect(self.get_dir)
 
         # Figure widget
+        # The '.ui' file carries a 500x425 placeholder where the canvas
+        # goes. The real canvas is added over it just below, but the
+        # placeholder stays in the grid, and its minimum size alone
+        # decided how tall and wide the application had to open.
+        self.gridLayout.removeWidget(self.ui.widget_figure)
+        self.ui.widget_figure.setParent(None)
+        self.ui.widget_figure.deleteLater()
+
         self.widget_figure = PltCanvas_MZI()
         # self.widget_figure.setMinimumSize(500, 400)
         # self.widget_figure.setFixedSize(500, 425)
         self.widget_figure.setObjectName("widget")
         self.gridLayout.addWidget(self.widget_figure, 1, 0, 4, 3)
+        reserve_toolbar_width(self.frame, self.widget_figure)
 
         # Refresh plot and start stream buttons
         self.pushButton_refreshPlot.clicked.connect(self.slot_refresh)

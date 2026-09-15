@@ -11,10 +11,17 @@ import os
 from importlib.resources import files
 
 import numpy as np
-from PyQt5 import QtCore, QtWidgets, uic
+from PyQt5 import QtCore, QtGui, QtWidgets, uic
 
 from daplis_rtp.functions.sen_pop import sen_pop
-from daplis_rtp.gui.plot_figure import PltCanvas
+from daplis_rtp.functions.tdc_occupancy import pixel_to_tdc_map
+from daplis_rtp.gui.pixel_mask_window import PixelMaskWindow, mask_summary
+from daplis_rtp.gui.plot_figure import PltCanvas, reserve_toolbar_width
+from daplis_rtp.gui.tdc_occupancy_panel import (
+    BoardOccupancy,
+    TdcOccupancyPanel,
+    pixels_of_interest,
+)
 from daplis_rtp.gui.ui.LiveTimestamps_tab_c import Ui_Form
 
 
@@ -32,8 +39,8 @@ class LiveTimestamps(QtWidgets.QWidget):
         for masking single pixels is generated. A check box for switching
         between a linear and a logarithmic scale of the plot along with
         a check box for plotting vertical lines at positions 64, 128, and
-        192 are provided (the latter can be used for firmware versions
-        2208 and 2212s for setup alignment). A check box for data files
+        192 are provided (the latter can be used for firmware version
+        2212s for setup alignment). A check box for data files
         collected with absolute timestamps is provided. Buttons
         'Refresh plot' for
         refreshing the plot and 'Start stream' for plotting the
@@ -65,26 +72,62 @@ class LiveTimestamps(QtWidgets.QWidget):
         # Browse button
         self.pushButton_browse.clicked.connect(self.get_dir)
 
-        # Scroll area with check boxes
-        self.scrollAreaWidgetContents = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 383, 346))
-        self.checkBoxPixel = []
-        self.scrollAreaWidgetContentslayout = QtWidgets.QGridLayout(
-            self.scrollAreaWidgetContents
-        )
+        # Pixel mask — 256 check boxes, in a window of their own.
+        # In the column they took 250 px, which both set how tall the
+        # application opened and showed a few of the 64 rows at a time;
+        # here they can be dragged next to the plot while the stream
+        # runs. The boxes themselves are unchanged, so everything that
+        # reads 'checkBoxPixel' or 'scrollAreaWidgetContentslayout'
+        # works as before.
+        font10 = QtGui.QFont()
+        font10.setPointSize(10)
         self.maskValidPixels = np.zeros(256)
-        for col in range(4):
-            for row in range(64):
-                self.checkBoxPixel.append(
-                    QtWidgets.QCheckBox(
-                        str(row + col * 64), self.scrollAreaWidgetContents
-                    )
-                )
-                self.scrollAreaWidgetContentslayout.addWidget(
-                    self.checkBoxPixel[row + col * 64], row, col, 1, 1
-                )
-        self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
-        self.scrollArea.setWidget(self.scrollAreaWidgetContents)
+        self.mask_window = PixelMaskWindow(
+            self,
+            boards=[("Pixels", 4, 64)],
+            font=font10,
+            title="Pixel mask — Online plot",
+        )
+        self.checkBoxPixel = self.mask_window.boxes[0]
+        self.scrollAreaWidgetContentslayout = self.mask_window.grids[0]
+        self.mask_window.changed.connect(self.slot_mask_changed)
+        self.mask_window.clear_requested.connect(self.reset_pix_mask)
+
+        # The '.ui' scroll area it replaces, and the row of controls
+        # that takes its place in the column
+        mask_row = QtWidgets.QHBoxLayout()
+        self.pushButton_editMask = QtWidgets.QPushButton(
+            "Edit mask…", self.frame_2
+        )
+        self.pushButton_editMask.setFont(font10)
+        self.pushButton_editMask.setMinimumSize(QtCore.QSize(0, 26))
+        self.pushButton_editMask.setToolTip(
+            "Open the pixel mask in a window of its own; it can be left "
+            "open beside the plot while the stream runs."
+        )
+        self.pushButton_editMask.clicked.connect(
+            self.mask_window.open_beside
+        )
+        mask_row.addWidget(self.pushButton_editMask)
+        self.label_maskCount = QtWidgets.QLabel("0 masked", self.frame_2)
+        self.label_maskCount.setFont(font10)
+        mask_row.addWidget(self.label_maskCount)
+        mask_row.addStretch(1)
+
+        index = self.verticalLayout.indexOf(self.scrollArea)
+        self.verticalLayout.removeWidget(self.scrollArea)
+        self.scrollArea.setParent(None)
+        self.scrollArea.deleteLater()
+        self.verticalLayout.insertLayout(index, mask_row)
+        self.slot_mask_changed()
+
+        # The '.ui' file carries a 500x425 placeholder where the canvas
+        # goes. The real canvas is added over it just below, but the
+        # placeholder stays in the grid, and its minimum size alone
+        # decided how tall and wide the application had to open.
+        self.gridLayout.removeWidget(self.ui.widget_figure)
+        self.ui.widget_figure.setParent(None)
+        self.ui.widget_figure.deleteLater()
 
         # Figure widget
         self.widget_figure = PltCanvas()
@@ -92,6 +135,7 @@ class LiveTimestamps(QtWidgets.QWidget):
         # self.widget_figure.setFixedSize(500, 425)
         self.widget_figure.setObjectName("widget")
         self.gridLayout.addWidget(self.widget_figure, 1, 0, 4, 3)
+        reserve_toolbar_width(self.frame, self.widget_figure)
 
         # x-axis limits: one spin box per edge, over the pixel range
         self.spinBox_leftXLim.setRange(0, 255)
@@ -124,13 +168,26 @@ class LiveTimestamps(QtWidgets.QWidget):
 
         self.comboBox_mask_2.activated.connect(self.reset_pix_mask)
 
+        # TDC slot occupancy — how close the readout is to saturation.
+        # Placed just above the two buttons; the '.ui' file has already
+        # filled the column, so the widget is inserted rather than
+        # appended.
+        self.panel_occupancy = TdcOccupancyPanel(self.frame_2, font=font10)
+        self.verticalLayout.insertWidget(
+            self.verticalLayout.indexOf(self.pushButton_refreshPlot),
+            self.panel_occupancy,
+        )
+        self.panel_occupancy.attach_timestamps_spinbox(
+            self.spinBox_timestamps_2
+        )
+
         # Refresh plot and start stream buttons
         self.pushButton_refreshPlot.clicked.connect(self.slot_refresh)
 
         self.pushButton_startStream.clicked.connect(self.slot_startstream)
 
         # Check box for plotting 3 vertical lines at position x=64,
-        # 128, 192 (FW 2208)
+        # 128, 192 (FW 2212s)
         self.grouping = False
         self.checkBox_grouping_2.stateChanged.connect(
             self.slot_checkBox_grouping_2
@@ -212,6 +269,9 @@ class LiveTimestamps(QtWidgets.QWidget):
             self.pushButton_startStream.setText("Start stream")
         else:
             self.pushButton_startStream.setText("Stop stream")
+            # A new run gets a new saturation warning, even if the last
+            # one was already dismissed
+            self.panel_occupancy.reset()
             self.timer.start(100)
             self.timerRunning = True
 
@@ -239,6 +299,9 @@ class LiveTimestamps(QtWidgets.QWidget):
         new data if new data were taken.
 
         """
+        # An explicit look again asks for the saturation warning again
+        # too - typically the 'Timestamps' setting has just been changed
+        self.panel_occupancy.reset()
         self.update_time_stamp()
         self.last_file_ctime = 0
 
@@ -293,16 +356,29 @@ class LiveTimestamps(QtWidgets.QWidget):
                 if new_file_ctime > self.last_file_ctime:
                     self.last_file_ctime = new_file_ctime
 
-                    validtimestamps = sen_pop(
+                    fw_ver = self.comboBox_FW_2.currentText()
+                    pix_add_fix = self.checkBox_pix_add_fix.isChecked()
+                    timestamps = self.spinBox_timestamps_2.value()
+                    check_slots = self.panel_occupancy.enabled
+
+                    result = sen_pop(
                         last_file,
                         board_number=self.comboBox_mask_2.currentText(),
-                        fw_ver=self.comboBox_FW_2.currentText(),
-                        timestamps=self.spinBox_timestamps_2.value(),
-                        pix_add_fix=self.checkBox_pix_add_fix.isChecked(),
+                        fw_ver=fw_ver,
+                        timestamps=timestamps,
+                        pix_add_fix=pix_add_fix,
                         absolute_timestamps=(
                             self.checkBox_abs_timestamps.isChecked()
                         ),
+                        return_occupancy=check_slots,
                     )
+                    if check_slots:
+                        validtimestamps, occupancy = result
+                        self.report_occupancy(occupancy, fw_ver, pix_add_fix)
+                    else:
+                        validtimestamps = result
+                        self.panel_occupancy.clear("switched off")
+
                     validtimestamps = validtimestamps * self.maskValidPixels
                     self.widget_figure.setPlotData(
                         np.arange(0, 256, 1),
@@ -333,6 +409,43 @@ class LiveTimestamps(QtWidgets.QWidget):
                 msg_window.exec_()
                 self.slot_stopstream()
                 stopping = True
+
+    def report_occupancy(self, occupancy, fw_ver, pix_add_fix):
+        """Hand one refresh's slot occupancy to the status box.
+
+        The pixels of interest come either from the box's own field or
+        from the mask and the x-limits; they are pixel numbers as
+        plotted, so they are mapped to TDCs with the same
+        'pix_add_fix' the rates were built with.
+
+        """
+        try:
+            explicit = self.panel_occupancy.explicit_pixels()
+        except ValueError as err:
+            # A half-typed pixel list should not blank the readout, and
+            # it certainly should not raise into the plotting path
+            self.panel_occupancy.clear("pixels of interest: {}".format(err))
+            return
+
+        pixels = pixels_of_interest(
+            explicit,
+            self.maskValidPixels,
+            (self.leftPosition, self.rightPosition),
+        )
+        tdcs = pixel_to_tdc_map(fw_ver, pix_add_fix)[pixels]
+        self.panel_occupancy.show_result([BoardOccupancy("", occupancy, tdcs)])
+
+    def slot_mask_changed(self):
+        """Called whenever a box in the mask window is ticked.
+
+        Only refreshes the count beside the button; the mask array
+        itself is rebuilt by 'mask_pixels' on the next refresh, so
+        ticking a box never races the plotting.
+
+        """
+        self.label_maskCount.setText(
+            mask_summary(self.mask_window.masked_counts())
+        )
 
     def mask_pixels(self):
         """

@@ -62,8 +62,13 @@ class Ui_MainWindow:
         sizePolicy.setHeightForWidth(self.tab.sizePolicy().hasHeightForWidth())
         self.tab.setSizePolicy(sizePolicy)
         self.tab.setObjectName("tab")
-        self.gridLayout = QtWidgets.QGridLayout(self.tab)
-        self.gridLayout.setObjectName("gridLayout")
+        # No layout is installed on the tab here: 'LiveTimestamps' brings
+        # its own, and Qt refuses a second one with a warning. The line
+        # that used to try it left the tab reporting a minimum size that
+        # was neither its layout's nor anything else's, so the plot could
+        # be squeezed until the navigation toolbar collapsed into its
+        # overflow button - taking the cursor readout, and with it the
+        # pixel number under the mouse, with it.
         self.tabWidget.addTab(self.tab, "")
         # self.tab_2 = QtWidgets.QWidget()
         self.tab_2 = SinglePixelHistogram(self)

@@ -25,6 +25,8 @@ import threading
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
+from daplis_rtp.gui.file_sync_check import FileSyncPanel
+
 # All instances are addressed on the local machine.
 HOST = "localhost"
 
@@ -243,6 +245,20 @@ class Synchronization(QtWidgets.QWidget):
         hint.setFont(hfont)
         root.addWidget(hint)
 
+        # ── Two columns ───────────────────────────────────────────
+        # Setting up a run (left) and watching it (right). Stacked in
+        # one column the six boxes came to some 830 px, which is the
+        # tallest thing in the application and so decided how tall the
+        # window had to open; side by side they come to about half that,
+        # and the two halves read as what they are - what is set once
+        # before a run, and what is looked at while it runs.
+        columns = QtWidgets.QHBoxLayout()
+        left = QtWidgets.QVBoxLayout()
+        right = QtWidgets.QVBoxLayout()
+        columns.addLayout(left, 1)
+        columns.addLayout(right, 1)
+        root.addLayout(columns)
+
         # ── Boards group: launch the two GUI instances from here ─────────────
         launch_group = QtWidgets.QGroupBox("Boards")
         launch_group.setFont(font_header)
@@ -281,7 +297,7 @@ class Synchronization(QtWidgets.QWidget):
         self.pushButton_launch.setMinimumHeight(32)
         lg.addWidget(self.pushButton_launch, len(self.BOARD_INFO) + 1, 0, 1, 3)
         lg.setColumnStretch(1, 1)
-        root.addWidget(launch_group)
+        left.addWidget(launch_group)
 
         # ── Connection group (host is always localhost) ──────────────────────
         conn_group = QtWidgets.QGroupBox("Connection  (host: localhost)")
@@ -303,7 +319,7 @@ class Synchronization(QtWidgets.QWidget):
             self._ports[bid] = port_spin
             conn.addWidget(port_spin, row, 2)
         conn.setColumnStretch(3, 1)  # trailing space keeps label+port on the left
-        root.addWidget(conn_group)
+        left.addWidget(conn_group)
 
         # ── Options group ────────────────────────────────────────────────────
         opt_group = QtWidgets.QGroupBox("Options")
@@ -323,7 +339,26 @@ class Synchronization(QtWidgets.QWidget):
         )
         opt.addWidget(self.spinBox_timeout, 0, 1)
         opt.setColumnStretch(2, 1)
-        root.addWidget(opt_group)
+        left.addWidget(opt_group)
+
+        # ── Both boards in step ──────────────────────────────────────────────
+        # Each board's own GUI saves where its AutoSave points, so the
+        # two folders have to be named here; the check then watches, in
+        # the background and for as long as the acquisition runs, that
+        # both boards keep writing the same number of files at the same
+        # time. The folders are only read, never written to.
+        self.fileSyncPanel = FileSyncPanel(
+            self,
+            font=font_body,
+            labels=("Board 0", "Board 1"),
+            with_paths=True,
+        )
+        self.fileSyncPanel.setFont(font_header)
+        self.fileSyncPanel.set_paths(
+            self._qsettings.value("folder_0", "", type=str),
+            self._qsettings.value("folder_1", "", type=str),
+        )
+        right.addWidget(self.fileSyncPanel)
 
         # ── Clock status group ───────────────────────────────────────────────
         st_group = QtWidgets.QGroupBox("Clock status")
@@ -343,7 +378,10 @@ class Synchronization(QtWidgets.QWidget):
             self._status_labels[bid] = status
             st.addWidget(status, row, 2)
         st.setColumnStretch(2, 1)
-        root.addWidget(st_group)
+        right.addWidget(st_group)
+
+        left.addStretch(1)
+        right.addStretch(1)
 
         # ── Buttons ──────────────────────────────────────────────────────────
         btn_row = QtWidgets.QHBoxLayout()
@@ -372,6 +410,7 @@ class Synchronization(QtWidgets.QWidget):
         self.pushButton_acquire.clicked.connect(
             lambda: self._start(check_only=False)
         )
+        self.fileSyncPanel.problem.connect(self._on_sync_problem)
 
     # ── launch the board GUIs ────────────────────────────────────────────────
     def _browse_exe(self):
@@ -387,6 +426,8 @@ class Synchronization(QtWidgets.QWidget):
             self._qsettings.setValue(
                 f"settings_{bid}", self._settings_edits[bid].text().strip()
             )
+        for bid, folder in zip(self.BOARD_INFO, self.fileSyncPanel.paths()):
+            self._qsettings.setValue(f"folder_{bid}", folder)
 
     def _launch(self):
         exe = self.lineEdit_exe.text().strip()
@@ -452,6 +493,16 @@ class Synchronization(QtWidgets.QWidget):
         )
         self._busy(True)
 
+        # The file check only makes sense while data are being written.
+        if not check_only:
+            self._save_paths()
+            self.fileSyncPanel.start()
+            if not all(self.fileSyncPanel.paths()):
+                self._append(
+                    "Note: no data folders set, so the two boards are NOT "
+                    "checked for writing in step."
+                )
+
         self._worker = AcquisitionWorker(
             boards=boards,
             check_only=check_only,
@@ -475,8 +526,13 @@ class Synchronization(QtWidgets.QWidget):
         self._set_led(self._leds[bid], "grey")
         self._status_labels[bid].setText(f"unreachable ({err})")
 
+    def _on_sync_problem(self, summary, details):
+        """Keep the out-of-step alert in the log after the box is closed."""
+        self._append("\n!!! " + summary + "\n\n" + details)
+
     def _on_done(self, success, message):
         self._busy(False)
+        self.fileSyncPanel.stop()
         self._append(message)
         if not success:
             box = QtWidgets.QMessageBox(self)

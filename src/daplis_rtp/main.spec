@@ -1,5 +1,11 @@
 # -*- mode: python ; coding: utf-8 -*-
+import os
+
 from PyInstaller.utils.hooks import collect_data_files
+
+# Relative to the spec file, not the working directory: the release
+# workflow builds from 'src/daplis_rtp', a developer usually does not.
+ICON = os.path.join(SPECPATH, 'resources', 'daplis-rtp.ico')
 
 a = Analysis(
     ['main.py'],
@@ -35,4 +41,7 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
+    # What Explorer, the taskbar and a desktop shortcut show before
+    # the application is running and can set an icon of its own
+    icon=ICON,
 )
