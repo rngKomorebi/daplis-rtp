@@ -1,0 +1,7 @@
+daplis\_rtp.resources package
+=============================
+
+.. automodule:: daplis_rtp.resources
+   :members:
+   :show-inheritance:
+   :undoc-members:

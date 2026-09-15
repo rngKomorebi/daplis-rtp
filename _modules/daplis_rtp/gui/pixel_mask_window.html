@@ -1,0 +1,356 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>daplis_rtp.gui.pixel_mask_window &mdash; Data Analysis Package for LinoSPAD2 - Real-Time Plotting 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Data Analysis Package for LinoSPAD2 - Real-Time Plotting
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation and usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../daplis_rtp.gui.html">daplis_rtp.gui package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../daplis_rtp.functions.html">daplis_rtp.functions package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contribute.html">How to contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../license.html">License and contact info</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../acknowledgement.html">Acknowledgement</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Data Analysis Package for LinoSPAD2 - Real-Time Plotting</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">daplis_rtp.gui.pixel_mask_window</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for daplis_rtp.gui.pixel_mask_window</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""The per-pixel mask, in a window of its own.</span>
+
+<span class="sd">The mask is 256 check boxes per board. Kept inside the tab they need a</span>
+<span class="sd">scroll area about 250 px tall, which is both too small to work in - a</span>
+<span class="sd">few rows of pixels visible at a time, out of 64 - and large enough to</span>
+<span class="sd">set the minimum height of the whole application, since the control</span>
+<span class="sd">column's minimum is the sum of everything stacked in it.</span>
+
+<span class="sd">So they live here instead. The tab keeps a button and a count, and the</span>
+<span class="sd">boxes open in a window that can be dragged next to the plot and left</span>
+<span class="sd">there: it is not modal, so the stream keeps running and the plot keeps</span>
+<span class="sd">refreshing while pixels are ticked off, which is the way masking is</span>
+<span class="sd">actually done - look at the peak, mask it, watch what is left.</span>
+
+<span class="sd">The check boxes are created here but belong to the host tab, which</span>
+<span class="sd">reads them through 'boxes' and 'grids' exactly as it did when they sat</span>
+<span class="sd">in the scroll area; 'grids[b].itemAt(i).widget()' is still the box for</span>
+<span class="sd">pixel i, so the preset-mask and reset paths are unchanged.</span>
+
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">PyQt5</span><span class="w"> </span><span class="kn">import</span> <span class="n">QtCore</span><span class="p">,</span> <span class="n">QtWidgets</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">daplis_rtp.functions.tdc_occupancy</span><span class="w"> </span><span class="kn">import</span> <span class="n">parse_pixel_spec</span>
+
+
+<div class="viewcode-block" id="PixelMaskWindow">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.pixel_mask_window.html#daplis_rtp.gui.pixel_mask_window.PixelMaskWindow">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">PixelMaskWindow</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QDialog</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Non-modal window holding one grid of check boxes per board.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    parent : QWidget</span>
+<span class="sd">        The host tab. The window is a top-level one all the same, so it</span>
+<span class="sd">        can be moved away from the application and left beside it.</span>
+<span class="sd">    boards : sequence</span>
+<span class="sd">        One '(label, columns, rows)' per board; 'columns * rows' must</span>
+<span class="sd">        come to 'n_pixels'. The boxes are created column by column, the</span>
+<span class="sd">        order the tabs have always used.</span>
+<span class="sd">    font : QFont, optional</span>
+<span class="sd">        Applied to every child, to match the tab it was opened from.</span>
+<span class="sd">    title : str, optional</span>
+<span class="sd">        Window title.</span>
+<span class="sd">    n_pixels : int, optional</span>
+<span class="sd">        Pixels per board, by default 256.</span>
+<span class="sd">    """</span>
+
+    <span class="c1"># Any check box toggled, or a quick-entry applied.</span>
+    <span class="n">changed</span> <span class="o">=</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">pyqtSignal</span><span class="p">()</span>
+    <span class="c1"># 'Clear all' pressed - the host owns what clearing means, since it</span>
+    <span class="c1"># also has to clear the 'Preset mask' tick.</span>
+    <span class="n">clear_requested</span> <span class="o">=</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">pyqtSignal</span><span class="p">()</span>
+
+<div class="viewcode-block" id="PixelMaskWindow.__init__">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.pixel_mask_window.html#daplis_rtp.gui.pixel_mask_window.PixelMaskWindow.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">boards</span><span class="o">=</span><span class="p">((</span><span class="s2">""</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">64</span><span class="p">),),</span>
+        <span class="n">font</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">title</span><span class="o">=</span><span class="s2">"Pixel mask"</span><span class="p">,</span>
+        <span class="n">n_pixels</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+        <span class="c1"># A plain QDialog would sit on top of the tab it came from;</span>
+        <span class="c1"># 'Qt.Window' gives it a title bar of its own, so it can be put</span>
+        <span class="c1"># beside the plot and minimised like any other window.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setWindowFlags</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">Window</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setWindowTitle</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setModal</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_n_pixels</span> <span class="o">=</span> <span class="n">n_pixels</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">boxes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">grids</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_counts</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">outer</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QVBoxLayout</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">columns_row</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QHBoxLayout</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">columns</span><span class="p">,</span> <span class="n">rows</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">boards</span><span class="p">):</span>
+            <span class="n">columns_row</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_board_column</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">columns</span><span class="p">,</span> <span class="n">rows</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="n">outer</span><span class="o">.</span><span class="n">addLayout</span><span class="p">(</span><span class="n">columns_row</span><span class="p">)</span>
+
+        <span class="n">buttons</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QHBoxLayout</span><span class="p">()</span>
+        <span class="n">buttons</span><span class="o">.</span><span class="n">addStretch</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_clear</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QPushButton</span><span class="p">(</span><span class="s2">"Clear all"</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_clear</span><span class="o">.</span><span class="n">setToolTip</span><span class="p">(</span>
+            <span class="s2">"Unmask every pixel on every board, and release the preset "</span>
+            <span class="s2">"mask."</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_clear</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clear_requested</span><span class="o">.</span><span class="n">emit</span><span class="p">)</span>
+        <span class="n">buttons</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pushButton_clear</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_close</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QPushButton</span><span class="p">(</span><span class="s2">"Close"</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_close</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hide</span><span class="p">)</span>
+        <span class="n">buttons</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pushButton_close</span><span class="p">)</span>
+        <span class="n">outer</span><span class="o">.</span><span class="n">addLayout</span><span class="p">(</span><span class="n">buttons</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">font</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">setFont</span><span class="p">(</span><span class="n">font</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">widget</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">findChildren</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QWidget</span><span class="p">):</span>
+                <span class="n">widget</span><span class="o">.</span><span class="n">setFont</span><span class="p">(</span><span class="n">font</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="mi">460</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">boards</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="mi">720</span><span class="p">,</span> <span class="mi">620</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">refresh_counts</span><span class="p">()</span></div>
+
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="c1"># Construction</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_board_column</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">columns</span><span class="p">,</span> <span class="n">rows</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""One board: quick entry, the grid of boxes, and a count."""</span>
+        <span class="n">box</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QGroupBox</span><span class="p">(</span><span class="n">label</span> <span class="ow">or</span> <span class="s2">"Pixels"</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="n">layout</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QVBoxLayout</span><span class="p">(</span><span class="n">box</span><span class="p">)</span>
+
+        <span class="n">entry_row</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QHBoxLayout</span><span class="p">()</span>
+        <span class="n">entry</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QLineEdit</span><span class="p">(</span><span class="n">box</span><span class="p">)</span>
+        <span class="n">entry</span><span class="o">.</span><span class="n">setPlaceholderText</span><span class="p">(</span><span class="s2">"12, 40-43"</span><span class="p">)</span>
+        <span class="n">entry</span><span class="o">.</span><span class="n">setToolTip</span><span class="p">(</span>
+            <span class="s2">"Pixels to mask or unmask in one go, as single numbers and "</span>
+            <span class="s2">"ranges. Faster than hunting for them in the grid when the "</span>
+            <span class="s2">"hot ones are already known."</span>
+        <span class="p">)</span>
+        <span class="n">entry_row</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
+        <span class="n">mask_button</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QPushButton</span><span class="p">(</span><span class="s2">"Mask"</span><span class="p">,</span> <span class="n">box</span><span class="p">)</span>
+        <span class="n">mask_button</span><span class="o">.</span><span class="n">setMaximumWidth</span><span class="p">(</span><span class="mi">70</span><span class="p">)</span>
+        <span class="n">unmask_button</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QPushButton</span><span class="p">(</span><span class="s2">"Unmask"</span><span class="p">,</span> <span class="n">box</span><span class="p">)</span>
+        <span class="n">unmask_button</span><span class="o">.</span><span class="n">setMaximumWidth</span><span class="p">(</span><span class="mi">70</span><span class="p">)</span>
+        <span class="n">entry_row</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">mask_button</span><span class="p">)</span>
+        <span class="n">entry_row</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">unmask_button</span><span class="p">)</span>
+        <span class="n">layout</span><span class="o">.</span><span class="n">addLayout</span><span class="p">(</span><span class="n">entry_row</span><span class="p">)</span>
+
+        <span class="n">area</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QScrollArea</span><span class="p">(</span><span class="n">box</span><span class="p">)</span>
+        <span class="n">area</span><span class="o">.</span><span class="n">setWidgetResizable</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">contents</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QWidget</span><span class="p">()</span>
+        <span class="n">grid</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QGridLayout</span><span class="p">(</span><span class="n">contents</span><span class="p">)</span>
+        <span class="n">boxes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">columns</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">rows</span><span class="p">):</span>
+                <span class="n">pixel</span> <span class="o">=</span> <span class="n">row</span> <span class="o">+</span> <span class="n">col</span> <span class="o">*</span> <span class="n">rows</span>
+                <span class="n">check</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QCheckBox</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">pixel</span><span class="p">),</span> <span class="n">contents</span><span class="p">)</span>
+                <span class="n">check</span><span class="o">.</span><span class="n">stateChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_on_toggled</span><span class="p">)</span>
+                <span class="n">boxes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">check</span><span class="p">)</span>
+                <span class="n">grid</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">check</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">area</span><span class="o">.</span><span class="n">setWidget</span><span class="p">(</span><span class="n">contents</span><span class="p">)</span>
+        <span class="n">layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">area</span><span class="p">)</span>
+
+        <span class="n">count</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QLabel</span><span class="p">(</span><span class="s2">""</span><span class="p">,</span> <span class="n">box</span><span class="p">)</span>
+        <span class="n">layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">count</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">boxes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">boxes</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">grids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">grid</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_counts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">count</span><span class="p">)</span>
+
+        <span class="n">mask_button</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">_</span><span class="p">,</span> <span class="n">i</span><span class="o">=</span><span class="n">index</span><span class="p">,</span> <span class="n">e</span><span class="o">=</span><span class="n">entry</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apply_entry</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">unmask_button</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">_</span><span class="p">,</span> <span class="n">i</span><span class="o">=</span><span class="n">index</span><span class="p">,</span> <span class="n">e</span><span class="o">=</span><span class="n">entry</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apply_entry</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">entry</span><span class="o">.</span><span class="n">returnPressed</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">i</span><span class="o">=</span><span class="n">index</span><span class="p">,</span> <span class="n">e</span><span class="o">=</span><span class="n">entry</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apply_entry</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">box</span>
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="c1"># Behaviour</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_on_toggled</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_state</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">refresh_counts</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">changed</span><span class="o">.</span><span class="n">emit</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_apply_entry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">entry</span><span class="p">,</span> <span class="n">mask</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Tick or untick the pixels named in one board's quick entry."""</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">pixels</span> <span class="o">=</span> <span class="n">parse_pixel_spec</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">text</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_n_pixels</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QMessageBox</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="bp">self</span><span class="p">,</span> <span class="s2">"Pixel mask"</span><span class="p">,</span> <span class="s2">"</span><span class="si">{}</span><span class="s2">."</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">pixels</span><span class="p">):</span>
+            <span class="k">return</span>
+        <span class="c1"># One signal for the lot, rather than one per box</span>
+        <span class="k">for</span> <span class="n">pixel</span> <span class="ow">in</span> <span class="n">pixels</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">boxes</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="n">pixel</span><span class="p">]</span><span class="o">.</span><span class="n">blockSignals</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">boxes</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="n">pixel</span><span class="p">]</span><span class="o">.</span><span class="n">setChecked</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">boxes</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="n">pixel</span><span class="p">]</span><span class="o">.</span><span class="n">blockSignals</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">entry</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">refresh_counts</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">changed</span><span class="o">.</span><span class="n">emit</span><span class="p">()</span>
+
+<div class="viewcode-block" id="PixelMaskWindow.refresh_counts">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.pixel_mask_window.html#daplis_rtp.gui.pixel_mask_window.PixelMaskWindow.refresh_counts">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">refresh_counts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Update the 'n masked' line under each board's grid."""</span>
+        <span class="k">for</span> <span class="n">boxes</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">boxes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_counts</span><span class="p">):</span>
+            <span class="n">masked</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">box</span> <span class="ow">in</span> <span class="n">boxes</span> <span class="k">if</span> <span class="n">box</span><span class="o">.</span><span class="n">isChecked</span><span class="p">())</span>
+            <span class="n">label</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span>
+                <span class="s2">"</span><span class="si">{}</span><span class="s2"> of </span><span class="si">{}</span><span class="s2"> pixels masked"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">masked</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">boxes</span><span class="p">))</span>
+            <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="PixelMaskWindow.masked_counts">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.pixel_mask_window.html#daplis_rtp.gui.pixel_mask_window.PixelMaskWindow.masked_counts">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">masked_counts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Masked pixels per board, for the host's summary label."""</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">box</span> <span class="ow">in</span> <span class="n">boxes</span> <span class="k">if</span> <span class="n">box</span><span class="o">.</span><span class="n">isChecked</span><span class="p">())</span> <span class="k">for</span> <span class="n">boxes</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">boxes</span>
+        <span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="PixelMaskWindow.open_beside">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.pixel_mask_window.html#daplis_rtp.gui.pixel_mask_window.PixelMaskWindow.open_beside">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">open_beside</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Show the window, raising it if it is already open."""</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">raise_</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">activateWindow</span><span class="p">()</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="mask_summary">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.pixel_mask_window.html#daplis_rtp.gui.pixel_mask_window.mask_summary">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">mask_summary</span><span class="p">(</span><span class="n">counts</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""'18 pixels masked', or 'board 1: 18, board 2: 0' for two boards."""</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">counts</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">"</span><span class="si">{}</span><span class="s2"> masked"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">counts</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="k">return</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="s2">"b</span><span class="si">{}</span><span class="s2">: </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">counts</span><span class="p">)</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="masked_array">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.pixel_mask_window.html#daplis_rtp.gui.pixel_mask_window.masked_array">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">masked_array</span><span class="p">(</span><span class="n">boxes</span><span class="p">,</span> <span class="n">n_pixels</span><span class="o">=</span><span class="mi">256</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""1 where the pixel is *not* masked, as the tabs' mask arrays are."""</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">n_pixels</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">pixel</span><span class="p">,</span> <span class="n">box</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">boxes</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">box</span><span class="o">.</span><span class="n">isChecked</span><span class="p">():</span>
+            <span class="n">mask</span><span class="p">[</span><span class="n">pixel</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">return</span> <span class="n">mask</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Sergei Kulkov.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

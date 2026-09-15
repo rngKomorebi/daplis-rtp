@@ -1,0 +1,7 @@
+daplis\_rtp.gui.tdc\_occupancy\_panel module
+============================================
+
+.. automodule:: daplis_rtp.gui.tdc_occupancy_panel
+   :members:
+   :show-inheritance:
+   :undoc-members:

@@ -1,0 +1,250 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>daplis_rtp.gui.pixel_mask_window module &mdash; Data Analysis Package for LinoSPAD2 - Real-Time Plotting 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=8d563738"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="daplis_rtp.gui.plot_figure module" href="daplis_rtp.gui.plot_figure.html" />
+    <link rel="prev" title="daplis_rtp.gui.live_timestamps_tab module" href="daplis_rtp.gui.live_timestamps_tab.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Data Analysis Package for LinoSPAD2 - Real-Time Plotting
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation and usage</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="daplis_rtp.gui.html">daplis_rtp.gui package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="daplis_rtp.gui.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.MZI_tab.html">daplis_rtp.gui.MZI_tab module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.app_icon.html">daplis_rtp.gui.app_icon module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.file_sync_check.html">daplis_rtp.gui.file_sync_check module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.linospad2_dual_tab.html">daplis_rtp.gui.linospad2_dual_tab module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.live_timestamps_tab.html">daplis_rtp.gui.live_timestamps_tab module</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">daplis_rtp.gui.pixel_mask_window module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#daplis_rtp.gui.pixel_mask_window.PixelMaskWindow"><code class="docutils literal notranslate"><span class="pre">PixelMaskWindow</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#daplis_rtp.gui.pixel_mask_window.mask_summary"><code class="docutils literal notranslate"><span class="pre">mask_summary()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#daplis_rtp.gui.pixel_mask_window.masked_array"><code class="docutils literal notranslate"><span class="pre">masked_array()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.plot_figure.html">daplis_rtp.gui.plot_figure module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.plot_figure_MZI.html">daplis_rtp.gui.plot_figure_MZI module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.plot_figure_dual.html">daplis_rtp.gui.plot_figure_dual module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.single_pix_hist_tab.html">daplis_rtp.gui.single_pix_hist_tab module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.single_pixel_histogram.html">daplis_rtp.gui.single_pixel_histogram module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.synchronization_tab.html">daplis_rtp.gui.synchronization_tab module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tdc_occupancy_panel.html">daplis_rtp.gui.tdc_occupancy_panel module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="daplis_rtp.functions.html">daplis_rtp.functions package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contribute.html">How to contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">License and contact info</a></li>
+<li class="toctree-l1"><a class="reference internal" href="acknowledgement.html">Acknowledgement</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Data Analysis Package for LinoSPAD2 - Real-Time Plotting</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="daplis_rtp.gui.html">daplis_rtp.gui package</a></li>
+      <li class="breadcrumb-item active">daplis_rtp.gui.pixel_mask_window module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/daplis_rtp.gui.pixel_mask_window.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-daplis_rtp.gui.pixel_mask_window">
+<span id="daplis-rtp-gui-pixel-mask-window-module"></span><h1>daplis_rtp.gui.pixel_mask_window module<a class="headerlink" href="#module-daplis_rtp.gui.pixel_mask_window" title="Link to this heading"></a></h1>
+<p>The per-pixel mask, in a window of its own.</p>
+<p>The mask is 256 check boxes per board. Kept inside the tab they need a
+scroll area about 250 px tall, which is both too small to work in - a
+few rows of pixels visible at a time, out of 64 - and large enough to
+set the minimum height of the whole application, since the control
+column’s minimum is the sum of everything stacked in it.</p>
+<p>So they live here instead. The tab keeps a button and a count, and the
+boxes open in a window that can be dragged next to the plot and left
+there: it is not modal, so the stream keeps running and the plot keeps
+refreshing while pixels are ticked off, which is the way masking is
+actually done - look at the peak, mask it, watch what is left.</p>
+<p>The check boxes are created here but belong to the host tab, which
+reads them through ‘boxes’ and ‘grids’ exactly as it did when they sat
+in the scroll area; ‘grids[b].itemAt(i).widget()’ is still the box for
+pixel i, so the preset-mask and reset paths are unchanged.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="daplis_rtp.gui.pixel_mask_window.PixelMaskWindow">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">daplis_rtp.gui.pixel_mask_window.</span></span><span class="sig-name descname"><span class="pre">PixelMaskWindow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boards</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(('',</span> <span class="pre">4,</span> <span class="pre">64),)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">font</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Pixel</span> <span class="pre">mask'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_pixels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">256</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/pixel_mask_window.html#PixelMaskWindow"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.pixel_mask_window.PixelMaskWindow" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">QDialog</span></code></p>
+<p>Non-modal window holding one grid of check boxes per board.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parent</strong> (<em>QWidget</em>) – The host tab. The window is a top-level one all the same, so it
+can be moved away from the application and left beside it.</p></li>
+<li><p><strong>boards</strong> (<em>sequence</em>) – One ‘(label, columns, rows)’ per board; ‘columns * rows’ must
+come to ‘n_pixels’. The boxes are created column by column, the
+order the tabs have always used.</p></li>
+<li><p><strong>font</strong> (<em>QFont</em><em>, </em><em>optional</em>) – Applied to every child, to match the tab it was opened from.</p></li>
+<li><p><strong>title</strong> (<em>str</em><em>, </em><em>optional</em>) – Window title.</p></li>
+<li><p><strong>n_pixels</strong> (<em>int</em><em>, </em><em>optional</em>) – Pixels per board, by default 256.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.pixel_mask_window.PixelMaskWindow.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boards</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(('',</span> <span class="pre">4,</span> <span class="pre">64),)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">font</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Pixel</span> <span class="pre">mask'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_pixels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">256</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/pixel_mask_window.html#PixelMaskWindow.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.pixel_mask_window.PixelMaskWindow.__init__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="daplis_rtp.gui.pixel_mask_window.PixelMaskWindow.changed">
+<span class="sig-name descname"><span class="pre">changed</span></span><a class="headerlink" href="#daplis_rtp.gui.pixel_mask_window.PixelMaskWindow.changed" title="Link to this definition"></a></dt>
+<dd><p>str = …, revision: int = …, arguments: Sequence = …) -&gt; PYQT_SIGNAL</p>
+<p>types is normally a sequence of individual types.  Each type is either a
+type object or a string that is the name of a C++ type.  Alternatively
+each type could itself be a sequence of types each describing a different
+overloaded signal.
+name is the optional C++ name of the signal.  If it is not specified then
+the name of the class attribute that is bound to the signal is used.
+revision is the optional revision of the signal that is exported to QML.
+If it is not specified then 0 is used.
+arguments is the optional sequence of the names of the signal’s arguments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pyqtSignal(<a href="#id1"><span class="problematic" id="id2">*</span></a>types, name</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="daplis_rtp.gui.pixel_mask_window.PixelMaskWindow.clear_requested">
+<span class="sig-name descname"><span class="pre">clear_requested</span></span><a class="headerlink" href="#daplis_rtp.gui.pixel_mask_window.PixelMaskWindow.clear_requested" title="Link to this definition"></a></dt>
+<dd><p>str = …, revision: int = …, arguments: Sequence = …) -&gt; PYQT_SIGNAL</p>
+<p>types is normally a sequence of individual types.  Each type is either a
+type object or a string that is the name of a C++ type.  Alternatively
+each type could itself be a sequence of types each describing a different
+overloaded signal.
+name is the optional C++ name of the signal.  If it is not specified then
+the name of the class attribute that is bound to the signal is used.
+revision is the optional revision of the signal that is exported to QML.
+If it is not specified then 0 is used.
+arguments is the optional sequence of the names of the signal’s arguments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pyqtSignal(<a href="#id3"><span class="problematic" id="id4">*</span></a>types, name</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.pixel_mask_window.PixelMaskWindow.masked_counts">
+<span class="sig-name descname"><span class="pre">masked_counts</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/pixel_mask_window.html#PixelMaskWindow.masked_counts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.pixel_mask_window.PixelMaskWindow.masked_counts" title="Link to this definition"></a></dt>
+<dd><p>Masked pixels per board, for the host’s summary label.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.pixel_mask_window.PixelMaskWindow.open_beside">
+<span class="sig-name descname"><span class="pre">open_beside</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/pixel_mask_window.html#PixelMaskWindow.open_beside"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.pixel_mask_window.PixelMaskWindow.open_beside" title="Link to this definition"></a></dt>
+<dd><p>Show the window, raising it if it is already open.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.pixel_mask_window.PixelMaskWindow.refresh_counts">
+<span class="sig-name descname"><span class="pre">refresh_counts</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/pixel_mask_window.html#PixelMaskWindow.refresh_counts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.pixel_mask_window.PixelMaskWindow.refresh_counts" title="Link to this definition"></a></dt>
+<dd><p>Update the ‘n masked’ line under each board’s grid.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="daplis_rtp.gui.pixel_mask_window.mask_summary">
+<span class="sig-prename descclassname"><span class="pre">daplis_rtp.gui.pixel_mask_window.</span></span><span class="sig-name descname"><span class="pre">mask_summary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">counts</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/pixel_mask_window.html#mask_summary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.pixel_mask_window.mask_summary" title="Link to this definition"></a></dt>
+<dd><p>‘18 pixels masked’, or ‘board 1: 18, board 2: 0’ for two boards.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="daplis_rtp.gui.pixel_mask_window.masked_array">
+<span class="sig-prename descclassname"><span class="pre">daplis_rtp.gui.pixel_mask_window.</span></span><span class="sig-name descname"><span class="pre">masked_array</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">boxes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_pixels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">256</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/pixel_mask_window.html#masked_array"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.pixel_mask_window.masked_array" title="Link to this definition"></a></dt>
+<dd><p>1 where the pixel is <em>not</em> masked, as the tabs’ mask arrays are.</p>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="daplis_rtp.gui.live_timestamps_tab.html" class="btn btn-neutral float-left" title="daplis_rtp.gui.live_timestamps_tab module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="daplis_rtp.gui.plot_figure.html" class="btn btn-neutral float-right" title="daplis_rtp.gui.plot_figure module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Sergei Kulkov.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

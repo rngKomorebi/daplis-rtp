@@ -1,0 +1,303 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>daplis_rtp.gui.tdc_occupancy_panel module &mdash; Data Analysis Package for LinoSPAD2 - Real-Time Plotting 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=8d563738"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="daplis_rtp.functions package" href="daplis_rtp.functions.html" />
+    <link rel="prev" title="daplis_rtp.gui.synchronization_tab module" href="daplis_rtp.gui.synchronization_tab.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Data Analysis Package for LinoSPAD2 - Real-Time Plotting
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation and usage</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="daplis_rtp.gui.html">daplis_rtp.gui package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="daplis_rtp.gui.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.MZI_tab.html">daplis_rtp.gui.MZI_tab module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.app_icon.html">daplis_rtp.gui.app_icon module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.file_sync_check.html">daplis_rtp.gui.file_sync_check module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.linospad2_dual_tab.html">daplis_rtp.gui.linospad2_dual_tab module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.live_timestamps_tab.html">daplis_rtp.gui.live_timestamps_tab module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.pixel_mask_window.html">daplis_rtp.gui.pixel_mask_window module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.plot_figure.html">daplis_rtp.gui.plot_figure module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.plot_figure_MZI.html">daplis_rtp.gui.plot_figure_MZI module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.plot_figure_dual.html">daplis_rtp.gui.plot_figure_dual module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.single_pix_hist_tab.html">daplis_rtp.gui.single_pix_hist_tab module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.single_pixel_histogram.html">daplis_rtp.gui.single_pixel_histogram module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.synchronization_tab.html">daplis_rtp.gui.synchronization_tab module</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">daplis_rtp.gui.tdc_occupancy_panel module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#daplis_rtp.gui.tdc_occupancy_panel.BoardOccupancy"><code class="docutils literal notranslate"><span class="pre">BoardOccupancy</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#daplis_rtp.gui.tdc_occupancy_panel.TdcOccupancyPanel"><code class="docutils literal notranslate"><span class="pre">TdcOccupancyPanel</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#daplis_rtp.gui.tdc_occupancy_panel.pixels_of_interest"><code class="docutils literal notranslate"><span class="pre">pixels_of_interest()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="daplis_rtp.functions.html">daplis_rtp.functions package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contribute.html">How to contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">License and contact info</a></li>
+<li class="toctree-l1"><a class="reference internal" href="acknowledgement.html">Acknowledgement</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Data Analysis Package for LinoSPAD2 - Real-Time Plotting</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="daplis_rtp.gui.html">daplis_rtp.gui package</a></li>
+      <li class="breadcrumb-item active">daplis_rtp.gui.tdc_occupancy_panel module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/daplis_rtp.gui.tdc_occupancy_panel.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-daplis_rtp.gui.tdc_occupancy_panel">
+<span id="daplis-rtp-gui-tdc-occupancy-panel-module"></span><h1>daplis_rtp.gui.tdc_occupancy_panel module<a class="headerlink" href="#module-daplis_rtp.gui.tdc_occupancy_panel" title="Link to this heading"></a></h1>
+<p>Status box: how close the readout is to filling its TDC memory.</p>
+<p>Each TDC holds ‘Timestamps’ slots per acquisition cycle, shared by its
+four pixels. Once they are full the rest of the cycle is thrown away,
+and the data file gives no sign of it - it is exactly the size it would
+have been. This box puts that on screen while the stream runs, so the
+setting can be chosen to fit the measurement instead of guessed, and so
+that a long run cannot truncate unnoticed.</p>
+<p>Two rows are shown, and both are needed:</p>
+<ul class="simple">
+<li><p>‘Signal’ - the busiest TDC among the pixels being measured. This is
+the one that says whether <em>this</em> measurement is affected.</p></li>
+<li><p>‘Sensor’ - the busiest TDC anywhere on the half. This is usually a
+hot pixel nobody is looking at, but it says whether the board is near
+the edge at all.</p></li>
+</ul>
+<p>The pixels being measured are taken, by default, from what the tab
+already knows: every pixel that is not masked and lies inside the
+current x-limits. A TDC counts as “of interest” when it holds at least
+one such pixel, and all of that TDC’s traffic is counted - including
+that of a hot pixel sharing it, which is exactly the case that eats the
+memory the signal needs. Where the mask is not the whole story, the
+pixels can be typed in instead.</p>
+<p>‘Both boards in step’ is the model for the LED colours and the
+once-per-run alert. Both tabs that have this box keep it in the same
+place - last panel of the control column, above the two buttons - so
+that what is read during a run is read in the same place on either.</p>
+<p>That column’s minimum height is the sum of the panels stacked in it,
+and the tallest tab is what decides how tall the whole application
+opens, so the rows here are counted. Hence the tick in the group-box
+title rather than a check box of its own, and the heading sharing a row
+with the first radio button.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tdc_occupancy_panel.BoardOccupancy">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">daplis_rtp.gui.tdc_occupancy_panel.</span></span><span class="sig-name descname"><span class="pre">BoardOccupancy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">occupancy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tdcs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/tdc_occupancy_panel.html#BoardOccupancy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.tdc_occupancy_panel.BoardOccupancy" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>One board’s occupancy, ready for the panel to render.</p>
+<p>‘tdcs’ holds the TDCs of interest - the ones carrying the pixels
+being measured - as read out by the board, so a caller using
+‘pix_add_fix’ must have mapped its pixels through
+‘tdc_occupancy.pixel_to_tdc_map’ with the same flag. Callers hand
+over one entry per pixel, four of which share a TDC, so the list is
+reduced to the TDCs themselves here.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tdc_occupancy_panel.BoardOccupancy.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">occupancy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tdcs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/tdc_occupancy_panel.html#BoardOccupancy.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.tdc_occupancy_panel.BoardOccupancy.__init__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tdc_occupancy_panel.TdcOccupancyPanel">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">daplis_rtp.gui.tdc_occupancy_panel.</span></span><span class="sig-name descname"><span class="pre">TdcOccupancyPanel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">font</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_pixels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">256</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/tdc_occupancy_panel.html#TdcOccupancyPanel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.tdc_occupancy_panel.TdcOccupancyPanel" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">QGroupBox</span></code></p>
+<p>The status box, and the pixel selection that feeds it.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tdc_occupancy_panel.TdcOccupancyPanel.LED_COLORS">
+<span class="sig-name descname"><span class="pre">LED_COLORS</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'bad':</span> <span class="pre">'red',</span> <span class="pre">'idle':</span> <span class="pre">'grey',</span> <span class="pre">'ok':</span> <span class="pre">'limegreen',</span> <span class="pre">'waiting':</span> <span class="pre">'goldenrod',</span> <span class="pre">'warn':</span> <span class="pre">'orange'}</span></span><a class="headerlink" href="#daplis_rtp.gui.tdc_occupancy_panel.TdcOccupancyPanel.LED_COLORS" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tdc_occupancy_panel.TdcOccupancyPanel.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">font</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_pixels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">256</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/tdc_occupancy_panel.html#TdcOccupancyPanel.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.tdc_occupancy_panel.TdcOccupancyPanel.__init__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tdc_occupancy_panel.TdcOccupancyPanel.attach_timestamps_spinbox">
+<span class="sig-name descname"><span class="pre">attach_timestamps_spinbox</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spin_box</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/tdc_occupancy_panel.html#TdcOccupancyPanel.attach_timestamps_spinbox"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.tdc_occupancy_panel.TdcOccupancyPanel.attach_timestamps_spinbox" title="Link to this definition"></a></dt>
+<dd><p>Point ‘Apply’ at the tab’s ‘Timestamps’ box.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tdc_occupancy_panel.TdcOccupancyPanel.clear">
+<span class="sig-name descname"><span class="pre">clear</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'not</span> <span class="pre">running'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/tdc_occupancy_panel.html#TdcOccupancyPanel.clear"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.tdc_occupancy_panel.TdcOccupancyPanel.clear" title="Link to this definition"></a></dt>
+<dd><p>Blank the readout, e.g. when the check is switched off.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tdc_occupancy_panel.TdcOccupancyPanel.enabled">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">enabled</span></span><a class="headerlink" href="#daplis_rtp.gui.tdc_occupancy_panel.TdcOccupancyPanel.enabled" title="Link to this definition"></a></dt>
+<dd><p>Whether the host should ask for the occupancy at all.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tdc_occupancy_panel.TdcOccupancyPanel.explicit_pixels">
+<span class="sig-name descname"><span class="pre">explicit_pixels</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/tdc_occupancy_panel.html#TdcOccupancyPanel.explicit_pixels"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.tdc_occupancy_panel.TdcOccupancyPanel.explicit_pixels" title="Link to this definition"></a></dt>
+<dd><p>The typed-in pixels, or None when the mask is to be used.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – If the text cannot be read as pixels; the caller decides
+    whether to report it or to carry on with the mask.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tdc_occupancy_panel.TdcOccupancyPanel.problem">
+<span class="sig-name descname"><span class="pre">problem</span></span><a class="headerlink" href="#daplis_rtp.gui.tdc_occupancy_panel.TdcOccupancyPanel.problem" title="Link to this definition"></a></dt>
+<dd><p>str = …, revision: int = …, arguments: Sequence = …) -&gt; PYQT_SIGNAL</p>
+<p>types is normally a sequence of individual types.  Each type is either a
+type object or a string that is the name of a C++ type.  Alternatively
+each type could itself be a sequence of types each describing a different
+overloaded signal.
+name is the optional C++ name of the signal.  If it is not specified then
+the name of the class attribute that is bound to the signal is used.
+revision is the optional revision of the signal that is exported to QML.
+If it is not specified then 0 is used.
+arguments is the optional sequence of the names of the signal’s arguments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pyqtSignal(<a href="#id1"><span class="problematic" id="id2">*</span></a>types, name</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tdc_occupancy_panel.TdcOccupancyPanel.reset">
+<span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/tdc_occupancy_panel.html#TdcOccupancyPanel.reset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.tdc_occupancy_panel.TdcOccupancyPanel.reset" title="Link to this definition"></a></dt>
+<dd><p>Called when a stream starts: clear the once-per-run alert.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tdc_occupancy_panel.TdcOccupancyPanel.show_result">
+<span class="sig-name descname"><span class="pre">show_result</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">boards</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/tdc_occupancy_panel.html#TdcOccupancyPanel.show_result"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.tdc_occupancy_panel.TdcOccupancyPanel.show_result" title="Link to this definition"></a></dt>
+<dd><p>Render one refresh.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>boards</strong> (<em>list</em><em> of </em><a class="reference internal" href="#daplis_rtp.gui.tdc_occupancy_panel.BoardOccupancy" title="daplis_rtp.gui.tdc_occupancy_panel.BoardOccupancy"><em>BoardOccupancy</em></a>) – One entry per board plotted. The worst ‘Signal’ figure
+across the boards is the one shown, and likewise the worst
+‘Sensor’ one - a full-sensor run is only as good as its
+worse half.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tdc_occupancy_panel.pixels_of_interest">
+<span class="sig-prename descclassname"><span class="pre">daplis_rtp.gui.tdc_occupancy_panel.</span></span><span class="sig-name descname"><span class="pre">pixels_of_interest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">explicit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask_valid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_lim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_pixels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">256</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/tdc_occupancy_panel.html#pixels_of_interest"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.tdc_occupancy_panel.pixels_of_interest" title="Link to this definition"></a></dt>
+<dd><p>Which of one board’s pixels are worth watching.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>explicit</strong> (<em>ndarray</em><em> or </em><em>None</em>) – Pixels typed in by hand, in the coordinates of the plot’s
+x-axis. None to fall back on the mask and the x-limits.</p></li>
+<li><p><strong>mask_valid</strong> (<em>array-like</em>) – The tab’s mask array for this board, one entry per pixel,
+nonzero where the pixel is <em>not</em> masked.</p></li>
+<li><p><strong>x_lim</strong> (<em>tuple</em>) – Current x-axis limits, in the coordinates of the plot.</p></li>
+<li><p><strong>offset</strong> (<em>int</em><em>, </em><em>optional</em>) – Where this board starts on that x-axis: 0 for a single board or
+for board 1 of the full-sensor tab, 256 for board 2.</p></li>
+<li><p><strong>n_pixels</strong> (<em>int</em><em>, </em><em>optional</em>) – Pixels on the board, by default 256.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Pixel indices local to the board, 0..n_pixels-1. Empty when the
+board lies wholly outside the x-limits, or when every pixel of
+it is masked.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="daplis_rtp.gui.synchronization_tab.html" class="btn btn-neutral float-left" title="daplis_rtp.gui.synchronization_tab module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="daplis_rtp.functions.html" class="btn btn-neutral float-right" title="daplis_rtp.functions package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Sergei Kulkov.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

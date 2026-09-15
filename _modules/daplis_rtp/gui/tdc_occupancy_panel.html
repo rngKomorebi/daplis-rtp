@@ -1,0 +1,669 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>daplis_rtp.gui.tdc_occupancy_panel &mdash; Data Analysis Package for LinoSPAD2 - Real-Time Plotting 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Data Analysis Package for LinoSPAD2 - Real-Time Plotting
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation and usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../daplis_rtp.gui.html">daplis_rtp.gui package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../daplis_rtp.functions.html">daplis_rtp.functions package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contribute.html">How to contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../license.html">License and contact info</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../acknowledgement.html">Acknowledgement</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Data Analysis Package for LinoSPAD2 - Real-Time Plotting</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">daplis_rtp.gui.tdc_occupancy_panel</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for daplis_rtp.gui.tdc_occupancy_panel</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Status box: how close the readout is to filling its TDC memory.</span>
+
+<span class="sd">Each TDC holds 'Timestamps' slots per acquisition cycle, shared by its</span>
+<span class="sd">four pixels. Once they are full the rest of the cycle is thrown away,</span>
+<span class="sd">and the data file gives no sign of it - it is exactly the size it would</span>
+<span class="sd">have been. This box puts that on screen while the stream runs, so the</span>
+<span class="sd">setting can be chosen to fit the measurement instead of guessed, and so</span>
+<span class="sd">that a long run cannot truncate unnoticed.</span>
+
+<span class="sd">Two rows are shown, and both are needed:</span>
+
+<span class="sd">* 'Signal' - the busiest TDC among the pixels being measured. This is</span>
+<span class="sd">  the one that says whether *this* measurement is affected.</span>
+<span class="sd">* 'Sensor' - the busiest TDC anywhere on the half. This is usually a</span>
+<span class="sd">  hot pixel nobody is looking at, but it says whether the board is near</span>
+<span class="sd">  the edge at all.</span>
+
+<span class="sd">The pixels being measured are taken, by default, from what the tab</span>
+<span class="sd">already knows: every pixel that is not masked and lies inside the</span>
+<span class="sd">current x-limits. A TDC counts as "of interest" when it holds at least</span>
+<span class="sd">one such pixel, and all of that TDC's traffic is counted - including</span>
+<span class="sd">that of a hot pixel sharing it, which is exactly the case that eats the</span>
+<span class="sd">memory the signal needs. Where the mask is not the whole story, the</span>
+<span class="sd">pixels can be typed in instead.</span>
+
+<span class="sd">'Both boards in step' is the model for the LED colours and the</span>
+<span class="sd">once-per-run alert. Both tabs that have this box keep it in the same</span>
+<span class="sd">place - last panel of the control column, above the two buttons - so</span>
+<span class="sd">that what is read during a run is read in the same place on either.</span>
+
+<span class="sd">That column's minimum height is the sum of the panels stacked in it,</span>
+<span class="sd">and the tallest tab is what decides how tall the whole application</span>
+<span class="sd">opens, so the rows here are counted. Hence the tick in the group-box</span>
+<span class="sd">title rather than a check box of its own, and the heading sharing a row</span>
+<span class="sd">with the first radio button.</span>
+
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">PyQt5</span><span class="w"> </span><span class="kn">import</span> <span class="n">QtCore</span><span class="p">,</span> <span class="n">QtWidgets</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">daplis_rtp.functions.tdc_occupancy</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">SAT_WARN_FRACTION</span><span class="p">,</span>
+    <span class="n">OccupancySummary</span><span class="p">,</span>
+    <span class="n">parse_pixel_spec</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># TDCs listed in the "Show details" text of the alert box.</span>
+<span class="n">MAX_DETAIL_ROWS</span> <span class="o">=</span> <span class="mi">12</span>
+
+
+<div class="viewcode-block" id="pixels_of_interest">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.tdc_occupancy_panel.html#daplis_rtp.gui.tdc_occupancy_panel.pixels_of_interest">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">pixels_of_interest</span><span class="p">(</span><span class="n">explicit</span><span class="p">,</span> <span class="n">mask_valid</span><span class="p">,</span> <span class="n">x_lim</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">n_pixels</span><span class="o">=</span><span class="mi">256</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Which of one board's pixels are worth watching.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    explicit : ndarray or None</span>
+<span class="sd">        Pixels typed in by hand, in the coordinates of the plot's</span>
+<span class="sd">        x-axis. None to fall back on the mask and the x-limits.</span>
+<span class="sd">    mask_valid : array-like</span>
+<span class="sd">        The tab's mask array for this board, one entry per pixel,</span>
+<span class="sd">        nonzero where the pixel is *not* masked.</span>
+<span class="sd">    x_lim : tuple</span>
+<span class="sd">        Current x-axis limits, in the coordinates of the plot.</span>
+<span class="sd">    offset : int, optional</span>
+<span class="sd">        Where this board starts on that x-axis: 0 for a single board or</span>
+<span class="sd">        for board 1 of the full-sensor tab, 256 for board 2.</span>
+<span class="sd">    n_pixels : int, optional</span>
+<span class="sd">        Pixels on the board, by default 256.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ndarray</span>
+<span class="sd">        Pixel indices local to the board, 0..n_pixels-1. Empty when the</span>
+<span class="sd">        board lies wholly outside the x-limits, or when every pixel of</span>
+<span class="sd">        it is masked.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">explicit</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">local</span> <span class="o">=</span> <span class="n">explicit</span> <span class="o">-</span> <span class="n">offset</span>
+        <span class="k">return</span> <span class="n">local</span><span class="p">[(</span><span class="n">local</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">local</span> <span class="o">&lt;</span> <span class="n">n_pixels</span><span class="p">)]</span>
+
+    <span class="n">pixels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_pixels</span><span class="p">)</span>
+    <span class="n">inside</span> <span class="o">=</span> <span class="p">(</span><span class="n">pixels</span> <span class="o">+</span> <span class="n">offset</span> <span class="o">&gt;=</span> <span class="nb">min</span><span class="p">(</span><span class="n">x_lim</span><span class="p">))</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">pixels</span> <span class="o">+</span> <span class="n">offset</span> <span class="o">&lt;=</span> <span class="nb">max</span><span class="p">(</span><span class="n">x_lim</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">pixels</span><span class="p">[</span><span class="n">inside</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">mask_valid</span><span class="p">)[:</span><span class="n">n_pixels</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)]</span></div>
+
+
+
+<div class="viewcode-block" id="BoardOccupancy">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.tdc_occupancy_panel.html#daplis_rtp.gui.tdc_occupancy_panel.BoardOccupancy">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">BoardOccupancy</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""One board's occupancy, ready for the panel to render.</span>
+
+<span class="sd">    'tdcs' holds the TDCs of interest - the ones carrying the pixels</span>
+<span class="sd">    being measured - as read out by the board, so a caller using</span>
+<span class="sd">    'pix_add_fix' must have mapped its pixels through</span>
+<span class="sd">    'tdc_occupancy.pixel_to_tdc_map' with the same flag. Callers hand</span>
+<span class="sd">    over one entry per pixel, four of which share a TDC, so the list is</span>
+<span class="sd">    reduced to the TDCs themselves here.</span>
+
+<span class="sd">    """</span>
+
+<div class="viewcode-block" id="BoardOccupancy.__init__">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.tdc_occupancy_panel.html#daplis_rtp.gui.tdc_occupancy_panel.BoardOccupancy.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">occupancy</span><span class="p">,</span> <span class="n">tdcs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">label</span> <span class="o">=</span> <span class="n">label</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">occupancy</span> <span class="o">=</span> <span class="n">occupancy</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tdcs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">tdcs</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">))</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="TdcOccupancyPanel">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.tdc_occupancy_panel.html#daplis_rtp.gui.tdc_occupancy_panel.TdcOccupancyPanel">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TdcOccupancyPanel</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QGroupBox</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""The status box, and the pixel selection that feeds it."""</span>
+
+    <span class="c1"># Re-emitted for hosts that want to log the alert as well.</span>
+    <span class="n">problem</span> <span class="o">=</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">pyqtSignal</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+
+    <span class="n">LED_COLORS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">"idle"</span><span class="p">:</span> <span class="s2">"grey"</span><span class="p">,</span>
+        <span class="s2">"waiting"</span><span class="p">:</span> <span class="s2">"goldenrod"</span><span class="p">,</span>
+        <span class="s2">"ok"</span><span class="p">:</span> <span class="s2">"limegreen"</span><span class="p">,</span>
+        <span class="s2">"warn"</span><span class="p">:</span> <span class="s2">"orange"</span><span class="p">,</span>
+        <span class="s2">"bad"</span><span class="p">:</span> <span class="s2">"red"</span><span class="p">,</span>
+    <span class="p">}</span>
+
+<div class="viewcode-block" id="TdcOccupancyPanel.__init__">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.tdc_occupancy_panel.html#daplis_rtp.gui.tdc_occupancy_panel.TdcOccupancyPanel.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">n_pixels</span><span class="o">=</span><span class="mi">256</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">"TDC memory"</span><span class="p">,</span> <span class="n">parent</span><span class="p">)</span>
+        <span class="c1"># The whole box is the switch: a checkable group box puts the</span>
+        <span class="c1"># tick in the title and greys the contents out when it is</span>
+        <span class="c1"># cleared, which is a row of the control column saved over a</span>
+        <span class="c1"># check box of its own. That column's minimum height is the sum</span>
+        <span class="c1"># of its panels, so a row here is a row of the whole window.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setCheckable</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setChecked</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setToolTip</span><span class="p">(</span>
+            <span class="s2">"Count how many of the 'Timestamps' slots each TDC uses "</span>
+            <span class="s2">"per acquisition cycle. A TDC that fills up drops the rest "</span>
+            <span class="s2">"of the cycle without any sign of it in the data file."</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_n_pixels</span> <span class="o">=</span> <span class="n">n_pixels</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_spin_timestamps</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_suggestion</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_alerted</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_alert_box</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_build_ui</span><span class="p">(</span><span class="n">font</span><span class="p">)</span></div>
+
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="c1"># UI</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_build_ui</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">font</span><span class="p">):</span>
+        <span class="n">grid</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QGridLayout</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="c1"># Top margin clears the group-box title, which is drawn over the</span>
+        <span class="c1"># frame rather than above it.</span>
+        <span class="n">grid</span><span class="o">.</span><span class="n">setContentsMargins</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
+        <span class="n">grid</span><span class="o">.</span><span class="n">setVerticalSpacing</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+        <span class="n">row</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="c1"># "Pixels:" heads the first radio button rather than sitting on</span>
+        <span class="c1"># a row of its own. All three on one line would save another</span>
+        <span class="c1"># row, but the box would then be some 250 px wider at its</span>
+        <span class="c1"># minimum, and the control column is what sets how narrow the</span>
+        <span class="c1"># window can be made - see 'plot_figure.toolbar_min_width'.</span>
+        <span class="n">lbl_which</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QLabel</span><span class="p">(</span><span class="s2">"Pixels:"</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="n">grid</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">lbl_which</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">radioButton_auto</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QRadioButton</span><span class="p">(</span>
+            <span class="s2">"unmasked, in view"</span><span class="p">,</span> <span class="bp">self</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">radioButton_auto</span><span class="o">.</span><span class="n">setChecked</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">radioButton_auto</span><span class="o">.</span><span class="n">setToolTip</span><span class="p">(</span>
+            <span class="s2">"Every pixel that is not masked and lies inside the current "</span>
+            <span class="s2">"x-limits. Apply the preset mask, or zoom in on the signal, "</span>
+            <span class="s2">"and this narrows down on its own."</span>
+        <span class="p">)</span>
+        <span class="n">grid</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">radioButton_auto</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">row</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">radioButton_explicit</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QRadioButton</span><span class="p">(</span><span class="s2">"these:"</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">radioButton_explicit</span><span class="o">.</span><span class="n">setToolTip</span><span class="p">(</span>
+            <span class="s2">"The pixels carrying the signal, when the mask is not the "</span>
+            <span class="s2">"whole story. Single pixels and ranges, e.g. '143, 156-159'."</span>
+        <span class="p">)</span>
+        <span class="n">grid</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">radioButton_explicit</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_pixels</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QLineEdit</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_pixels</span><span class="o">.</span><span class="n">setPlaceholderText</span><span class="p">(</span><span class="s2">"143, 156-159"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_pixels</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">grid</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_pixels</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">row</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">label_led_signal</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QLabel</span><span class="p">(</span><span class="s2">"●"</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">label_led_signal</span><span class="o">.</span><span class="n">setFixedWidth</span><span class="p">(</span><span class="mi">18</span><span class="p">)</span>
+        <span class="n">grid</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">label_led_signal</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">AlignTop</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">label_signal</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QLabel</span><span class="p">(</span><span class="s2">"not running"</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">label_signal</span><span class="o">.</span><span class="n">setWordWrap</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">label_signal</span><span class="o">.</span><span class="n">setToolTip</span><span class="p">(</span>
+            <span class="s2">"The busiest TDC carrying a pixel of interest: slots used "</span>
+            <span class="s2">"per cycle, as a median over the cycles. All four pixels of "</span>
+            <span class="s2">"that TDC share its slots, so a hot pixel next to the "</span>
+            <span class="s2">"signal shows up here - which is the point."</span>
+        <span class="p">)</span>
+        <span class="n">grid</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">label_signal</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">row</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">label_led_sensor</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QLabel</span><span class="p">(</span><span class="s2">"●"</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">label_led_sensor</span><span class="o">.</span><span class="n">setFixedWidth</span><span class="p">(</span><span class="mi">18</span><span class="p">)</span>
+        <span class="n">grid</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">label_led_sensor</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">AlignTop</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">label_sensor</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QLabel</span><span class="p">(</span><span class="s2">""</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">label_sensor</span><span class="o">.</span><span class="n">setWordWrap</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">label_sensor</span><span class="o">.</span><span class="n">setToolTip</span><span class="p">(</span>
+            <span class="s2">"The busiest TDC anywhere on the sensor, whether or not it "</span>
+            <span class="s2">"is being measured. Usually a hot pixel; it says how close "</span>
+            <span class="s2">"to the edge the board is running."</span>
+        <span class="p">)</span>
+        <span class="n">grid</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">label_sensor</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">row</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">label_suggestion</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QLabel</span><span class="p">(</span><span class="s2">""</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">label_suggestion</span><span class="o">.</span><span class="n">setWordWrap</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">label_suggestion</span><span class="o">.</span><span class="n">setToolTip</span><span class="p">(</span>
+            <span class="s2">"Slots needed per TDC per cycle, measured here, with room "</span>
+            <span class="s2">"to spare:</span><span class="se">\n\n</span><span class="s2">"</span>
+            <span class="s2">"    4 x rate per pixel x timestamping window</span><span class="se">\n\n</span><span class="s2">"</span>
+            <span class="s2">"so 4 x 86 kHz x 4 ms is about 1380. A large 'Timestamps' "</span>
+            <span class="s2">"costs file size and unpacking time; too small a one costs "</span>
+            <span class="s2">"data, silently."</span>
+        <span class="p">)</span>
+        <span class="n">grid</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">label_suggestion</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_apply</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QPushButton</span><span class="p">(</span><span class="s2">"Apply"</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_apply</span><span class="o">.</span><span class="n">setMaximumWidth</span><span class="p">(</span><span class="mi">70</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_apply</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_apply</span><span class="o">.</span><span class="n">setToolTip</span><span class="p">(</span>
+            <span class="s2">"Put the suggested value into the 'Timestamps' box. Takes "</span>
+            <span class="s2">"effect on the next file."</span>
+        <span class="p">)</span>
+        <span class="n">grid</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pushButton_apply</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+        <span class="n">grid</span><span class="o">.</span><span class="n">setColumnStretch</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">radioButton_explicit</span><span class="o">.</span><span class="n">toggled</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_pixels</span><span class="o">.</span><span class="n">setEnabled</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_apply</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_apply_suggestion</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">font</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">setFont</span><span class="p">(</span><span class="n">font</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">widget</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">findChildren</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QWidget</span><span class="p">):</span>
+                <span class="n">widget</span><span class="o">.</span><span class="n">setFont</span><span class="p">(</span><span class="n">font</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="c1"># Host interface</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">enabled</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Whether the host should ask for the occupancy at all."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">isChecked</span><span class="p">()</span>
+
+<div class="viewcode-block" id="TdcOccupancyPanel.attach_timestamps_spinbox">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.tdc_occupancy_panel.html#daplis_rtp.gui.tdc_occupancy_panel.TdcOccupancyPanel.attach_timestamps_spinbox">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">attach_timestamps_spinbox</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spin_box</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Point 'Apply' at the tab's 'Timestamps' box."""</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_spin_timestamps</span> <span class="o">=</span> <span class="n">spin_box</span></div>
+
+
+<div class="viewcode-block" id="TdcOccupancyPanel.explicit_pixels">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.tdc_occupancy_panel.html#daplis_rtp.gui.tdc_occupancy_panel.TdcOccupancyPanel.explicit_pixels">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">explicit_pixels</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""The typed-in pixels, or None when the mask is to be used.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If the text cannot be read as pixels; the caller decides</span>
+<span class="sd">            whether to report it or to carry on with the mask.</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">radioButton_explicit</span><span class="o">.</span><span class="n">isChecked</span><span class="p">():</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">parse_pixel_spec</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_pixels</span><span class="o">.</span><span class="n">text</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_n_pixels</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TdcOccupancyPanel.reset">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.tdc_occupancy_panel.html#daplis_rtp.gui.tdc_occupancy_panel.TdcOccupancyPanel.reset">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Called when a stream starts: clear the once-per-run alert."""</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_alerted</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_alert_box</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_alert_box</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_alert_box</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="TdcOccupancyPanel.clear">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.tdc_occupancy_panel.html#daplis_rtp.gui.tdc_occupancy_panel.TdcOccupancyPanel.clear">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">"not running"</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Blank the readout, e.g. when the check is switched off."""</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_suggestion</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_apply</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_led</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">label_led_signal</span><span class="p">,</span> <span class="s2">"idle"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_led</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">label_led_sensor</span><span class="p">,</span> <span class="s2">"idle"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">label_signal</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">label_sensor</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">""</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">label_suggestion</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">""</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TdcOccupancyPanel.show_result">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.tdc_occupancy_panel.html#daplis_rtp.gui.tdc_occupancy_panel.TdcOccupancyPanel.show_result">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">show_result</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">boards</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Render one refresh.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        boards : list of BoardOccupancy</span>
+<span class="sd">            One entry per board plotted. The worst 'Signal' figure</span>
+<span class="sd">            across the boards is the one shown, and likewise the worst</span>
+<span class="sd">            'Sensor' one - a full-sensor run is only as good as its</span>
+<span class="sd">            worse half.</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">boards</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+            <span class="k">return</span>
+
+        <span class="n">signal</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">(</span><span class="n">board</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="n">OccupancySummary</span><span class="p">(</span><span class="n">board</span><span class="o">.</span><span class="n">occupancy</span><span class="p">,</span> <span class="n">board</span><span class="o">.</span><span class="n">tdcs</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">board</span> <span class="ow">in</span> <span class="n">boards</span>
+        <span class="p">]</span>
+        <span class="n">sensor</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">(</span>
+                <span class="n">board</span><span class="o">.</span><span class="n">label</span><span class="p">,</span>
+                <span class="n">OccupancySummary</span><span class="p">(</span>
+                    <span class="n">board</span><span class="o">.</span><span class="n">occupancy</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">board</span><span class="o">.</span><span class="n">occupancy</span><span class="o">.</span><span class="n">n_tdc</span><span class="p">)</span>
+                <span class="p">),</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">board</span> <span class="ow">in</span> <span class="n">boards</span>
+        <span class="p">]</span>
+        <span class="n">multi</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">boards</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span>
+
+        <span class="n">signal_label</span><span class="p">,</span> <span class="n">signal_worst</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">signal</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">_severity</span><span class="p">)</span>
+        <span class="n">sensor_label</span><span class="p">,</span> <span class="n">sensor_worst</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">sensor</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">_severity</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">signal_worst</span><span class="o">.</span><span class="n">tdc</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_set_led</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">label_led_signal</span><span class="p">,</span> <span class="s2">"waiting"</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">label_signal</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span>
+                <span class="s2">"no pixels of interest - every pixel in view is masked"</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">radioButton_auto</span><span class="o">.</span><span class="n">isChecked</span><span class="p">()</span>
+                <span class="k">else</span> <span class="s2">"no pixels of interest - the list is empty"</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_set_led</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">label_led_signal</span><span class="p">,</span> <span class="n">signal_worst</span><span class="o">.</span><span class="n">state</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">label_signal</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span>
+                <span class="n">_describe</span><span class="p">(</span><span class="n">signal_worst</span><span class="p">,</span> <span class="n">signal_label</span> <span class="k">if</span> <span class="n">multi</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="o">+</span> <span class="n">_watching</span><span class="p">(</span><span class="n">signal_worst</span><span class="p">,</span> <span class="n">boards</span><span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_led</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">label_led_sensor</span><span class="p">,</span> <span class="n">sensor_worst</span><span class="o">.</span><span class="n">state</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">label_sensor</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span>
+            <span class="s2">"worst on sensor: "</span>
+            <span class="o">+</span> <span class="n">_describe</span><span class="p">(</span><span class="n">sensor_worst</span><span class="p">,</span> <span class="n">sensor_label</span> <span class="k">if</span> <span class="n">multi</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_show_suggestion</span><span class="p">(</span><span class="n">signal_worst</span><span class="p">)</span>
+
+        <span class="c1"># The alert is about the measurement, so it follows the 'Signal'</span>
+        <span class="c1"># row: a hot TDC nobody is looking at turns the sensor row red</span>
+        <span class="c1"># but does not interrupt.</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_alerted</span>
+            <span class="ow">and</span> <span class="n">signal_worst</span><span class="o">.</span><span class="n">tdc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="ow">and</span> <span class="n">signal_worst</span><span class="o">.</span><span class="n">sat_fraction</span> <span class="o">&gt;</span> <span class="n">SAT_WARN_FRACTION</span>
+        <span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_alerted</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_alert</span><span class="p">(</span><span class="n">signal_label</span> <span class="k">if</span> <span class="n">multi</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span> <span class="n">signal_worst</span><span class="p">,</span> <span class="n">boards</span><span class="p">)</span></div>
+
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="c1"># Rendering</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_set_led</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">led</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+        <span class="n">led</span><span class="o">.</span><span class="n">setStyleSheet</span><span class="p">(</span>
+            <span class="s2">"color: </span><span class="si">{}</span><span class="s2">; font-size: 14px;"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">LED_COLORS</span><span class="p">[</span><span class="n">state</span><span class="p">])</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_show_suggestion</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">summary</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_suggestion</span> <span class="o">=</span> <span class="n">summary</span><span class="o">.</span><span class="n">suggested_timestamps</span>
+        <span class="k">if</span> <span class="n">summary</span><span class="o">.</span><span class="n">tdc</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">label_suggestion</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">""</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_apply</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_suggestion</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_apply</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">label_suggestion</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span>
+                <span class="s2">"Timestamps needed: unknown - every cycle filled up, so "</span>
+                <span class="s2">"the file shows neither the rate nor the window"</span>
+            <span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="n">ceiling</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_spin_timestamps</span><span class="o">.</span><span class="n">maximum</span><span class="p">()</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_spin_timestamps</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="k">else</span> <span class="kc">None</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">ceiling</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_suggestion</span> <span class="o">&gt;</span> <span class="n">ceiling</span><span class="p">:</span>
+            <span class="c1"># The ceiling is the firmware's, not the spin box's: there</span>
+            <span class="c1"># is no setting that would hold this rate, so the answer is</span>
+            <span class="c1"># to send fewer photons or listen for less time</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_apply</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">label_suggestion</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span>
+                <span class="s2">"Timestamps needed: </span><span class="si">{}</span><span class="s2">, more than the </span><span class="si">{}</span><span class="s2"> the hardware "</span>
+                <span class="s2">"has - shorten the window or attenuate instead"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_suggestion</span><span class="p">,</span> <span class="n">ceiling</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_apply</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">label_suggestion</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span>
+            <span class="s2">"Timestamps suggested: </span><span class="si">{}</span><span class="s2"> (now </span><span class="si">{}</span><span class="s2">)"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_suggestion</span><span class="p">,</span> <span class="n">summary</span><span class="o">.</span><span class="n">timestamps</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_apply_suggestion</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_spin_timestamps</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_suggestion</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_spin_timestamps</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span>
+            <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_suggestion</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_spin_timestamps</span><span class="o">.</span><span class="n">maximum</span><span class="p">())</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_alert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">summary</span><span class="p">,</span> <span class="n">boards</span><span class="p">):</span>
+        <span class="n">where</span> <span class="o">=</span> <span class="s2">"TDC </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">summary</span><span class="o">.</span><span class="n">tdc</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">label</span><span class="p">:</span>
+            <span class="n">where</span> <span class="o">=</span> <span class="s2">"</span><span class="si">{}</span><span class="s2">, </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">where</span><span class="p">)</span>
+
+        <span class="n">text</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">"</span><span class="si">{}</span><span class="s2"> filled all </span><span class="si">{}</span><span class="s2"> of its slots in </span><span class="si">{:.1f}</span><span class="s2"> </span><span class="si">% o</span><span class="s2">f the "</span>
+            <span class="s2">"acquisition cycles.</span><span class="se">\n\n</span><span class="s2">"</span>
+            <span class="s2">"Everything after that point in the window is dropped, and "</span>
+            <span class="s2">"the file gives no sign of it - it is the same size either "</span>
+            <span class="s2">"way. The loss is rate-dependent, so the two halves of a "</span>
+            <span class="s2">"full-sensor run truncate at different times and can no "</span>
+            <span class="s2">"longer be compared."</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">where</span><span class="p">,</span> <span class="n">summary</span><span class="o">.</span><span class="n">timestamps</span><span class="p">,</span> <span class="mi">100</span> <span class="o">*</span> <span class="n">summary</span><span class="o">.</span><span class="n">sat_fraction</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">summary</span><span class="o">.</span><span class="n">suggested_timestamps</span><span class="p">:</span>
+            <span class="n">text</span> <span class="o">+=</span> <span class="s2">"</span><span class="se">\n\n</span><span class="s2">Raise 'Timestamps' to about </span><span class="si">{}</span><span class="s2">."</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">summary</span><span class="o">.</span><span class="n">suggested_timestamps</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">text</span> <span class="o">+=</span> <span class="p">(</span>
+                <span class="s2">"</span><span class="se">\n\n</span><span class="s2">Every cycle filled up, so the file shows neither "</span>
+                <span class="s2">"the true rate nor the length of the window: raise "</span>
+                <span class="s2">"'Timestamps' well above </span><span class="si">{}</span><span class="s2"> and measure again."</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">summary</span><span class="o">.</span><span class="n">timestamps</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">problem</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="s2">"Readout saturated"</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+
+        <span class="n">box</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QMessageBox</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">box</span><span class="o">.</span><span class="n">setWindowTitle</span><span class="p">(</span><span class="s2">"Readout saturated"</span><span class="p">)</span>
+        <span class="n">box</span><span class="o">.</span><span class="n">setIcon</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QMessageBox</span><span class="o">.</span><span class="n">Warning</span><span class="p">)</span>
+        <span class="n">box</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="n">box</span><span class="o">.</span><span class="n">setDetailedText</span><span class="p">(</span><span class="n">_detail_text</span><span class="p">(</span><span class="n">boards</span><span class="p">))</span>
+        <span class="c1"># Not modal: the stream keeps refreshing behind it, and the box</span>
+        <span class="c1"># is shown at most once per run anyway.</span>
+        <span class="n">box</span><span class="o">.</span><span class="n">setWindowModality</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">NonModal</span><span class="p">)</span>
+        <span class="n">box</span><span class="o">.</span><span class="n">finished</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span> <span class="n">_</span><span class="p">:</span> <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"_alert_box"</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_alert_box</span> <span class="o">=</span> <span class="n">box</span>
+        <span class="n">box</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_severity</span><span class="p">(</span><span class="n">entry</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Sort key putting the worst summary of a pair of boards last."""</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">summary</span> <span class="o">=</span> <span class="n">entry</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">summary</span><span class="o">.</span><span class="n">sat_fraction</span><span class="p">,</span> <span class="n">summary</span><span class="o">.</span><span class="n">fraction</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_watching</span><span class="p">(</span><span class="n">summary</span><span class="p">,</span> <span class="n">boards</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""' (N TDCs watched)', or a note that nothing was narrowed down.</span>
+
+<span class="sd">    The comparison is against one board's worth of TDCs, not the sum</span>
+<span class="sd">    over the boards: each summary covers a single half, so on the</span>
+<span class="sd">    full-sensor tab a selection of all 64 is still "the whole sensor".</span>
+
+<span class="sd">    """</span>
+    <span class="n">per_board</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">board</span><span class="o">.</span><span class="n">occupancy</span><span class="o">.</span><span class="n">n_tdc</span> <span class="k">for</span> <span class="n">board</span> <span class="ow">in</span> <span class="n">boards</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">summary</span><span class="o">.</span><span class="n">n_tdc</span> <span class="o">&gt;=</span> <span class="n">per_board</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">" (whole sensor - mask or zoom in to narrow it down)"</span>
+    <span class="k">if</span> <span class="n">summary</span><span class="o">.</span><span class="n">n_tdc</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">" (1 TDC watched)"</span>
+    <span class="k">return</span> <span class="s2">" (</span><span class="si">{}</span><span class="s2"> TDCs watched)"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">summary</span><span class="o">.</span><span class="n">n_tdc</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_describe</span><span class="p">(</span><span class="n">summary</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""'TDC 36: 54/150 slots (36 %)', with the saturation if any."""</span>
+    <span class="n">where</span> <span class="o">=</span> <span class="s2">"TDC </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">summary</span><span class="o">.</span><span class="n">tdc</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">label</span><span class="p">:</span>
+        <span class="n">where</span> <span class="o">=</span> <span class="s2">"</span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">where</span><span class="p">)</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="s2">"</span><span class="si">{}</span><span class="s2">: </span><span class="si">{:.0f}</span><span class="s2">/</span><span class="si">{}</span><span class="s2"> slots (</span><span class="si">{:.0f}</span><span class="s2"> %)"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="n">where</span><span class="p">,</span> <span class="n">summary</span><span class="o">.</span><span class="n">median_used</span><span class="p">,</span> <span class="n">summary</span><span class="o">.</span><span class="n">timestamps</span><span class="p">,</span> <span class="mi">100</span> <span class="o">*</span> <span class="n">summary</span><span class="o">.</span><span class="n">fraction</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">summary</span><span class="o">.</span><span class="n">sat_fraction</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">text</span> <span class="o">+=</span> <span class="s2">", full in </span><span class="si">{:.1f}</span><span class="s2"> </span><span class="si">% o</span><span class="s2">f cycles"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="mi">100</span> <span class="o">*</span> <span class="n">summary</span><span class="o">.</span><span class="n">sat_fraction</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">text</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_detail_text</span><span class="p">(</span><span class="n">boards</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Every TDC that filled up, per board, for the alert's details."""</span>
+    <span class="n">lines</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">board</span> <span class="ow">in</span> <span class="n">boards</span><span class="p">:</span>
+        <span class="n">occupancy</span> <span class="o">=</span> <span class="n">board</span><span class="o">.</span><span class="n">occupancy</span>
+        <span class="n">saturating</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">flatnonzero</span><span class="p">(</span><span class="n">occupancy</span><span class="o">.</span><span class="n">sat_fraction</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">header</span> <span class="o">=</span> <span class="s2">"</span><span class="si">{}</span><span class="s2">: </span><span class="si">{}</span><span class="s2"> cycles of </span><span class="si">{}</span><span class="s2"> slots"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">board</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="n">occupancy</span><span class="o">.</span><span class="n">cycles</span><span class="p">,</span> <span class="n">occupancy</span><span class="o">.</span><span class="n">timestamps</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">occupancy</span><span class="o">.</span><span class="n">window</span><span class="p">):</span>
+            <span class="n">header</span> <span class="o">+=</span> <span class="s2">", window </span><span class="si">{:.2f}</span><span class="s2"> ms"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">occupancy</span><span class="o">.</span><span class="n">window</span> <span class="o">*</span> <span class="mf">1e-9</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">header</span> <span class="o">+=</span> <span class="s2">", window unknown (every cycle filled up)"</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">header</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">saturating</span><span class="p">):</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"    no TDC filled up"</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">of_interest</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">board</span><span class="o">.</span><span class="n">tdcs</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+            <span class="c1"># Worst first, so the truncated details still carry the</span>
+            <span class="c1"># TDCs that matter</span>
+            <span class="n">order</span> <span class="o">=</span> <span class="n">saturating</span><span class="p">[</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="o">-</span><span class="n">occupancy</span><span class="o">.</span><span class="n">sat_fraction</span><span class="p">[</span><span class="n">saturating</span><span class="p">])</span>
+            <span class="p">]</span>
+            <span class="k">for</span> <span class="n">tdc</span> <span class="ow">in</span> <span class="n">order</span><span class="p">[:</span><span class="n">MAX_DETAIL_ROWS</span><span class="p">]:</span>
+                <span class="n">line</span> <span class="o">=</span> <span class="s2">"    TDC </span><span class="si">{:2d}</span><span class="s2">  full in </span><span class="si">{:5.1f}</span><span class="s2"> </span><span class="si">% o</span><span class="s2">f cycles"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">tdc</span><span class="p">,</span> <span class="mi">100</span> <span class="o">*</span> <span class="n">occupancy</span><span class="o">.</span><span class="n">sat_fraction</span><span class="p">[</span><span class="n">tdc</span><span class="p">]</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">occupancy</span><span class="o">.</span><span class="n">fill_time</span><span class="p">[</span><span class="n">tdc</span><span class="p">]):</span>
+                    <span class="n">line</span> <span class="o">+=</span> <span class="s2">"  after </span><span class="si">{:.2f}</span><span class="s2"> ms"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="n">occupancy</span><span class="o">.</span><span class="n">fill_time</span><span class="p">[</span><span class="n">tdc</span><span class="p">]</span> <span class="o">*</span> <span class="mf">1e-9</span>
+                    <span class="p">)</span>
+                <span class="k">if</span> <span class="n">tdc</span> <span class="ow">in</span> <span class="n">of_interest</span><span class="p">:</span>
+                    <span class="n">line</span> <span class="o">+=</span> <span class="s2">"   &lt;- pixel of interest"</span>
+                <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">order</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">MAX_DETAIL_ROWS</span><span class="p">:</span>
+                <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="s2">"    ... and </span><span class="si">{}</span><span class="s2"> more"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="nb">len</span><span class="p">(</span><span class="n">order</span><span class="p">)</span> <span class="o">-</span> <span class="n">MAX_DETAIL_ROWS</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">""</span><span class="p">)</span>
+    <span class="k">return</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Sergei Kulkov.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

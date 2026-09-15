@@ -1,0 +1,27 @@
+daplis\_rtp.gui package
+=======================
+
+.. automodule:: daplis_rtp.gui
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   daplis_rtp.gui.MZI_tab
+   daplis_rtp.gui.app_icon
+   daplis_rtp.gui.file_sync_check
+   daplis_rtp.gui.linospad2_dual_tab
+   daplis_rtp.gui.live_timestamps_tab
+   daplis_rtp.gui.pixel_mask_window
+   daplis_rtp.gui.plot_figure
+   daplis_rtp.gui.plot_figure_MZI
+   daplis_rtp.gui.plot_figure_dual
+   daplis_rtp.gui.single_pix_hist_tab
+   daplis_rtp.gui.single_pixel_histogram
+   daplis_rtp.gui.synchronization_tab
+   daplis_rtp.gui.tdc_occupancy_panel

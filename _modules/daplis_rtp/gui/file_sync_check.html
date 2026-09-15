@@ -1,0 +1,779 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>daplis_rtp.gui.file_sync_check &mdash; Data Analysis Package for LinoSPAD2 - Real-Time Plotting 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Data Analysis Package for LinoSPAD2 - Real-Time Plotting
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation and usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../daplis_rtp.gui.html">daplis_rtp.gui package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../daplis_rtp.functions.html">daplis_rtp.functions package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contribute.html">How to contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../license.html">License and contact info</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../acknowledgement.html">Acknowledgement</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Data Analysis Package for LinoSPAD2 - Real-Time Plotting</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">daplis_rtp.gui.file_sync_check</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for daplis_rtp.gui.file_sync_check</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Background check that both boards keep writing their files in step.</span>
+
+<span class="sd">A good two-board run drops one file per board into each working</span>
+<span class="sd">directory per acquisition cycle: the same number of files on both</span>
+<span class="sd">sides, every pair created within a couple of seconds of the other. When</span>
+<span class="sd">one board stalls, drops cycles, or stops writing altogether, the two</span>
+<span class="sd">directories run off from each other - a different number of files, or a</span>
+<span class="sd">growing offset between the pairs - and the two halves can no longer be</span>
+<span class="sd">matched up afterwards, which makes the whole run useless. That can go</span>
+<span class="sd">unnoticed for hours, since the live plot of either half looks perfectly</span>
+<span class="sd">healthy on its own; hence this check.</span>
+
+<span class="sd">The check runs in a thread of its own ('FileSyncWorker') so that</span>
+<span class="sd">listing the two directories never blocks the GUI, and reports through</span>
+<span class="sd">'FileSyncPanel', a compact status box that both the full-sensor and the</span>
+<span class="sd">synchronization tab embed.</span>
+
+<span class="sd">Two things are watched:</span>
+
+<span class="sd">* the file counts, which may differ - one board always creates its file</span>
+<span class="sd">  a moment before the other - but only briefly, so a difference is</span>
+<span class="sd">  reported only once it outlives the grace period;</span>
+<span class="sd">* the pairwise creation times: files are paired by their position in</span>
+<span class="sd">  the time-sorted listing of each directory, so a single dropped cycle</span>
+<span class="sd">  shifts every later pair and shows up at once.</span>
+
+<span class="sd">Only files created after the monitoring starts are looked at: leftovers</span>
+<span class="sd">from an earlier run in the same directory would otherwise be paired</span>
+<span class="sd">with the new ones and throw every pair off.</span>
+
+<span class="sd">'st_ctime' is the creation time on Windows, which is the platform the</span>
+<span class="sd">acquisition runs on.</span>
+
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">threading</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">PyQt5</span><span class="w"> </span><span class="kn">import</span> <span class="n">QtCore</span><span class="p">,</span> <span class="n">QtWidgets</span>
+
+<span class="c1"># Same set of files the plotting tabs read: '*.dat' plus the numbered</span>
+<span class="c1"># variants ('*.dat0', '*.dat1', ...) the board GUI writes.</span>
+<span class="n">DATA_SUFFIX</span> <span class="o">=</span> <span class="s2">".dat"</span>
+
+<span class="c1"># 2 s is the pair spread of a healthy run; 5 s between sweeps keeps the</span>
+<span class="c1"># directory listing cheap even for a run of many thousand files. A</span>
+<span class="c1"># count difference is normal while one board is ahead of the other, so</span>
+<span class="c1"># it is only reported once it has lasted GRACE seconds.</span>
+<span class="n">DEFAULT_TOLERANCE</span> <span class="o">=</span> <span class="mf">2.0</span>
+<span class="n">DEFAULT_INTERVAL</span> <span class="o">=</span> <span class="mf">5.0</span>
+<span class="n">DEFAULT_GRACE</span> <span class="o">=</span> <span class="mf">30.0</span>
+
+<span class="c1"># Pairs listed in the "Show details" text of the alert box.</span>
+<span class="n">MAX_DETAIL_ROWS</span> <span class="o">=</span> <span class="mi">20</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_data_files</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Return {file name: creation time} for the data files in 'path'.</span>
+
+<span class="sd">    None is returned when the directory cannot be listed at all - it</span>
+<span class="sd">    was never set, was mistyped, or vanished mid-run - so that the</span>
+<span class="sd">    caller can tell "no directory" from "directory with no files yet".</span>
+<span class="sd">    Files removed between the listing and the 'stat' are skipped; the</span>
+<span class="sd">    next sweep sees the directory as it is by then.</span>
+
+<span class="sd">    """</span>
+    <span class="n">files</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">os</span><span class="o">.</span><span class="n">scandir</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="k">as</span> <span class="n">entries</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">entries</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">DATA_SUFFIX</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">entry</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">entry</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+                        <span class="k">continue</span>
+                    <span class="n">files</span><span class="p">[</span><span class="n">entry</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_ctime</span>
+                <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+                    <span class="k">continue</span>
+    <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="n">files</span>
+
+
+<div class="viewcode-block" id="baseline">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.file_sync_check.html#daplis_rtp.gui.file_sync_check.baseline">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">baseline</span><span class="p">(</span><span class="n">path_1</span><span class="p">,</span> <span class="n">path_2</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""List what is already in both directories, as two sets of names.</span>
+
+<span class="sd">    Taken by the caller before the sweeping thread is started, not by</span>
+<span class="sd">    the thread itself: between 'QThread.start' and the thread actually</span>
+<span class="sd">    being scheduled, the acquisition can already have written its first</span>
+<span class="sd">    file. A file landing in that window would be taken for a leftover</span>
+<span class="sd">    on one board and for new data on the other, which is exactly the</span>
+<span class="sd">    permanent count difference this check is meant to report.</span>
+
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="nb">set</span><span class="p">(</span><span class="n">_data_files</span><span class="p">(</span><span class="n">path_1</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{}),</span>
+        <span class="nb">set</span><span class="p">(</span><span class="n">_data_files</span><span class="p">(</span><span class="n">path_2</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{}),</span>
+    <span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_clock</span><span class="p">(</span><span class="n">ctime</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Format a creation time as 'HH:MM:SS.s'."""</span>
+    <span class="k">return</span> <span class="s2">"</span><span class="si">{}</span><span class="s2">.</span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">"%H:%M:%S"</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">localtime</span><span class="p">(</span><span class="n">ctime</span><span class="p">)),</span>
+        <span class="nb">int</span><span class="p">(</span><span class="n">ctime</span> <span class="o">%</span> <span class="mi">1</span> <span class="o">*</span> <span class="mi">10</span><span class="p">),</span>
+    <span class="p">)</span>
+
+
+<div class="viewcode-block" id="SyncStatus">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.file_sync_check.html#daplis_rtp.gui.file_sync_check.SyncStatus">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SyncStatus</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Outcome of one sweep, handed to the GUI thread for display.</span>
+
+<span class="sd">    'state' is one of 'idle', 'waiting' (nothing to compare yet, or a</span>
+<span class="sd">    directory is missing), 'ok', 'pending' (the counts differ but the</span>
+<span class="sd">    grace period has not run out) and 'bad'.</span>
+
+<span class="sd">    """</span>
+
+<div class="viewcode-block" id="SyncStatus.__init__">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.file_sync_check.html#daplis_rtp.gui.file_sync_check.SyncStatus.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">count_1</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">count_2</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">spread</span><span class="o">=</span><span class="mf">0.0</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">state</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">text</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">count_1</span> <span class="o">=</span> <span class="n">count_1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">count_2</span> <span class="o">=</span> <span class="n">count_2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spread</span> <span class="o">=</span> <span class="n">spread</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="FileSyncWorker">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.file_sync_check.html#daplis_rtp.gui.file_sync_check.FileSyncWorker">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">FileSyncWorker</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">QThread</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Sweep both working directories until asked to stop.</span>
+
+<span class="sd">    Emits 'status' after every sweep and 'problem' at most once per</span>
+<span class="sd">    run: the first mismatch already means the run has to be repeated,</span>
+<span class="sd">    and repeating the alert every few seconds would only bury the GUI</span>
+<span class="sd">    under message boxes while nobody is at the desk.</span>
+
+<span class="sd">    """</span>
+
+    <span class="n">status</span> <span class="o">=</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">pyqtSignal</span><span class="p">(</span><span class="nb">object</span><span class="p">)</span>
+    <span class="n">problem</span> <span class="o">=</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">pyqtSignal</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+
+<div class="viewcode-block" id="FileSyncWorker.__init__">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.file_sync_check.html#daplis_rtp.gui.file_sync_check.FileSyncWorker.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">path_1</span><span class="p">,</span>
+        <span class="n">path_2</span><span class="p">,</span>
+        <span class="n">labels</span><span class="p">,</span>
+        <span class="n">baseline</span><span class="p">,</span>
+        <span class="n">tolerance</span><span class="o">=</span><span class="n">DEFAULT_TOLERANCE</span><span class="p">,</span>
+        <span class="n">interval</span><span class="o">=</span><span class="n">DEFAULT_INTERVAL</span><span class="p">,</span>
+        <span class="n">grace</span><span class="o">=</span><span class="n">DEFAULT_GRACE</span><span class="p">,</span>
+        <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path_1</span> <span class="o">=</span> <span class="n">path_1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path_2</span> <span class="o">=</span> <span class="n">path_2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">labels</span> <span class="o">=</span> <span class="n">labels</span>
+        <span class="c1"># Files of earlier runs, listed before the thread starts: see</span>
+        <span class="c1"># 'baseline'.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">base_1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_2</span> <span class="o">=</span> <span class="n">baseline</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tolerance</span> <span class="o">=</span> <span class="n">tolerance</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">interval</span> <span class="o">=</span> <span class="n">interval</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">grace</span> <span class="o">=</span> <span class="n">grace</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_stop</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Event</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mismatch_since</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_alerted</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="FileSyncWorker.stop">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.file_sync_check.html#daplis_rtp.gui.file_sync_check.FileSyncWorker.stop">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Ask the sweep loop to end; returns without waiting for it."""</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_stop</span><span class="o">.</span><span class="n">set</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="FileSyncWorker.run">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.file_sync_check.html#daplis_rtp.gui.file_sync_check.FileSyncWorker.run">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">while</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stop</span><span class="o">.</span><span class="n">is_set</span><span class="p">():</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sweep</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_2</span><span class="p">))</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>  <span class="c1"># noqa: BLE001 - never kill the thread</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span>
+                    <span class="n">SyncStatus</span><span class="p">(</span><span class="s2">"waiting"</span><span class="p">,</span> <span class="s2">"check failed: </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">err</span><span class="p">))</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stop</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">interval</span><span class="p">):</span>
+                <span class="k">break</span></div>
+
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="c1"># One sweep</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_sweep</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base_1</span><span class="p">,</span> <span class="n">base_2</span><span class="p">):</span>
+        <span class="n">files_1</span> <span class="o">=</span> <span class="n">_data_files</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path_1</span><span class="p">)</span>
+        <span class="n">files_2</span> <span class="o">=</span> <span class="n">_data_files</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path_2</span><span class="p">)</span>
+
+        <span class="n">missing</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">label</span>
+            <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">files</span> <span class="ow">in</span> <span class="p">(</span>
+                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">labels</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">files_1</span><span class="p">),</span>
+                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">labels</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">files_2</span><span class="p">),</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">files</span> <span class="ow">is</span> <span class="kc">None</span>
+        <span class="p">]</span>
+        <span class="k">if</span> <span class="n">missing</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">SyncStatus</span><span class="p">(</span>
+                <span class="s2">"waiting"</span><span class="p">,</span>
+                <span class="s2">"cannot read the directory of </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="s2">" and "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">missing</span><span class="p">)</span>
+                <span class="p">),</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Sorted by creation time, so index i on one board pairs with</span>
+        <span class="c1"># index i on the other.</span>
+        <span class="n">new_1</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">files_1</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">base_1</span>
+        <span class="p">)</span>
+        <span class="n">new_2</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">files_2</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">base_2</span>
+        <span class="p">)</span>
+        <span class="n">n_1</span><span class="p">,</span> <span class="n">n_2</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_1</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_2</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">n_1</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">n_2</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">SyncStatus</span><span class="p">(</span><span class="s2">"waiting"</span><span class="p">,</span> <span class="s2">"waiting for the first files"</span><span class="p">)</span>
+
+        <span class="c1"># Creation times of every complete pair.</span>
+        <span class="n">off</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">new_1</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">new_2</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]),</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">n_1</span><span class="p">,</span> <span class="n">n_2</span><span class="p">))</span>
+        <span class="p">]</span>
+        <span class="n">spread</span><span class="p">,</span> <span class="n">worst</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">off</span><span class="p">)</span> <span class="k">if</span> <span class="n">off</span> <span class="k">else</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="n">counts</span> <span class="o">=</span> <span class="s2">"</span><span class="si">{}</span><span class="s2">: </span><span class="si">{}</span><span class="s2"> files, </span><span class="si">{}</span><span class="s2">: </span><span class="si">{}</span><span class="s2"> files"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">labels</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">n_1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">labels</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">n_2</span>
+        <span class="p">)</span>
+        <span class="n">summary</span> <span class="o">=</span> <span class="s2">"</span><span class="si">{}</span><span class="s2">, worst pair </span><span class="si">{:.1f}</span><span class="s2"> s apart"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">counts</span><span class="p">,</span> <span class="n">spread</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">spread</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">tolerance</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_alert</span><span class="p">(</span>
+                <span class="s2">"The two boards are no longer writing in step.</span><span class="se">\n\n</span><span class="s2">"</span>
+                <span class="s2">"File pair </span><span class="si">{}</span><span class="s2"> was written </span><span class="si">{:.1f}</span><span class="s2"> s apart, over the </span><span class="si">{:.1f}</span><span class="s2"> s "</span>
+                <span class="s2">"limit:</span><span class="se">\n</span><span class="s2">"</span>
+                <span class="s2">"    </span><span class="si">{}</span><span class="s2">:  </span><span class="si">{}</span><span class="s2">  at </span><span class="si">{}</span><span class="se">\n</span><span class="s2">"</span>
+                <span class="s2">"    </span><span class="si">{}</span><span class="s2">:  </span><span class="si">{}</span><span class="s2">  at </span><span class="si">{}</span><span class="se">\n\n</span><span class="s2">"</span>
+                <span class="s2">"</span><span class="si">{}</span><span class="se">\n\n</span><span class="s2">"</span>
+                <span class="s2">"The halves of this run can no longer be matched up - stop "</span>
+                <span class="s2">"the acquisition and start the measurement again."</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">worst</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
+                    <span class="n">spread</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">tolerance</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">labels</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="n">new_1</span><span class="p">[</span><span class="n">worst</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span>
+                    <span class="n">_clock</span><span class="p">(</span><span class="n">new_1</span><span class="p">[</span><span class="n">worst</span><span class="p">][</span><span class="mi">0</span><span class="p">]),</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">labels</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                    <span class="n">new_2</span><span class="p">[</span><span class="n">worst</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span>
+                    <span class="n">_clock</span><span class="p">(</span><span class="n">new_2</span><span class="p">[</span><span class="n">worst</span><span class="p">][</span><span class="mi">0</span><span class="p">]),</span>
+                    <span class="n">counts</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_details</span><span class="p">(</span><span class="n">new_1</span><span class="p">,</span> <span class="n">new_2</span><span class="p">,</span> <span class="n">off</span><span class="p">),</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="n">SyncStatus</span><span class="p">(</span><span class="s2">"bad"</span><span class="p">,</span> <span class="n">summary</span><span class="p">,</span> <span class="n">n_1</span><span class="p">,</span> <span class="n">n_2</span><span class="p">,</span> <span class="n">spread</span><span class="p">)</span>
+
+        <span class="n">now</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">n_1</span> <span class="o">!=</span> <span class="n">n_2</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mismatch_since</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_mismatch_since</span> <span class="o">=</span> <span class="n">now</span>
+            <span class="n">age</span> <span class="o">=</span> <span class="n">now</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mismatch_since</span>
+            <span class="k">if</span> <span class="n">age</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">grace</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_alert</span><span class="p">(</span>
+                    <span class="s2">"The two boards are no longer writing in step.</span><span class="se">\n\n</span><span class="s2">"</span>
+                    <span class="s2">"</span><span class="si">{}</span><span class="se">\n</span><span class="s2">"</span>
+                    <span class="s2">"A difference of </span><span class="si">{}</span><span class="s2"> file(s) has lasted </span><span class="si">{:.0f}</span><span class="s2"> s.</span><span class="se">\n\n</span><span class="s2">"</span>
+                    <span class="s2">"One of the boards is not saving its files - stop the "</span>
+                    <span class="s2">"acquisition and start the measurement again."</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="n">counts</span><span class="p">,</span> <span class="nb">abs</span><span class="p">(</span><span class="n">n_1</span> <span class="o">-</span> <span class="n">n_2</span><span class="p">),</span> <span class="n">age</span>
+                    <span class="p">),</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_details</span><span class="p">(</span><span class="n">new_1</span><span class="p">,</span> <span class="n">new_2</span><span class="p">,</span> <span class="n">off</span><span class="p">),</span>
+                <span class="p">)</span>
+                <span class="k">return</span> <span class="n">SyncStatus</span><span class="p">(</span><span class="s2">"bad"</span><span class="p">,</span> <span class="n">summary</span><span class="p">,</span> <span class="n">n_1</span><span class="p">,</span> <span class="n">n_2</span><span class="p">,</span> <span class="n">spread</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">SyncStatus</span><span class="p">(</span>
+                <span class="s2">"pending"</span><span class="p">,</span>
+                <span class="s2">"</span><span class="si">{}</span><span class="s2"> (</span><span class="si">{:.0f}</span><span class="s2"> s out of step)"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">summary</span><span class="p">,</span> <span class="n">age</span><span class="p">),</span>
+                <span class="n">n_1</span><span class="p">,</span>
+                <span class="n">n_2</span><span class="p">,</span>
+                <span class="n">spread</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mismatch_since</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">SyncStatus</span><span class="p">(</span>
+            <span class="s2">"bad"</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_alerted</span> <span class="k">else</span> <span class="s2">"ok"</span><span class="p">,</span> <span class="n">summary</span><span class="p">,</span> <span class="n">n_1</span><span class="p">,</span> <span class="n">n_2</span><span class="p">,</span> <span class="n">spread</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_alert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">summary</span><span class="p">,</span> <span class="n">details</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_alerted</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_alerted</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">problem</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">summary</span><span class="p">,</span> <span class="n">details</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_details</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_1</span><span class="p">,</span> <span class="n">new_2</span><span class="p">,</span> <span class="n">off</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Text for the 'Show details' pane: the pairs that are off."""</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">"</span><span class="si">{}</span><span class="s2">: </span><span class="si">{}</span><span class="s2"> files in </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">labels</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_1</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">path_1</span>
+            <span class="p">),</span>
+            <span class="s2">"</span><span class="si">{}</span><span class="s2">: </span><span class="si">{}</span><span class="s2"> files in </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">labels</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_2</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">path_2</span>
+            <span class="p">),</span>
+            <span class="s2">""</span><span class="p">,</span>
+            <span class="s2">"Pairs more than </span><span class="si">{:.1f}</span><span class="s2"> s apart:"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tolerance</span><span class="p">),</span>
+        <span class="p">]</span>
+        <span class="n">bad</span> <span class="o">=</span> <span class="p">[</span><span class="n">item</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">off</span> <span class="k">if</span> <span class="n">item</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">tolerance</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">bad</span><span class="p">:</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"    none"</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">delta</span><span class="p">,</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">bad</span><span class="p">[:</span><span class="n">MAX_DETAIL_ROWS</span><span class="p">]:</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="s2">"    pair </span><span class="si">{:&gt;5}</span><span class="s2">   </span><span class="si">{:&gt;6.1f}</span><span class="s2"> s   </span><span class="si">{}</span><span class="s2"> (</span><span class="si">{}</span><span class="s2">)  vs  </span><span class="si">{}</span><span class="s2"> (</span><span class="si">{}</span><span class="s2">)"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
+                    <span class="n">delta</span><span class="p">,</span>
+                    <span class="n">new_1</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span>
+                    <span class="n">_clock</span><span class="p">(</span><span class="n">new_1</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]),</span>
+                    <span class="n">new_2</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span>
+                    <span class="n">_clock</span><span class="p">(</span><span class="n">new_2</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]),</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">bad</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">MAX_DETAIL_ROWS</span><span class="p">:</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="s2">"    ... and </span><span class="si">{}</span><span class="s2"> more"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">bad</span><span class="p">)</span> <span class="o">-</span> <span class="n">MAX_DETAIL_ROWS</span><span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="c1"># The unpaired tail: the files one board wrote and the other did</span>
+        <span class="c1"># not, which is what a count difference comes down to.</span>
+        <span class="n">extra</span> <span class="o">=</span> <span class="n">new_1</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">new_2</span><span class="p">)</span> <span class="p">:]</span> <span class="ow">or</span> <span class="n">new_2</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">new_1</span><span class="p">)</span> <span class="p">:]</span>
+        <span class="k">if</span> <span class="n">extra</span><span class="p">:</span>
+            <span class="n">side</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">labels</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_1</span><span class="p">)</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_2</span><span class="p">)</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">labels</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="p">)</span>
+            <span class="n">lines</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">""</span><span class="p">,</span> <span class="s2">"Files only </span><span class="si">{}</span><span class="s2"> has:"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">side</span><span class="p">)]</span>
+            <span class="k">for</span> <span class="n">ctime</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">extra</span><span class="p">[:</span><span class="n">MAX_DETAIL_ROWS</span><span class="p">]:</span>
+                <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"    </span><span class="si">{}</span><span class="s2">  at </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">_clock</span><span class="p">(</span><span class="n">ctime</span><span class="p">)))</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">extra</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">MAX_DETAIL_ROWS</span><span class="p">:</span>
+                <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="s2">"    ... and </span><span class="si">{}</span><span class="s2"> more"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">extra</span><span class="p">)</span> <span class="o">-</span> <span class="n">MAX_DETAIL_ROWS</span><span class="p">)</span>
+                <span class="p">)</span>
+        <span class="k">return</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="FileSyncPanel">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.file_sync_check.html#daplis_rtp.gui.file_sync_check.FileSyncPanel">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">FileSyncPanel</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QGroupBox</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Status box for the check, with the sweeping thread behind it.</span>
+
+<span class="sd">    The host tab calls 'start' when the acquisition starts and 'stop'</span>
+<span class="sd">    when it ends; with 'with_paths' the box also carries its own pair</span>
+<span class="sd">    of directory selectors, for tabs that do not have them already.</span>
+
+<span class="sd">    """</span>
+
+    <span class="c1"># Re-emitted for hosts that want to log the alert as well.</span>
+    <span class="n">problem</span> <span class="o">=</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">pyqtSignal</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+
+    <span class="n">LED_COLORS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">"idle"</span><span class="p">:</span> <span class="s2">"grey"</span><span class="p">,</span>
+        <span class="s2">"waiting"</span><span class="p">:</span> <span class="s2">"goldenrod"</span><span class="p">,</span>
+        <span class="s2">"ok"</span><span class="p">:</span> <span class="s2">"limegreen"</span><span class="p">,</span>
+        <span class="s2">"pending"</span><span class="p">:</span> <span class="s2">"orange"</span><span class="p">,</span>
+        <span class="s2">"bad"</span><span class="p">:</span> <span class="s2">"red"</span><span class="p">,</span>
+    <span class="p">}</span>
+
+<div class="viewcode-block" id="FileSyncPanel.__init__">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.file_sync_check.html#daplis_rtp.gui.file_sync_check.FileSyncPanel.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">font</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">labels</span><span class="o">=</span><span class="p">(</span><span class="s2">"Board 1"</span><span class="p">,</span> <span class="s2">"Board 2"</span><span class="p">),</span>
+        <span class="n">with_paths</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">"Both boards in step"</span><span class="p">,</span> <span class="n">parent</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_labels</span> <span class="o">=</span> <span class="n">labels</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_with_paths</span> <span class="o">=</span> <span class="n">with_paths</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_worker</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_retired</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_state</span> <span class="o">=</span> <span class="s2">"idle"</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_path_1</span> <span class="o">=</span> <span class="s2">""</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_path_2</span> <span class="o">=</span> <span class="s2">""</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_alert_box</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_build_ui</span><span class="p">(</span><span class="n">font</span><span class="p">)</span>
+
+        <span class="c1"># A running QThread outliving the application prints "QThread:</span>
+        <span class="c1"># Destroyed while thread is still running" and can take the</span>
+        <span class="c1"># process down with it, so the sweep always ends with the app.</span>
+        <span class="n">app</span> <span class="o">=</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">QCoreApplication</span><span class="o">.</span><span class="n">instance</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">app</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">app</span><span class="o">.</span><span class="n">aboutToQuit</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stop</span><span class="p">)</span></div>
+
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="c1"># UI</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_build_ui</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">font</span><span class="p">):</span>
+        <span class="n">grid</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QGridLayout</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="c1"># Top margin clears the group-box title, which is drawn over</span>
+        <span class="c1"># the frame rather than above it.</span>
+        <span class="n">grid</span><span class="o">.</span><span class="n">setContentsMargins</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
+        <span class="n">grid</span><span class="o">.</span><span class="n">setVerticalSpacing</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+        <span class="n">row</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">checkBox_enabled</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QCheckBox</span><span class="p">(</span>
+            <span class="s2">"Check both boards write in step"</span><span class="p">,</span> <span class="bp">self</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">checkBox_enabled</span><span class="o">.</span><span class="n">setChecked</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">checkBox_enabled</span><span class="o">.</span><span class="n">setToolTip</span><span class="p">(</span>
+            <span class="s2">"While the acquisition runs, compare the two working "</span>
+            <span class="s2">"directories in the background: both boards must write the "</span>
+            <span class="s2">"same number of files, each pair within the tolerance below. "</span>
+            <span class="s2">"A run that drifts apart cannot be synchronized afterwards."</span>
+        <span class="p">)</span>
+        <span class="n">grid</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">checkBox_enabled</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="n">row</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_path_1</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_path_2</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_with_paths</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_path_1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_path_1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path_row</span><span class="p">(</span>
+                <span class="n">grid</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_labels</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="p">)</span>
+            <span class="n">row</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_path_2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_path_2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path_row</span><span class="p">(</span>
+                <span class="n">grid</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_labels</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="p">)</span>
+            <span class="n">row</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="n">lbl_tol</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QLabel</span><span class="p">(</span><span class="s2">"Pair tolerance (s)"</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="n">lbl_tol</span><span class="o">.</span><span class="n">setToolTip</span><span class="p">(</span>
+            <span class="s2">"How far apart the two files of one acquisition cycle may be "</span>
+            <span class="s2">"created. Good runs stay within about 2 s."</span>
+        <span class="p">)</span>
+        <span class="n">grid</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">lbl_tol</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">doubleSpinBox_tolerance</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QDoubleSpinBox</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">doubleSpinBox_tolerance</span><span class="o">.</span><span class="n">setRange</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">600.0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">doubleSpinBox_tolerance</span><span class="o">.</span><span class="n">setSingleStep</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">doubleSpinBox_tolerance</span><span class="o">.</span><span class="n">setDecimals</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">doubleSpinBox_tolerance</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="n">DEFAULT_TOLERANCE</span><span class="p">)</span>
+        <span class="c1"># The stretch of column 1 belongs to the path fields, not to a</span>
+        <span class="c1"># box holding two digits.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">doubleSpinBox_tolerance</span><span class="o">.</span><span class="n">setMaximumWidth</span><span class="p">(</span><span class="mi">90</span><span class="p">)</span>
+        <span class="n">grid</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">doubleSpinBox_tolerance</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">row</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="n">lbl_int</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QLabel</span><span class="p">(</span><span class="s2">"Check every (s)"</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="n">lbl_int</span><span class="o">.</span><span class="n">setToolTip</span><span class="p">(</span><span class="s2">"How often the two directories are compared."</span><span class="p">)</span>
+        <span class="n">grid</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">lbl_int</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spinBox_interval</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QSpinBox</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spinBox_interval</span><span class="o">.</span><span class="n">setRange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">600</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spinBox_interval</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">DEFAULT_INTERVAL</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spinBox_interval</span><span class="o">.</span><span class="n">setMaximumWidth</span><span class="p">(</span><span class="mi">90</span><span class="p">)</span>
+        <span class="n">grid</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spinBox_interval</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">row</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">label_led</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QLabel</span><span class="p">(</span><span class="s2">"●"</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">label_led</span><span class="o">.</span><span class="n">setFixedWidth</span><span class="p">(</span><span class="mi">18</span><span class="p">)</span>
+        <span class="n">grid</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">label_led</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">AlignTop</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">label_status</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QLabel</span><span class="p">(</span><span class="s2">"not running"</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">label_status</span><span class="o">.</span><span class="n">setWordWrap</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">grid</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">label_status</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+        <span class="n">grid</span><span class="o">.</span><span class="n">setColumnStretch</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">font</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">setFont</span><span class="p">(</span><span class="n">font</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">widget</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">findChildren</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QWidget</span><span class="p">):</span>
+                <span class="n">widget</span><span class="o">.</span><span class="n">setFont</span><span class="p">(</span><span class="n">font</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_state</span><span class="p">(</span><span class="s2">"idle"</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_path_row</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grid</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="n">label</span><span class="p">):</span>
+        <span class="n">lbl</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QLabel</span><span class="p">(</span><span class="s2">"</span><span class="si">{}</span><span class="s2"> files"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">label</span><span class="p">),</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="n">grid</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">lbl</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">edit</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QLineEdit</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">edit</span><span class="o">.</span><span class="n">setToolTip</span><span class="p">(</span>
+            <span class="s2">"Folder this board's own GUI saves to (its 'Save' path). "</span>
+            <span class="s2">"Only read by the check, never written to."</span>
+        <span class="p">)</span>
+        <span class="n">grid</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">edit</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">button</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QPushButton</span><span class="p">(</span><span class="s2">"Browse"</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="n">button</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">_checked</span><span class="p">,</span> <span class="n">e</span><span class="o">=</span><span class="n">edit</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">label</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_browse</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">grid</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">button</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">edit</span><span class="p">,</span> <span class="n">button</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_browse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">edit</span><span class="p">,</span> <span class="n">label</span><span class="p">):</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QFileDialog</span><span class="o">.</span><span class="n">getExistingDirectory</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="s2">"Select the working directory of </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">path</span><span class="p">:</span>
+            <span class="n">edit</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="c1"># Host interface</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+
+<div class="viewcode-block" id="FileSyncPanel.paths">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.file_sync_check.html#daplis_rtp.gui.file_sync_check.FileSyncPanel.paths">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">paths</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""The pair of directories the check compares."""</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_with_paths</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_path_1</span><span class="o">.</span><span class="n">text</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_path_2</span><span class="o">.</span><span class="n">text</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path_1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path_2</span></div>
+
+
+<div class="viewcode-block" id="FileSyncPanel.set_paths">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.file_sync_check.html#daplis_rtp.gui.file_sync_check.FileSyncPanel.set_paths">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_paths</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path_1</span><span class="p">,</span> <span class="n">path_2</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Point the check at the two working directories."""</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_path_1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path_2</span> <span class="o">=</span> <span class="n">path_1</span><span class="p">,</span> <span class="n">path_2</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_with_paths</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_path_1</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">path_1</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_path_2</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">path_2</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="FileSyncPanel.is_enabled">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.file_sync_check.html#daplis_rtp.gui.file_sync_check.FileSyncPanel.is_enabled">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_enabled</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">checkBox_enabled</span><span class="o">.</span><span class="n">isChecked</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="FileSyncPanel.start">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.file_sync_check.html#daplis_rtp.gui.file_sync_check.FileSyncPanel.start">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Begin sweeping; re-arms the alert of a previous run."""</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_enabled</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_set_state</span><span class="p">(</span><span class="s2">"idle"</span><span class="p">,</span> <span class="s2">"check switched off"</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="n">path_1</span><span class="p">,</span> <span class="n">path_2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">path_1</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">path_2</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_set_state</span><span class="p">(</span>
+                <span class="s2">"waiting"</span><span class="p">,</span> <span class="s2">"no working directory set - not checking"</span>
+            <span class="p">)</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normcase</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">path_1</span><span class="p">))</span> <span class="o">==</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normcase</span><span class="p">(</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">path_2</span><span class="p">)</span>
+        <span class="p">):</span>
+            <span class="c1"># One directory for both boards makes every count equal and</span>
+            <span class="c1"># every pair simultaneous: the check would always pass.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_set_state</span><span class="p">(</span>
+                <span class="s2">"waiting"</span><span class="p">,</span>
+                <span class="s2">"both boards point at the same directory - not checking"</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_worker</span> <span class="o">=</span> <span class="n">FileSyncWorker</span><span class="p">(</span>
+            <span class="n">path_1</span><span class="o">=</span><span class="n">path_1</span><span class="p">,</span>
+            <span class="n">path_2</span><span class="o">=</span><span class="n">path_2</span><span class="p">,</span>
+            <span class="n">labels</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_labels</span><span class="p">,</span>
+            <span class="n">baseline</span><span class="o">=</span><span class="n">baseline</span><span class="p">(</span><span class="n">path_1</span><span class="p">,</span> <span class="n">path_2</span><span class="p">),</span>
+            <span class="n">tolerance</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">doubleSpinBox_tolerance</span><span class="o">.</span><span class="n">value</span><span class="p">(),</span>
+            <span class="n">interval</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spinBox_interval</span><span class="o">.</span><span class="n">value</span><span class="p">()),</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_worker</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_on_status</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_worker</span><span class="o">.</span><span class="n">problem</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_on_problem</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_worker</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_settings_enabled</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_state</span><span class="p">(</span><span class="s2">"waiting"</span><span class="p">,</span> <span class="s2">"starting"</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="FileSyncPanel.stop">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.file_sync_check.html#daplis_rtp.gui.file_sync_check.FileSyncPanel.stop">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""End the sweep; the last verdict stays on display."""</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_retired</span> <span class="o">=</span> <span class="p">[</span><span class="n">w</span> <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_retired</span> <span class="k">if</span> <span class="n">w</span><span class="o">.</span><span class="n">isRunning</span><span class="p">()]</span>
+        <span class="n">worker</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_worker</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_worker</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">worker</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">worker</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+            <span class="c1"># 'stop' only sets a flag the loop checks between sweeps,</span>
+            <span class="c1"># so the thread is normally back within milliseconds. A</span>
+            <span class="c1"># directory listing that hangs - a network drive gone away</span>
+            <span class="c1"># - is left to finish on its own rather than killed:</span>
+            <span class="c1"># 'terminate' can cut the thread in the middle of Python</span>
+            <span class="c1"># code and take the interpreter down with it. It stays</span>
+            <span class="c1"># referenced and muted until it returns, since deleting a</span>
+            <span class="c1"># running QThread crashes just as surely.</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">worker</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="mi">5000</span><span class="p">):</span>
+                <span class="n">worker</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">disconnect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_on_status</span><span class="p">)</span>
+                <span class="n">worker</span><span class="o">.</span><span class="n">problem</span><span class="o">.</span><span class="n">disconnect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_on_problem</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_retired</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">worker</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_settings_enabled</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state</span> <span class="o">==</span> <span class="s2">"bad"</span><span class="p">:</span>
+            <span class="c1"># A run that went wrong stays flagged until the next start.</span>
+            <span class="k">return</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">label_status</span><span class="o">.</span><span class="n">text</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">text</span> <span class="o">==</span> <span class="s2">"starting"</span><span class="p">:</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="s2">"not running"</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="n">text</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">"(stopped)"</span><span class="p">):</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="s2">"</span><span class="si">{}</span><span class="s2"> (stopped)"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_state</span><span class="p">(</span><span class="s2">"idle"</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_set_settings_enabled</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">enabled</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">checkBox_enabled</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="n">enabled</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">doubleSpinBox_tolerance</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="n">enabled</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spinBox_interval</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="n">enabled</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_with_paths</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">widget</span> <span class="ow">in</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_path_1</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_path_2</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_path_1</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_path_2</span><span class="p">,</span>
+            <span class="p">):</span>
+                <span class="n">widget</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="n">enabled</span><span class="p">)</span>
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="c1"># Worker signals</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_set_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_state</span> <span class="o">=</span> <span class="n">state</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">label_led</span><span class="o">.</span><span class="n">setStyleSheet</span><span class="p">(</span>
+            <span class="s2">"color: </span><span class="si">{}</span><span class="s2">; font-size: 16px;"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">LED_COLORS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="s2">"grey"</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">text</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">label_status</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_on_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">status</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_state</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">state</span><span class="p">,</span> <span class="n">status</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_on_problem</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">summary</span><span class="p">,</span> <span class="n">details</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">problem</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">summary</span><span class="p">,</span> <span class="n">details</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_state</span><span class="p">(</span><span class="s2">"bad"</span><span class="p">)</span>
+        <span class="n">box</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QMessageBox</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">box</span><span class="o">.</span><span class="n">setIcon</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QMessageBox</span><span class="o">.</span><span class="n">Critical</span><span class="p">)</span>
+        <span class="n">box</span><span class="o">.</span><span class="n">setWindowTitle</span><span class="p">(</span><span class="s2">"Boards out of step"</span><span class="p">)</span>
+        <span class="n">box</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">summary</span><span class="p">)</span>
+        <span class="n">box</span><span class="o">.</span><span class="n">setDetailedText</span><span class="p">(</span><span class="n">details</span><span class="p">)</span>
+        <span class="c1"># Not modal: the acquisition and the live plot must keep going</span>
+        <span class="c1"># while the box waits to be noticed - the run is spoiled, but</span>
+        <span class="c1"># freezing the GUI on top of that helps nobody.</span>
+        <span class="n">box</span><span class="o">.</span><span class="n">setWindowModality</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">NonModal</span><span class="p">)</span>
+        <span class="n">box</span><span class="o">.</span><span class="n">setAttribute</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">WA_DeleteOnClose</span><span class="p">)</span>
+        <span class="n">box</span><span class="o">.</span><span class="n">destroyed</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_forget_alert_box</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_alert_box</span> <span class="o">=</span> <span class="n">box</span>
+        <span class="n">box</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+        <span class="n">box</span><span class="o">.</span><span class="n">raise_</span><span class="p">()</span>
+        <span class="c1"># Nobody is necessarily at the desk when a run falls apart, so</span>
+        <span class="c1"># put the box in front of whatever else is on screen.</span>
+        <span class="n">box</span><span class="o">.</span><span class="n">activateWindow</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_forget_alert_box</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_alert_box</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Sergei Kulkov.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

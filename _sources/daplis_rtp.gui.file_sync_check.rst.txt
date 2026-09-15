@@ -1,0 +1,7 @@
+daplis\_rtp.gui.file\_sync\_check module
+========================================
+
+.. automodule:: daplis_rtp.gui.file_sync_check
+   :members:
+   :show-inheritance:
+   :undoc-members:

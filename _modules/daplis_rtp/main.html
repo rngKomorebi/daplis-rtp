@@ -1,0 +1,275 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>daplis_rtp.main &mdash; Data Analysis Package for LinoSPAD2 - Real-Time Plotting 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Data Analysis Package for LinoSPAD2 - Real-Time Plotting
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation and usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../daplis_rtp.gui.html">daplis_rtp.gui package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../daplis_rtp.functions.html">daplis_rtp.functions package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contribute.html">How to contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../license.html">License and contact info</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../acknowledgement.html">Acknowledgement</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Data Analysis Package for LinoSPAD2 - Real-Time Plotting</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">daplis_rtp.main</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for daplis_rtp.main</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Application starter.</span>
+
+<span class="sd">Run this file in the terminal to start the application.</span>
+
+<span class="sd">Run it in an IPython kernel - the VS Code interactive window, a Spyder</span>
+<span class="sd">console, a notebook - as often as you like: the session's QApplication</span>
+<span class="sd">is reused rather than replaced, so a second run neither kills the kernel</span>
+<span class="sd">nor opens a window that never paints. The call returns when the window</span>
+<span class="sd">is closed.</span>
+
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">qdarkstyle</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">PyQt5.QtWidgets</span><span class="w"> </span><span class="kn">import</span> <span class="n">QApplication</span><span class="p">,</span> <span class="n">QMainWindow</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">daplis_rtp.gui.app_icon</span><span class="w"> </span><span class="kn">import</span> <span class="n">app_icon</span><span class="p">,</span> <span class="n">claim_taskbar_identity</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">daplis_rtp.gui.ui.mainwindow</span><span class="w"> </span><span class="kn">import</span> <span class="n">Ui_MainWindow</span>
+
+<span class="c1"># How long a worker thread is given to finish on its own when the</span>
+<span class="c1"># window closes, in milliseconds.</span>
+<span class="n">WORKER_WAIT_MS</span> <span class="o">=</span> <span class="mi">2000</span>
+
+<span class="c1"># The QApplication and the window live here, not in 'main's locals, and</span>
+<span class="c1"># the reason is the crash you get otherwise. In an interpreter that</span>
+<span class="c1"># outlives the call, locals are dropped when 'main' returns, which</span>
+<span class="c1"># destroys the QApplication and the window in an order Qt does not</span>
+<span class="c1"># survive. The next run then dies inside Qt with an access violation:</span>
+<span class="c1"># no traceback, no Python error, just "the kernel died". Module globals</span>
+<span class="c1"># keep both alive until something replaces them.</span>
+<span class="n">_APP</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">_WINDOW</span> <span class="o">=</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_quiesce</span><span class="p">(</span><span class="n">tab</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Stop whatever one tab left running.</span>
+
+<span class="sd">    Everything here outlives the widget that started it unless it is</span>
+<span class="sd">    stopped by hand, and each one is fatal in its own way: a QTimer</span>
+<span class="sd">    fires into a deleted object, and a QThread destroyed while still</span>
+<span class="sd">    running aborts the process outright.</span>
+<span class="sd">    """</span>
+    <span class="c1"># Every plotting tab starts a refresh timer when the stream starts,</span>
+    <span class="c1"># and none of them stops it on the way out</span>
+    <span class="n">timer</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">tab</span><span class="p">,</span> <span class="s2">"timer"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">timer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">timer</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+
+    <span class="c1"># The pixel mask is a window of its own, so it does not necessarily</span>
+    <span class="c1"># go when its tab does</span>
+    <span class="n">mask_window</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">tab</span><span class="p">,</span> <span class="s2">"mask_window"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">mask_window</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">mask_window</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="c1"># 'Both boards in step' sweeps directories in a thread. Its own</span>
+    <span class="c1"># 'stop' asks the sweep to finish and leaves a hung one muted and</span>
+    <span class="c1"># referenced rather than killing it, which is the right thing here</span>
+    <span class="c1"># too - so it is used as it stands.</span>
+    <span class="n">panel</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">tab</span><span class="p">,</span> <span class="s2">"fileSyncPanel"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">panel</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">panel</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+
+    <span class="c1"># The Synchronization tab's acquisition thread has no flag to set:</span>
+    <span class="c1"># it is a blocking socket conversation with two boards. So it is</span>
+    <span class="c1"># given a moment to finish and then cut short - the one place the</span>
+    <span class="c1"># package does that, and still better than destroying it running.</span>
+    <span class="n">worker</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">tab</span><span class="p">,</span> <span class="s2">"_worker"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">worker</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">worker</span><span class="o">.</span><span class="n">isRunning</span><span class="p">():</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">worker</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="n">WORKER_WAIT_MS</span><span class="p">):</span>
+            <span class="n">worker</span><span class="o">.</span><span class="n">terminate</span><span class="p">()</span>
+            <span class="n">worker</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="n">WORKER_WAIT_MS</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_qt_loop_already_running</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">"""True only when something else is already spinning a Qt loop.</span>
+
+<span class="sd">    That is the one case where 'main' must not call 'exec', since doing</span>
+<span class="sd">    so would block the caller's loop. An IPython kernel spins one only</span>
+<span class="sd">    when Qt integration has been switched on with '%gui qt', which is</span>
+<span class="sd">    not the default; without it nothing processes Qt events, so a</span>
+<span class="sd">    window opened without 'exec' never paints.</span>
+<span class="sd">    """</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">IPython</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_ipython</span>
+    <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+        <span class="c1"># Not an IPython session at all</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="n">ip</span> <span class="o">=</span> <span class="n">get_ipython</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">ip</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># IPython importable, but this is a plain interpreter</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="c1"># Set by '%gui qt' to 'qt' / 'qt5' / 'qt6'; empty or None when off</span>
+    <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">ip</span><span class="p">,</span> <span class="s2">"active_eventloop"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">""</span><span class="p">)</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"qt"</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="MainWindow">
+<a class="viewcode-back" href="../../daplis_rtp.main.html#daplis_rtp.main.MainWindow">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">MainWindow</span><span class="p">(</span><span class="n">QMainWindow</span><span class="p">,</span> <span class="n">Ui_MainWindow</span><span class="p">):</span>
+<div class="viewcode-block" id="MainWindow.__init__">
+<a class="viewcode-back" href="../../daplis_rtp.main.html#daplis_rtp.main.MainWindow.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">setupUi</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MainWindow.closeEvent">
+<a class="viewcode-back" href="../../daplis_rtp.main.html#daplis_rtp.main.MainWindow.closeEvent">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">closeEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Stop what the tabs left running, then close.</span>
+
+<span class="sd">        This used to call 'QApplication.quit()'. Run from a terminal</span>
+<span class="sd">        that made no difference - closing the last window ends the</span>
+<span class="sd">        event loop anyway - but in an interpreter that outlives the</span>
+<span class="sd">        call it tore down the QApplication the session was still</span>
+<span class="sd">        holding, and the next run crashed the kernel.</span>
+<span class="sd">        """</span>
+        <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tabWidget</span><span class="o">.</span><span class="n">count</span><span class="p">()):</span>
+            <span class="n">_quiesce</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tabWidget</span><span class="o">.</span><span class="n">widget</span><span class="p">(</span><span class="n">index</span><span class="p">))</span>
+        <span class="n">event</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="main">
+<a class="viewcode-back" href="../../daplis_rtp.main.html#daplis_rtp.main.main">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">"""Open the window, and run the Qt event loop unless something is.</span>
+
+<span class="sd">    Safe to call more than once in the same interpreter: the existing</span>
+<span class="sd">    QApplication is reused - a second one in one process is fatal - and</span>
+<span class="sd">    the previous window is closed properly rather than collected.</span>
+<span class="sd">    """</span>
+    <span class="k">global</span> <span class="n">_APP</span><span class="p">,</span> <span class="n">_WINDOW</span>
+
+    <span class="c1"># Before the QApplication, and so before any window exists: this is</span>
+    <span class="c1"># what tells Windows which taskbar button the process owns, and it</span>
+    <span class="c1"># is only read once, when that button is first created.</span>
+    <span class="n">claim_taskbar_identity</span><span class="p">()</span>
+
+    <span class="n">existing</span> <span class="o">=</span> <span class="n">QApplication</span><span class="o">.</span><span class="n">instance</span><span class="p">()</span>
+    <span class="n">_APP</span> <span class="o">=</span> <span class="n">existing</span> <span class="k">if</span> <span class="n">existing</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">QApplication</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span>
+    <span class="c1"># On the application rather than the window: every top-level window</span>
+    <span class="c1"># inherits it, the pixel mask and the message boxes included</span>
+    <span class="n">_APP</span><span class="o">.</span><span class="n">setWindowIcon</span><span class="p">(</span><span class="n">app_icon</span><span class="p">())</span>
+    <span class="c1"># Before the widgets it applies to, so that nothing is built in the</span>
+    <span class="c1"># default palette and re-polished into the dark one</span>
+    <span class="n">_APP</span><span class="o">.</span><span class="n">setStyleSheet</span><span class="p">(</span><span class="n">qdarkstyle</span><span class="o">.</span><span class="n">load_stylesheet</span><span class="p">())</span>
+
+    <span class="k">if</span> <span class="n">_WINDOW</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># Through 'closeEvent', so that a run left over from a previous</span>
+        <span class="c1"># call stops its timers and threads rather than being torn down</span>
+        <span class="c1"># underneath them</span>
+        <span class="n">_WINDOW</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="n">_WINDOW</span> <span class="o">=</span> <span class="n">MainWindow</span><span class="p">()</span>
+    <span class="n">_WINDOW</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">_qt_loop_already_running</span><span class="p">():</span>
+        <span class="n">_APP</span><span class="o">.</span><span class="n">exec</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">_WINDOW</span></div>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Sergei Kulkov.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

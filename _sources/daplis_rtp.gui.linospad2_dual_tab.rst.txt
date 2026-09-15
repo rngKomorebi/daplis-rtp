@@ -1,0 +1,7 @@
+daplis\_rtp.gui.linospad2\_dual\_tab module
+===========================================
+
+.. automodule:: daplis_rtp.gui.linospad2_dual_tab
+   :members:
+   :show-inheritance:
+   :undoc-members:

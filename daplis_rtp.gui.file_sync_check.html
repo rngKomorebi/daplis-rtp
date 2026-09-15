@@ -1,0 +1,331 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>daplis_rtp.gui.file_sync_check module &mdash; Data Analysis Package for LinoSPAD2 - Real-Time Plotting 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=8d563738"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="daplis_rtp.gui.linospad2_dual_tab module" href="daplis_rtp.gui.linospad2_dual_tab.html" />
+    <link rel="prev" title="daplis_rtp.gui.app_icon module" href="daplis_rtp.gui.app_icon.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Data Analysis Package for LinoSPAD2 - Real-Time Plotting
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation and usage</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="daplis_rtp.gui.html">daplis_rtp.gui package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="daplis_rtp.gui.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.MZI_tab.html">daplis_rtp.gui.MZI_tab module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.app_icon.html">daplis_rtp.gui.app_icon module</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">daplis_rtp.gui.file_sync_check module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#daplis_rtp.gui.file_sync_check.FileSyncPanel"><code class="docutils literal notranslate"><span class="pre">FileSyncPanel</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#daplis_rtp.gui.file_sync_check.FileSyncWorker"><code class="docutils literal notranslate"><span class="pre">FileSyncWorker</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#daplis_rtp.gui.file_sync_check.SyncStatus"><code class="docutils literal notranslate"><span class="pre">SyncStatus</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#daplis_rtp.gui.file_sync_check.baseline"><code class="docutils literal notranslate"><span class="pre">baseline()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.linospad2_dual_tab.html">daplis_rtp.gui.linospad2_dual_tab module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.live_timestamps_tab.html">daplis_rtp.gui.live_timestamps_tab module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.pixel_mask_window.html">daplis_rtp.gui.pixel_mask_window module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.plot_figure.html">daplis_rtp.gui.plot_figure module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.plot_figure_MZI.html">daplis_rtp.gui.plot_figure_MZI module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.plot_figure_dual.html">daplis_rtp.gui.plot_figure_dual module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.single_pix_hist_tab.html">daplis_rtp.gui.single_pix_hist_tab module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.single_pixel_histogram.html">daplis_rtp.gui.single_pixel_histogram module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.synchronization_tab.html">daplis_rtp.gui.synchronization_tab module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tdc_occupancy_panel.html">daplis_rtp.gui.tdc_occupancy_panel module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="daplis_rtp.functions.html">daplis_rtp.functions package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contribute.html">How to contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">License and contact info</a></li>
+<li class="toctree-l1"><a class="reference internal" href="acknowledgement.html">Acknowledgement</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Data Analysis Package for LinoSPAD2 - Real-Time Plotting</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="daplis_rtp.gui.html">daplis_rtp.gui package</a></li>
+      <li class="breadcrumb-item active">daplis_rtp.gui.file_sync_check module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/daplis_rtp.gui.file_sync_check.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-daplis_rtp.gui.file_sync_check">
+<span id="daplis-rtp-gui-file-sync-check-module"></span><h1>daplis_rtp.gui.file_sync_check module<a class="headerlink" href="#module-daplis_rtp.gui.file_sync_check" title="Link to this heading"></a></h1>
+<p>Background check that both boards keep writing their files in step.</p>
+<p>A good two-board run drops one file per board into each working
+directory per acquisition cycle: the same number of files on both
+sides, every pair created within a couple of seconds of the other. When
+one board stalls, drops cycles, or stops writing altogether, the two
+directories run off from each other - a different number of files, or a
+growing offset between the pairs - and the two halves can no longer be
+matched up afterwards, which makes the whole run useless. That can go
+unnoticed for hours, since the live plot of either half looks perfectly
+healthy on its own; hence this check.</p>
+<p>The check runs in a thread of its own (‘FileSyncWorker’) so that
+listing the two directories never blocks the GUI, and reports through
+‘FileSyncPanel’, a compact status box that both the full-sensor and the
+synchronization tab embed.</p>
+<p>Two things are watched:</p>
+<ul class="simple">
+<li><p>the file counts, which may differ - one board always creates its file
+a moment before the other - but only briefly, so a difference is
+reported only once it outlives the grace period;</p></li>
+<li><p>the pairwise creation times: files are paired by their position in
+the time-sorted listing of each directory, so a single dropped cycle
+shifts every later pair and shows up at once.</p></li>
+</ul>
+<p>Only files created after the monitoring starts are looked at: leftovers
+from an earlier run in the same directory would otherwise be paired
+with the new ones and throw every pair off.</p>
+<p>‘st_ctime’ is the creation time on Windows, which is the platform the
+acquisition runs on.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="daplis_rtp.gui.file_sync_check.FileSyncPanel">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">daplis_rtp.gui.file_sync_check.</span></span><span class="sig-name descname"><span class="pre">FileSyncPanel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">font</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('Board</span> <span class="pre">1',</span> <span class="pre">'Board</span> <span class="pre">2')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_paths</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/file_sync_check.html#FileSyncPanel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.file_sync_check.FileSyncPanel" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">QGroupBox</span></code></p>
+<p>Status box for the check, with the sweeping thread behind it.</p>
+<p>The host tab calls ‘start’ when the acquisition starts and ‘stop’
+when it ends; with ‘with_paths’ the box also carries its own pair
+of directory selectors, for tabs that do not have them already.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="daplis_rtp.gui.file_sync_check.FileSyncPanel.LED_COLORS">
+<span class="sig-name descname"><span class="pre">LED_COLORS</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'bad':</span> <span class="pre">'red',</span> <span class="pre">'idle':</span> <span class="pre">'grey',</span> <span class="pre">'ok':</span> <span class="pre">'limegreen',</span> <span class="pre">'pending':</span> <span class="pre">'orange',</span> <span class="pre">'waiting':</span> <span class="pre">'goldenrod'}</span></span><a class="headerlink" href="#daplis_rtp.gui.file_sync_check.FileSyncPanel.LED_COLORS" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.file_sync_check.FileSyncPanel.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">font</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('Board</span> <span class="pre">1',</span> <span class="pre">'Board</span> <span class="pre">2')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_paths</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/file_sync_check.html#FileSyncPanel.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.file_sync_check.FileSyncPanel.__init__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.file_sync_check.FileSyncPanel.is_enabled">
+<span class="sig-name descname"><span class="pre">is_enabled</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/file_sync_check.html#FileSyncPanel.is_enabled"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.file_sync_check.FileSyncPanel.is_enabled" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.file_sync_check.FileSyncPanel.paths">
+<span class="sig-name descname"><span class="pre">paths</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/file_sync_check.html#FileSyncPanel.paths"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.file_sync_check.FileSyncPanel.paths" title="Link to this definition"></a></dt>
+<dd><p>The pair of directories the check compares.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="daplis_rtp.gui.file_sync_check.FileSyncPanel.problem">
+<span class="sig-name descname"><span class="pre">problem</span></span><a class="headerlink" href="#daplis_rtp.gui.file_sync_check.FileSyncPanel.problem" title="Link to this definition"></a></dt>
+<dd><p>str = …, revision: int = …, arguments: Sequence = …) -&gt; PYQT_SIGNAL</p>
+<p>types is normally a sequence of individual types.  Each type is either a
+type object or a string that is the name of a C++ type.  Alternatively
+each type could itself be a sequence of types each describing a different
+overloaded signal.
+name is the optional C++ name of the signal.  If it is not specified then
+the name of the class attribute that is bound to the signal is used.
+revision is the optional revision of the signal that is exported to QML.
+If it is not specified then 0 is used.
+arguments is the optional sequence of the names of the signal’s arguments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pyqtSignal(<a href="#id1"><span class="problematic" id="id2">*</span></a>types, name</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.file_sync_check.FileSyncPanel.set_paths">
+<span class="sig-name descname"><span class="pre">set_paths</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/file_sync_check.html#FileSyncPanel.set_paths"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.file_sync_check.FileSyncPanel.set_paths" title="Link to this definition"></a></dt>
+<dd><p>Point the check at the two working directories.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.file_sync_check.FileSyncPanel.start">
+<span class="sig-name descname"><span class="pre">start</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/file_sync_check.html#FileSyncPanel.start"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.file_sync_check.FileSyncPanel.start" title="Link to this definition"></a></dt>
+<dd><p>Begin sweeping; re-arms the alert of a previous run.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.file_sync_check.FileSyncPanel.stop">
+<span class="sig-name descname"><span class="pre">stop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/file_sync_check.html#FileSyncPanel.stop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.file_sync_check.FileSyncPanel.stop" title="Link to this definition"></a></dt>
+<dd><p>End the sweep; the last verdict stays on display.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="daplis_rtp.gui.file_sync_check.FileSyncWorker">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">daplis_rtp.gui.file_sync_check.</span></span><span class="sig-name descname"><span class="pre">FileSyncWorker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">baseline</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grace</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/file_sync_check.html#FileSyncWorker"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.file_sync_check.FileSyncWorker" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">QThread</span></code></p>
+<p>Sweep both working directories until asked to stop.</p>
+<p>Emits ‘status’ after every sweep and ‘problem’ at most once per
+run: the first mismatch already means the run has to be repeated,
+and repeating the alert every few seconds would only bury the GUI
+under message boxes while nobody is at the desk.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.file_sync_check.FileSyncWorker.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">baseline</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grace</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/file_sync_check.html#FileSyncWorker.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.file_sync_check.FileSyncWorker.__init__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="daplis_rtp.gui.file_sync_check.FileSyncWorker.problem">
+<span class="sig-name descname"><span class="pre">problem</span></span><a class="headerlink" href="#daplis_rtp.gui.file_sync_check.FileSyncWorker.problem" title="Link to this definition"></a></dt>
+<dd><p>str = …, revision: int = …, arguments: Sequence = …) -&gt; PYQT_SIGNAL</p>
+<p>types is normally a sequence of individual types.  Each type is either a
+type object or a string that is the name of a C++ type.  Alternatively
+each type could itself be a sequence of types each describing a different
+overloaded signal.
+name is the optional C++ name of the signal.  If it is not specified then
+the name of the class attribute that is bound to the signal is used.
+revision is the optional revision of the signal that is exported to QML.
+If it is not specified then 0 is used.
+arguments is the optional sequence of the names of the signal’s arguments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pyqtSignal(<a href="#id3"><span class="problematic" id="id4">*</span></a>types, name</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.file_sync_check.FileSyncWorker.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/file_sync_check.html#FileSyncWorker.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.file_sync_check.FileSyncWorker.run" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="daplis_rtp.gui.file_sync_check.FileSyncWorker.status">
+<span class="sig-name descname"><span class="pre">status</span></span><a class="headerlink" href="#daplis_rtp.gui.file_sync_check.FileSyncWorker.status" title="Link to this definition"></a></dt>
+<dd><p>str = …, revision: int = …, arguments: Sequence = …) -&gt; PYQT_SIGNAL</p>
+<p>types is normally a sequence of individual types.  Each type is either a
+type object or a string that is the name of a C++ type.  Alternatively
+each type could itself be a sequence of types each describing a different
+overloaded signal.
+name is the optional C++ name of the signal.  If it is not specified then
+the name of the class attribute that is bound to the signal is used.
+revision is the optional revision of the signal that is exported to QML.
+If it is not specified then 0 is used.
+arguments is the optional sequence of the names of the signal’s arguments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pyqtSignal(<a href="#id5"><span class="problematic" id="id6">*</span></a>types, name</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.file_sync_check.FileSyncWorker.stop">
+<span class="sig-name descname"><span class="pre">stop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/file_sync_check.html#FileSyncWorker.stop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.file_sync_check.FileSyncWorker.stop" title="Link to this definition"></a></dt>
+<dd><p>Ask the sweep loop to end; returns without waiting for it.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="daplis_rtp.gui.file_sync_check.SyncStatus">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">daplis_rtp.gui.file_sync_check.</span></span><span class="sig-name descname"><span class="pre">SyncStatus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">count_1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">count_2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spread</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/file_sync_check.html#SyncStatus"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.file_sync_check.SyncStatus" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Outcome of one sweep, handed to the GUI thread for display.</p>
+<p>‘state’ is one of ‘idle’, ‘waiting’ (nothing to compare yet, or a
+directory is missing), ‘ok’, ‘pending’ (the counts differ but the
+grace period has not run out) and ‘bad’.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.file_sync_check.SyncStatus.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">count_1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">count_2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spread</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/file_sync_check.html#SyncStatus.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.file_sync_check.SyncStatus.__init__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="daplis_rtp.gui.file_sync_check.baseline">
+<span class="sig-prename descclassname"><span class="pre">daplis_rtp.gui.file_sync_check.</span></span><span class="sig-name descname"><span class="pre">baseline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/file_sync_check.html#baseline"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.file_sync_check.baseline" title="Link to this definition"></a></dt>
+<dd><p>List what is already in both directories, as two sets of names.</p>
+<p>Taken by the caller before the sweeping thread is started, not by
+the thread itself: between ‘QThread.start’ and the thread actually
+being scheduled, the acquisition can already have written its first
+file. A file landing in that window would be taken for a leftover
+on one board and for new data on the other, which is exactly the
+permanent count difference this check is meant to report.</p>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="daplis_rtp.gui.app_icon.html" class="btn btn-neutral float-left" title="daplis_rtp.gui.app_icon module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="daplis_rtp.gui.linospad2_dual_tab.html" class="btn btn-neutral float-right" title="daplis_rtp.gui.linospad2_dual_tab module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Sergei Kulkov.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

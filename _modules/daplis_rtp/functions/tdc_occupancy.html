@@ -1,0 +1,519 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>daplis_rtp.functions.tdc_occupancy &mdash; Data Analysis Package for LinoSPAD2 - Real-Time Plotting 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Data Analysis Package for LinoSPAD2 - Real-Time Plotting
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation and usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../daplis_rtp.gui.html">daplis_rtp.gui package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../daplis_rtp.functions.html">daplis_rtp.functions package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contribute.html">How to contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../license.html">License and contact info</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../acknowledgement.html">Acknowledgement</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Data Analysis Package for LinoSPAD2 - Real-Time Plotting</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">daplis_rtp.functions.tdc_occupancy</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for daplis_rtp.functions.tdc_occupancy</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""How much of the TDC slot memory an acquisition actually uses.</span>
+
+<span class="sd">Each TDC of LinoSPAD2 holds 'timestamps' slots per acquisition cycle,</span>
+<span class="sd">shared by the four pixels wired to it (firmware 2212b: TDC t serves</span>
+<span class="sd">pixels 4t..4t+3; 2212s: pixels t, t+64, t+128, t+192). Once those slots</span>
+<span class="sd">are full the rest of the cycle is dropped on the floor, and nothing in</span>
+<span class="sd">the data file says so - a saturated file is exactly the same size as a</span>
+<span class="sd">healthy one, it just stops part way through every window. The damage is</span>
+<span class="sd">rate-dependent and time-correlated: the brighter of a pair of boards</span>
+<span class="sd">truncates earlier than the dimmer one, so a cross-board reduction of</span>
+<span class="sd">such a run silently compares different slices of time.</span>
+
+<span class="sd">Hence this module. It counts, per TDC and per cycle, how many slots</span>
+<span class="sd">were used, and turns that into the two numbers worth looking at before</span>
+<span class="sd">a long acquisition is started:</span>
+
+<span class="sd">* the busiest TDC among the pixels actually being measured, as a</span>
+<span class="sd">  fraction of its slots - "TDC 36 at 36 % of 150" - which says whether</span>
+<span class="sd">  *this* measurement is truncated;</span>
+<span class="sd">* the worst TDC anywhere on the sensor, which says whether the board is</span>
+<span class="sd">  near the edge at all.</span>
+
+<span class="sd">Both are needed. A per-sensor average hides a single saturating TDC,</span>
+<span class="sd">and the sensor-wide maximum is usually a hot pixel nobody is measuring</span>
+<span class="sd">- on the B7d run of 2026.09.07, TDC 17 saturated in 848 of 1000 cycles</span>
+<span class="sd">while TDC 36 and TDC 39, which carried the pixels of interest, used 54</span>
+<span class="sd">and 25 of their 150 slots.</span>
+
+<span class="sd">The one case where a hot pixel does matter is when it shares a TDC with</span>
+<span class="sd">a pixel of interest: the four pixels compete for the same slots, so the</span>
+<span class="sd">hot one eats the memory the signal needs. That is why the TDCs of</span>
+<span class="sd">interest are taken as "every TDC holding at least one pixel of</span>
+<span class="sd">interest", counting all of that TDC's traffic - dropping the hot pixel</span>
+<span class="sd">would hide exactly the case that hurts.</span>
+
+<span class="sd">Nothing here reads a file: the caller hands over the unpacked matrix it</span>
+<span class="sd">already has, so the check costs one comparison and a couple of small</span>
+<span class="sd">fancy-indexed reads on top of the unpacking that has happened anyway.</span>
+
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">daplis_rtp.functions.unpack</span><span class="w"> </span><span class="kn">import</span> <span class="n">FW_VERSIONS</span>
+
+<span class="c1"># A TDC that fills up in more than this fraction of the cycles is</span>
+<span class="c1"># losing data in a way that shows up in the reduction, not just in the</span>
+<span class="c1"># tail of the distribution.</span>
+<span class="n">SAT_WARN_FRACTION</span> <span class="o">=</span> <span class="mf">0.01</span>
+
+<span class="c1"># Below this fraction of the slots there is room for the rate to drift</span>
+<span class="c1"># up during a long run; above it, the setting is cutting things fine.</span>
+<span class="n">HEADROOM_WARN_FRACTION</span> <span class="o">=</span> <span class="mf">0.7</span>
+
+<span class="c1"># What to multiply the needed slots by when suggesting a setting. The</span>
+<span class="c1"># cost of too large a 'timestamps' is file size and unpacking time; the</span>
+<span class="c1"># cost of too small a one is data truncated without a trace.</span>
+<span class="n">HEADROOM_FACTOR</span> <span class="o">=</span> <span class="mf">1.3</span>
+
+<span class="c1"># Suggestions are rounded up to a multiple of this, so that they do not</span>
+<span class="c1"># read as more precise than they are.</span>
+<span class="n">SUGGESTION_STEP</span> <span class="o">=</span> <span class="mi">50</span>
+
+
+<div class="viewcode-block" id="pixel_to_tdc_map">
+<a class="viewcode-back" href="../../../daplis_rtp.functions.tdc_occupancy.html#daplis_rtp.functions.tdc_occupancy.pixel_to_tdc_map">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">pixel_to_tdc_map</span><span class="p">(</span><span class="n">fw_ver</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">pix_add_fix</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Return the TDC index of every pixel, as a 256-long array.</span>
+
+<span class="sd">    Indexed by pixel number *as plotted*, which is not the pixel number</span>
+<span class="sd">    the board reads out: with 'pix_add_fix' the sensor half is</span>
+<span class="sd">    re-addressed for display exactly as 'sen_pop' does it, so the</span>
+<span class="sd">    x-axis of the plot can be used directly to pick TDCs.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fw_ver : str</span>
+<span class="sd">        LinoSPAD2 firmware version, '2212b' or '2212s'.</span>
+<span class="sd">    pix_add_fix : bool, optional</span>
+<span class="sd">        Whether the pixel addressing of the sensor half is corrected</span>
+<span class="sd">        for display, by default False.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ndarray</span>
+<span class="sd">        'tdc_of_pixel[plotted_pixel]' -&gt; TDC index.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        Raised if the firmware version is not one of 'FW_VERSIONS'.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">fw_ver</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">FW_VERSIONS</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">"Unknown firmware version '</span><span class="si">{}</span><span class="s2">'; expected one of </span><span class="si">{}</span><span class="s2">."</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">fw_ver</span><span class="p">,</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">FW_VERSIONS</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Plotted pixel -&gt; the pixel number the board actually read out.</span>
+    <span class="c1"># 'sen_pop' builds the corrected array as</span>
+    <span class="c1">#     fix[:128] = raw[128:]; fix[128:] = flip(raw[:128])</span>
+    <span class="c1"># so plotted 0..127 are raw 128..255, and plotted 128..255 are raw</span>
+    <span class="c1"># 127..0.</span>
+    <span class="n">readout</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">256</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">pix_add_fix</span><span class="p">:</span>
+        <span class="n">readout</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">128</span><span class="p">,</span> <span class="mi">256</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">127</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)])</span>
+
+    <span class="k">if</span> <span class="n">fw_ver</span> <span class="o">==</span> <span class="s2">"2212s"</span><span class="p">:</span>
+        <span class="c1"># pix_coor = np.arange(256).reshape(4, 64).T: pixels 64 apart</span>
+        <span class="k">return</span> <span class="n">readout</span> <span class="o">%</span> <span class="mi">64</span>
+    <span class="c1"># 2212b: pix_coor = np.arange(256).reshape(64, 4), four consecutive</span>
+    <span class="c1"># pixels per TDC</span>
+    <span class="k">return</span> <span class="n">readout</span> <span class="o">//</span> <span class="mi">4</span></div>
+
+
+
+<div class="viewcode-block" id="parse_pixel_spec">
+<a class="viewcode-back" href="../../../daplis_rtp.functions.tdc_occupancy.html#daplis_rtp.functions.tdc_occupancy.parse_pixel_spec">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">parse_pixel_spec</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">n_pixels</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">256</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Read a pixel list like '36, 40-43, 100' into an index array.</span>
+
+<span class="sd">    Whitespace, commas and semicolons all separate entries; 'a-b' and</span>
+<span class="sd">    'a:b' are inclusive ranges. Returns an empty array for empty input.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If an entry is neither a number nor a range, or lies outside</span>
+<span class="sd">        0..n_pixels-1.</span>
+<span class="sd">    """</span>
+    <span class="n">pixels</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">text</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">";"</span><span class="p">,</span> <span class="s2">","</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">" "</span><span class="p">,</span> <span class="s2">","</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">","</span><span class="p">):</span>
+        <span class="n">entry</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">entry</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">for</span> <span class="n">separator</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"-"</span><span class="p">,</span> <span class="s2">":"</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">separator</span> <span class="ow">in</span> <span class="n">entry</span><span class="p">:</span>
+                <span class="n">low</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">high</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">partition</span><span class="p">(</span><span class="n">separator</span><span class="p">)</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">low</span><span class="p">,</span> <span class="n">high</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">low</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">high</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="s2">"'</span><span class="si">{}</span><span class="s2">' is not a pixel or a range of pixels"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                            <span class="n">entry</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
+                <span class="k">if</span> <span class="n">low</span> <span class="o">&gt;</span> <span class="n">high</span><span class="p">:</span>
+                    <span class="n">low</span><span class="p">,</span> <span class="n">high</span> <span class="o">=</span> <span class="n">high</span><span class="p">,</span> <span class="n">low</span>
+                <span class="n">pixels</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">low</span><span class="p">,</span> <span class="n">high</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+                <span class="k">break</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">pixels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">entry</span><span class="p">))</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">"'</span><span class="si">{}</span><span class="s2">' is not a pixel or a range of pixels"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
+                <span class="p">)</span>
+
+    <span class="n">outside</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pixels</span> <span class="k">if</span> <span class="ow">not</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">p</span> <span class="o">&lt;</span> <span class="n">n_pixels</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">outside</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">"pixel </span><span class="si">{}</span><span class="s2"> is outside 0-</span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">outside</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">n_pixels</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">pixels</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">))</span></div>
+
+
+
+<div class="viewcode-block" id="Occupancy">
+<a class="viewcode-back" href="../../../daplis_rtp.functions.tdc_occupancy.html#daplis_rtp.functions.tdc_occupancy.Occupancy">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Occupancy</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Slot use of every TDC, cycle by cycle.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    timestamps : int</span>
+<span class="sd">        Slots per TDC per acquisition cycle - the setting under test.</span>
+<span class="sd">    cycles : int</span>
+<span class="sd">        Acquisition cycles in the file.</span>
+<span class="sd">    used : ndarray</span>
+<span class="sd">        Slots used, shape (n_tdc, cycles).</span>
+<span class="sd">    median_used, max_used : ndarray</span>
+<span class="sd">        Per TDC, over the cycles. The median is the headroom figure; the</span>
+<span class="sd">        maximum is what the setting has to cover.</span>
+<span class="sd">    sat_fraction : ndarray</span>
+<span class="sd">        Per TDC, the fraction of cycles that used every slot - i.e. in</span>
+<span class="sd">        which the rest of the window was thrown away.</span>
+<span class="sd">    fill_time : ndarray</span>
+<span class="sd">        Per TDC, the median time in picoseconds at which it filled up,</span>
+<span class="sd">        over the cycles in which it did; NaN for TDCs that never did.</span>
+<span class="sd">    window : float</span>
+<span class="sd">        Length of the timestamping window in picoseconds, taken as the</span>
+<span class="sd">        latest timestamp seen in a cycle that did *not* fill up. NaN</span>
+<span class="sd">        when every cycle of every TDC filled up, in which case the file</span>
+<span class="sd">        holds no evidence of how long the window really was.</span>
+<span class="sd">    """</span>
+
+<div class="viewcode-block" id="Occupancy.__init__">
+<a class="viewcode-back" href="../../../daplis_rtp.functions.tdc_occupancy.html#daplis_rtp.functions.tdc_occupancy.Occupancy.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">timestamps</span><span class="p">,</span> <span class="n">cycles</span><span class="p">,</span> <span class="n">used</span><span class="p">,</span> <span class="n">sat_fraction</span><span class="p">,</span> <span class="n">fill_time</span><span class="p">,</span> <span class="n">window</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timestamps</span> <span class="o">=</span> <span class="n">timestamps</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cycles</span> <span class="o">=</span> <span class="n">cycles</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">used</span> <span class="o">=</span> <span class="n">used</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sat_fraction</span> <span class="o">=</span> <span class="n">sat_fraction</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">median_used</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">used</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_used</span> <span class="o">=</span> <span class="n">used</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fill_time</span> <span class="o">=</span> <span class="n">fill_time</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">window</span> <span class="o">=</span> <span class="n">window</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">n_tdc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">used</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="slot_occupancy">
+<a class="viewcode-back" href="../../../daplis_rtp.functions.tdc_occupancy.html#daplis_rtp.functions.tdc_occupancy.slot_occupancy">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">slot_occupancy</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">fw_ver</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">timestamps</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Count the slots each TDC used in each acquisition cycle.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data : ndarray</span>
+<span class="sd">        The matrix returned by 'unpack_bin':</span>
+<span class="sd">        (64, cycles * (timestamps + 1), 2), where the extra column per</span>
+<span class="sd">        cycle holds the '-2' end-of-cycle marker.</span>
+<span class="sd">    fw_ver : str</span>
+<span class="sd">        LinoSPAD2 firmware version, '2212b' or '2212s'. Only checked</span>
+<span class="sd">        here - the slot bookkeeping is the same for both, since they</span>
+<span class="sd">        differ in which four pixels share a TDC and not in how many.</span>
+<span class="sd">    timestamps : int</span>
+<span class="sd">        Slots per TDC per cycle - the same value the data were unpacked</span>
+<span class="sd">        with.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Occupancy</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If the firmware version is not one of 'FW_VERSIONS', or if</span>
+<span class="sd">        'data' does not divide into whole cycles of 'timestamps' slots,</span>
+<span class="sd">        which means it was unpacked with a different setting than the</span>
+<span class="sd">        one passed here.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">fw_ver</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">FW_VERSIONS</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">"Unknown firmware version '</span><span class="si">{}</span><span class="s2">'; expected one of </span><span class="si">{}</span><span class="s2">."</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">fw_ver</span><span class="p">,</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">FW_VERSIONS</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="c1"># 'unpack_bin' inserts one '-2' marker after each cycle. Comparing</span>
+    <span class="c1"># before reshaping keeps the copy a boolean one - the timestamps</span>
+    <span class="c1"># themselves are 64-bit and the matrix is large.</span>
+    <span class="n">stride</span> <span class="o">=</span> <span class="n">timestamps</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="n">valid</span> <span class="o">=</span> <span class="n">data</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">0</span>
+    <span class="n">values</span> <span class="o">=</span> <span class="n">data</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">1</span><span class="p">]</span>
+
+    <span class="n">n_tdc</span><span class="p">,</span> <span class="n">length</span> <span class="o">=</span> <span class="n">valid</span><span class="o">.</span><span class="n">shape</span>
+    <span class="k">if</span> <span class="n">length</span> <span class="o">%</span> <span class="n">stride</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">"data of </span><span class="si">{}</span><span class="s2"> words per TDC do not divide into cycles of </span><span class="si">{}</span><span class="s2"> "</span>
+            <span class="s2">"slots - check the 'Timestamps' setting"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">length</span><span class="p">,</span> <span class="n">stride</span><span class="p">)</span>
+        <span class="p">)</span>
+    <span class="n">cycles</span> <span class="o">=</span> <span class="n">length</span> <span class="o">//</span> <span class="n">stride</span>
+
+    <span class="c1"># Slots used, cycle by cycle. The marker column is sliced off rather</span>
+    <span class="c1"># than relied upon to be negative.</span>
+    <span class="n">used</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">valid</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">n_tdc</span><span class="p">,</span> <span class="n">cycles</span><span class="p">,</span> <span class="n">stride</span><span class="p">)[:,</span> <span class="p">:,</span> <span class="p">:</span><span class="n">timestamps</span><span class="p">]</span>
+        <span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">saturated</span> <span class="o">=</span> <span class="n">used</span> <span class="o">==</span> <span class="n">timestamps</span>
+    <span class="n">sat_fraction</span> <span class="o">=</span> <span class="n">saturated</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># A TDC fills its slots in the order the photons arrive, so the last</span>
+    <span class="c1"># used slot of a cycle carries the time at which that TDC stopped</span>
+    <span class="c1"># listening. Only n_tdc x cycles values are wanted, so they are read</span>
+    <span class="c1"># straight out of the flat row instead of reshaping the timestamps.</span>
+    <span class="n">rows</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_tdc</span><span class="p">)[:,</span> <span class="kc">None</span><span class="p">]</span>
+    <span class="n">cols</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">cycles</span><span class="p">)[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:]</span> <span class="o">*</span> <span class="n">stride</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">used</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">last_used</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">used</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="n">values</span><span class="p">[</span><span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># The window is only visible in cycles that did not fill up: a</span>
+    <span class="c1"># saturated cycle stops early, so its last timestamp measures the</span>
+    <span class="c1"># truncation and not the window.</span>
+    <span class="n">window</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span> <span class="k">if</span> <span class="n">saturated</span><span class="o">.</span><span class="n">all</span><span class="p">()</span> <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="n">last_used</span><span class="p">[</span><span class="o">~</span><span class="n">saturated</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+
+    <span class="c1"># Where a TDC did fill up, how far into the window it got</span>
+    <span class="n">fill_time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">n_tdc</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">tdc</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">flatnonzero</span><span class="p">(</span><span class="n">sat_fraction</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
+        <span class="n">fill_time</span><span class="p">[</span><span class="n">tdc</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">last_used</span><span class="p">[</span><span class="n">tdc</span><span class="p">][</span><span class="n">saturated</span><span class="p">[</span><span class="n">tdc</span><span class="p">]])</span>
+
+    <span class="k">return</span> <span class="n">Occupancy</span><span class="p">(</span><span class="n">timestamps</span><span class="p">,</span> <span class="n">cycles</span><span class="p">,</span> <span class="n">used</span><span class="p">,</span> <span class="n">sat_fraction</span><span class="p">,</span> <span class="n">fill_time</span><span class="p">,</span> <span class="n">window</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="OccupancySummary">
+<a class="viewcode-back" href="../../../daplis_rtp.functions.tdc_occupancy.html#daplis_rtp.functions.tdc_occupancy.OccupancySummary">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">OccupancySummary</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""The busiest TDC of a set, and what to do about it.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    tdc : int or None</span>
+<span class="sd">        The TDC picked out of the set: the one that saturates in most</span>
+<span class="sd">        cycles, or, when none of them saturate, the one using most of</span>
+<span class="sd">        its slots. None when the set is empty.</span>
+<span class="sd">    median_used, max_used, sat_fraction : float</span>
+<span class="sd">        That TDC's figures, from 'Occupancy'.</span>
+<span class="sd">    fraction : float</span>
+<span class="sd">        'median_used / timestamps' - the headroom figure to display.</span>
+<span class="sd">    state : str</span>
+<span class="sd">        'ok', 'warn' (running close to the limit) or 'bad' (losing</span>
+<span class="sd">        data), by 'HEADROOM_WARN_FRACTION' and 'SAT_WARN_FRACTION'.</span>
+<span class="sd">    suggested_timestamps : int or None</span>
+<span class="sd">        A setting that would hold the traffic measured here, with</span>
+<span class="sd">        'HEADROOM_FACTOR' to spare. None when the set saturated</span>
+<span class="sd">        throughout, since the file then shows neither the real rate nor</span>
+<span class="sd">        the length of the window.</span>
+<span class="sd">    n_tdc : int</span>
+<span class="sd">        How many TDCs the set holds - 64 means nothing was narrowed</span>
+<span class="sd">        down and the figure is the sensor-wide one.</span>
+<span class="sd">    """</span>
+
+<div class="viewcode-block" id="OccupancySummary.__init__">
+<a class="viewcode-back" href="../../../daplis_rtp.functions.tdc_occupancy.html#daplis_rtp.functions.tdc_occupancy.OccupancySummary.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">occupancy</span><span class="p">,</span> <span class="n">tdcs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timestamps</span> <span class="o">=</span> <span class="n">occupancy</span><span class="o">.</span><span class="n">timestamps</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cycles</span> <span class="o">=</span> <span class="n">occupancy</span><span class="o">.</span><span class="n">cycles</span>
+        <span class="n">tdcs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">tdcs</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_tdc</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">tdcs</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_tdc</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tdc</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">median_used</span> <span class="o">=</span> <span class="mf">0.0</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">max_used</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sat_fraction</span> <span class="o">=</span> <span class="mf">0.0</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fraction</span> <span class="o">=</span> <span class="mf">0.0</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="s2">"ok"</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">suggested_timestamps</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">return</span>
+
+        <span class="c1"># Saturation first: a TDC that throws data away outranks a</span>
+        <span class="c1"># merely busy one even if its median is lower, which is what a</span>
+        <span class="c1"># bursty source looks like.</span>
+        <span class="n">order</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">lexsort</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">occupancy</span><span class="o">.</span><span class="n">median_used</span><span class="p">[</span><span class="n">tdcs</span><span class="p">],</span> <span class="n">occupancy</span><span class="o">.</span><span class="n">sat_fraction</span><span class="p">[</span><span class="n">tdcs</span><span class="p">])</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tdc</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">tdcs</span><span class="p">[</span><span class="n">order</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">median_used</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">occupancy</span><span class="o">.</span><span class="n">median_used</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">tdc</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_used</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">occupancy</span><span class="o">.</span><span class="n">max_used</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">tdc</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sat_fraction</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">occupancy</span><span class="o">.</span><span class="n">sat_fraction</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">tdc</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fraction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">median_used</span> <span class="o">/</span> <span class="n">occupancy</span><span class="o">.</span><span class="n">timestamps</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sat_fraction</span> <span class="o">&gt;</span> <span class="n">SAT_WARN_FRACTION</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="s2">"bad"</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">sat_fraction</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">fraction</span> <span class="o">&gt;</span> <span class="n">HEADROOM_WARN_FRACTION</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="s2">"warn"</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="s2">"ok"</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">suggested_timestamps</span> <span class="o">=</span> <span class="n">_suggest</span><span class="p">(</span><span class="n">occupancy</span><span class="p">,</span> <span class="n">tdcs</span><span class="p">)</span></div>
+</div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_suggest</span><span class="p">(</span><span class="n">occupancy</span><span class="p">,</span> <span class="n">tdcs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Slots needed to hold the traffic of 'tdcs', with headroom.</span>
+
+<span class="sd">    For a TDC that never filled up, the traffic is simply the busiest</span>
+<span class="sd">    cycle seen. For one that did, the count is truncated, so the rate is</span>
+<span class="sd">    recovered from *when* it filled up instead: filling 'timestamps'</span>
+<span class="sd">    slots in 'fill_time' out of a window of 'window' means the whole</span>
+<span class="sd">    window holds 'timestamps * window / fill_time'. That is the same</span>
+<span class="sd">    arithmetic as the rule of thumb</span>
+
+<span class="sd">        slots per TDC per cycle = 4 * rate per pixel * window</span>
+
+<span class="sd">    only measured rather than estimated - it is what says the 1000-slot</span>
+<span class="sd">    laser run of 2026.09.04 needed about 1380.</span>
+
+<span class="sd">    """</span>
+    <span class="n">needed</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="k">for</span> <span class="n">tdc</span> <span class="ow">in</span> <span class="n">tdcs</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">occupancy</span><span class="o">.</span><span class="n">sat_fraction</span><span class="p">[</span><span class="n">tdc</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">needed</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">needed</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">occupancy</span><span class="o">.</span><span class="n">max_used</span><span class="p">[</span><span class="n">tdc</span><span class="p">]))</span>
+            <span class="k">continue</span>
+        <span class="n">fill_time</span> <span class="o">=</span> <span class="n">occupancy</span><span class="o">.</span><span class="n">fill_time</span><span class="p">[</span><span class="n">tdc</span><span class="p">]</span>
+        <span class="c1"># Saturated, and either no undamaged cycle to take the window</span>
+        <span class="c1"># from or a TDC that was already full at the first timestamp</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">occupancy</span><span class="o">.</span><span class="n">window</span><span class="p">)</span>
+            <span class="ow">or</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">fill_time</span><span class="p">)</span>
+            <span class="ow">or</span> <span class="n">fill_time</span> <span class="o">&lt;=</span> <span class="mi">0</span>
+        <span class="p">):</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="n">needed</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span>
+            <span class="n">needed</span><span class="p">,</span> <span class="n">occupancy</span><span class="o">.</span><span class="n">timestamps</span> <span class="o">*</span> <span class="n">occupancy</span><span class="o">.</span><span class="n">window</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">fill_time</span><span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">needed</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">suggested</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">needed</span> <span class="o">*</span> <span class="n">HEADROOM_FACTOR</span> <span class="o">/</span> <span class="n">SUGGESTION_STEP</span><span class="p">))</span>
+    <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="n">SUGGESTION_STEP</span><span class="p">,</span> <span class="n">suggested</span> <span class="o">*</span> <span class="n">SUGGESTION_STEP</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Sergei Kulkov.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
