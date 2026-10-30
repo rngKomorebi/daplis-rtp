@@ -3,6 +3,14 @@ import unittest
 
 from daplis_rtp.functions import sen_pop
 
+# Next to this file rather than relative to the working directory, so the
+# tests pass from wherever pytest is started.
+DATA_FILE = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)),
+    "test_data",
+    "test_data_2212b.dat",
+)
+
 
 class SenPopTestCase(unittest.TestCase):
     def setUp(self):
@@ -13,9 +21,7 @@ class SenPopTestCase(unittest.TestCase):
 
     def test_sen_pop_positive(self):
         # Positive test case
-        work_dir = r"{}".format(os.path.realpath(__file__) + "../../..")
-        os.chdir(work_dir)
-        file = r"tests/test_data/test_data_2212b.dat"
+        file = DATA_FILE
 
         data = sen_pop.sen_pop(
             file, self.board_number, self.fw_ver, self.timestamps
@@ -33,9 +39,7 @@ class SenPopTestCase(unittest.TestCase):
         sits in, not in how many timestamps it recorded.
 
         """
-        work_dir = r"{}".format(os.path.realpath(__file__) + "../../..")
-        os.chdir(work_dir)
-        file = r"tests/test_data/test_data_2212b.dat"
+        file = DATA_FILE
 
         for fw_ver, brightest in (("2212b", 95), ("2212s", 215)):
             rates = sen_pop.sen_pop(

@@ -9,16 +9,12 @@ jobs:
       # One version failing should not cancel the others' results.
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        # Ubuntu pinned rather than 'latest': setup-python only builds
+        # the Pythons still supported when an Ubuntu release comes out,
+        # so each new 'latest' silently drops the oldest versions (26.04
+        # starts at 3.10). 24.04 has every version tested here.
+        os: [ubuntu-24.04, windows-latest]
         python-version: ['3.8', '3.9', '3.10', '3.11']
-        # ubuntu-latest is 24.04, for which setup-python has no 3.8
-        # build; 3.8 is tested on 22.04 instead.
-        exclude:
-          - os: ubuntu-latest
-            python-version: '3.8'
-        include:
-          - os: ubuntu-22.04
-            python-version: '3.8'
 
     steps:
     - uses: actions/checkout@v4

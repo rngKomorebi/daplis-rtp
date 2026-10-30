@@ -5,13 +5,19 @@ import numpy as np
 
 from daplis_rtp.functions.unpack import unpack_bin
 
+# Next to this file rather than relative to the working directory, so the
+# tests pass from wherever pytest is started.
+DATA_FILE = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)),
+    "test_data",
+    "test_data_2212b.dat",
+)
+
 
 class TestUnpackBin(unittest.TestCase):
     def test_unpack_pos(self):
         # Positive test case
-        work_dir = r"{}".format(os.path.realpath(__file__) + "../../..")
-        os.chdir(work_dir)
-        file = r"tests/test_data/test_data_2212b.dat"
+        file = DATA_FILE
         board_number = "A5"
         fw_ver = "2212b"
         timestamps = 200

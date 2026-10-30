@@ -27,8 +27,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the `importlib_resources` backport, a dependency for that version only.
 - **CI runs the tests again.** The workflow still called `tox` after
   `tox.ini` was deleted, so it passed without testing anything; it now
-  runs `pytest`. Python 3.8 is tested on Ubuntu 22.04, as `ubuntu-latest`
-  (24.04) has no 3.8 build.
+  runs `pytest`. Linux is pinned to Ubuntu 24.04: `ubuntu-latest` is now
+  26.04, which has no Python 3.8 or 3.9 build. The unpacking and
+  sensor-population tests find their data file next to themselves
+  instead of through a path that only Windows could resolve.
 
 ## [1.6.0] - 2026-09-18
 
