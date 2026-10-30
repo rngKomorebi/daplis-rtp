@@ -9,9 +9,9 @@ import os
 
 from PyQt5 import QtCore, QtGui, QtWidgets, uic
 
-from daplis_rtp.gui.plot_figure import reserve_toolbar_width
-from daplis_rtp.gui.single_pixel_histogram import HistCanvas
-from daplis_rtp.gui.ui.SinglePixelHistogram_tab_c import Ui_Form
+from daplis_rtp.gui._legacy.plot_figure import reserve_toolbar_width
+from daplis_rtp.gui._legacy.single_pixel_histogram import HistCanvas
+from daplis_rtp.gui._legacy.ui.SinglePixelHistogram_tab_c import Ui_Form
 
 
 class SinglePixelHistogram(QtWidgets.QWidget):

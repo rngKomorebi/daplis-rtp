@@ -33,8 +33,12 @@ dependencies = [
     "matplotlib>=3.6.2,<3.11",
     "mplcyberpunk",
     "numpy>=1.23.5",
+    # 'importlib.resources.files' is 3.9+; on 3.8 it comes from the backport.
+    "importlib_resources>=1.3; python_version < '3.9'",
     "PyQt5>=5.15.7",
     "qdarkstyle>=3.2.0",
+    # 'curve_fit', for the Gaussian fits on the online plot.
+    "scipy>=1.9",
 ]
 
 [tool.setuptools.dynamic]
@@ -46,7 +50,6 @@ where = ["src"]
 [tool.setuptools.package-data]
 "daplis_rtp" = [
     "params/masks/*.txt",
-    "params/calibration_data/*.csv",
     # The rendered application icon. The 1024 px master it comes from
     # stays in "assets" and is deliberately not shipped.
     "resources/*.png",

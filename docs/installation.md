@@ -63,22 +63,14 @@ pyinstaller --clean --onedir --noconsole main.py
 which packs everything in the package for the "main.exe" executable
 for the app. Options 'onedir' for installing everything into a single
 directory and 'noconsole' for running the app without a console are
-recommended. Additionally, in the '_tab.py' files in the "src/daplis_rtp/gui"
-folder, change the first lines in the '__init__' functions to the
-following: 
-```
-def __init__(self, parent=None):
-    super().__init__(parent)
-    os.chdir(r"FULL\PATH\TO\daplis_rtp\gui\ui")
-    uic.loadUi(
-        r"LiveTimestamps_tab_c.ui",
-        self,
-    )
-    os.chdir("../..")
-```
-A full path to the '.ui' files should be provided as pyinstaller does not
-handle relative paths, as it's implemented in the package. To run the app,
-run 'main.exe' in the 'dist' folder.
+recommended. To run the app, run 'main.exe' in the 'dist' folder.
+
+Nothing else has to be edited first. Up to version 1.4 the tabs were
+loaded from '.ui' files at run time, and because pyinstaller does not
+resolve the relative paths that were used for them, every tab module had
+to have an absolute path pasted into it before a build and taken out
+again afterwards. Since 1.5 the tabs are built in Python, so there are no
+'.ui' files to find and the source builds as it stands.
 
 If using conda, use the following chain of commands:
 ```

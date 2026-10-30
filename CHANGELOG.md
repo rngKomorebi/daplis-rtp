@@ -5,6 +5,336 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.1] - 2026-10-30
+
+### Added
+
+- **Gaussian fit on the online plot.** A row above the plot, under the
+  brightest pixels, with a "Gaussian fit" switch (off by default) and a
+  threshold in Hz. On every refresh each run of pixels above the
+  threshold, within the x-limits, is fitted with a Gaussian on a
+  constant background, and the row reports every line's sigma with its
+  uncertainty; the tooltip adds centre, FWHM, amplitude and background.
+  The fitted curves, their sigmas and the threshold are drawn on the
+  plot, masked pixels are left out of the fits, and the results go into
+  *File → Export*. The threshold is set by hand to sit above the hot
+  pixels and below the lines. Adds `scipy` as a dependency.
+
+### Fixed
+
+- **Python 3.8.** The app failed to import on 3.8, which it claims to
+  support: `importlib.resources.files` is 3.9+. On 3.8 it now comes from
+  the `importlib_resources` backport, a dependency for that version only.
+- **CI runs the tests again.** The workflow still called `tox` after
+  `tox.ini` was deleted, so it passed without testing anything; it now
+  runs `pytest`. Linux is pinned to Ubuntu 24.04: `ubuntu-latest` is now
+  26.04, which has no Python 3.8 or 3.9 build. The unpacking and
+  sensor-population tests find their data file next to themselves
+  instead of through a path that only Windows could resolve.
+
+## [1.6.0] - 2026-09-18
+
+### Added
+
+- **Six more themes**, ported from the matplotlib styles in
+  [komorebi_mpl](https://github.com/rngKomorebi/komorebi_mpl): "Komorebi"
+  (deep gold and forest green on parchment), "Night wave" (synthwave
+  neon on violet, the second theme that earns the glow), "Blueprint"
+  (a CAD drawing - white and ice-blue on deep navy), "Earth"
+  (terracotta and olive on aged paper), "Solarized", and "Daplis
+  (publication)" - the house palette, anchored on rebeccapurple and
+  darkorange and chosen to stay legible for the common forms of colour
+  blindness. Ten in all, dark ones first in the menu with a rule where
+  the light ones begin.
+
+  The figure, axes, grid and trace colours are komorebi_mpl's. The
+  window chrome around them is not, because a matplotlib style sheet has
+  nothing to say about a control panel, and neither are the three status
+  colours: a warning lamp that matches the data it is warning about is
+  not a warning.
+
+  The styles are ported rather than depended on. They set a 30 pt font
+  and a 16x10 figure, which are right for a saved figure and wrong for a
+  canvas inside a window, so a dependency would mean overriding most of
+  what it provided - and the colours have to reach the Qt side of the
+  application too, which no ``.mplstyle`` can do.
+
+- A theme's **axis frame and axis text are separate colours**
+  (``axes_edge`` alongside ``axes_fg``), both of them pickable in
+  Preferences. Several of the ported styles depend on the difference:
+  Blueprint draws a dim blue box under bright white labels, and
+  Solarized a grey one under slate text.
+
+- **The tabs remember what was typed into them** (`gui/session.py`).
+  The folder, the daughterboard, the motherboard, the firmware, the
+  timestamp count, the axis limits and every switch come back as they
+  were left, per user and per tab. Only the Synchronization tab
+  remembered anything before, and only its paths; everything else began
+  each session by re-entering the same six things.
+
+  Inputs only. A readout, a lamp or a plot is a statement about the data
+  in front of you, and restoring one on a fresh start would be a
+  statement about nothing.
+
+- **Ctrl+click a pixel on the plot to mask it**, on "Online plot" and
+  "Full Sensor". The pixel number was already under the cursor in the
+  toolbar readout; acting on it meant opening the mask window and
+  finding one box out of 256. Ctrl+click toggles it, and Ctrl rather
+  than a bare click because a stray click during a run would otherwise
+  change the mask - and so the rates - with no deliberate gesture. On
+  the full-sensor plot the 0-511 axis decides which board the click
+  landed on.
+
+  The mask now also takes effect on the trace immediately rather than at
+  the next data file: the rates are kept unmasked and the mask applied
+  when the plot is drawn, so a tick is one redraw rather than one
+  re-read. The preset mask and "Reset" tick their couple of hundred
+  boxes with a single notification instead of one each.
+
+- **"Peak in view" box** on "Online plot" and "Full Sensor"
+  (`gui/widgets/peak_stats.py`): the brightest pixel and its rate, the
+  centroid, the FWHM, and the sum over the x-limits currently shown.
+
+  Aligning means maximising something, and the only figure on screen was
+  which pixel was brightest - which says a peak moved but not whether it
+  improved. A peak that doubles in height while doubling in width has
+  gained nothing, and one that shifts by half a pixel is invisible
+  against the sample spacing; the centroid reports it to a hundredth.
+  Narrowing the x-limits onto the signal is what stops a hot pixel
+  elsewhere on the sensor deciding the answer.
+
+  The FWHM is deliberately blank when the peak runs off the edge of the
+  view: a number that is wrong by however much was cut off is worse than
+  none.
+
+- **File -> Export plotted data** (`Ctrl+E`): the numbers behind the
+  current plot, as `.csv` or `.npz`. The toolbar has always saved a
+  picture; there was no way to keep what the picture was of.
+
+  The file carries its own provenance - the version, the time, the
+  source file, the board, the firmware, the timestamp count and the
+  limits shown - as `#` comments above a plain header row, so a
+  spreadsheet reads the columns and `pandas.read_csv(..., comment="#")`
+  skips the rest. The menu item greys out on a tab with nothing plotted.
+
+- `tests/test_peak_stats.py` and `tests/test_export.py`, and a
+  regression test pinning `sen_pop`'s output to the figures it produced
+  before the counting was rewritten.
+
+### Changed
+
+- **The data folders are watched rather than swept**
+  (`QFileSystemWatcher`, `gui/tabs/base.py`). The stream used to run
+  `glob` plus a `getctime` per entry ten times a second, which on a run
+  of several thousand files is several thousand stat calls a second to
+  notice one new name. It now waits to be told, settles for 150 ms so a
+  burst of writes costs one read, and keeps a 2 s poll as a backstop
+  because a watcher is reliable on a local disk and decidedly not on the
+  network share a board GUI often writes to.
+
+- **`sen_pop` counts in one pass instead of 256.** It looped over every
+  pixel, re-deriving that pixel's TDC with an `np.argwhere` search of a
+  256-element array and then making two more passes over that TDC's
+  column. The map is now read forwards and the whole matrix counted with
+  `np.bincount`: the same numbers, about twice as fast at the counting,
+  on the path that runs on every frame of a stream. (Unpacking the file
+  still dominates a frame - about 10 ms of 14 on a 1 MB file.)
+
+- **Starting a stream on an empty folder waits instead of failing.**
+  The ordinary way a run begins is to arm the stream and then start the
+  acquisition, so the folder is empty for the first few seconds by
+  design - and "no data files found" was a modal box that also stopped
+  the stream to show itself. It is now silent while a stream is running,
+  with "waiting…" in the readout, and still a message box when "Refresh
+  plot" was pressed, since that is exactly what the user asked about.
+  Starting a stream also draws whatever is already in the folder rather
+  than waiting for the next file.
+
+- The single-pixel histogram is binned by the tab rather than inside the
+  canvas, so that what is exported is the histogram that was drawn.
+
+### Removed
+
+- **The per-code TDC calibration.** It had been commented out in
+  `unpack.py` since before the package took its present shape, and
+  matrices existed for two of the four daughterboards the application
+  offers - which is very likely why. The dead code is gone,
+  `functions/calibrate.py` and the two `.csv` matrices have moved to the
+  `old` folders beside the rest of the superseded code, and the package
+  no longer ships data that nothing reads.
+
+  Timestamps are the raw TDC code times the nominal 17.857 ps bin, as
+  they have been all along. That costs nothing for counting rates, which
+  is what this package plots; a measurement that needs the true bin
+  widths - a delta-t histogram - wants `daplis` offline.
+
+### Fixed
+
+- `peak_stats` collapsed x-limits given the wrong way round to a single
+  pixel, because the lower bound was stored before the upper one was
+  computed from it. Caught by its own test on the way in.
+
+## [1.5.0] - 2026-09-17
+
+The interface is rebuilt. Every tab is now generated from one skeleton
+with one set of geometry rules, and every colour and font size in the
+application comes from one place the user can change.
+
+Nothing about the measurements changed: the unpacking, the rate
+calculation, the TDC occupancy arithmetic and the two-board acquisition
+protocol are the code they were, moved rather than rewritten.
+
+### Added
+
+- **Themes, and a Preferences window to build one**
+  (`gui/theme.py`, `gui/preferences.py`, *View → Preferences*, `Ctrl+,`).
+  Four presets ship: "Cyberpunk", the look the application has always
+  had, glow and all, and still the default; "Midnight", the same dark
+  window with the glow off; "Daylight", a white figure for a bright room
+  or a document; and "High contrast", pure black with trace colours
+  chosen to stay apart for the common forms of colour blindness.
+
+  Every colour in a preset can then be overridden - the accent, the
+  figure and plot backgrounds, the axes, the grid, the markers, and each
+  of the five trace colours - along with the interface and plot font
+  sizes and the glow and grid switches. The window is not modal and
+  every change applies the instant it is made, to plots already drawn as
+  well as new ones, so a colour is chosen by watching the plot rather
+  than from memory.
+
+  Settings are stored per user through `QSettings`, so two people
+  sharing a machine keep their own, and an unreadable stored value is
+  skipped rather than raised - a settings file is not something a user
+  can easily repair, so it must never stop the application opening.
+
+  The reason this needed a rewrite rather than a setting is that the old
+  application chose its colours in a dozen places: `dark_background` in
+  three canvas modules, `#f48383` and `teal` written into the plotting
+  calls, `qdarkstyle` on the application, and a `setPointSize(10)` on
+  very nearly every widget built. Now no widget sets its own font - the
+  application font is set once and inherited - and no canvas holds a
+  colour, which is why a theme change is a redraw rather than a restart.
+
+- **`tests/test_tab_geometry.py`**: the tabs are measured rather than
+  looked at. It builds all five headless and asserts that the plot
+  occupies the same rectangle on each, that the control column and the
+  action buttons are the same size and in the same place, that no tab
+  quietly sizes its own combo boxes, that the window's minimum stays
+  inside a budget, and that a larger interface font moves the rows
+  instead of clipping them.
+
+  Every layout problem this package has had was found by measuring and
+  none by looking, and until now the measuring was a script in a scratch
+  directory.
+
+### Changed
+
+- **One skeleton for every tab** (`gui/layout.py`, `TabShell`). The plot
+  is the same size and in the same place on all five tabs; so is the
+  control column; so is every button. A tab that needs only one browse
+  row still reserves the two that "Full Sensor" needs, and puts a row of
+  readings in the other. "Synchronization", which has no plot, is built
+  in the same shell: its log sits where the others' canvas sits, its
+  clock status where their axis limits sit, and its three buttons in the
+  same three slots.
+
+  The buttons are stacked in three fixed slots with a fixed meaning -
+  look again, the thing the tab is for, then the extra - so a tab with
+  one button leaves two empty rather than letting its button grow.
+
+- **The control column scrolls** (`gui/layout.py`, `ControlColumn`).
+  This is the fix for the oldest problem in the layout: a column's
+  minimum height is the sum of the panels stacked in it, and the tallest
+  column of the five decided how tall the whole application opened. A
+  status box added to one tab made every tab open 70 px taller. A column
+  that is too tall now scrolls.
+
+- **The window opens at 1500x900** rather than at its own minimum.
+  `MainWindow` had no `resize()` at all, which is why that minimum had
+  been the subject of so much attention; it is now only a floor, and one
+  the geometry test holds under 1320x720.
+
+- **One canvas class instead of three** (`gui/canvas/`). `plot_figure`,
+  `plot_figure_dual` and `plot_figure_MZI` were the same eighty lines
+  copied out three times, with the differences that mattered - a
+  boundary line here, a second y-axis there - buried among the
+  differences that did not. There is now one themed base class and one
+  small subclass per plot, which stores what it was given and redraws it
+  on demand.
+
+- **Plots use constrained layout** rather than fixed `subplots_adjust`
+  fractions, which were tuned for one font size: a large plot font -
+  which is exactly what a wide window produces - used to push the y-axis
+  label off the edge of the figure.
+
+- The plot font grows with the canvas rather than with the window. Each
+  tab used to do this for itself, off the width of the whole window and
+  with the same four magic numbers copied out five times; adding a
+  control column beside a plot therefore changed the font on it. It is
+  also debounced, so dragging a window edge no longer redraws per event.
+
+- **Controls are built once** (`gui/widgets/controls.py`). The
+  daughterboard, motherboard, firmware and timestamp controls existed in
+  four copies, which is how the "Full Sensor" combo boxes came to be
+  80 px `Expanding` while everyone else's were 100 px `Fixed`, and how
+  one tab came to offer a motherboard the others did not.
+
+- "Both boards in step" is a checkable group box, as "TDC memory"
+  already was: the tick moves into the title, which saves a row of the
+  control column and makes the two status boxes match each other.
+  Clearing the tick now also stops the sweep, rather than only stopping
+  anyone asking about it.
+
+- The MZI trace is kept as three arrays and redrawn whole. It used to be
+  built by adding a fresh two-point line segment per refresh, so an
+  hour's run ended as some thousands of `Line2D` objects that matplotlib
+  walked on every draw - and there was no record of the trace to redraw,
+  so a change of colour could only apply to the points that came after
+  it.
+
+- The two brightest pixels moved out of the "Online plot" control column
+  and into the row above the plot, where they cost the application no
+  height, and are joined there by the masked count and the name of the
+  file being plotted.
+
+- The single-pixel histogram no longer opens and unpacks the data file
+  from inside the plot widget. A plot widget that cannot be drawn
+  without a LinoSPAD2 file on disk cannot be tested, and the firmware
+  version and timestamp count it needed are chosen on the tab anyway.
+
+- The superseded modules are kept, unmaintained, in `gui/_legacy/`,
+  with their imports rewritten so they still run. Nothing in the
+  application imports from there; they are the reference for what the
+  rebuilt tabs are supposed to do.
+
+### Fixed
+
+- New data arriving while a plot was on a logarithmic scale took the
+  stream down with `AttributeError: This method only works with the
+  ScalarFormatter`. `ticklabel_format` only understands the linear
+  formatter, and the plotting path called it unconditionally.
+
+- The MZI tab's "Linear scale" box raised `AttributeError` when ticked:
+  its handler read `checkBox_presetMask_2`, a widget that tab does not
+  have. The single-pixel histogram's box was connected to nothing at
+  all. Both now switch the scale of the plot they sit beside, and all
+  four boxes start ticked, agreeing with the linear axis they are
+  drawn against rather than contradicting it.
+
+- The y-axis of every plot lost its scientific notation whenever the
+  scale was applied: setting a scale installs that scale's default
+  formatter, and the scale was being set after the draw. Rates of a few
+  hundred thousand were labelled in full.
+
+- On the MZI plot the right-hand axis label was drawn on the left, on
+  top of the left-hand one. Clearing a twin axes resets its label back
+  to the left-hand side.
+
+- The line of guidance across the top of each tab set how narrow the
+  whole application could be made - over 2000 px - because a `QLabel`
+  reports a minimum width equal to the whole of its text. It elides
+  instead, keeping the full text in its tooltip.
+
 ## [1.4.0] - 2026-09-15
 
 ### Added

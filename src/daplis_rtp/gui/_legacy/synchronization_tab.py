@@ -25,7 +25,7 @@ import threading
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
-from daplis_rtp.gui.file_sync_check import FileSyncPanel
+from daplis_rtp.gui._legacy.file_sync_check import FileSyncPanel
 
 # All instances are addressed on the local machine.
 HOST = "localhost"

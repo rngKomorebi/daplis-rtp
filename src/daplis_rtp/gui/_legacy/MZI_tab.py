@@ -13,9 +13,9 @@ import os
 from PyQt5 import QtCore, QtGui, QtWidgets, uic
 
 from daplis_rtp.functions.sen_pop import sen_pop
-from daplis_rtp.gui.plot_figure import reserve_toolbar_width
-from daplis_rtp.gui.plot_figure_MZI import PltCanvas_MZI
-from daplis_rtp.gui.ui.MZI_tab import Ui_Form
+from daplis_rtp.gui._legacy.plot_figure import reserve_toolbar_width
+from daplis_rtp.gui._legacy.plot_figure_MZI import PltCanvas_MZI
+from daplis_rtp.gui._legacy.ui.MZI_tab import Ui_Form
 
 
 class MZI(QtWidgets.QWidget):

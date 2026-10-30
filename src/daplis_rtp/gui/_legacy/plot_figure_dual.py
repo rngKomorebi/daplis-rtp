@@ -17,7 +17,7 @@ from matplotlib.backends.backend_qt5agg import (
 from matplotlib.figure import Figure
 from PyQt5.QtWidgets import QVBoxLayout, QWidget
 
-from daplis_rtp.gui.plot_figure import MIN_CANVAS_HEIGHT, toolbar_min_width
+from daplis_rtp.gui._legacy.plot_figure import MIN_CANVAS_HEIGHT, toolbar_min_width
 
 
 class PltCanvasDual(QWidget):

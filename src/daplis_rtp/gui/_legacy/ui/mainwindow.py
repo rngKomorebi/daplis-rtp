@@ -6,11 +6,11 @@
 
 from PyQt5 import QtCore, QtWidgets
 
-from daplis_rtp.gui.linospad2_dual_tab import LinoSPAD2Dual
-from daplis_rtp.gui.live_timestamps_tab import LiveTimestamps
-from daplis_rtp.gui.MZI_tab import MZI
-from daplis_rtp.gui.single_pix_hist_tab import SinglePixelHistogram
-from daplis_rtp.gui.synchronization_tab import Synchronization
+from daplis_rtp.gui._legacy.linospad2_dual_tab import LinoSPAD2Dual
+from daplis_rtp.gui._legacy.live_timestamps_tab import LiveTimestamps
+from daplis_rtp.gui._legacy.MZI_tab import MZI
+from daplis_rtp.gui._legacy.single_pix_hist_tab import SinglePixelHistogram
+from daplis_rtp.gui._legacy.synchronization_tab import Synchronization
 
 # from graphic.delta_t_tab import Delta_t
 

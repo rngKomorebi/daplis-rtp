@@ -24,6 +24,25 @@ the distribution of timestamps across the whole acquisition cycle is provided:
 if the distribution is uniform, the data is ok. The third tab can be used
 for plotting the number of photons from two pixels vs the data file as two 
 curves with primary application in Mach-Zehnder interferometer setup.
+A fourth tab plots both sensor halves at once from two boards, and a fifth
+drives a two-board synchronized acquisition over TCP.
+
+While aligning, a few things are worth knowing about:
+
+- The **"Peak in view"** box reports the brightest pixel, the centroid, the
+  FWHM and the summed rate over the x-limits currently shown. The centroid is
+  the one to watch while walking a mirror — it moves smoothly where the
+  brightest pixel jumps.
+- **Ctrl+click** a pixel on the plot to mask it, and Ctrl+click again to
+  unmask. The trace updates immediately.
+- The **"TDC memory"** box says how close the readout is to filling up. A TDC
+  that fills drops the rest of the acquisition cycle with no sign of it in the
+  data file, so raise `Timestamps` when it warns.
+- **File → Export plotted data** (`Ctrl+E`) saves the numbers behind the plot
+  as `.csv` or `.npz`, with the board, the firmware and the settings recorded
+  in the file. Read a CSV back with
+  `pandas.read_csv(path, comment="#")`.
+- Each tab remembers its folder and settings between sessions.
 
 This repo was separated from the [main](https://github.com/rngKomorebi/daplis)
 library of scripts for LinoSPAD2 data analysis. The reason is that
@@ -131,32 +150,37 @@ for the app. Options '--onedir' for installing everything into a single
 directory and '--noconsole' for running the app without a console are
 recommended.
 
-## Dark theme app (Windows)
+## Themes and colours
 
-For dark theme enthusiasts, there is an option to run the app in dark mode (tested on Windows only). To do that, in the environment where the app is running, install qdarkstyle
-```
-pip install qdarkstyle
-```
-or, using conda
-```
-conda install qdarkstyle -c conda-forge
-```
-Then, in the 'main.py', import (uncomment) qdarkstyle and uncomment the 5th line in the following code block
-```
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    window = MainWindow()
-    # For dark theme
-    # app.setStyleSheet(qdarkstyle.load_stylesheet())
-    window.show()
-    app.exec()
-```
-that will run the app in dark mode. To apply dark theme for the
-matplotlib canvases as well, uncomment the 
-```
-plt.style.use("dark_background")
-```
-in the 'plot_figure.py' and 'plot_figure_MZI.py'.
+Nothing has to be edited to change how the app looks. Open
+**View → Preferences** (or press `Ctrl+,`), or **View → Theme**, and pick
+one of the ten:
+
+| theme | for |
+|---|---|
+| Cyberpunk | the default: a near-black figure with the glow under the traces |
+| Midnight | the same dark window with the glow off, for a fast stream |
+| Night wave | synthwave neon on violet, with the glow |
+| Blueprint | a CAD drawing: white and ice-blue lines on deep navy |
+| High contrast | pure black, with trace colours that stay apart for the common forms of colour blindness |
+| Daylight | a plain white figure, for a bright room |
+| Komorebi | deep gold and forest green on parchment |
+| Earth | terracotta and olive on aged paper |
+| Solarized | Ethan Schoonover's light palette |
+| Daplis (publication) | the house palette — rebeccapurple and darkorange on white, colourblind-safe. The one to export a figure in. |
+
+The last six are ports of the matplotlib styles in
+[komorebi_mpl](https://github.com/rngKomorebi/komorebi_mpl).
+
+Any colour in a theme can then be changed - the accent, the figure and
+plot backgrounds, the axes, the grid, the markers, and each trace - along
+with the interface and plot font sizes and the glow and grid switches.
+The Preferences window is not modal and every change applies at once, to
+plots already on screen as well as new ones, so a colour can be chosen by
+watching the plot rather than from memory.
+
+The settings are stored per user, so two people sharing a machine keep
+their own, and they survive an upgrade.
 
 ## How to contribute
 

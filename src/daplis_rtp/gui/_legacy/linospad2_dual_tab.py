@@ -19,18 +19,18 @@ so they are always unpacked here.
 
 import glob
 import os
-from importlib.resources import files
 
 import numpy as np
 from PyQt5 import QtCore, QtGui, QtWidgets
 
+from daplis_rtp._compat import files
 from daplis_rtp.functions.sen_pop import sen_pop
 from daplis_rtp.functions.tdc_occupancy import pixel_to_tdc_map
-from daplis_rtp.gui.file_sync_check import FileSyncPanel
-from daplis_rtp.gui.pixel_mask_window import PixelMaskWindow, mask_summary
-from daplis_rtp.gui.plot_figure import reserve_toolbar_width
-from daplis_rtp.gui.plot_figure_dual import PltCanvasDual
-from daplis_rtp.gui.tdc_occupancy_panel import (
+from daplis_rtp.gui._legacy.file_sync_check import FileSyncPanel
+from daplis_rtp.gui._legacy.pixel_mask_window import PixelMaskWindow, mask_summary
+from daplis_rtp.gui._legacy.plot_figure import reserve_toolbar_width
+from daplis_rtp.gui._legacy.plot_figure_dual import PltCanvasDual
+from daplis_rtp.gui._legacy.tdc_occupancy_panel import (
     BoardOccupancy,
     TdcOccupancyPanel,
     pixels_of_interest,
