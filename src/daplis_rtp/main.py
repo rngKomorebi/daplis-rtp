@@ -12,15 +12,11 @@ is closed.
 
 import sys
 
-import qdarkstyle
-from PyQt5.QtWidgets import QApplication, QMainWindow
+from PyQt5.QtWidgets import QApplication
 
 from daplis_rtp.gui.app_icon import app_icon, claim_taskbar_identity
-from daplis_rtp.gui.ui.mainwindow import Ui_MainWindow
-
-# How long a worker thread is given to finish on its own when the
-# window closes, in milliseconds.
-WORKER_WAIT_MS = 2000
+from daplis_rtp.gui.main_window import MainWindow
+from daplis_rtp.gui.theme import theme_manager
 
 # The QApplication and the window live here, not in 'main's locals, and
 # the reason is the crash you get otherwise. In an interpreter that
@@ -31,45 +27,6 @@ WORKER_WAIT_MS = 2000
 # keep both alive until something replaces them.
 _APP = None
 _WINDOW = None
-
-
-def _quiesce(tab):
-    """Stop whatever one tab left running.
-
-    Everything here outlives the widget that started it unless it is
-    stopped by hand, and each one is fatal in its own way: a QTimer
-    fires into a deleted object, and a QThread destroyed while still
-    running aborts the process outright.
-    """
-    # Every plotting tab starts a refresh timer when the stream starts,
-    # and none of them stops it on the way out
-    timer = getattr(tab, "timer", None)
-    if timer is not None:
-        timer.stop()
-
-    # The pixel mask is a window of its own, so it does not necessarily
-    # go when its tab does
-    mask_window = getattr(tab, "mask_window", None)
-    if mask_window is not None:
-        mask_window.close()
-
-    # 'Both boards in step' sweeps directories in a thread. Its own
-    # 'stop' asks the sweep to finish and leaves a hung one muted and
-    # referenced rather than killing it, which is the right thing here
-    # too - so it is used as it stands.
-    panel = getattr(tab, "fileSyncPanel", None)
-    if panel is not None:
-        panel.stop()
-
-    # The Synchronization tab's acquisition thread has no flag to set:
-    # it is a blocking socket conversation with two boards. So it is
-    # given a moment to finish and then cut short - the one place the
-    # package does that, and still better than destroying it running.
-    worker = getattr(tab, "_worker", None)
-    if worker is not None and worker.isRunning():
-        if not worker.wait(WORKER_WAIT_MS):
-            worker.terminate()
-            worker.wait(WORKER_WAIT_MS)
 
 
 def _qt_loop_already_running():
@@ -94,26 +51,6 @@ def _qt_loop_already_running():
     return str(getattr(ip, "active_eventloop", "") or "").startswith("qt")
 
 
-class MainWindow(QMainWindow, Ui_MainWindow):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-
-        self.setupUi(self)
-
-    def closeEvent(self, event):
-        """Stop what the tabs left running, then close.
-
-        This used to call 'QApplication.quit()'. Run from a terminal
-        that made no difference - closing the last window ends the
-        event loop anyway - but in an interpreter that outlives the
-        call it tore down the QApplication the session was still
-        holding, and the next run crashed the kernel.
-        """
-        for index in range(self.tabWidget.count()):
-            _quiesce(self.tabWidget.widget(index))
-        event.accept()
-
-
 def main():
     """Open the window, and run the Qt event loop unless something is.
 
@@ -133,9 +70,11 @@ def main():
     # On the application rather than the window: every top-level window
     # inherits it, the pixel mask and the message boxes included
     _APP.setWindowIcon(app_icon())
-    # Before the widgets it applies to, so that nothing is built in the
-    # default palette and re-polished into the dark one
-    _APP.setStyleSheet(qdarkstyle.load_stylesheet())
+    # Before the widgets it applies to, so that nothing is built in
+    # the default palette and re-polished into the themed one. This
+    # also sets the application font, which is what every row height
+    # and column width in 'gui.layout' is measured from.
+    theme_manager().apply_to_app(_APP)
 
     if _WINDOW is not None:
         # Through 'closeEvent', so that a run left over from a previous

@@ -9,11 +9,8 @@ functions:
 
 """
 
-import os
-
 import numpy as np
 
-# from daplis_rtp.functions.calibrate import calibrate_load
 
 # Firmware versions the package handles. Both read the sensor out
 # through 64 TDCs of four pixels each, differing only in which four:
@@ -115,6 +112,13 @@ def unpack_bin(
         )
 
     # lowest 28 bits are the timestamp; convert to longlong, int is not enough
+    # The nominal bin, uniform across the 140 codes of a TDC. The
+    # per-code calibration that would replace this was retired in
+    # 1.6: it had been commented out here for years, and matrices
+    # existed for two of the four daughterboards the application
+    # offers. It costs nothing for counting rates, which is what
+    # this package plots; a measurement that needs the true bin
+    # widths - a delta-t histogram - wants 'daplis' offline.
     data_t = (rawFile & 0xFFFFFFF).astype(np.longlong) * 17.857
     # mask nonvalid data with '-1'
     data_t[np.where(rawFile < 0x80000000)] = -1
@@ -161,40 +165,5 @@ def unpack_bin(
     data_matrix = np.stack((data_matrix_p, data_matrix_t), axis=2).astype(
         np.longlong
     )
-
-    # # path to the current script, two levels up (the script itself is
-    # # in the path) and one level down to the calibration data
-    # path_calib_data = (
-    #     os.path.realpath(__file__) + "../../.." + "/params/calibration_data"
-    # )
-
-    # try:
-    #     cal_mat = calibrate_load(path_calib_data, board_number)
-    # except FileNotFoundError:
-    #     raise FileNotFoundError(
-    #         "No .csv file with the calibration"
-    #         "data was found, check the path "
-    #         "or run the calibration."
-    #     )
-
-    # pix_coor = (
-    #     np.arange(256).reshape(4, 64).T
-    #     if fw_ver == "2212s"
-    #     else np.arange(256).reshape(64, 4)
-    # )
-    # for i in range(256):
-    #     # transform pixel number to TDC number and pixel coordinates
-    #     # in that TDC (from 0 to 3)
-    #     tdc, pix = np.argwhere(pix_coor == i)[0]
-    #     # find data from that pixel
-    #     ind = np.where(data_matrix[tdc].T[0] == pix)[0]
-    #     # cut non-valid timestamps ('-1's)
-    #     ind = ind[np.where(data_matrix[tdc].T[1][ind] >= 0)[0]]
-    #     if not np.any(ind):
-    #         continue
-    #     # apply calibration
-    #     data_matrix[tdc].T[1][ind] = (
-    #         data_matrix[tdc].T[1][ind] - data_matrix[tdc].T[1][ind] % 140
-    #     ) * 17.857 + cal_mat[i, (data_matrix[tdc].T[1][ind] % 140)]
 
     return data_matrix

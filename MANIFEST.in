@@ -1,4 +1,3 @@
 include src/daplis_rtp/params/masks/*.txt
-include src/daplis_rtp/params/calibration_data/*.csv
 include src/daplis_rtp/resources/*.png
 include src/daplis_rtp/resources/*.ico

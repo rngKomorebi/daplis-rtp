@@ -68,12 +68,28 @@ def sen_pop(
         if fw_ver == "2212s"
         else np.arange(256).reshape(64, 4)
     )
-    valid_per_pixel = np.zeros(256)
-    for i in range(256):
-        tdc, pix = np.argwhere(pix_coor == i)[0]
-        ind = np.where(data[tdc].T[0] == pix)[0]
-        ind1 = np.where(data[tdc].T[1][ind] > 0)[0]
-        valid_per_pixel[i] += len(data[tdc].T[1][ind[ind1]])
+
+    # One pass over the matrix rather than 256. This used to be a loop
+    # over every pixel that re-derived the pixel's TDC with
+    # 'np.argwhere(pix_coor == i)' - a fresh search of all 256 entries -
+    # and then made two more passes over that TDC's column to find the
+    # pixel's own timestamps. It ran on every frame of a stream that
+    # polls ten times a second.
+    #
+    # 'pix_coor[tdc, coordinate]' is the same lookup the loop did, read
+    # forwards instead of searched backwards, so every entry is turned
+    # into the pixel number it belongs to in one indexing operation and
+    # counted with 'bincount'.
+    coordinates = data[:, :, 0]
+    stamps = data[:, :, 1]
+    # A coordinate is 0-3 for real data; -1 marks an empty slot and -2 a
+    # cycle boundary, and a non-positive timestamp is not a photon.
+    recorded = (coordinates >= 0) & (coordinates < 4) & (stamps > 0)
+    tdcs = np.broadcast_to(
+        np.arange(data.shape[0])[:, None], coordinates.shape
+    )
+    pixels = pix_coor[tdcs[recorded], coordinates[recorded]]
+    valid_per_pixel = np.bincount(pixels, minlength=256).astype(float)
 
     if pix_add_fix is True:
         fix = np.zeros(len(valid_per_pixel))
@@ -82,8 +98,8 @@ def sen_pop(
         valid_per_pixel = fix
         del fix
 
-    acq_window_length = np.max(data[:].T[1]) * 1e-12
-    number_of_cycles = len(np.where(data[0].T[0] == -2)[0])
+    acq_window_length = stamps.max() * 1e-12
+    number_of_cycles = np.count_nonzero(coordinates[0] == -2)
 
     rates = valid_per_pixel / acq_window_length / number_of_cycles
 
