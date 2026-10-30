@@ -1,0 +1,363 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>daplis_rtp.gui.canvas.sensor &mdash; Data Analysis Package for LinoSPAD2 - Real-Time Plotting 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            Data Analysis Package for LinoSPAD2 - Real-Time Plotting
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation and usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../daplis_rtp.gui.html">daplis_rtp.gui package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../daplis_rtp.functions.html">daplis_rtp.functions package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contribute.html">How to contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../license.html">License and contact info</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../acknowledgement.html">Acknowledgement</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">Data Analysis Package for LinoSPAD2 - Real-Time Plotting</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">daplis_rtp.gui.canvas.sensor</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for daplis_rtp.gui.canvas.sensor</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Sensor population: photon rate against pixel number.</span>
+
+<span class="sd">Two plots, one class. The single-board tab draws 256 pixels; the</span>
+<span class="sd">full-sensor tab draws 512, with a dashed line marking the seam between</span>
+<span class="sd">the two halves and the grouping lines repeated on the second half. That</span>
+<span class="sd">is the whole of the difference, so it is three class attributes rather</span>
+<span class="sd">than a second copy of the module.</span>
+
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.text</span><span class="w"> </span><span class="kn">import</span> <span class="n">Annotation</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">PyQt5</span><span class="w"> </span><span class="kn">import</span> <span class="n">QtCore</span><span class="p">,</span> <span class="n">QtWidgets</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">daplis_rtp.gui.canvas.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseCanvas</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">daplis_rtp.gui.widgets.gaussian_fit</span><span class="w"> </span><span class="kn">import</span> <span class="n">gaussian</span>
+
+<span class="c1"># Half width at half maximum, in sigmas: where a fitted line is half as</span>
+<span class="c1"># tall as its peak, which is where a label beside it goes.</span>
+<span class="n">HWHM_PER_SIGMA</span> <span class="o">=</span> <span class="mf">1.1774100225154747</span>
+
+
+<div class="viewcode-block" id="FitLabel">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.canvas.sensor.html#daplis_rtp.gui.canvas.FitLabel">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">FitLabel</span><span class="p">(</span><span class="n">Annotation</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""A fitted sigma that keeps itself inside the frame.</span>
+
+<span class="sd">    Centred over its peak where there is room, which is the ordinary</span>
+<span class="sd">    case. A line near either x-limit has its label slid inwards rather</span>
+<span class="sd">    than cut in half by the frame; a line too tall to leave room above</span>
+<span class="sd">    it has its label beside it, at half height, where the line is narrow</span>
+<span class="sd">    and the space either side is empty.</span>
+
+<span class="sd">    Placed when it is drawn rather than when it is made. Only then are</span>
+<span class="sd">    the frame's size and the text's size known, and only then does the</span>
+<span class="sd">    placement survive what happens to the plot afterwards - a toolbar</span>
+<span class="sd">    zoom, a pan, a resized window, a larger font - none of which hands</span>
+<span class="sd">    the data in again.</span>
+
+<span class="sd">    """</span>
+
+    <span class="c1"># Gap between the label and the line, and between it and the frame,</span>
+    <span class="c1"># in points.</span>
+    <span class="n">GAP</span> <span class="o">=</span> <span class="mi">4</span>
+
+<div class="viewcode-block" id="FitLabel.__init__">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.canvas.sensor.html#daplis_rtp.gui.canvas.FitLabel.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">fit</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">peak</span> <span class="o">=</span> <span class="p">(</span><span class="n">fit</span><span class="p">[</span><span class="s2">"centre"</span><span class="p">],</span> <span class="n">fit</span><span class="p">[</span><span class="s2">"amplitude"</span><span class="p">]</span> <span class="o">+</span> <span class="n">fit</span><span class="p">[</span><span class="s2">"background"</span><span class="p">])</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">text</span><span class="p">,</span>
+            <span class="n">peak</span><span class="p">,</span>
+            <span class="n">xytext</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+            <span class="n">textcoords</span><span class="o">=</span><span class="s2">"offset pixels"</span><span class="p">,</span>
+            <span class="n">ha</span><span class="o">=</span><span class="s2">"left"</span><span class="p">,</span>
+            <span class="n">va</span><span class="o">=</span><span class="s2">"bottom"</span><span class="p">,</span>
+            <span class="c1"># Matplotlib's own clip would hide the label whenever the</span>
+            <span class="c1"># top of the peak is out of view - which is exactly what</span>
+            <span class="c1"># zooming onto one line's shape does, and exactly when its</span>
+            <span class="c1"># width is wanted. 'draw' decides instead.</span>
+            <span class="n">annotation_clip</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fit</span> <span class="o">=</span> <span class="n">fit</span></div>
+
+
+<div class="viewcode-block" id="FitLabel.draw">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.canvas.sensor.html#daplis_rtp.gui.canvas.FitLabel.draw">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">renderer</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_visible</span><span class="p">()</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">axes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="c1"># Shown while the line's centre is in view; a line panned out of</span>
+        <span class="c1"># the window takes its label with it rather than leaving it</span>
+        <span class="c1"># pinned to the frame.</span>
+        <span class="n">low</span><span class="p">,</span> <span class="n">high</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="o">.</span><span class="n">get_xlim</span><span class="p">())</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">low</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fit</span><span class="p">[</span><span class="s2">"centre"</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">high</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_place</span><span class="p">(</span><span class="n">renderer</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">renderer</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_place</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">renderer</span><span class="p">):</span>
+        <span class="n">frame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="o">.</span><span class="n">bbox</span>
+        <span class="n">to_pixels</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="o">.</span><span class="n">transData</span><span class="o">.</span><span class="n">transform</span>
+        <span class="n">gap</span> <span class="o">=</span> <span class="n">renderer</span><span class="o">.</span><span class="n">points_to_pixels</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">GAP</span><span class="p">)</span>
+        <span class="n">fit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fit</span>
+
+        <span class="n">peak_x</span><span class="p">,</span> <span class="n">peak_y</span> <span class="o">=</span> <span class="n">to_pixels</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xy</span><span class="p">)</span>
+        <span class="n">extent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_window_extent</span><span class="p">(</span><span class="n">renderer</span><span class="p">)</span>
+        <span class="n">width</span><span class="p">,</span> <span class="n">height</span> <span class="o">=</span> <span class="n">extent</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="n">extent</span><span class="o">.</span><span class="n">height</span>
+
+        <span class="k">if</span> <span class="n">peak_y</span> <span class="o">+</span> <span class="n">gap</span> <span class="o">+</span> <span class="n">height</span> <span class="o">&lt;=</span> <span class="n">frame</span><span class="o">.</span><span class="n">y1</span> <span class="o">-</span> <span class="n">gap</span><span class="p">:</span>
+            <span class="c1"># Above the peak, centred, slid in from either edge.</span>
+            <span class="n">left</span> <span class="o">=</span> <span class="n">peak_x</span> <span class="o">-</span> <span class="n">width</span> <span class="o">/</span> <span class="mf">2.0</span>
+            <span class="n">bottom</span> <span class="o">=</span> <span class="n">peak_y</span> <span class="o">+</span> <span class="n">gap</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Beside it, at half height: right of the line if it fits,</span>
+            <span class="c1"># left of it otherwise.</span>
+            <span class="n">half</span> <span class="o">=</span> <span class="n">fit</span><span class="p">[</span><span class="s2">"background"</span><span class="p">]</span> <span class="o">+</span> <span class="n">fit</span><span class="p">[</span><span class="s2">"amplitude"</span><span class="p">]</span> <span class="o">/</span> <span class="mf">2.0</span>
+            <span class="n">reach</span> <span class="o">=</span> <span class="n">HWHM_PER_SIGMA</span> <span class="o">*</span> <span class="n">fit</span><span class="p">[</span><span class="s2">"sigma"</span><span class="p">]</span>
+            <span class="n">right_x</span><span class="p">,</span> <span class="n">half_y</span> <span class="o">=</span> <span class="n">to_pixels</span><span class="p">((</span><span class="n">fit</span><span class="p">[</span><span class="s2">"centre"</span><span class="p">]</span> <span class="o">+</span> <span class="n">reach</span><span class="p">,</span> <span class="n">half</span><span class="p">))</span>
+            <span class="n">left_x</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">to_pixels</span><span class="p">((</span><span class="n">fit</span><span class="p">[</span><span class="s2">"centre"</span><span class="p">]</span> <span class="o">-</span> <span class="n">reach</span><span class="p">,</span> <span class="n">half</span><span class="p">))</span>
+            <span class="n">left</span> <span class="o">=</span> <span class="n">right_x</span> <span class="o">+</span> <span class="n">gap</span>
+            <span class="k">if</span> <span class="n">left</span> <span class="o">+</span> <span class="n">width</span> <span class="o">&gt;</span> <span class="n">frame</span><span class="o">.</span><span class="n">x1</span> <span class="o">-</span> <span class="n">gap</span><span class="p">:</span>
+                <span class="n">left</span> <span class="o">=</span> <span class="n">left_x</span> <span class="o">-</span> <span class="n">gap</span> <span class="o">-</span> <span class="n">width</span>
+            <span class="n">bottom</span> <span class="o">=</span> <span class="n">half_y</span> <span class="o">-</span> <span class="n">height</span> <span class="o">/</span> <span class="mf">2.0</span>
+
+        <span class="n">left</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">frame</span><span class="o">.</span><span class="n">x0</span> <span class="o">+</span> <span class="n">gap</span><span class="p">),</span> <span class="n">frame</span><span class="o">.</span><span class="n">x1</span> <span class="o">-</span> <span class="n">gap</span> <span class="o">-</span> <span class="n">width</span><span class="p">)</span>
+        <span class="n">bottom</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">bottom</span><span class="p">,</span> <span class="n">frame</span><span class="o">.</span><span class="n">y0</span> <span class="o">+</span> <span class="n">gap</span><span class="p">),</span> <span class="n">frame</span><span class="o">.</span><span class="n">y1</span> <span class="o">-</span> <span class="n">gap</span> <span class="o">-</span> <span class="n">height</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xyann</span> <span class="o">=</span> <span class="p">(</span><span class="n">left</span> <span class="o">-</span> <span class="n">peak_x</span><span class="p">,</span> <span class="n">bottom</span> <span class="o">-</span> <span class="n">peak_y</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="SensorCanvas">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.canvas.sensor.html#daplis_rtp.gui.canvas.SensorCanvas">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SensorCanvas</span><span class="p">(</span><span class="n">BaseCanvas</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Photon rate per pixel, for one LinoSPAD2 board."""</span>
+
+    <span class="c1"># Ctrl+click on a pixel, carrying the pixel number. The tab decides</span>
+    <span class="c1"># what that means; here it is only a click turned into a pixel.</span>
+    <span class="n">pixel_ctrl_clicked</span> <span class="o">=</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">pyqtSignal</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+
+    <span class="n">x_label</span> <span class="o">=</span> <span class="s2">"Pixel (-)"</span>
+    <span class="n">y_label</span> <span class="o">=</span> <span class="s2">"Photon rate (Hz)"</span>
+
+    <span class="c1"># Where the firmware's four-TDC groups fall. Drawn on request, for</span>
+    <span class="c1"># aligning a setup on firmware 2212s.</span>
+    <span class="n">group_lines</span> <span class="o">=</span> <span class="p">(</span><span class="mi">64</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="mi">192</span><span class="p">)</span>
+    <span class="c1"># x of the seam between two boards, or None when there is only one.</span>
+    <span class="n">boundary</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">n_pixels</span> <span class="o">=</span> <span class="mi">256</span>
+
+<div class="viewcode-block" id="SensorCanvas.__init__">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.canvas.sensor.html#daplis_rtp.gui.canvas.SensorCanvas.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">mpl_connect</span><span class="p">(</span><span class="s2">"button_press_event"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_click</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">setToolTip</span><span class="p">(</span>
+            <span class="s2">"Ctrl+click a pixel to mask or unmask it."</span>
+        <span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_on_click</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Turn a Ctrl+click on the axes into a pixel number.</span>
+
+<span class="sd">        The modifier is read from Qt rather than from</span>
+<span class="sd">        ``event.key``. matplotlib tracks modifiers through its own key</span>
+<span class="sd">        events, which only reach the canvas once it has keyboard focus,</span>
+<span class="sd">        so the first Ctrl+click after clicking anywhere else in the</span>
+<span class="sd">        window would report no modifier at all - masking on a plain</span>
+<span class="sd">        click, which is precisely what this is meant to avoid.</span>
+
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">inaxes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">ax</span> <span class="ow">or</span> <span class="n">event</span><span class="o">.</span><span class="n">button</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">xdata</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="n">modifiers</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QApplication</span><span class="o">.</span><span class="n">keyboardModifiers</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">modifiers</span> <span class="o">&amp;</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">ControlModifier</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="n">pixel</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">xdata</span><span class="p">))</span>
+        <span class="k">if</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">pixel</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_pixels</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pixel_ctrl_clicked</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">pixel</span><span class="p">)</span>
+
+<div class="viewcode-block" id="SensorCanvas.draw_data">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.canvas.sensor.html#daplis_rtp.gui.canvas.SensorCanvas.draw_data">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">draw_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="n">rates</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">"rates"</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">rates</span><span class="p">,</span> <span class="s2">"-o"</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">theme</span><span class="o">.</span><span class="n">colour</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">boundary</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span>
+                <span class="n">x</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">boundary</span><span class="p">,</span>
+                <span class="n">color</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">theme</span><span class="o">.</span><span class="n">marker</span><span class="p">,</span>
+                <span class="n">linestyle</span><span class="o">=</span><span class="s2">"--"</span><span class="p">,</span>
+                <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.2</span><span class="p">,</span>
+                <span class="n">alpha</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"grouping"</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">group_lines</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span>
+                    <span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span>
+                    <span class="n">color</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">theme</span><span class="o">.</span><span class="n">marker</span><span class="p">,</span>
+                    <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+                    <span class="n">alpha</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span>
+                <span class="p">)</span>
+
+        <span class="n">x_lim</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"x_lim"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">x_lim</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">x_lim</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">x_lim</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="c1"># After the limits, not before: the gradient under the trace is</span>
+        <span class="c1"># drawn as an image sized to the current axes, so a glow added</span>
+        <span class="c1"># first is stretched by the 'set_xlim' that follows it.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">glow</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_draw_fits</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scientific_y</span><span class="p">()</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_draw_fits</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""The threshold and the fitted lines, over the data.</span>
+
+<span class="sd">        After the glow, so that neither is glowed or filled under, and</span>
+<span class="sd">        with autoscaling off, so that a threshold set above every pixel</span>
+<span class="sd">        cannot stretch the axes the glow's gradient was sized to.</span>
+
+<span class="sd">        """</span>
+        <span class="n">threshold</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"fit_threshold"</span><span class="p">)</span>
+        <span class="n">fits</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"fits"</span><span class="p">)</span> <span class="ow">or</span> <span class="p">()</span>
+        <span class="k">if</span> <span class="n">threshold</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">fits</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_autoscale_on</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">colour</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">theme</span><span class="o">.</span><span class="n">colour</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">threshold</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span>
+                <span class="n">y</span><span class="o">=</span><span class="n">threshold</span><span class="p">,</span>
+                <span class="n">color</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">theme</span><span class="o">.</span><span class="n">marker</span><span class="p">,</span>
+                <span class="n">linestyle</span><span class="o">=</span><span class="s2">"--"</span><span class="p">,</span>
+                <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+                <span class="n">alpha</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">for</span> <span class="n">fit</span> <span class="ow">in</span> <span class="n">fits</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">"error"</span> <span class="ow">in</span> <span class="n">fit</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">fit</span><span class="p">[</span><span class="s2">"low"</span><span class="p">],</span> <span class="n">fit</span><span class="p">[</span><span class="s2">"high"</span><span class="p">],</span> <span class="mi">200</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+                <span class="n">x</span><span class="p">,</span>
+                <span class="n">gaussian</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">fit</span><span class="p">[</span><span class="s2">"amplitude"</span><span class="p">],</span> <span class="n">fit</span><span class="p">[</span><span class="s2">"centre"</span><span class="p">],</span> <span class="n">fit</span><span class="p">[</span><span class="s2">"sigma"</span><span class="p">],</span>
+                         <span class="n">fit</span><span class="p">[</span><span class="s2">"background"</span><span class="p">]),</span>
+                <span class="n">color</span><span class="o">=</span><span class="n">colour</span><span class="p">,</span>
+                <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.6</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="c1"># 'add_artist' clips it to the axes as a backstop: a peak</span>
+            <span class="c1"># zoomed half out of view must not leave its label over the</span>
+            <span class="c1"># tick labels.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">add_artist</span><span class="p">(</span>
+                <span class="n">FitLabel</span><span class="p">(</span>
+                    <span class="s2">"σ = </span><span class="si">{:.2f}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fit</span><span class="p">[</span><span class="s2">"sigma"</span><span class="p">]),</span>
+                    <span class="n">fit</span><span class="p">,</span>
+                    <span class="n">color</span><span class="o">=</span><span class="n">colour</span><span class="p">,</span>
+                    <span class="n">fontsize</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">fontsize</span> <span class="o">*</span> <span class="mf">0.8</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="DualSensorCanvas">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.canvas.sensor.html#daplis_rtp.gui.canvas.DualSensorCanvas">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">DualSensorCanvas</span><span class="p">(</span><span class="n">SensorCanvas</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Photon rate across both halves of the full sensor, 512 pixels."""</span>
+
+    <span class="n">group_lines</span> <span class="o">=</span> <span class="p">(</span><span class="mi">64</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="mi">192</span><span class="p">,</span> <span class="mi">320</span><span class="p">,</span> <span class="mi">384</span><span class="p">,</span> <span class="mi">448</span><span class="p">)</span>
+    <span class="n">boundary</span> <span class="o">=</span> <span class="mf">255.5</span>
+    <span class="n">n_pixels</span> <span class="o">=</span> <span class="mi">512</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Sergei Kulkov.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

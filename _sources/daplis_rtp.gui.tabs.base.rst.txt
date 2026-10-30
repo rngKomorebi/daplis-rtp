@@ -1,0 +1,7 @@
+daplis\_rtp.gui.tabs.base module
+================================
+
+.. automodule:: daplis_rtp.gui.tabs.base
+   :members:
+   :show-inheritance:
+   :undoc-members:

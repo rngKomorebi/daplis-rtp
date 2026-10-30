@@ -1,0 +1,7 @@
+daplis\_rtp.functions.tdc\_occupancy module
+===========================================
+
+.. automodule:: daplis_rtp.functions.tdc_occupancy
+   :members:
+   :show-inheritance:
+   :undoc-members:

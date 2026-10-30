@@ -1,0 +1,20 @@
+daplis\_rtp.gui.widgets package
+===============================
+
+.. automodule:: daplis_rtp.gui.widgets
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   daplis_rtp.gui.widgets.controls
+   daplis_rtp.gui.widgets.file_sync
+   daplis_rtp.gui.widgets.gaussian_fit
+   daplis_rtp.gui.widgets.peak_stats
+   daplis_rtp.gui.widgets.pixel_mask
+   daplis_rtp.gui.widgets.tdc_occupancy

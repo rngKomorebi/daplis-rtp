@@ -1,0 +1,710 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>daplis_rtp.gui.tabs package &mdash; Data Analysis Package for LinoSPAD2 - Real-Time Plotting 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=8d563738"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="daplis_rtp.gui.tabs.base module" href="daplis_rtp.gui.tabs.base.html" />
+    <link rel="prev" title="daplis_rtp.gui.canvas.sensor module" href="daplis_rtp.gui.canvas.sensor.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Data Analysis Package for LinoSPAD2 - Real-Time Plotting
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation and usage</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="daplis_rtp.gui.html">daplis_rtp.gui package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="daplis_rtp.gui.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.canvas.html">daplis_rtp.gui.canvas package</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">daplis_rtp.gui.tabs package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#daplis_rtp.gui.tabs.LinoSPAD2Dual"><code class="docutils literal notranslate"><span class="pre">LinoSPAD2Dual</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#daplis_rtp.gui.tabs.LiveTimestamps"><code class="docutils literal notranslate"><span class="pre">LiveTimestamps</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#daplis_rtp.gui.tabs.MZI"><code class="docutils literal notranslate"><span class="pre">MZI</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#daplis_rtp.gui.tabs.SinglePixelHistogram"><code class="docutils literal notranslate"><span class="pre">SinglePixelHistogram</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#daplis_rtp.gui.tabs.Synchronization"><code class="docutils literal notranslate"><span class="pre">Synchronization</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#submodules">Submodules</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.html">daplis_rtp.gui.widgets package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.html#submodules">Submodules</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="daplis_rtp.functions.html">daplis_rtp.functions package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contribute.html">How to contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">License and contact info</a></li>
+<li class="toctree-l1"><a class="reference internal" href="acknowledgement.html">Acknowledgement</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Data Analysis Package for LinoSPAD2 - Real-Time Plotting</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="daplis_rtp.gui.html">daplis_rtp.gui package</a></li>
+      <li class="breadcrumb-item active">daplis_rtp.gui.tabs package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/daplis_rtp.gui.tabs.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-daplis_rtp.gui.tabs">
+<span id="daplis-rtp-gui-tabs-package"></span><h1>daplis_rtp.gui.tabs package<a class="headerlink" href="#module-daplis_rtp.gui.tabs" title="Link to this heading"></a></h1>
+<p>The five tabs, in the order the window shows them.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tabs.LinoSPAD2Dual">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">daplis_rtp.gui.tabs.</span></span><span class="sig-name descname"><span class="pre">LinoSPAD2Dual</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/tabs/full_sensor.html#LinoSPAD2Dual"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.tabs.LinoSPAD2Dual" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="daplis_rtp.gui.tabs.base.html#daplis_rtp.gui.tabs.base.PlotTab" title="daplis_rtp.gui.tabs.base.PlotTab"><code class="xref py py-class docutils literal notranslate"><span class="pre">PlotTab</span></code></a></p>
+<p>Photon rate across both sensor halves, from two boards at once.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tabs.LinoSPAD2Dual.bind_session">
+<span class="sig-name descname"><span class="pre">bind_session</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/tabs/full_sensor.html#LinoSPAD2Dual.bind_session"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.tabs.LinoSPAD2Dual.bind_session" title="Link to this definition"></a></dt>
+<dd><p>Register the controls this tab should remember.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tabs.LinoSPAD2Dual.build">
+<span class="sig-name descname"><span class="pre">build</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/tabs/full_sensor.html#LinoSPAD2Dual.build"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.tabs.LinoSPAD2Dual.build" title="Link to this definition"></a></dt>
+<dd><p>Fill the shell. Every tab writes this and nothing else.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tabs.LinoSPAD2Dual.canvas_class">
+<span class="sig-name descname"><span class="pre">canvas_class</span></span><a class="headerlink" href="#daplis_rtp.gui.tabs.LinoSPAD2Dual.canvas_class" title="Link to this definition"></a></dt>
+<dd><p>alias of <a class="reference internal" href="daplis_rtp.gui.canvas.sensor.html#daplis_rtp.gui.canvas.sensor.DualSensorCanvas" title="daplis_rtp.gui.canvas.sensor.DualSensorCanvas"><code class="xref py py-class docutils literal notranslate"><span class="pre">DualSensorCanvas</span></code></a></p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tabs.LinoSPAD2Dual.combined_mask">
+<span class="sig-name descname"><span class="pre">combined_mask</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/tabs/full_sensor.html#LinoSPAD2Dual.combined_mask"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.tabs.LinoSPAD2Dual.combined_mask" title="Link to this definition"></a></dt>
+<dd><p>Both boards’ masks laid end to end on the 0-511 axis.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tabs.LinoSPAD2Dual.hint_text">
+<span class="sig-name descname"><span class="pre">hint_text</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Both</span> <span class="pre">sensor</span> <span class="pre">halves</span> <span class="pre">end</span> <span class="pre">to</span> <span class="pre">end,</span> <span class="pre">from</span> <span class="pre">two</span> <span class="pre">boards</span> <span class="pre">writing</span> <span class="pre">in</span> <span class="pre">step.</span> <span class="pre">Board</span> <span class="pre">2</span> <span class="pre">is</span> <span class="pre">always</span> <span class="pre">address-corrected;</span> <span class="pre">Ctrl+click</span> <span class="pre">a</span> <span class="pre">pixel</span> <span class="pre">to</span> <span class="pre">mask</span> <span class="pre">it.'</span></span><a class="headerlink" href="#daplis_rtp.gui.tabs.LinoSPAD2Dual.hint_text" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tabs.LinoSPAD2Dual.mask_pixels">
+<span class="sig-name descname"><span class="pre">mask_pixels</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/tabs/full_sensor.html#LinoSPAD2Dual.mask_pixels"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.tabs.LinoSPAD2Dual.mask_pixels" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tabs.LinoSPAD2Dual.on_refresh_requested">
+<span class="sig-name descname"><span class="pre">on_refresh_requested</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/tabs/full_sensor.html#LinoSPAD2Dual.on_refresh_requested"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.tabs.LinoSPAD2Dual.on_refresh_requested" title="Link to this definition"></a></dt>
+<dd><p>Hook: what an explicit ‘look again’ re-arms.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tabs.LinoSPAD2Dual.on_stream_start">
+<span class="sig-name descname"><span class="pre">on_stream_start</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/tabs/full_sensor.html#LinoSPAD2Dual.on_stream_start"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.tabs.LinoSPAD2Dual.on_stream_start" title="Link to this definition"></a></dt>
+<dd><p>Hook: what this tab arms when a run starts.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tabs.LinoSPAD2Dual.on_stream_stop">
+<span class="sig-name descname"><span class="pre">on_stream_stop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/tabs/full_sensor.html#LinoSPAD2Dual.on_stream_stop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.tabs.LinoSPAD2Dual.on_stream_stop" title="Link to this definition"></a></dt>
+<dd><p>Hook: what this tab stands down when a run ends.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tabs.LinoSPAD2Dual.plotted_data">
+<span class="sig-name descname"><span class="pre">plotted_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/tabs/full_sensor.html#LinoSPAD2Dual.plotted_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.tabs.LinoSPAD2Dual.plotted_data" title="Link to this definition"></a></dt>
+<dd><p>The numbers behind the plot, for <em>File -&gt; Export</em>.</p>
+<p>Returns <code class="docutils literal notranslate"><span class="pre">None</span></code> when there is nothing to export, or a dict:</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">stem</span></code></dt><dd><p>A suggested file name, without an extension.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">columns</span></code></dt><dd><p>Ordered <code class="docutils literal notranslate"><span class="pre">{heading:</span> <span class="pre">1-D</span> <span class="pre">array}</span></code>; every column the same
+length.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">notes</span></code></dt><dd><p>Lines describing where the numbers came from, written into
+the file as <code class="docutils literal notranslate"><span class="pre">#</span></code> comments so that a plot found on a disk
+six months later can still say what it was.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tabs.LinoSPAD2Dual.presetmask_pixels">
+<span class="sig-name descname"><span class="pre">presetmask_pixels</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/tabs/full_sensor.html#LinoSPAD2Dual.presetmask_pixels"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.tabs.LinoSPAD2Dual.presetmask_pixels" title="Link to this definition"></a></dt>
+<dd><p>Apply each board’s recorded warm-pixel mask, or lift them.</p>
+<p>Each board uses the shared daughterboard and its own motherboard
+to look up its file. A board with no mask recorded is skipped
+silently; the warning comes only when neither has one, since one
+board masked and the other not is a perfectly ordinary state.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tabs.LinoSPAD2Dual.refresh">
+<span class="sig-name descname"><span class="pre">refresh</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/tabs/full_sensor.html#LinoSPAD2Dual.refresh"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.tabs.LinoSPAD2Dual.refresh" title="Link to this definition"></a></dt>
+<dd><p>Read the newest file and redraw. Written by every tab.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tabs.LinoSPAD2Dual.report_occupancy">
+<span class="sig-name descname"><span class="pre">report_occupancy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fw_ver</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">occupancy_1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">occupancy_2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/tabs/full_sensor.html#LinoSPAD2Dual.report_occupancy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.tabs.LinoSPAD2Dual.report_occupancy" title="Link to this definition"></a></dt>
+<dd><p>Hand one refresh’s slot occupancy to the status box.</p>
+<p>The pixels of interest are given on the 0-511 x-axis of this
+tab, so each board takes the part of them that falls on its own
+half and maps it to TDCs with the <code class="docutils literal notranslate"><span class="pre">pix_add_fix</span></code> its rates were
+built with - always off for board 1 and on for board 2.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tabs.LinoSPAD2Dual.reset_pix_mask">
+<span class="sig-name descname"><span class="pre">reset_pix_mask</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/tabs/full_sensor.html#LinoSPAD2Dual.reset_pix_mask"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.tabs.LinoSPAD2Dual.reset_pix_mask" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tabs.LinoSPAD2Dual.session_scope">
+<span class="sig-name descname"><span class="pre">session_scope</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'full_sensor'</span></span><a class="headerlink" href="#daplis_rtp.gui.tabs.LinoSPAD2Dual.session_scope" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tabs.LinoSPAD2Dual.slot_mask_changed">
+<span class="sig-name descname"><span class="pre">slot_mask_changed</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/tabs/full_sensor.html#LinoSPAD2Dual.slot_mask_changed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.tabs.LinoSPAD2Dual.slot_mask_changed" title="Link to this definition"></a></dt>
+<dd><p>Rebuild both masks, update the count, and redraw.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tabs.LinoSPAD2Dual.toggle_pixel_mask">
+<span class="sig-name descname"><span class="pre">toggle_pixel_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pixel</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/tabs/full_sensor.html#LinoSPAD2Dual.toggle_pixel_mask"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.tabs.LinoSPAD2Dual.toggle_pixel_mask" title="Link to this definition"></a></dt>
+<dd><p>Ctrl+click on the plot: mask this pixel, or unmask it.</p>
+<p>The plot’s x-axis runs 0-511 across both halves, so which board
+the click landed on is the half it fell in.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tabs.LinoSPAD2Dual.watched_paths">
+<span class="sig-name descname"><span class="pre">watched_paths</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/tabs/full_sensor.html#LinoSPAD2Dual.watched_paths"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.tabs.LinoSPAD2Dual.watched_paths" title="Link to this definition"></a></dt>
+<dd><p>The folders a running stream should watch. Tabs override.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tabs.LiveTimestamps">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">daplis_rtp.gui.tabs.</span></span><span class="sig-name descname"><span class="pre">LiveTimestamps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/tabs/online_plot.html#LiveTimestamps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.tabs.LiveTimestamps" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="daplis_rtp.gui.tabs.base.html#daplis_rtp.gui.tabs.base.PlotTab" title="daplis_rtp.gui.tabs.base.PlotTab"><code class="xref py py-class docutils literal notranslate"><span class="pre">PlotTab</span></code></a></p>
+<p>Photon rate per pixel, for a single LinoSPAD2 board.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tabs.LiveTimestamps.bind_session">
+<span class="sig-name descname"><span class="pre">bind_session</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/tabs/online_plot.html#LiveTimestamps.bind_session"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.tabs.LiveTimestamps.bind_session" title="Link to this definition"></a></dt>
+<dd><p>Register the controls this tab should remember.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tabs.LiveTimestamps.build">
+<span class="sig-name descname"><span class="pre">build</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/tabs/online_plot.html#LiveTimestamps.build"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.tabs.LiveTimestamps.build" title="Link to this definition"></a></dt>
+<dd><p>Fill the shell. Every tab writes this and nothing else.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tabs.LiveTimestamps.canvas_class">
+<span class="sig-name descname"><span class="pre">canvas_class</span></span><a class="headerlink" href="#daplis_rtp.gui.tabs.LiveTimestamps.canvas_class" title="Link to this definition"></a></dt>
+<dd><p>alias of <a class="reference internal" href="daplis_rtp.gui.canvas.sensor.html#daplis_rtp.gui.canvas.sensor.SensorCanvas" title="daplis_rtp.gui.canvas.sensor.SensorCanvas"><code class="xref py py-class docutils literal notranslate"><span class="pre">SensorCanvas</span></code></a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tabs.LiveTimestamps.hint_text">
+<span class="sig-name descname"><span class="pre">hint_text</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Photon</span> <span class="pre">rate</span> <span class="pre">per</span> <span class="pre">pixel,</span> <span class="pre">from</span> <span class="pre">the</span> <span class="pre">newest</span> <span class="pre">file</span> <span class="pre">in</span> <span class="pre">the</span> <span class="pre">folder.</span> <span class="pre">Start</span> <span class="pre">the</span> <span class="pre">stream</span> <span class="pre">to</span> <span class="pre">follow</span> <span class="pre">it</span> <span class="pre">as</span> <span class="pre">files</span> <span class="pre">arrive;</span> <span class="pre">Ctrl+click</span> <span class="pre">a</span> <span class="pre">pixel</span> <span class="pre">to</span> <span class="pre">mask</span> <span class="pre">it.'</span></span><a class="headerlink" href="#daplis_rtp.gui.tabs.LiveTimestamps.hint_text" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tabs.LiveTimestamps.mask_pixels">
+<span class="sig-name descname"><span class="pre">mask_pixels</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/tabs/online_plot.html#LiveTimestamps.mask_pixels"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.tabs.LiveTimestamps.mask_pixels" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tabs.LiveTimestamps.on_refresh_requested">
+<span class="sig-name descname"><span class="pre">on_refresh_requested</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/tabs/online_plot.html#LiveTimestamps.on_refresh_requested"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.tabs.LiveTimestamps.on_refresh_requested" title="Link to this definition"></a></dt>
+<dd><p>Hook: what an explicit ‘look again’ re-arms.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tabs.LiveTimestamps.on_stream_start">
+<span class="sig-name descname"><span class="pre">on_stream_start</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/tabs/online_plot.html#LiveTimestamps.on_stream_start"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.tabs.LiveTimestamps.on_stream_start" title="Link to this definition"></a></dt>
+<dd><p>Hook: what this tab arms when a run starts.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tabs.LiveTimestamps.on_waiting_for_data">
+<span class="sig-name descname"><span class="pre">on_waiting_for_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/tabs/online_plot.html#LiveTimestamps.on_waiting_for_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.tabs.LiveTimestamps.on_waiting_for_data" title="Link to this definition"></a></dt>
+<dd><p>Hook: say, quietly, that the folder is still empty.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tabs.LiveTimestamps.plotted_data">
+<span class="sig-name descname"><span class="pre">plotted_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/tabs/online_plot.html#LiveTimestamps.plotted_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.tabs.LiveTimestamps.plotted_data" title="Link to this definition"></a></dt>
+<dd><p>The numbers behind the plot, for <em>File -&gt; Export</em>.</p>
+<p>Returns <code class="docutils literal notranslate"><span class="pre">None</span></code> when there is nothing to export, or a dict:</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">stem</span></code></dt><dd><p>A suggested file name, without an extension.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">columns</span></code></dt><dd><p>Ordered <code class="docutils literal notranslate"><span class="pre">{heading:</span> <span class="pre">1-D</span> <span class="pre">array}</span></code>; every column the same
+length.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">notes</span></code></dt><dd><p>Lines describing where the numbers came from, written into
+the file as <code class="docutils literal notranslate"><span class="pre">#</span></code> comments so that a plot found on a disk
+six months later can still say what it was.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tabs.LiveTimestamps.presetmask_pixels">
+<span class="sig-name descname"><span class="pre">presetmask_pixels</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/tabs/online_plot.html#LiveTimestamps.presetmask_pixels"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.tabs.LiveTimestamps.presetmask_pixels" title="Link to this definition"></a></dt>
+<dd><p>Apply the recorded warm-pixel mask, or lift it again.</p>
+<p>The file is looked up from the daughterboard and motherboard
+chosen above; a combination that has no mask recorded says so
+and clears the tick rather than leaving it set over nothing.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tabs.LiveTimestamps.refresh">
+<span class="sig-name descname"><span class="pre">refresh</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/tabs/online_plot.html#LiveTimestamps.refresh"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.tabs.LiveTimestamps.refresh" title="Link to this definition"></a></dt>
+<dd><p>Read the newest file and redraw. Written by every tab.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tabs.LiveTimestamps.report_occupancy">
+<span class="sig-name descname"><span class="pre">report_occupancy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">occupancy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fw_ver</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pix_add_fix</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/tabs/online_plot.html#LiveTimestamps.report_occupancy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.tabs.LiveTimestamps.report_occupancy" title="Link to this definition"></a></dt>
+<dd><p>Hand one refresh’s slot occupancy to the status box.</p>
+<p>The pixels of interest come either from the box’s own field or
+from the mask and the x-limits; they are pixel numbers as
+plotted, so they are mapped to TDCs with the same
+<code class="docutils literal notranslate"><span class="pre">pix_add_fix</span></code> the rates were built with.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tabs.LiveTimestamps.reset_pix_mask">
+<span class="sig-name descname"><span class="pre">reset_pix_mask</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/tabs/online_plot.html#LiveTimestamps.reset_pix_mask"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.tabs.LiveTimestamps.reset_pix_mask" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tabs.LiveTimestamps.session_scope">
+<span class="sig-name descname"><span class="pre">session_scope</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'online_plot'</span></span><a class="headerlink" href="#daplis_rtp.gui.tabs.LiveTimestamps.session_scope" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tabs.LiveTimestamps.slot_mask_changed">
+<span class="sig-name descname"><span class="pre">slot_mask_changed</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/tabs/online_plot.html#LiveTimestamps.slot_mask_changed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.tabs.LiveTimestamps.slot_mask_changed" title="Link to this definition"></a></dt>
+<dd><p>Rebuild the mask, update the count, and redraw.</p>
+<p>Redrawing here is what makes a tick visible at once: the rates
+are kept unmasked, so re-applying the mask to them is the whole
+of the work, and it costs one redraw rather than a re-read of
+the file.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tabs.LiveTimestamps.toggle_pixel_mask">
+<span class="sig-name descname"><span class="pre">toggle_pixel_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pixel</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/tabs/online_plot.html#LiveTimestamps.toggle_pixel_mask"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.tabs.LiveTimestamps.toggle_pixel_mask" title="Link to this definition"></a></dt>
+<dd><p>Ctrl+click on the plot: mask this pixel, or unmask it.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tabs.LiveTimestamps.watched_paths">
+<span class="sig-name descname"><span class="pre">watched_paths</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/tabs/online_plot.html#LiveTimestamps.watched_paths"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.tabs.LiveTimestamps.watched_paths" title="Link to this definition"></a></dt>
+<dd><p>The folders a running stream should watch. Tabs override.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tabs.MZI">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">daplis_rtp.gui.tabs.</span></span><span class="sig-name descname"><span class="pre">MZI</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/tabs/mzi.html#MZI"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.tabs.MZI" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="daplis_rtp.gui.tabs.base.html#daplis_rtp.gui.tabs.base.PlotTab" title="daplis_rtp.gui.tabs.base.PlotTab"><code class="xref py py-class docutils literal notranslate"><span class="pre">PlotTab</span></code></a></p>
+<p>Two pixels’ photon rate against elapsed time.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tabs.MZI.bind_session">
+<span class="sig-name descname"><span class="pre">bind_session</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/tabs/mzi.html#MZI.bind_session"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.tabs.MZI.bind_session" title="Link to this definition"></a></dt>
+<dd><p>Register the controls this tab should remember.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tabs.MZI.build">
+<span class="sig-name descname"><span class="pre">build</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/tabs/mzi.html#MZI.build"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.tabs.MZI.build" title="Link to this definition"></a></dt>
+<dd><p>Fill the shell. Every tab writes this and nothing else.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tabs.MZI.canvas_class">
+<span class="sig-name descname"><span class="pre">canvas_class</span></span><a class="headerlink" href="#daplis_rtp.gui.tabs.MZI.canvas_class" title="Link to this definition"></a></dt>
+<dd><p>alias of <a class="reference internal" href="daplis_rtp.gui.canvas.mzi.html#daplis_rtp.gui.canvas.mzi.MziCanvas" title="daplis_rtp.gui.canvas.mzi.MziCanvas"><code class="xref py py-class docutils literal notranslate"><span class="pre">MziCanvas</span></code></a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tabs.MZI.hint_text">
+<span class="sig-name descname"><span class="pre">hint_text</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Photon</span> <span class="pre">rate</span> <span class="pre">in</span> <span class="pre">two</span> <span class="pre">pixels</span> <span class="pre">against</span> <span class="pre">time</span> <span class="pre">—</span> <span class="pre">one</span> <span class="pre">point</span> <span class="pre">per</span> <span class="pre">data</span> <span class="pre">file.</span> <span class="pre">Start</span> <span class="pre">the</span> <span class="pre">stream</span> <span class="pre">and</span> <span class="pre">the</span> <span class="pre">trace</span> <span class="pre">grows</span> <span class="pre">as</span> <span class="pre">files</span> <span class="pre">arrive.'</span></span><a class="headerlink" href="#daplis_rtp.gui.tabs.MZI.hint_text" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tabs.MZI.on_stream_start">
+<span class="sig-name descname"><span class="pre">on_stream_start</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/tabs/mzi.html#MZI.on_stream_start"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.tabs.MZI.on_stream_start" title="Link to this definition"></a></dt>
+<dd><p>Hook: what this tab arms when a run starts.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tabs.MZI.on_waiting_for_data">
+<span class="sig-name descname"><span class="pre">on_waiting_for_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/tabs/mzi.html#MZI.on_waiting_for_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.tabs.MZI.on_waiting_for_data" title="Link to this definition"></a></dt>
+<dd><p>Hook: say, quietly, that the folder is still empty.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tabs.MZI.plotted_data">
+<span class="sig-name descname"><span class="pre">plotted_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/tabs/mzi.html#MZI.plotted_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.tabs.MZI.plotted_data" title="Link to this definition"></a></dt>
+<dd><p>The numbers behind the plot, for <em>File -&gt; Export</em>.</p>
+<p>Returns <code class="docutils literal notranslate"><span class="pre">None</span></code> when there is nothing to export, or a dict:</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">stem</span></code></dt><dd><p>A suggested file name, without an extension.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">columns</span></code></dt><dd><p>Ordered <code class="docutils literal notranslate"><span class="pre">{heading:</span> <span class="pre">1-D</span> <span class="pre">array}</span></code>; every column the same
+length.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">notes</span></code></dt><dd><p>Lines describing where the numbers came from, written into
+the file as <code class="docutils literal notranslate"><span class="pre">#</span></code> comments so that a plot found on a disk
+six months later can still say what it was.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tabs.MZI.refresh">
+<span class="sig-name descname"><span class="pre">refresh</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/tabs/mzi.html#MZI.refresh"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.tabs.MZI.refresh" title="Link to this definition"></a></dt>
+<dd><p>Read the newest file and redraw. Written by every tab.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tabs.MZI.resetPlot">
+<span class="sig-name descname"><span class="pre">resetPlot</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/tabs/mzi.html#MZI.resetPlot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.tabs.MZI.resetPlot" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tabs.MZI.session_scope">
+<span class="sig-name descname"><span class="pre">session_scope</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'mzi'</span></span><a class="headerlink" href="#daplis_rtp.gui.tabs.MZI.session_scope" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tabs.MZI.watched_paths">
+<span class="sig-name descname"><span class="pre">watched_paths</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/tabs/mzi.html#MZI.watched_paths"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.tabs.MZI.watched_paths" title="Link to this definition"></a></dt>
+<dd><p>The folders a running stream should watch. Tabs override.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tabs.SinglePixelHistogram">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">daplis_rtp.gui.tabs.</span></span><span class="sig-name descname"><span class="pre">SinglePixelHistogram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/tabs/single_pixel_histogram.html#SinglePixelHistogram"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.tabs.SinglePixelHistogram" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="daplis_rtp.gui.tabs.base.html#daplis_rtp.gui.tabs.base.PlotTab" title="daplis_rtp.gui.tabs.base.PlotTab"><code class="xref py py-class docutils literal notranslate"><span class="pre">PlotTab</span></code></a></p>
+<p>Histogram of one pixel’s timestamps within the acquisition cycle.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tabs.SinglePixelHistogram.bind_session">
+<span class="sig-name descname"><span class="pre">bind_session</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/tabs/single_pixel_histogram.html#SinglePixelHistogram.bind_session"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.tabs.SinglePixelHistogram.bind_session" title="Link to this definition"></a></dt>
+<dd><p>Register the controls this tab should remember.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tabs.SinglePixelHistogram.build">
+<span class="sig-name descname"><span class="pre">build</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/tabs/single_pixel_histogram.html#SinglePixelHistogram.build"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.tabs.SinglePixelHistogram.build" title="Link to this definition"></a></dt>
+<dd><p>Fill the shell. Every tab writes this and nothing else.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tabs.SinglePixelHistogram.canvas_class">
+<span class="sig-name descname"><span class="pre">canvas_class</span></span><a class="headerlink" href="#daplis_rtp.gui.tabs.SinglePixelHistogram.canvas_class" title="Link to this definition"></a></dt>
+<dd><p>alias of <a class="reference internal" href="daplis_rtp.gui.canvas.histogram.html#daplis_rtp.gui.canvas.histogram.HistogramCanvas" title="daplis_rtp.gui.canvas.histogram.HistogramCanvas"><code class="xref py py-class docutils literal notranslate"><span class="pre">HistogramCanvas</span></code></a></p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tabs.SinglePixelHistogram.cycle_length_change">
+<span class="sig-name descname"><span class="pre">cycle_length_change</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/tabs/single_pixel_histogram.html#SinglePixelHistogram.cycle_length_change"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.tabs.SinglePixelHistogram.cycle_length_change" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tabs.SinglePixelHistogram.hint_text">
+<span class="sig-name descname"><span class="pre">hint_text</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&quot;Arrival</span> <span class="pre">times</span> <span class="pre">of</span> <span class="pre">one</span> <span class="pre">pixel's</span> <span class="pre">photons</span> <span class="pre">within</span> <span class="pre">the</span> <span class="pre">acquisition</span> <span class="pre">cycle.</span> <span class="pre">A</span> <span class="pre">healthy</span> <span class="pre">pixel</span> <span class="pre">gives</span> <span class="pre">a</span> <span class="pre">flat</span> <span class="pre">top.&quot;</span></span><a class="headerlink" href="#daplis_rtp.gui.tabs.SinglePixelHistogram.hint_text" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tabs.SinglePixelHistogram.on_session_restored">
+<span class="sig-name descname"><span class="pre">on_session_restored</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/tabs/single_pixel_histogram.html#SinglePixelHistogram.on_session_restored"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.tabs.SinglePixelHistogram.on_session_restored" title="Link to this definition"></a></dt>
+<dd><p>Re-read the cycle length out of its restored field.</p>
+<p>Silently, unlike ‘cycle_length_change’: this runs while the tab
+is still being built, and a warning box here would come up
+before the window it belongs to.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tabs.SinglePixelHistogram.plotted_data">
+<span class="sig-name descname"><span class="pre">plotted_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/tabs/single_pixel_histogram.html#SinglePixelHistogram.plotted_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.tabs.SinglePixelHistogram.plotted_data" title="Link to this definition"></a></dt>
+<dd><p>The numbers behind the plot, for <em>File -&gt; Export</em>.</p>
+<p>Returns <code class="docutils literal notranslate"><span class="pre">None</span></code> when there is nothing to export, or a dict:</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">stem</span></code></dt><dd><p>A suggested file name, without an extension.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">columns</span></code></dt><dd><p>Ordered <code class="docutils literal notranslate"><span class="pre">{heading:</span> <span class="pre">1-D</span> <span class="pre">array}</span></code>; every column the same
+length.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">notes</span></code></dt><dd><p>Lines describing where the numbers came from, written into
+the file as <code class="docutils literal notranslate"><span class="pre">#</span></code> comments so that a plot found on a disk
+six months later can still say what it was.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tabs.SinglePixelHistogram.refresh">
+<span class="sig-name descname"><span class="pre">refresh</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/tabs/single_pixel_histogram.html#SinglePixelHistogram.refresh"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.tabs.SinglePixelHistogram.refresh" title="Link to this definition"></a></dt>
+<dd><p>Read the newest file and rebuild the histogram.</p>
+<p>There is no stream on this tab: a histogram is something to look
+at, not something to watch move. The button reads the newest
+file every time it is pressed, so a run in progress is followed
+by pressing it again.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tabs.SinglePixelHistogram.session_scope">
+<span class="sig-name descname"><span class="pre">session_scope</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'single_pixel_histogram'</span></span><a class="headerlink" href="#daplis_rtp.gui.tabs.SinglePixelHistogram.session_scope" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tabs.Synchronization">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">daplis_rtp.gui.tabs.</span></span><span class="sig-name descname"><span class="pre">Synchronization</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/tabs/synchronization.html#Synchronization"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.tabs.Synchronization" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.TabShell" title="daplis_rtp.gui.layout.TabShell"><code class="xref py py-class docutils literal notranslate"><span class="pre">TabShell</span></code></a></p>
+<p>Tab for controlling two-board synchronized acquisition over TCP.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tabs.Synchronization.BOARD_INFO">
+<span class="sig-name descname"><span class="pre">BOARD_INFO</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{0:</span> <span class="pre">('Board</span> <span class="pre">0</span>&#160; <span class="pre">(dev</span> <span class="pre">0</span> <span class="pre">/</span> <span class="pre">#33)',</span> <span class="pre">5555),</span> <span class="pre">1:</span> <span class="pre">('Board</span> <span class="pre">1</span>&#160; <span class="pre">(dev</span> <span class="pre">1</span> <span class="pre">/</span> <span class="pre">#21)',</span> <span class="pre">5556)}</span></span><a class="headerlink" href="#daplis_rtp.gui.tabs.Synchronization.BOARD_INFO" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tabs.Synchronization.HINT">
+<span class="sig-name descname"><span class="pre">HINT</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&quot;Both</span> <span class="pre">LinoSPAD_synchro.exe</span> <span class="pre">instances</span> <span class="pre">must</span> <span class="pre">be</span> <span class="pre">running</span> <span class="pre">and</span> <span class="pre">'Listening'</span> <span class="pre">first.</span> <span class="pre">Use</span> <span class="pre">25</span> <span class="pre">MHz</span> <span class="pre">on</span> <span class="pre">the</span> <span class="pre">external</span> <span class="pre">clock.</span> <span class="pre">Each</span> <span class="pre">board</span> <span class="pre">saves</span> <span class="pre">to</span> <span class="pre">its</span> <span class="pre">own</span> <span class="pre">GUI's</span> <span class="pre">AutoSave</span> <span class="pre">path.&quot;</span></span><a class="headerlink" href="#daplis_rtp.gui.tabs.Synchronization.HINT" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tabs.Synchronization.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/tabs/synchronization.html#Synchronization.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.tabs.Synchronization.__init__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="daplis_rtp.gui.tabs.base.html">daplis_rtp.gui.tabs.base module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.tabs.base.html#daplis_rtp.gui.tabs.base.PlotTab"><code class="docutils literal notranslate"><span class="pre">PlotTab</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.base.html#daplis_rtp.gui.tabs.base.PlotTab.__init__"><code class="docutils literal notranslate"><span class="pre">PlotTab.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.base.html#daplis_rtp.gui.tabs.base.PlotTab.bind_session"><code class="docutils literal notranslate"><span class="pre">PlotTab.bind_session()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.base.html#daplis_rtp.gui.tabs.base.PlotTab.build"><code class="docutils literal notranslate"><span class="pre">PlotTab.build()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.base.html#daplis_rtp.gui.tabs.base.PlotTab.canvas_class"><code class="docutils literal notranslate"><span class="pre">PlotTab.canvas_class</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.base.html#daplis_rtp.gui.tabs.base.PlotTab.hint_text"><code class="docutils literal notranslate"><span class="pre">PlotTab.hint_text</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.base.html#daplis_rtp.gui.tabs.base.PlotTab.last_data_file"><code class="docutils literal notranslate"><span class="pre">PlotTab.last_data_file()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.base.html#daplis_rtp.gui.tabs.base.PlotTab.no_data"><code class="docutils literal notranslate"><span class="pre">PlotTab.no_data()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.base.html#daplis_rtp.gui.tabs.base.PlotTab.on_refresh_requested"><code class="docutils literal notranslate"><span class="pre">PlotTab.on_refresh_requested()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.base.html#daplis_rtp.gui.tabs.base.PlotTab.on_session_restored"><code class="docutils literal notranslate"><span class="pre">PlotTab.on_session_restored()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.base.html#daplis_rtp.gui.tabs.base.PlotTab.on_stream_start"><code class="docutils literal notranslate"><span class="pre">PlotTab.on_stream_start()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.base.html#daplis_rtp.gui.tabs.base.PlotTab.on_stream_stop"><code class="docutils literal notranslate"><span class="pre">PlotTab.on_stream_stop()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.base.html#daplis_rtp.gui.tabs.base.PlotTab.on_waiting_for_data"><code class="docutils literal notranslate"><span class="pre">PlotTab.on_waiting_for_data()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.base.html#daplis_rtp.gui.tabs.base.PlotTab.plotted_data"><code class="docutils literal notranslate"><span class="pre">PlotTab.plotted_data()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.base.html#daplis_rtp.gui.tabs.base.PlotTab.refresh"><code class="docutils literal notranslate"><span class="pre">PlotTab.refresh()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.base.html#daplis_rtp.gui.tabs.base.PlotTab.report_error"><code class="docutils literal notranslate"><span class="pre">PlotTab.report_error()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.base.html#daplis_rtp.gui.tabs.base.PlotTab.session_scope"><code class="docutils literal notranslate"><span class="pre">PlotTab.session_scope</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.base.html#daplis_rtp.gui.tabs.base.PlotTab.slot_refresh"><code class="docutils literal notranslate"><span class="pre">PlotTab.slot_refresh()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.base.html#daplis_rtp.gui.tabs.base.PlotTab.start_stream"><code class="docutils literal notranslate"><span class="pre">PlotTab.start_stream()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.base.html#daplis_rtp.gui.tabs.base.PlotTab.stop_stream"><code class="docutils literal notranslate"><span class="pre">PlotTab.stop_stream()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.base.html#daplis_rtp.gui.tabs.base.PlotTab.toggle_stream"><code class="docutils literal notranslate"><span class="pre">PlotTab.toggle_stream()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.base.html#daplis_rtp.gui.tabs.base.PlotTab.update_time_stamp"><code class="docutils literal notranslate"><span class="pre">PlotTab.update_time_stamp()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.base.html#daplis_rtp.gui.tabs.base.PlotTab.watched_paths"><code class="docutils literal notranslate"><span class="pre">PlotTab.watched_paths()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="daplis_rtp.gui.tabs.full_sensor.html">daplis_rtp.gui.tabs.full_sensor module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.tabs.full_sensor.html#daplis_rtp.gui.tabs.full_sensor.LinoSPAD2Dual"><code class="docutils literal notranslate"><span class="pre">LinoSPAD2Dual</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.full_sensor.html#daplis_rtp.gui.tabs.full_sensor.LinoSPAD2Dual.bind_session"><code class="docutils literal notranslate"><span class="pre">LinoSPAD2Dual.bind_session()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.full_sensor.html#daplis_rtp.gui.tabs.full_sensor.LinoSPAD2Dual.build"><code class="docutils literal notranslate"><span class="pre">LinoSPAD2Dual.build()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.full_sensor.html#daplis_rtp.gui.tabs.full_sensor.LinoSPAD2Dual.canvas_class"><code class="docutils literal notranslate"><span class="pre">LinoSPAD2Dual.canvas_class</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.full_sensor.html#daplis_rtp.gui.tabs.full_sensor.LinoSPAD2Dual.combined_mask"><code class="docutils literal notranslate"><span class="pre">LinoSPAD2Dual.combined_mask()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.full_sensor.html#daplis_rtp.gui.tabs.full_sensor.LinoSPAD2Dual.hint_text"><code class="docutils literal notranslate"><span class="pre">LinoSPAD2Dual.hint_text</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.full_sensor.html#daplis_rtp.gui.tabs.full_sensor.LinoSPAD2Dual.mask_pixels"><code class="docutils literal notranslate"><span class="pre">LinoSPAD2Dual.mask_pixels()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.full_sensor.html#daplis_rtp.gui.tabs.full_sensor.LinoSPAD2Dual.on_refresh_requested"><code class="docutils literal notranslate"><span class="pre">LinoSPAD2Dual.on_refresh_requested()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.full_sensor.html#daplis_rtp.gui.tabs.full_sensor.LinoSPAD2Dual.on_stream_start"><code class="docutils literal notranslate"><span class="pre">LinoSPAD2Dual.on_stream_start()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.full_sensor.html#daplis_rtp.gui.tabs.full_sensor.LinoSPAD2Dual.on_stream_stop"><code class="docutils literal notranslate"><span class="pre">LinoSPAD2Dual.on_stream_stop()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.full_sensor.html#daplis_rtp.gui.tabs.full_sensor.LinoSPAD2Dual.plotted_data"><code class="docutils literal notranslate"><span class="pre">LinoSPAD2Dual.plotted_data()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.full_sensor.html#daplis_rtp.gui.tabs.full_sensor.LinoSPAD2Dual.presetmask_pixels"><code class="docutils literal notranslate"><span class="pre">LinoSPAD2Dual.presetmask_pixels()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.full_sensor.html#daplis_rtp.gui.tabs.full_sensor.LinoSPAD2Dual.refresh"><code class="docutils literal notranslate"><span class="pre">LinoSPAD2Dual.refresh()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.full_sensor.html#daplis_rtp.gui.tabs.full_sensor.LinoSPAD2Dual.report_occupancy"><code class="docutils literal notranslate"><span class="pre">LinoSPAD2Dual.report_occupancy()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.full_sensor.html#daplis_rtp.gui.tabs.full_sensor.LinoSPAD2Dual.reset_pix_mask"><code class="docutils literal notranslate"><span class="pre">LinoSPAD2Dual.reset_pix_mask()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.full_sensor.html#daplis_rtp.gui.tabs.full_sensor.LinoSPAD2Dual.session_scope"><code class="docutils literal notranslate"><span class="pre">LinoSPAD2Dual.session_scope</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.full_sensor.html#daplis_rtp.gui.tabs.full_sensor.LinoSPAD2Dual.slot_mask_changed"><code class="docutils literal notranslate"><span class="pre">LinoSPAD2Dual.slot_mask_changed()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.full_sensor.html#daplis_rtp.gui.tabs.full_sensor.LinoSPAD2Dual.toggle_pixel_mask"><code class="docutils literal notranslate"><span class="pre">LinoSPAD2Dual.toggle_pixel_mask()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.full_sensor.html#daplis_rtp.gui.tabs.full_sensor.LinoSPAD2Dual.watched_paths"><code class="docutils literal notranslate"><span class="pre">LinoSPAD2Dual.watched_paths()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="daplis_rtp.gui.tabs.mzi.html">daplis_rtp.gui.tabs.mzi module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.tabs.mzi.html#daplis_rtp.gui.tabs.mzi.MZI"><code class="docutils literal notranslate"><span class="pre">MZI</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.mzi.html#daplis_rtp.gui.tabs.mzi.MZI.bind_session"><code class="docutils literal notranslate"><span class="pre">MZI.bind_session()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.mzi.html#daplis_rtp.gui.tabs.mzi.MZI.build"><code class="docutils literal notranslate"><span class="pre">MZI.build()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.mzi.html#daplis_rtp.gui.tabs.mzi.MZI.canvas_class"><code class="docutils literal notranslate"><span class="pre">MZI.canvas_class</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.mzi.html#daplis_rtp.gui.tabs.mzi.MZI.hint_text"><code class="docutils literal notranslate"><span class="pre">MZI.hint_text</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.mzi.html#daplis_rtp.gui.tabs.mzi.MZI.on_stream_start"><code class="docutils literal notranslate"><span class="pre">MZI.on_stream_start()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.mzi.html#daplis_rtp.gui.tabs.mzi.MZI.on_waiting_for_data"><code class="docutils literal notranslate"><span class="pre">MZI.on_waiting_for_data()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.mzi.html#daplis_rtp.gui.tabs.mzi.MZI.plotted_data"><code class="docutils literal notranslate"><span class="pre">MZI.plotted_data()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.mzi.html#daplis_rtp.gui.tabs.mzi.MZI.refresh"><code class="docutils literal notranslate"><span class="pre">MZI.refresh()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.mzi.html#daplis_rtp.gui.tabs.mzi.MZI.resetPlot"><code class="docutils literal notranslate"><span class="pre">MZI.resetPlot()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.mzi.html#daplis_rtp.gui.tabs.mzi.MZI.session_scope"><code class="docutils literal notranslate"><span class="pre">MZI.session_scope</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.mzi.html#daplis_rtp.gui.tabs.mzi.MZI.watched_paths"><code class="docutils literal notranslate"><span class="pre">MZI.watched_paths()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="daplis_rtp.gui.tabs.online_plot.html">daplis_rtp.gui.tabs.online_plot module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.tabs.online_plot.html#daplis_rtp.gui.tabs.online_plot.LiveTimestamps"><code class="docutils literal notranslate"><span class="pre">LiveTimestamps</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.online_plot.html#daplis_rtp.gui.tabs.online_plot.LiveTimestamps.bind_session"><code class="docutils literal notranslate"><span class="pre">LiveTimestamps.bind_session()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.online_plot.html#daplis_rtp.gui.tabs.online_plot.LiveTimestamps.build"><code class="docutils literal notranslate"><span class="pre">LiveTimestamps.build()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.online_plot.html#daplis_rtp.gui.tabs.online_plot.LiveTimestamps.canvas_class"><code class="docutils literal notranslate"><span class="pre">LiveTimestamps.canvas_class</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.online_plot.html#daplis_rtp.gui.tabs.online_plot.LiveTimestamps.hint_text"><code class="docutils literal notranslate"><span class="pre">LiveTimestamps.hint_text</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.online_plot.html#daplis_rtp.gui.tabs.online_plot.LiveTimestamps.mask_pixels"><code class="docutils literal notranslate"><span class="pre">LiveTimestamps.mask_pixels()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.online_plot.html#daplis_rtp.gui.tabs.online_plot.LiveTimestamps.on_refresh_requested"><code class="docutils literal notranslate"><span class="pre">LiveTimestamps.on_refresh_requested()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.online_plot.html#daplis_rtp.gui.tabs.online_plot.LiveTimestamps.on_stream_start"><code class="docutils literal notranslate"><span class="pre">LiveTimestamps.on_stream_start()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.online_plot.html#daplis_rtp.gui.tabs.online_plot.LiveTimestamps.on_waiting_for_data"><code class="docutils literal notranslate"><span class="pre">LiveTimestamps.on_waiting_for_data()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.online_plot.html#daplis_rtp.gui.tabs.online_plot.LiveTimestamps.plotted_data"><code class="docutils literal notranslate"><span class="pre">LiveTimestamps.plotted_data()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.online_plot.html#daplis_rtp.gui.tabs.online_plot.LiveTimestamps.presetmask_pixels"><code class="docutils literal notranslate"><span class="pre">LiveTimestamps.presetmask_pixels()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.online_plot.html#daplis_rtp.gui.tabs.online_plot.LiveTimestamps.refresh"><code class="docutils literal notranslate"><span class="pre">LiveTimestamps.refresh()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.online_plot.html#daplis_rtp.gui.tabs.online_plot.LiveTimestamps.report_occupancy"><code class="docutils literal notranslate"><span class="pre">LiveTimestamps.report_occupancy()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.online_plot.html#daplis_rtp.gui.tabs.online_plot.LiveTimestamps.reset_pix_mask"><code class="docutils literal notranslate"><span class="pre">LiveTimestamps.reset_pix_mask()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.online_plot.html#daplis_rtp.gui.tabs.online_plot.LiveTimestamps.session_scope"><code class="docutils literal notranslate"><span class="pre">LiveTimestamps.session_scope</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.online_plot.html#daplis_rtp.gui.tabs.online_plot.LiveTimestamps.slot_mask_changed"><code class="docutils literal notranslate"><span class="pre">LiveTimestamps.slot_mask_changed()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.online_plot.html#daplis_rtp.gui.tabs.online_plot.LiveTimestamps.toggle_pixel_mask"><code class="docutils literal notranslate"><span class="pre">LiveTimestamps.toggle_pixel_mask()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.online_plot.html#daplis_rtp.gui.tabs.online_plot.LiveTimestamps.watched_paths"><code class="docutils literal notranslate"><span class="pre">LiveTimestamps.watched_paths()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="daplis_rtp.gui.tabs.single_pixel_histogram.html">daplis_rtp.gui.tabs.single_pixel_histogram module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.tabs.single_pixel_histogram.html#daplis_rtp.gui.tabs.single_pixel_histogram.SinglePixelHistogram"><code class="docutils literal notranslate"><span class="pre">SinglePixelHistogram</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.single_pixel_histogram.html#daplis_rtp.gui.tabs.single_pixel_histogram.SinglePixelHistogram.bind_session"><code class="docutils literal notranslate"><span class="pre">SinglePixelHistogram.bind_session()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.single_pixel_histogram.html#daplis_rtp.gui.tabs.single_pixel_histogram.SinglePixelHistogram.build"><code class="docutils literal notranslate"><span class="pre">SinglePixelHistogram.build()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.single_pixel_histogram.html#daplis_rtp.gui.tabs.single_pixel_histogram.SinglePixelHistogram.canvas_class"><code class="docutils literal notranslate"><span class="pre">SinglePixelHistogram.canvas_class</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.single_pixel_histogram.html#daplis_rtp.gui.tabs.single_pixel_histogram.SinglePixelHistogram.cycle_length_change"><code class="docutils literal notranslate"><span class="pre">SinglePixelHistogram.cycle_length_change()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.single_pixel_histogram.html#daplis_rtp.gui.tabs.single_pixel_histogram.SinglePixelHistogram.hint_text"><code class="docutils literal notranslate"><span class="pre">SinglePixelHistogram.hint_text</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.single_pixel_histogram.html#daplis_rtp.gui.tabs.single_pixel_histogram.SinglePixelHistogram.on_session_restored"><code class="docutils literal notranslate"><span class="pre">SinglePixelHistogram.on_session_restored()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.single_pixel_histogram.html#daplis_rtp.gui.tabs.single_pixel_histogram.SinglePixelHistogram.plotted_data"><code class="docutils literal notranslate"><span class="pre">SinglePixelHistogram.plotted_data()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.single_pixel_histogram.html#daplis_rtp.gui.tabs.single_pixel_histogram.SinglePixelHistogram.refresh"><code class="docutils literal notranslate"><span class="pre">SinglePixelHistogram.refresh()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.single_pixel_histogram.html#daplis_rtp.gui.tabs.single_pixel_histogram.SinglePixelHistogram.session_scope"><code class="docutils literal notranslate"><span class="pre">SinglePixelHistogram.session_scope</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="daplis_rtp.gui.tabs.synchronization.html">daplis_rtp.gui.tabs.synchronization module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.tabs.synchronization.html#daplis_rtp.gui.tabs.synchronization.AcquisitionWorker"><code class="docutils literal notranslate"><span class="pre">AcquisitionWorker</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.synchronization.html#daplis_rtp.gui.tabs.synchronization.AcquisitionWorker.__init__"><code class="docutils literal notranslate"><span class="pre">AcquisitionWorker.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.synchronization.html#daplis_rtp.gui.tabs.synchronization.AcquisitionWorker.clock"><code class="docutils literal notranslate"><span class="pre">AcquisitionWorker.clock</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.synchronization.html#daplis_rtp.gui.tabs.synchronization.AcquisitionWorker.clock_fail"><code class="docutils literal notranslate"><span class="pre">AcquisitionWorker.clock_fail</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.synchronization.html#daplis_rtp.gui.tabs.synchronization.AcquisitionWorker.done"><code class="docutils literal notranslate"><span class="pre">AcquisitionWorker.done</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.synchronization.html#daplis_rtp.gui.tabs.synchronization.AcquisitionWorker.log"><code class="docutils literal notranslate"><span class="pre">AcquisitionWorker.log</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.synchronization.html#daplis_rtp.gui.tabs.synchronization.AcquisitionWorker.run"><code class="docutils literal notranslate"><span class="pre">AcquisitionWorker.run()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.tabs.synchronization.html#daplis_rtp.gui.tabs.synchronization.Synchronization"><code class="docutils literal notranslate"><span class="pre">Synchronization</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.synchronization.html#daplis_rtp.gui.tabs.synchronization.Synchronization.BOARD_INFO"><code class="docutils literal notranslate"><span class="pre">Synchronization.BOARD_INFO</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.synchronization.html#daplis_rtp.gui.tabs.synchronization.Synchronization.HINT"><code class="docutils literal notranslate"><span class="pre">Synchronization.HINT</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.synchronization.html#daplis_rtp.gui.tabs.synchronization.Synchronization.__init__"><code class="docutils literal notranslate"><span class="pre">Synchronization.__init__()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.tabs.synchronization.html#daplis_rtp.gui.tabs.synchronization.is_locked"><code class="docutils literal notranslate"><span class="pre">is_locked()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.tabs.synchronization.html#daplis_rtp.gui.tabs.synchronization.send_cmd"><code class="docutils literal notranslate"><span class="pre">send_cmd()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="daplis_rtp.gui.canvas.sensor.html" class="btn btn-neutral float-left" title="daplis_rtp.gui.canvas.sensor module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="daplis_rtp.gui.tabs.base.html" class="btn btn-neutral float-right" title="daplis_rtp.gui.tabs.base module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Sergei Kulkov.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

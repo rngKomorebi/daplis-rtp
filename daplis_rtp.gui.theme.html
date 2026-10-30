@@ -1,0 +1,458 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>daplis_rtp.gui.theme module &mdash; Data Analysis Package for LinoSPAD2 - Real-Time Plotting 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=8d563738"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="daplis_rtp.functions package" href="daplis_rtp.functions.html" />
+    <link rel="prev" title="daplis_rtp.gui.session module" href="daplis_rtp.gui.session.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Data Analysis Package for LinoSPAD2 - Real-Time Plotting
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation and usage</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="daplis_rtp.gui.html">daplis_rtp.gui package</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="daplis_rtp.gui.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.app_icon.html">daplis_rtp.gui.app_icon module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.layout.html">daplis_rtp.gui.layout module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.main_window.html">daplis_rtp.gui.main_window module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.preferences.html">daplis_rtp.gui.preferences module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.session.html">daplis_rtp.gui.session module</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">daplis_rtp.gui.theme module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#daplis_rtp.gui.theme.Theme"><code class="docutils literal notranslate"><span class="pre">Theme</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#daplis_rtp.gui.theme.ThemeManager"><code class="docutils literal notranslate"><span class="pre">ThemeManager</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#daplis_rtp.gui.theme.current_theme"><code class="docutils literal notranslate"><span class="pre">current_theme()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#daplis_rtp.gui.theme.preset_names"><code class="docutils literal notranslate"><span class="pre">preset_names()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#daplis_rtp.gui.theme.theme_manager"><code class="docutils literal notranslate"><span class="pre">theme_manager()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="daplis_rtp.functions.html">daplis_rtp.functions package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contribute.html">How to contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">License and contact info</a></li>
+<li class="toctree-l1"><a class="reference internal" href="acknowledgement.html">Acknowledgement</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Data Analysis Package for LinoSPAD2 - Real-Time Plotting</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="daplis_rtp.gui.html">daplis_rtp.gui package</a></li>
+      <li class="breadcrumb-item active">daplis_rtp.gui.theme module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/daplis_rtp.gui.theme.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-daplis_rtp.gui.theme">
+<span id="daplis-rtp-gui-theme-module"></span><h1>daplis_rtp.gui.theme module<a class="headerlink" href="#module-daplis_rtp.gui.theme" title="Link to this heading"></a></h1>
+<p>Where every colour, font size and plot style in the application comes from.</p>
+<p>One object holds the lot - the window palette, the accent, the colours
+the traces are drawn in, the two font sizes - and one signal says it has
+changed. Nothing else in the package hard-codes a colour.</p>
+<p>The reason is that the old application chose its colours in a dozen
+places: <code class="docutils literal notranslate"><span class="pre">plt.style.use(&quot;dark_background&quot;)</span></code> in three canvas modules,
+<code class="docutils literal notranslate"><span class="pre">#f48383</span></code> and <code class="docutils literal notranslate"><span class="pre">teal</span></code> written into the plotting calls, <code class="docutils literal notranslate"><span class="pre">qdarkstyle</span></code>
+on the application, and a <code class="docutils literal notranslate"><span class="pre">setPointSize</span></code> on very nearly every widget
+built. Changing the look meant finding all of them, and a user who
+wanted a lighter background, or a colour they could actually
+distinguish, had nowhere to say so.</p>
+<p>Two rules keep it that way:</p>
+<ul class="simple">
+<li><p><strong>Widgets do not set their own font.</strong> The application font is set
+here and inherited; a widget that needs a different one gets an
+object name and a rule in the stylesheet below. A per-widget
+<code class="docutils literal notranslate"><span class="pre">setFont</span></code> pins that widget at the size it was built with and
+ignores every later change.</p></li>
+<li><p><strong>Canvases ask for their colours when they draw.</strong> They hold no
+copies, so a theme change is a redraw, not a rebuild.</p></li>
+</ul>
+<p>Settings are stored per user through <code class="docutils literal notranslate"><span class="pre">QSettings</span></code> - on Windows in the
+registry under <code class="docutils literal notranslate"><span class="pre">HKCU\Software\DAPLIS\daplis-rtp</span></code> - so two people
+sharing a machine keep their own.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="daplis_rtp.gui.theme.Theme">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">daplis_rtp.gui.theme.</span></span><span class="sig-name descname"><span class="pre">Theme</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">surface</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">muted</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">accent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ok</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">warn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figure_bg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axes_bg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axes_fg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axes_edge</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">series</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">marker</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">glow</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_on</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/theme.html#Theme"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.theme.Theme" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A complete look: window, controls and plots together.</p>
+<p>Frozen because a theme is a value, not a thing that is edited. The
+user’s changes are kept separately, as overrides, and applied with
+<code class="docutils literal notranslate"><span class="pre">dataclasses.replace</span></code> when the effective theme is built - so
+“reset to preset” is throwing the overrides away rather than
+reconstructing anything.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.theme.Theme.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">surface</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">muted</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">accent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ok</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">warn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figure_bg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axes_bg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axes_fg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axes_edge</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">series</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">marker</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">glow</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_on</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#daplis_rtp.gui.theme.Theme.__init__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="daplis_rtp.gui.theme.Theme.accent">
+<span class="sig-name descname"><span class="pre">accent</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#daplis_rtp.gui.theme.Theme.accent" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="daplis_rtp.gui.theme.Theme.axes_bg">
+<span class="sig-name descname"><span class="pre">axes_bg</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#daplis_rtp.gui.theme.Theme.axes_bg" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="daplis_rtp.gui.theme.Theme.axes_edge">
+<span class="sig-name descname"><span class="pre">axes_edge</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#daplis_rtp.gui.theme.Theme.axes_edge" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="daplis_rtp.gui.theme.Theme.axes_fg">
+<span class="sig-name descname"><span class="pre">axes_fg</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#daplis_rtp.gui.theme.Theme.axes_fg" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="daplis_rtp.gui.theme.Theme.base">
+<span class="sig-name descname"><span class="pre">base</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#daplis_rtp.gui.theme.Theme.base" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.theme.Theme.colour">
+<span class="sig-name descname"><span class="pre">colour</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/theme.html#Theme.colour"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.theme.Theme.colour" title="Link to this definition"></a></dt>
+<dd><p>Series colour <code class="docutils literal notranslate"><span class="pre">index</span></code>, wrapping round rather than raising.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="daplis_rtp.gui.theme.Theme.error">
+<span class="sig-name descname"><span class="pre">error</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#daplis_rtp.gui.theme.Theme.error" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="daplis_rtp.gui.theme.Theme.figure_bg">
+<span class="sig-name descname"><span class="pre">figure_bg</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#daplis_rtp.gui.theme.Theme.figure_bg" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="daplis_rtp.gui.theme.Theme.glow">
+<span class="sig-name descname"><span class="pre">glow</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></span><a class="headerlink" href="#daplis_rtp.gui.theme.Theme.glow" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="daplis_rtp.gui.theme.Theme.grid">
+<span class="sig-name descname"><span class="pre">grid</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#daplis_rtp.gui.theme.Theme.grid" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="daplis_rtp.gui.theme.Theme.grid_on">
+<span class="sig-name descname"><span class="pre">grid_on</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></span><a class="headerlink" href="#daplis_rtp.gui.theme.Theme.grid_on" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="daplis_rtp.gui.theme.Theme.key">
+<span class="sig-name descname"><span class="pre">key</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#daplis_rtp.gui.theme.Theme.key" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="daplis_rtp.gui.theme.Theme.marker">
+<span class="sig-name descname"><span class="pre">marker</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#daplis_rtp.gui.theme.Theme.marker" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="daplis_rtp.gui.theme.Theme.muted">
+<span class="sig-name descname"><span class="pre">muted</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#daplis_rtp.gui.theme.Theme.muted" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="daplis_rtp.gui.theme.Theme.name">
+<span class="sig-name descname"><span class="pre">name</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#daplis_rtp.gui.theme.Theme.name" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="daplis_rtp.gui.theme.Theme.ok">
+<span class="sig-name descname"><span class="pre">ok</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#daplis_rtp.gui.theme.Theme.ok" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="daplis_rtp.gui.theme.Theme.series">
+<span class="sig-name descname"><span class="pre">series</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#daplis_rtp.gui.theme.Theme.series" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="daplis_rtp.gui.theme.Theme.surface">
+<span class="sig-name descname"><span class="pre">surface</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#daplis_rtp.gui.theme.Theme.surface" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="daplis_rtp.gui.theme.Theme.text">
+<span class="sig-name descname"><span class="pre">text</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#daplis_rtp.gui.theme.Theme.text" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="daplis_rtp.gui.theme.Theme.warn">
+<span class="sig-name descname"><span class="pre">warn</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#daplis_rtp.gui.theme.Theme.warn" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="daplis_rtp.gui.theme.Theme.window">
+<span class="sig-name descname"><span class="pre">window</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#daplis_rtp.gui.theme.Theme.window" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="daplis_rtp.gui.theme.ThemeManager">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">daplis_rtp.gui.theme.</span></span><span class="sig-name descname"><span class="pre">ThemeManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/theme.html#ThemeManager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.theme.ThemeManager" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">QObject</span></code></p>
+<p>The live theme, the user’s changes to it, and who to tell.</p>
+<p>One of these exists per process - see <a class="reference internal" href="#daplis_rtp.gui.theme.theme_manager" title="daplis_rtp.gui.theme.theme_manager"><code class="xref py py-func docutils literal notranslate"><span class="pre">theme_manager()</span></code></a>. It is a
+<code class="docutils literal notranslate"><span class="pre">QObject</span></code> for one reason: it emits a signal. Everything that draws
+connects to <a class="reference internal" href="#daplis_rtp.gui.theme.ThemeManager.changed" title="daplis_rtp.gui.theme.ThemeManager.changed"><code class="xref py py-attr docutils literal notranslate"><span class="pre">changed</span></code></a> and redraws itself, which is what makes
+a colour picked in the Preferences dialog show up on the plot while
+the dialog is still open.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.theme.ThemeManager.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/theme.html#ThemeManager.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.theme.ThemeManager.__init__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.theme.ThemeManager.apply_to_app">
+<span class="sig-name descname"><span class="pre">apply_to_app</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/theme.html#ThemeManager.apply_to_app"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.theme.ThemeManager.apply_to_app" title="Link to this definition"></a></dt>
+<dd><p>Put the current theme on the application.</p>
+<p>The font goes on the <code class="docutils literal notranslate"><span class="pre">QApplication</span></code> rather than on the
+widgets, so that every widget built before or after this call
+picks it up. That is the whole reason nothing in the package
+calls <code class="docutils literal notranslate"><span class="pre">setFont</span></code> any more.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="daplis_rtp.gui.theme.ThemeManager.changed">
+<span class="sig-name descname"><span class="pre">changed</span></span><a class="headerlink" href="#daplis_rtp.gui.theme.ThemeManager.changed" title="Link to this definition"></a></dt>
+<dd><p>str = …, revision: int = …, arguments: Sequence = …) -&gt; PYQT_SIGNAL</p>
+<p>types is normally a sequence of individual types.  Each type is either a
+type object or a string that is the name of a C++ type.  Alternatively
+each type could itself be a sequence of types each describing a different
+overloaded signal.
+name is the optional C++ name of the signal.  If it is not specified then
+the name of the class attribute that is bound to the signal is used.
+revision is the optional revision of the signal that is exported to QML.
+If it is not specified then 0 is used.
+arguments is the optional sequence of the names of the signal’s arguments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pyqtSignal(<a href="#id1"><span class="problematic" id="id2">*</span></a>types, name</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.theme.ThemeManager.is_overridden">
+<span class="sig-name descname"><span class="pre">is_overridden</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/theme.html#ThemeManager.is_overridden"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.theme.ThemeManager.is_overridden" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.theme.ThemeManager.load">
+<span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/theme.html#ThemeManager.load"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.theme.ThemeManager.load" title="Link to this definition"></a></dt>
+<dd><p>Read the stored settings, ignoring anything unrecognised.</p>
+<p>A stored value that no longer names a field - a preset that was
+renamed, a colour written by a newer version - is skipped rather
+than raising. A settings file is not something the user can
+easily repair, so it must never be able to stop the application
+opening.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.theme.ThemeManager.mpl_rc">
+<span class="sig-name descname"><span class="pre">mpl_rc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fontsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/theme.html#ThemeManager.mpl_rc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.theme.ThemeManager.mpl_rc" title="Link to this definition"></a></dt>
+<dd><p>The theme as matplotlib rcParams.</p>
+<p>Handed to <code class="docutils literal notranslate"><span class="pre">rc_context</span></code> around a draw rather than pushed into
+the global <code class="docutils literal notranslate"><span class="pre">rcParams</span></code>. The old code called <code class="docutils literal notranslate"><span class="pre">plt.style.use</span></code>
+at import time and <code class="docutils literal notranslate"><span class="pre">plt.rcParams.update</span></code> from inside draws,
+which meant the last canvas to be built decided how all of them
+looked.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.theme.ThemeManager.overrides">
+<span class="sig-name descname"><span class="pre">overrides</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/theme.html#ThemeManager.overrides"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.theme.ThemeManager.overrides" title="Link to this definition"></a></dt>
+<dd><p>A copy, so a caller editing it cannot change the theme.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="daplis_rtp.gui.theme.ThemeManager.plot_font_size">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">plot_font_size</span></span><a class="headerlink" href="#daplis_rtp.gui.theme.ThemeManager.plot_font_size" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="daplis_rtp.gui.theme.ThemeManager.preset_key">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">preset_key</span></span><a class="headerlink" href="#daplis_rtp.gui.theme.ThemeManager.preset_key" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.theme.ThemeManager.reset">
+<span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/theme.html#ThemeManager.reset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.theme.ThemeManager.reset" title="Link to this definition"></a></dt>
+<dd><p>Back to the shipped defaults, overrides and fonts included.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.theme.ThemeManager.save">
+<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/theme.html#ThemeManager.save"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.theme.ThemeManager.save" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.theme.ThemeManager.set_override">
+<span class="sig-name descname"><span class="pre">set_override</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/theme.html#ThemeManager.set_override"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.theme.ThemeManager.set_override" title="Link to this definition"></a></dt>
+<dd><p>Override one field of the preset, or clear it with <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.theme.ThemeManager.set_plot_font_size">
+<span class="sig-name descname"><span class="pre">set_plot_font_size</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">points</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/theme.html#ThemeManager.set_plot_font_size"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.theme.ThemeManager.set_plot_font_size" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.theme.ThemeManager.set_preset">
+<span class="sig-name descname"><span class="pre">set_preset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keep_overrides</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/theme.html#ThemeManager.set_preset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.theme.ThemeManager.set_preset" title="Link to this definition"></a></dt>
+<dd><p>Switch preset.</p>
+<p>The overrides are dropped by default, and that is deliberate:
+picking a new preset and getting the last one’s accent back is
+the surprising behaviour, not the helpful one.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.theme.ThemeManager.set_series_colour">
+<span class="sig-name descname"><span class="pre">set_series_colour</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colour</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/theme.html#ThemeManager.set_series_colour"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.theme.ThemeManager.set_series_colour" title="Link to this definition"></a></dt>
+<dd><p>Override one trace colour, leaving the others alone.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.theme.ThemeManager.set_ui_font_size">
+<span class="sig-name descname"><span class="pre">set_ui_font_size</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">points</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/theme.html#ThemeManager.set_ui_font_size"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.theme.ThemeManager.set_ui_font_size" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.theme.ThemeManager.stylesheet">
+<span class="sig-name descname"><span class="pre">stylesheet</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/theme.html#ThemeManager.stylesheet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.theme.ThemeManager.stylesheet" title="Link to this definition"></a></dt>
+<dd><p>qdarkstyle for the controls, our own rules on top.</p>
+<p>qdarkstyle is kept because it styles the sixty-odd widget
+classes Qt ships and nobody wants to write that. What it does
+not know about is this application’s accent colour and the
+handful of named widgets - the tab title, the hint line, the
+log - that need to look different from their neighbours.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="daplis_rtp.gui.theme.ThemeManager.theme">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">theme</span></span><a class="headerlink" href="#daplis_rtp.gui.theme.ThemeManager.theme" title="Link to this definition"></a></dt>
+<dd><p>The preset with the user’s overrides laid over it.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="daplis_rtp.gui.theme.ThemeManager.ui_font_size">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">ui_font_size</span></span><a class="headerlink" href="#daplis_rtp.gui.theme.ThemeManager.ui_font_size" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="daplis_rtp.gui.theme.current_theme">
+<span class="sig-prename descclassname"><span class="pre">daplis_rtp.gui.theme.</span></span><span class="sig-name descname"><span class="pre">current_theme</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/theme.html#current_theme"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.theme.current_theme" title="Link to this definition"></a></dt>
+<dd><p>Shorthand for <code class="docutils literal notranslate"><span class="pre">theme_manager().theme</span></code>.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="daplis_rtp.gui.theme.preset_names">
+<span class="sig-prename descclassname"><span class="pre">daplis_rtp.gui.theme.</span></span><span class="sig-name descname"><span class="pre">preset_names</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/theme.html#preset_names"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.theme.preset_names" title="Link to this definition"></a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">(key,</span> <span class="pre">display</span> <span class="pre">name)</span></code> for every preset, in the order defined.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="daplis_rtp.gui.theme.theme_manager">
+<span class="sig-prename descclassname"><span class="pre">daplis_rtp.gui.theme.</span></span><span class="sig-name descname"><span class="pre">theme_manager</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/theme.html#theme_manager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.theme.theme_manager" title="Link to this definition"></a></dt>
+<dd><p>The process-wide theme.</p>
+<p>Built on first use rather than at import, because <code class="docutils literal notranslate"><span class="pre">QSettings</span></code>
+wants the organisation and application names set first, and because
+a module that touches Qt state at import time is a module that
+cannot be imported by a test.</p>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="daplis_rtp.gui.session.html" class="btn btn-neutral float-left" title="daplis_rtp.gui.session module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="daplis_rtp.functions.html" class="btn btn-neutral float-right" title="daplis_rtp.functions package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Sergei Kulkov.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

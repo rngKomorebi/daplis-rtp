@@ -1,0 +1,536 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>daplis_rtp.gui.canvas.sensor module &mdash; Data Analysis Package for LinoSPAD2 - Real-Time Plotting 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=8d563738"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="daplis_rtp.gui.tabs package" href="daplis_rtp.gui.tabs.html" />
+    <link rel="prev" title="daplis_rtp.gui.canvas.mzi module" href="daplis_rtp.gui.canvas.mzi.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Data Analysis Package for LinoSPAD2 - Real-Time Plotting
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation and usage</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="daplis_rtp.gui.html">daplis_rtp.gui package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="daplis_rtp.gui.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="daplis_rtp.gui.canvas.html">daplis_rtp.gui.canvas package</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.canvas.html#daplis_rtp.gui.canvas.BaseCanvas"><code class="docutils literal notranslate"><span class="pre">BaseCanvas</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.canvas.html#daplis_rtp.gui.canvas.DualSensorCanvas"><code class="docutils literal notranslate"><span class="pre">DualSensorCanvas</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.canvas.html#daplis_rtp.gui.canvas.HistogramCanvas"><code class="docutils literal notranslate"><span class="pre">HistogramCanvas</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.canvas.html#daplis_rtp.gui.canvas.MziCanvas"><code class="docutils literal notranslate"><span class="pre">MziCanvas</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.canvas.html#daplis_rtp.gui.canvas.SensorCanvas"><code class="docutils literal notranslate"><span class="pre">SensorCanvas</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.canvas.html#daplis_rtp.gui.canvas.toolbar_min_width"><code class="docutils literal notranslate"><span class="pre">toolbar_min_width()</span></code></a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="daplis_rtp.gui.canvas.html#submodules">Submodules</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.html">daplis_rtp.gui.tabs package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.html">daplis_rtp.gui.widgets package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.html#submodules">Submodules</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="daplis_rtp.functions.html">daplis_rtp.functions package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contribute.html">How to contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">License and contact info</a></li>
+<li class="toctree-l1"><a class="reference internal" href="acknowledgement.html">Acknowledgement</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Data Analysis Package for LinoSPAD2 - Real-Time Plotting</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="daplis_rtp.gui.html">daplis_rtp.gui package</a></li>
+          <li class="breadcrumb-item"><a href="daplis_rtp.gui.canvas.html">daplis_rtp.gui.canvas package</a></li>
+      <li class="breadcrumb-item active">daplis_rtp.gui.canvas.sensor module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/daplis_rtp.gui.canvas.sensor.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-daplis_rtp.gui.canvas.sensor">
+<span id="daplis-rtp-gui-canvas-sensor-module"></span><h1>daplis_rtp.gui.canvas.sensor module<a class="headerlink" href="#module-daplis_rtp.gui.canvas.sensor" title="Link to this heading"></a></h1>
+<p>Sensor population: photon rate against pixel number.</p>
+<p>Two plots, one class. The single-board tab draws 256 pixels; the
+full-sensor tab draws 512, with a dashed line marking the seam between
+the two halves and the grouping lines repeated on the second half. That
+is the whole of the difference, so it is three class attributes rather
+than a second copy of the module.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="daplis_rtp.gui.canvas.sensor.DualSensorCanvas">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">daplis_rtp.gui.canvas.sensor.</span></span><span class="sig-name descname"><span class="pre">DualSensorCanvas</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/canvas/sensor.html#DualSensorCanvas"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.canvas.sensor.DualSensorCanvas" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#daplis_rtp.gui.canvas.sensor.SensorCanvas" title="daplis_rtp.gui.canvas.sensor.SensorCanvas"><code class="xref py py-class docutils literal notranslate"><span class="pre">SensorCanvas</span></code></a></p>
+<p>Photon rate across both halves of the full sensor, 512 pixels.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="daplis_rtp.gui.canvas.sensor.DualSensorCanvas.boundary">
+<span class="sig-name descname"><span class="pre">boundary</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">255.5</span></span><a class="headerlink" href="#daplis_rtp.gui.canvas.sensor.DualSensorCanvas.boundary" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="daplis_rtp.gui.canvas.sensor.DualSensorCanvas.group_lines">
+<span class="sig-name descname"><span class="pre">group_lines</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(64,</span> <span class="pre">128,</span> <span class="pre">192,</span> <span class="pre">320,</span> <span class="pre">384,</span> <span class="pre">448)</span></span><a class="headerlink" href="#daplis_rtp.gui.canvas.sensor.DualSensorCanvas.group_lines" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="daplis_rtp.gui.canvas.sensor.DualSensorCanvas.n_pixels">
+<span class="sig-name descname"><span class="pre">n_pixels</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">512</span></span><a class="headerlink" href="#daplis_rtp.gui.canvas.sensor.DualSensorCanvas.n_pixels" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="daplis_rtp.gui.canvas.sensor.FitLabel">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">daplis_rtp.gui.canvas.sensor.</span></span><span class="sig-name descname"><span class="pre">FitLabel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/canvas/sensor.html#FitLabel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.canvas.sensor.FitLabel" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Annotation</span></code></p>
+<p>A fitted sigma that keeps itself inside the frame.</p>
+<p>Centred over its peak where there is room, which is the ordinary
+case. A line near either x-limit has its label slid inwards rather
+than cut in half by the frame; a line too tall to leave room above
+it has its label beside it, at half height, where the line is narrow
+and the space either side is empty.</p>
+<p>Placed when it is drawn rather than when it is made. Only then are
+the frame’s size and the text’s size known, and only then does the
+placement survive what happens to the plot afterwards - a toolbar
+zoom, a pan, a resized window, a larger font - none of which hands
+the data in again.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="daplis_rtp.gui.canvas.sensor.FitLabel.GAP">
+<span class="sig-name descname"><span class="pre">GAP</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></span><a class="headerlink" href="#daplis_rtp.gui.canvas.sensor.FitLabel.GAP" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.canvas.sensor.FitLabel.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/canvas/sensor.html#FitLabel.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.canvas.sensor.FitLabel.__init__" title="Link to this definition"></a></dt>
+<dd><p>Annotate the point <em>xy</em> with text <em>text</em>.</p>
+<p>In the simplest form, the text is placed at <em>xy</em>.</p>
+<p>Optionally, the text can be displayed in another position <em>xytext</em>.
+An arrow pointing from the text to the annotated point <em>xy</em> can then
+be added by defining <em>arrowprops</em>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>text</strong> (<em>str</em>) – The text of the annotation.</p></li>
+<li><p><strong>xy</strong> (<em>(</em><em>float</em><em>, </em><em>float</em><em>)</em>) – The point <em>(x, y)</em> to annotate. The coordinate system is determined
+by <em>xycoords</em>.</p></li>
+<li><p><strong>xytext</strong> ((float, float), default: <em>xy</em>) – The position <em>(x, y)</em> to place the text at. The coordinate system
+is determined by <em>textcoords</em>.</p></li>
+<li><p><strong>xycoords</strong> (single or two-tuple of str or <cite>.Artist</cite> or <cite>.Transform</cite> or callable, default: ‘data’) – <p>The coordinate system that <em>xy</em> is given in. The following types
+of values are supported:</p>
+<ul>
+<li><p>One of the following strings:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Value</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>’figure points’</p></td>
+<td><p>Points from the lower left of the figure</p></td>
+</tr>
+<tr class="row-odd"><td><p>’figure pixels’</p></td>
+<td><p>Pixels from the lower left of the figure</p></td>
+</tr>
+<tr class="row-even"><td><p>’figure fraction’</p></td>
+<td><p>Fraction of figure from lower left</p></td>
+</tr>
+<tr class="row-odd"><td><p>’subfigure points’</p></td>
+<td><p>Points from the lower left of the subfigure</p></td>
+</tr>
+<tr class="row-even"><td><p>’subfigure pixels’</p></td>
+<td><p>Pixels from the lower left of the subfigure</p></td>
+</tr>
+<tr class="row-odd"><td><p>’subfigure fraction’</p></td>
+<td><p>Fraction of subfigure from lower left</p></td>
+</tr>
+<tr class="row-even"><td><p>’axes points’</p></td>
+<td><p>Points from lower left corner of the Axes</p></td>
+</tr>
+<tr class="row-odd"><td><p>’axes pixels’</p></td>
+<td><p>Pixels from lower left corner of the Axes</p></td>
+</tr>
+<tr class="row-even"><td><p>’axes fraction’</p></td>
+<td><p>Fraction of Axes from lower left</p></td>
+</tr>
+<tr class="row-odd"><td><p>’data’</p></td>
+<td><p>Use the coordinate system of the object
+being annotated (default)</p></td>
+</tr>
+<tr class="row-even"><td><p>’polar’</p></td>
+<td><p><em>(theta, r)</em> if not native ‘data’
+coordinates</p></td>
+</tr>
+</tbody>
+</table>
+<p>Note that ‘subfigure pixels’ and ‘figure pixels’ are the same
+for the parent figure, so users who want code that is usable in
+a subfigure can use ‘subfigure pixels’.</p>
+</li>
+<li><p>An <cite>.Artist</cite>: <em>xy</em> is interpreted as a fraction of the artist’s
+<cite>~matplotlib.transforms.Bbox</cite>. E.g. <em>(0, 0)</em> would be the lower
+left corner of the bounding box and <em>(0.5, 1)</em> would be the
+center top of the bounding box.</p></li>
+<li><p>A <cite>.Transform</cite> to transform <em>xy</em> to screen coordinates.</p></li>
+<li><p>A function with one of the following signatures:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">transform</span><span class="p">(</span><span class="n">renderer</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bbox</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">transform</span><span class="p">(</span><span class="n">renderer</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Transform</span>
+</pre></div>
+</div>
+<p>where <em>renderer</em> is a <cite>.RendererBase</cite> subclass.</p>
+<p>The result of the function is interpreted like the <cite>.Artist</cite> and
+<cite>.Transform</cite> cases above.</p>
+</li>
+<li><p>A tuple <em>(xcoords, ycoords)</em> specifying separate coordinate
+systems for <em>x</em> and <em>y</em>. <em>xcoords</em> and <em>ycoords</em> must each be
+of one of the above described types.</p></li>
+</ul>
+<p>See <span class="xref std std-ref">plotting-guide-annotation</span> for more details.</p>
+</p></li>
+<li><p><strong>textcoords</strong> (single or two-tuple of str or <cite>.Artist</cite> or <cite>.Transform</cite> or callable, default: value of <em>xycoords</em>) – <p>The coordinate system that <em>xytext</em> is given in.</p>
+<p>All <em>xycoords</em> values are valid as well as the following strings:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Value</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>’offset points’</p></td>
+<td><p>Offset, in points, from the <em>xy</em> value</p></td>
+</tr>
+<tr class="row-odd"><td><p>’offset pixels’</p></td>
+<td><p>Offset, in pixels, from the <em>xy</em> value</p></td>
+</tr>
+<tr class="row-even"><td><p>’offset fontsize’</p></td>
+<td><p>Offset, relative to fontsize, from the <em>xy</em> value</p></td>
+</tr>
+</tbody>
+</table>
+</p></li>
+<li><p><strong>arrowprops</strong> (<em>dict</em><em>, </em><em>optional</em>) – <p>The properties used to draw a <cite>.FancyArrowPatch</cite> arrow between the
+positions <em>xy</em> and <em>xytext</em>.  Defaults to None, i.e. no arrow is
+drawn.</p>
+<p>For historical reasons there are two different ways to specify
+arrows, “simple” and “fancy”:</p>
+<p><strong>Simple arrow:</strong></p>
+<p>If <em>arrowprops</em> does not contain the key ‘arrowstyle’ the
+allowed keys are:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Key</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>width</p></td>
+<td><p>The width of the arrow in points</p></td>
+</tr>
+<tr class="row-odd"><td><p>headwidth</p></td>
+<td><p>The width of the base of the arrow head in points</p></td>
+</tr>
+<tr class="row-even"><td><p>headlength</p></td>
+<td><p>The length of the arrow head in points</p></td>
+</tr>
+<tr class="row-odd"><td><p>shrink</p></td>
+<td><p>Fraction of total length to shrink from both ends</p></td>
+</tr>
+<tr class="row-even"><td><p>?</p></td>
+<td><p>Any <cite>.FancyArrowPatch</cite> property</p></td>
+</tr>
+</tbody>
+</table>
+<p>The arrow is attached to the edge of the text box, the exact
+position (corners or centers) depending on where it’s pointing to.</p>
+<p><strong>Fancy arrow:</strong></p>
+<p>This is used if ‘arrowstyle’ is provided in the <em>arrowprops</em>.</p>
+<p>Valid keys are the following <cite>.FancyArrowPatch</cite> parameters:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Key</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>arrowstyle</p></td>
+<td><p>The arrow style</p></td>
+</tr>
+<tr class="row-odd"><td><p>connectionstyle</p></td>
+<td><p>The connection style</p></td>
+</tr>
+<tr class="row-even"><td><p>relpos</p></td>
+<td><p>See below; default is (0.5, 0.5)</p></td>
+</tr>
+<tr class="row-odd"><td><p>patchA</p></td>
+<td><p>Default is bounding box of the text</p></td>
+</tr>
+<tr class="row-even"><td><p>patchB</p></td>
+<td><p>Default is None</p></td>
+</tr>
+<tr class="row-odd"><td><p>shrinkA</p></td>
+<td><p>In points. Default is 2 points</p></td>
+</tr>
+<tr class="row-even"><td><p>shrinkB</p></td>
+<td><p>In points. Default is 2 points</p></td>
+</tr>
+<tr class="row-odd"><td><p>mutation_scale</p></td>
+<td><p>Default is text size (in points)</p></td>
+</tr>
+<tr class="row-even"><td><p>mutation_aspect</p></td>
+<td><p>Default is 1</p></td>
+</tr>
+<tr class="row-odd"><td><p>?</p></td>
+<td><p>Any <cite>.FancyArrowPatch</cite> property</p></td>
+</tr>
+</tbody>
+</table>
+<p>The exact starting point position of the arrow is defined by
+<em>relpos</em>. It’s a tuple of relative coordinates of the text box,
+where (0, 0) is the lower left corner and (1, 1) is the upper
+right corner. Values &lt;0 and &gt;1 are supported and specify points
+outside the text box. By default (0.5, 0.5), so the starting point
+is centered in the text box.</p>
+</p></li>
+<li><p><strong>annotation_clip</strong> (<em>bool</em><em> or </em><em>None</em><em>, </em><em>default: None</em>) – <p>Whether to clip (i.e. not draw) the annotation when the annotation
+point <em>xy</em> is outside the Axes area.</p>
+<ul>
+<li><p>If <em>True</em>, the annotation will be clipped when <em>xy</em> is outside
+the Axes.</p></li>
+<li><p>If <em>False</em>, the annotation will always be drawn.</p></li>
+<li><p>If <em>None</em>, the annotation will be clipped when <em>xy</em> is outside
+the Axes and <em>xycoords</em> is ‘data’.</p></li>
+</ul>
+</p></li>
+<li><p><strong>**kwargs</strong> – Additional kwargs are passed to <cite>.Text</cite>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><cite>.Annotation</cite></p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><span class="xref std std-ref">annotations</span></p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.canvas.sensor.FitLabel.draw">
+<span class="sig-name descname"><span class="pre">draw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">renderer</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/canvas/sensor.html#FitLabel.draw"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.canvas.sensor.FitLabel.draw" title="Link to this definition"></a></dt>
+<dd><p>Draw the Artist (and its children) using the given renderer.</p>
+<p>This has no effect if the artist is not visible (<cite>.Artist.get_visible</cite>
+returns False).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>renderer</strong> (<cite>~matplotlib.backend_bases.RendererBase</cite> subclass.)</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This method is overridden in the Artist subclasses.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.canvas.sensor.FitLabel.set">
+<span class="sig-name descname"><span class="pre">set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">agg_filter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;UNSET&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;UNSET&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">animated</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;UNSET&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">anncoords</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;UNSET&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">annotation_clip</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;UNSET&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">antialiased</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;UNSET&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backgroundcolor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;UNSET&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bbox</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;UNSET&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clip_box</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;UNSET&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clip_on</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;UNSET&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clip_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;UNSET&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;UNSET&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fontfamily</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;UNSET&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fontproperties</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;UNSET&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fontsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;UNSET&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fontstretch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;UNSET&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fontstyle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;UNSET&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fontvariant</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;UNSET&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fontweight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;UNSET&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;UNSET&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">horizontalalignment</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;UNSET&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_layout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;UNSET&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;UNSET&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linespacing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;UNSET&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">math_fontfamily</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;UNSET&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mouseover</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;UNSET&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multialignment</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;UNSET&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parse_math</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;UNSET&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_effects</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;UNSET&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">picker</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;UNSET&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">position</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;UNSET&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rasterized</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;UNSET&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;UNSET&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rotation_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;UNSET&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sketch_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;UNSET&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">snap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;UNSET&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;UNSET&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transform</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;UNSET&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transform_rotates_text</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;UNSET&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;UNSET&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">usetex</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;UNSET&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verticalalignment</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;UNSET&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visible</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;UNSET&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wrap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;UNSET&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;UNSET&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;UNSET&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zorder</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;UNSET&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#daplis_rtp.gui.canvas.sensor.FitLabel.set" title="Link to this definition"></a></dt>
+<dd><p>Set multiple properties at once.</p>
+<p>Supported properties are</p>
+<dl class="simple">
+<dt>Properties:</dt><dd><p>agg_filter: a filter function, which takes a (m, n, 3) float array and a dpi value, and returns a (m, n, 3) array and two offsets from the bottom left corner of the image
+alpha: float or None
+animated: bool
+anncoords: unknown
+annotation_clip: bool or None
+antialiased: bool
+backgroundcolor: <a href="#id1"><span class="problematic" id="id2">:mpltype:`color`</span></a>
+bbox: dict with properties for <cite>.patches.FancyBboxPatch</cite>
+clip_box: <cite>~matplotlib.transforms.BboxBase</cite> or None
+clip_on: bool
+clip_path: Patch or (Path, Transform) or None
+color or c: <a href="#id3"><span class="problematic" id="id4">:mpltype:`color`</span></a>
+figure: <cite>~matplotlib.figure.Figure</cite> or <cite>~matplotlib.figure.SubFigure</cite>
+fontfamily or family or fontname: {FONTNAME, ‘serif’, ‘sans-serif’, ‘cursive’, ‘fantasy’, ‘monospace’}
+fontproperties or font or font_properties: <cite>.font_manager.FontProperties</cite> or <cite>str</cite> or <cite>pathlib.Path</cite>
+fontsize or size: float or {‘xx-small’, ‘x-small’, ‘small’, ‘medium’, ‘large’, ‘x-large’, ‘xx-large’}
+fontstretch or stretch: {a numeric value in range 0-1000, ‘ultra-condensed’, ‘extra-condensed’, ‘condensed’, ‘semi-condensed’, ‘normal’, ‘semi-expanded’, ‘expanded’, ‘extra-expanded’, ‘ultra-expanded’}
+fontstyle or style: {‘normal’, ‘italic’, ‘oblique’}
+fontvariant or variant: {‘normal’, ‘small-caps’}
+fontweight or weight: {a numeric value in range 0-1000, ‘ultralight’, ‘light’, ‘normal’, ‘regular’, ‘book’, ‘medium’, ‘roman’, ‘semibold’, ‘demibold’, ‘demi’, ‘bold’, ‘heavy’, ‘extra bold’, ‘black’}
+gid: str
+horizontalalignment or ha: {‘left’, ‘center’, ‘right’}
+in_layout: bool
+label: object
+linespacing: float (multiple of font size)
+math_fontfamily: str
+mouseover: bool
+multialignment or ma: {‘left’, ‘right’, ‘center’}
+parse_math: bool
+path_effects: list of <cite>.AbstractPathEffect</cite>
+picker: None or bool or float or callable
+position: (float, float)
+rasterized: bool
+rotation: float or {‘vertical’, ‘horizontal’}
+rotation_mode: {None, ‘default’, ‘anchor’}
+sketch_params: (scale: float, length: float, randomness: float)
+snap: bool or None
+text: object
+transform: <cite>~matplotlib.transforms.Transform</cite>
+transform_rotates_text: bool
+url: str
+usetex: bool, default: <a href="#id5"><span class="problematic" id="id6">:rc:`text.usetex`</span></a>
+verticalalignment or va: {‘baseline’, ‘bottom’, ‘center’, ‘center_baseline’, ‘top’}
+visible: bool
+wrap: bool
+x: float
+y: float
+zorder: float</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="daplis_rtp.gui.canvas.sensor.SensorCanvas">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">daplis_rtp.gui.canvas.sensor.</span></span><span class="sig-name descname"><span class="pre">SensorCanvas</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/canvas/sensor.html#SensorCanvas"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.canvas.sensor.SensorCanvas" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="daplis_rtp.gui.canvas.base.html#daplis_rtp.gui.canvas.base.BaseCanvas" title="daplis_rtp.gui.canvas.base.BaseCanvas"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseCanvas</span></code></a></p>
+<p>Photon rate per pixel, for one LinoSPAD2 board.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.canvas.sensor.SensorCanvas.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/canvas/sensor.html#SensorCanvas.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.canvas.sensor.SensorCanvas.__init__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="daplis_rtp.gui.canvas.sensor.SensorCanvas.boundary">
+<span class="sig-name descname"><span class="pre">boundary</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#daplis_rtp.gui.canvas.sensor.SensorCanvas.boundary" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.canvas.sensor.SensorCanvas.draw_data">
+<span class="sig-name descname"><span class="pre">draw_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/canvas/sensor.html#SensorCanvas.draw_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.canvas.sensor.SensorCanvas.draw_data" title="Link to this definition"></a></dt>
+<dd><p>What this kind of plot draws. Overridden by every subclass.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="daplis_rtp.gui.canvas.sensor.SensorCanvas.group_lines">
+<span class="sig-name descname"><span class="pre">group_lines</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(64,</span> <span class="pre">128,</span> <span class="pre">192)</span></span><a class="headerlink" href="#daplis_rtp.gui.canvas.sensor.SensorCanvas.group_lines" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="daplis_rtp.gui.canvas.sensor.SensorCanvas.n_pixels">
+<span class="sig-name descname"><span class="pre">n_pixels</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">256</span></span><a class="headerlink" href="#daplis_rtp.gui.canvas.sensor.SensorCanvas.n_pixels" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="daplis_rtp.gui.canvas.sensor.SensorCanvas.pixel_ctrl_clicked">
+<span class="sig-name descname"><span class="pre">pixel_ctrl_clicked</span></span><a class="headerlink" href="#daplis_rtp.gui.canvas.sensor.SensorCanvas.pixel_ctrl_clicked" title="Link to this definition"></a></dt>
+<dd><p>str = …, revision: int = …, arguments: Sequence = …) -&gt; PYQT_SIGNAL</p>
+<p>types is normally a sequence of individual types.  Each type is either a
+type object or a string that is the name of a C++ type.  Alternatively
+each type could itself be a sequence of types each describing a different
+overloaded signal.
+name is the optional C++ name of the signal.  If it is not specified then
+the name of the class attribute that is bound to the signal is used.
+revision is the optional revision of the signal that is exported to QML.
+If it is not specified then 0 is used.
+arguments is the optional sequence of the names of the signal’s arguments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pyqtSignal(<a href="#id7"><span class="problematic" id="id8">*</span></a>types, name</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="daplis_rtp.gui.canvas.sensor.SensorCanvas.x_label">
+<span class="sig-name descname"><span class="pre">x_label</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Pixel</span> <span class="pre">(-)'</span></span><a class="headerlink" href="#daplis_rtp.gui.canvas.sensor.SensorCanvas.x_label" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="daplis_rtp.gui.canvas.sensor.SensorCanvas.y_label">
+<span class="sig-name descname"><span class="pre">y_label</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Photon</span> <span class="pre">rate</span> <span class="pre">(Hz)'</span></span><a class="headerlink" href="#daplis_rtp.gui.canvas.sensor.SensorCanvas.y_label" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="daplis_rtp.gui.canvas.mzi.html" class="btn btn-neutral float-left" title="daplis_rtp.gui.canvas.mzi module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="daplis_rtp.gui.tabs.html" class="btn btn-neutral float-right" title="daplis_rtp.gui.tabs package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Sergei Kulkov.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

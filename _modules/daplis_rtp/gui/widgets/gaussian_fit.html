@@ -1,0 +1,446 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>daplis_rtp.gui.widgets.gaussian_fit &mdash; Data Analysis Package for LinoSPAD2 - Real-Time Plotting 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            Data Analysis Package for LinoSPAD2 - Real-Time Plotting
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation and usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../daplis_rtp.gui.html">daplis_rtp.gui package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../daplis_rtp.functions.html">daplis_rtp.functions package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contribute.html">How to contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../license.html">License and contact info</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../acknowledgement.html">Acknowledgement</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">Data Analysis Package for LinoSPAD2 - Real-Time Plotting</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">daplis_rtp.gui.widgets.gaussian_fit</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for daplis_rtp.gui.widgets.gaussian_fit</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Gaussian fits of the lines in view, refreshed with every file.</span>
+
+<span class="sd">The "Peak in view" box describes one peak, the brightest, by its shape</span>
+<span class="sd">alone. Aligning a spectrometer on a neon lamp wants more than that: every</span>
+<span class="sd">line on the sensor at once, and a width that is a fitted parameter with</span>
+<span class="sd">an uncertainty, so that a change in focus can be told apart from noise</span>
+<span class="sd">while the mirror is still being turned.</span>
+
+<span class="sd">What counts as a line is decided by a threshold set by hand. Hot pixels</span>
+<span class="sd">and lines both stand above the dark floor, and nothing in one trace</span>
+<span class="sd">tells them apart reliably, but the person at the bench can see which is</span>
+<span class="sd">which - so the threshold is theirs to set, and the plot shows it as a</span>
+<span class="sd">dashed line to set it against.</span>
+
+<span class="sd">A line is a run of neighbouring pixels above the threshold. Each run is</span>
+<span class="sd">fitted with a Gaussian on a constant background, over a window wide</span>
+<span class="sd">enough to see the background on either side, then fitted again over</span>
+<span class="sd">four sigmas of what the first fit found. Two lines close enough that</span>
+<span class="sd">the trace never drops below the threshold between them are one run and</span>
+<span class="sd">one fit: raise the threshold to split them.</span>
+
+<span class="sd">The arithmetic is a plain function, like ``peak_stats``, so that it can</span>
+<span class="sd">be tested on shapes whose answers are known; the strip below only</span>
+<span class="sd">displays what it returns.</span>
+
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">PyQt5</span><span class="w"> </span><span class="kn">import</span> <span class="n">QtCore</span><span class="p">,</span> <span class="n">QtWidgets</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.optimize</span><span class="w"> </span><span class="kn">import</span> <span class="n">curve_fit</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">daplis_rtp.gui.layout</span><span class="w"> </span><span class="kn">import</span> <span class="n">ElidedLabel</span><span class="p">,</span> <span class="n">SPACING</span><span class="p">,</span> <span class="n">size_like_ui_tabs</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">daplis_rtp.gui.widgets.controls</span><span class="w"> </span><span class="kn">import</span> <span class="n">float_field</span><span class="p">,</span> <span class="n">float_value</span>
+
+<span class="c1"># Below this many usable pixels a four-parameter fit has no degrees of</span>
+<span class="c1"># freedom left to estimate its own uncertainties from.</span>
+<span class="n">MIN_POINTS</span> <span class="o">=</span> <span class="mi">5</span>
+
+<span class="c1"># The window refitted around the first result, in sigmas either side.</span>
+<span class="n">WINDOW_SIGMAS</span> <span class="o">=</span> <span class="mf">4.0</span>
+
+
+<div class="viewcode-block" id="gaussian">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.widgets.gaussian_fit.html#daplis_rtp.gui.widgets.gaussian">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">gaussian</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">amplitude</span><span class="p">,</span> <span class="n">centre</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">background</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""The model every line is fitted with."""</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">amplitude</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="p">((</span><span class="n">x</span> <span class="o">-</span> <span class="n">centre</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">sigma</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+        <span class="o">+</span> <span class="n">background</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="fit_peaks">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.widgets.gaussian_fit.html#daplis_rtp.gui.widgets.fit_peaks">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">fit_peaks</span><span class="p">(</span><span class="n">rates</span><span class="p">,</span> <span class="n">threshold</span><span class="p">,</span> <span class="n">x_lim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">valid</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Fit a Gaussian to every line above ``threshold`` in view.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    rates : array-like</span>
+<span class="sd">        Photon rate per pixel, indexed by pixel number.</span>
+<span class="sd">    threshold : float</span>
+<span class="sd">        Rate a pixel must exceed to belong to a line.</span>
+<span class="sd">    x_lim : tuple, optional</span>
+<span class="sd">        ``(low, high)`` pixel numbers, inclusive, as shown on the plot.</span>
+<span class="sd">        The whole array when omitted.</span>
+<span class="sd">    valid : array-like, optional</span>
+<span class="sd">        Truthy for the pixels that may be used. Masked pixels read zero,</span>
+<span class="sd">        and a zero inside a line would drag its fit down, so they are</span>
+<span class="sd">        left out of the fit rather than fitted as data.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list of dict</span>
+<span class="sd">        One per line, left to right. Each has ``peak_pixel``, ``low``</span>
+<span class="sd">        and ``high`` (the window fitted). A successful fit adds</span>
+<span class="sd">        ``amplitude``, ``centre``, ``sigma`` and ``background``, and</span>
+<span class="sd">        ``centre_err`` and ``sigma_err`` - ``None`` where the fit could</span>
+<span class="sd">        not say. A failed one has ``error`` instead, saying why.</span>
+
+<span class="sd">    """</span>
+    <span class="n">rates</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">rates</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">rates</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">threshold</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+    <span class="n">usable</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">rates</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">valid</span> <span class="ow">is</span> <span class="kc">None</span>
+        <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">valid</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="n">low</span><span class="p">,</span> <span class="n">high</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">rates</span><span class="o">.</span><span class="n">size</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">x_lim</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">x_lim</span>
+    <span class="n">low</span><span class="p">,</span> <span class="n">high</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">low</span><span class="p">,</span> <span class="n">high</span><span class="p">)),</span> <span class="nb">int</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">low</span><span class="p">,</span> <span class="n">high</span><span class="p">))</span>
+    <span class="n">low</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">low</span><span class="p">)</span>
+    <span class="n">high</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">rates</span><span class="o">.</span><span class="n">size</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">high</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">high</span> <span class="o">&lt;</span> <span class="n">low</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+
+    <span class="n">runs</span> <span class="o">=</span> <span class="n">_runs_above</span><span class="p">(</span><span class="n">rates</span><span class="p">,</span> <span class="n">usable</span><span class="p">,</span> <span class="n">threshold</span><span class="p">,</span> <span class="n">low</span><span class="p">,</span> <span class="n">high</span><span class="p">)</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">runs</span><span class="p">):</span>
+        <span class="c1"># A window may reach out to halfway to the next line and no</span>
+        <span class="c1"># further, so one line's flank is never fitted as another's</span>
+        <span class="c1"># background.</span>
+        <span class="n">left</span> <span class="o">=</span> <span class="n">low</span> <span class="k">if</span> <span class="n">index</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="p">(</span><span class="n">runs</span><span class="p">[</span><span class="n">index</span> <span class="o">-</span> <span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">start</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
+        <span class="n">right</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">high</span> <span class="k">if</span> <span class="n">index</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">runs</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+            <span class="k">else</span> <span class="p">(</span><span class="n">stop</span> <span class="o">+</span> <span class="n">runs</span><span class="p">[</span><span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span> <span class="o">//</span> <span class="mi">2</span>
+        <span class="p">)</span>
+        <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">_fit_one</span><span class="p">(</span><span class="n">rates</span><span class="p">,</span> <span class="n">usable</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="p">,</span> <span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">)</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">results</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_runs_above</span><span class="p">(</span><span class="n">rates</span><span class="p">,</span> <span class="n">usable</span><span class="p">,</span> <span class="n">threshold</span><span class="p">,</span> <span class="n">low</span><span class="p">,</span> <span class="n">high</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""``(start, stop)`` of each run of usable pixels above threshold."""</span>
+    <span class="n">above</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">rates</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+    <span class="n">above</span><span class="p">[</span><span class="n">low</span> <span class="p">:</span> <span class="n">high</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">rates</span><span class="p">[</span><span class="n">low</span> <span class="p">:</span> <span class="n">high</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">threshold</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">usable</span><span class="p">[</span>
+        <span class="n">low</span> <span class="p">:</span> <span class="n">high</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="p">]</span>
+    <span class="n">runs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">start</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">for</span> <span class="n">pixel</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">low</span><span class="p">,</span> <span class="n">high</span> <span class="o">+</span> <span class="mi">2</span><span class="p">):</span>
+        <span class="n">inside</span> <span class="o">=</span> <span class="n">pixel</span> <span class="o">&lt;=</span> <span class="n">high</span> <span class="ow">and</span> <span class="n">above</span><span class="p">[</span><span class="n">pixel</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">inside</span> <span class="ow">and</span> <span class="n">start</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="n">pixel</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="n">inside</span> <span class="ow">and</span> <span class="n">start</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">runs</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">start</span><span class="p">,</span> <span class="n">pixel</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="n">runs</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_fit_one</span><span class="p">(</span><span class="n">rates</span><span class="p">,</span> <span class="n">usable</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="p">,</span> <span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">):</span>
+    <span class="n">peak</span> <span class="o">=</span> <span class="n">start</span> <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">rates</span><span class="p">[</span><span class="n">start</span> <span class="p">:</span> <span class="n">stop</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]))</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"peak_pixel"</span><span class="p">:</span> <span class="n">peak</span><span class="p">}</span>
+
+    <span class="c1"># First guess: the run's own width stands for the line's, and a</span>
+    <span class="c1"># window three times as wide sees the floor on both sides.</span>
+    <span class="n">width</span> <span class="o">=</span> <span class="n">stop</span> <span class="o">-</span> <span class="n">start</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="n">sigma0</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">width</span> <span class="o">/</span> <span class="mf">2.355</span><span class="p">)</span>
+    <span class="n">margin</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">width</span><span class="p">)</span>
+    <span class="n">window</span> <span class="o">=</span> <span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">start</span> <span class="o">-</span> <span class="n">margin</span><span class="p">),</span> <span class="nb">min</span><span class="p">(</span><span class="n">right</span><span class="p">,</span> <span class="n">stop</span> <span class="o">+</span> <span class="n">margin</span><span class="p">))</span>
+
+    <span class="n">params</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">for</span> <span class="n">attempt</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">):</span>
+        <span class="n">result</span><span class="p">[</span><span class="s2">"low"</span><span class="p">],</span> <span class="n">result</span><span class="p">[</span><span class="s2">"high"</span><span class="p">]</span> <span class="o">=</span> <span class="n">window</span>
+        <span class="n">pixels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">window</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">window</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">keep</span> <span class="o">=</span> <span class="n">usable</span><span class="p">[</span><span class="n">pixels</span><span class="p">]</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">pixels</span><span class="p">[</span><span class="n">keep</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">rates</span><span class="p">[</span><span class="n">pixels</span><span class="p">][</span><span class="n">keep</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">size</span> <span class="o">&lt;</span> <span class="n">MIN_POINTS</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">result</span><span class="p">[</span><span class="s2">"error"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"too few pixels"</span>
+                <span class="k">return</span> <span class="n">result</span>
+            <span class="c1"># The refit window was too tight to use; the first fit</span>
+            <span class="c1"># stands.</span>
+            <span class="k">break</span>
+
+        <span class="n">background0</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">y</span><span class="p">))</span>
+        <span class="n">guess</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">[</span><span class="n">rates</span><span class="p">[</span><span class="n">peak</span><span class="p">]</span> <span class="o">-</span> <span class="n">background0</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">peak</span><span class="p">),</span> <span class="n">sigma0</span><span class="p">,</span> <span class="n">background0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">params</span> <span class="ow">is</span> <span class="kc">None</span>
+            <span class="k">else</span> <span class="n">params</span>
+        <span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">fitted</span><span class="p">,</span> <span class="n">cov</span> <span class="o">=</span> <span class="n">curve_fit</span><span class="p">(</span>
+                <span class="n">gaussian</span><span class="p">,</span>
+                <span class="n">x</span><span class="p">,</span>
+                <span class="n">y</span><span class="p">,</span>
+                <span class="n">p0</span><span class="o">=</span><span class="n">guess</span><span class="p">,</span>
+                <span class="n">bounds</span><span class="o">=</span><span class="p">(</span>
+                    <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">window</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mf">0.05</span><span class="p">,</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">],</span>
+                    <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">window</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="nb">float</span><span class="p">(</span><span class="n">window</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">window</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span>
+                     <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">],</span>
+                <span class="p">),</span>
+                <span class="n">maxfev</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">RuntimeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">)</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">result</span><span class="p">[</span><span class="s2">"error"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"fit failed"</span>
+                <span class="n">result</span><span class="p">[</span><span class="s2">"detail"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">result</span>
+            <span class="k">break</span>
+        <span class="n">params</span><span class="p">,</span> <span class="n">covariance</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">fitted</span><span class="p">),</span> <span class="n">cov</span>
+
+        <span class="k">if</span> <span class="n">attempt</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">reach</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">WINDOW_SIGMAS</span> <span class="o">*</span> <span class="n">params</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+            <span class="n">centre</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+            <span class="n">window</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="nb">max</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">centre</span> <span class="o">-</span> <span class="nb">max</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">reach</span><span class="p">)),</span>
+                <span class="nb">min</span><span class="p">(</span><span class="n">right</span><span class="p">,</span> <span class="n">centre</span> <span class="o">+</span> <span class="nb">max</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">reach</span><span class="p">)),</span>
+            <span class="p">)</span>
+
+    <span class="n">errors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">covariance</span><span class="p">))</span>
+    <span class="n">amplitude</span><span class="p">,</span> <span class="n">centre</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">background</span> <span class="o">=</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">params</span><span class="p">)</span>
+    <span class="n">result</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+        <span class="n">amplitude</span><span class="o">=</span><span class="n">amplitude</span><span class="p">,</span>
+        <span class="n">centre</span><span class="o">=</span><span class="n">centre</span><span class="p">,</span>
+        <span class="n">sigma</span><span class="o">=</span><span class="n">sigma</span><span class="p">,</span>
+        <span class="n">background</span><span class="o">=</span><span class="n">background</span><span class="p">,</span>
+        <span class="n">centre_err</span><span class="o">=</span><span class="n">_finite</span><span class="p">(</span><span class="n">errors</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+        <span class="n">sigma_err</span><span class="o">=</span><span class="n">_finite</span><span class="p">(</span><span class="n">errors</span><span class="p">[</span><span class="mi">2</span><span class="p">]),</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">result</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_finite</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">value</span> <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
+
+
+<div class="viewcode-block" id="describe_fit">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.widgets.gaussian_fit.html#daplis_rtp.gui.widgets.describe_fit">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">describe_fit</span><span class="p">(</span><span class="n">fit</span><span class="p">,</span> <span class="n">short</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""One line for one fit, as the strip and the export show it."""</span>
+    <span class="k">if</span> <span class="s2">"error"</span> <span class="ow">in</span> <span class="n">fit</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">"px </span><span class="si">{}</span><span class="s2">: </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fit</span><span class="p">[</span><span class="s2">"peak_pixel"</span><span class="p">],</span> <span class="n">fit</span><span class="p">[</span><span class="s2">"error"</span><span class="p">])</span>
+    <span class="n">sigma</span> <span class="o">=</span> <span class="n">_with_error</span><span class="p">(</span><span class="n">fit</span><span class="p">[</span><span class="s2">"sigma"</span><span class="p">],</span> <span class="n">fit</span><span class="p">[</span><span class="s2">"sigma_err"</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">short</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">"px </span><span class="si">{:.1f}</span><span class="s2">: σ = </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fit</span><span class="p">[</span><span class="s2">"centre"</span><span class="p">],</span> <span class="n">sigma</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="s2">"centre </span><span class="si">{}</span><span class="s2"> px, sigma </span><span class="si">{}</span><span class="s2"> px, FWHM </span><span class="si">{:.2f}</span><span class="s2"> px, "</span>
+        <span class="s2">"amplitude </span><span class="si">{:.4g}</span><span class="s2"> Hz, background </span><span class="si">{:.4g}</span><span class="s2"> Hz"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">_with_error</span><span class="p">(</span><span class="n">fit</span><span class="p">[</span><span class="s2">"centre"</span><span class="p">],</span> <span class="n">fit</span><span class="p">[</span><span class="s2">"centre_err"</span><span class="p">]),</span>
+            <span class="n">sigma</span><span class="p">,</span>
+            <span class="n">fit</span><span class="p">[</span><span class="s2">"sigma"</span><span class="p">]</span> <span class="o">*</span> <span class="mf">2.3548200450309493</span><span class="p">,</span>
+            <span class="n">fit</span><span class="p">[</span><span class="s2">"amplitude"</span><span class="p">],</span>
+            <span class="n">fit</span><span class="p">[</span><span class="s2">"background"</span><span class="p">],</span>
+        <span class="p">)</span>
+    <span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_with_error</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">error</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""``value ± error``, to as many decimals as the error deserves.</span>
+
+<span class="sd">    Two significant figures of the error, between two and four</span>
+<span class="sd">    decimals: a bright line's sigma is known to a few thousandths of a</span>
+<span class="sd">    pixel, and printing that as '± 0.00' hides exactly the figure being</span>
+<span class="sd">    watched. An error larger than the value - a hot pixel fitted as a</span>
+<span class="sd">    line - is left in scientific notation, where it is unmissable.</span>
+
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">error</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">"</span><span class="si">{:.2f}</span><span class="s2"> ± ?"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">error</span> <span class="o">&gt;=</span> <span class="mi">10</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">"</span><span class="si">{:.2f}</span><span class="s2"> ± </span><span class="si">{:.1e}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">error</span><span class="p">)</span>
+    <span class="n">decimals</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="k">if</span> <span class="n">error</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">decimals</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">error</span><span class="p">)))))</span>
+    <span class="k">return</span> <span class="s2">"{:.</span><span class="si">{d}</span><span class="s2">f} ± {:.</span><span class="si">{d}</span><span class="s2">f}"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">error</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="n">decimals</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="GaussianFitStrip">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.widgets.gaussian_fit.html#daplis_rtp.gui.widgets.GaussianFitStrip">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">GaussianFitStrip</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QWidget</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""The switch, the threshold, and one sigma per line, in one row.</span>
+
+<span class="sd">    Sits directly above the plot, under the row naming the brightest</span>
+<span class="sd">    pixels, so that the widths being watched are read in the same glance</span>
+<span class="sd">    as the peaks they belong to.</span>
+
+<span class="sd">    """</span>
+
+    <span class="n">changed</span> <span class="o">=</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">pyqtSignal</span><span class="p">()</span>
+
+<div class="viewcode-block" id="GaussianFitStrip.__init__">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.widgets.gaussian_fit.html#daplis_rtp.gui.widgets.GaussianFitStrip.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+        <span class="n">box</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QHBoxLayout</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">box</span><span class="o">.</span><span class="n">setContentsMargins</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">box</span><span class="o">.</span><span class="n">setSpacing</span><span class="p">(</span><span class="n">SPACING</span><span class="p">)</span>
+
+        <span class="n">tip</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">"Fit a Gaussian on a constant background to every line "</span>
+            <span class="s2">"above the threshold within the x-limits, on every refresh. "</span>
+            <span class="s2">"Sigma is in pixels."</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">checkBox</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QCheckBox</span><span class="p">(</span><span class="s2">"Gaussian fit"</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">checkBox</span><span class="o">.</span><span class="n">setToolTip</span><span class="p">(</span><span class="n">tip</span><span class="p">)</span>
+        <span class="n">box</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">checkBox</span><span class="p">)</span>
+
+        <span class="n">threshold_tip</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">"Photon rate a pixel must exceed to count as part of a "</span>
+            <span class="s2">"line, in Hz. Set it above the hot pixels and below the "</span>
+            <span class="s2">"lines; it is drawn on the plot as a dashed line. "</span>
+            <span class="s2">"Accepts '2e5'."</span>
+        <span class="p">)</span>
+        <span class="n">label</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QLabel</span><span class="p">(</span><span class="s2">"Threshold (Hz)"</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="n">label</span><span class="o">.</span><span class="n">setToolTip</span><span class="p">(</span><span class="n">threshold_tip</span><span class="p">)</span>
+        <span class="n">box</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">thresholdEdit</span> <span class="o">=</span> <span class="n">float_field</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">placeholder</span><span class="o">=</span><span class="s2">"set"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">thresholdEdit</span><span class="o">.</span><span class="n">setToolTip</span><span class="p">(</span><span class="n">threshold_tip</span><span class="p">)</span>
+        <span class="n">size_like_ui_tabs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">thresholdEdit</span><span class="p">)</span>
+        <span class="n">box</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">thresholdEdit</span><span class="p">)</span>
+
+        <span class="n">box</span><span class="o">.</span><span class="n">addSpacing</span><span class="p">(</span><span class="n">SPACING</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span> <span class="n">ElidedLabel</span><span class="p">(</span><span class="s2">""</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">setObjectName</span><span class="p">(</span><span class="s2">"readoutValue"</span><span class="p">)</span>
+        <span class="n">box</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">checkBox</span><span class="o">.</span><span class="n">toggled</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">changed</span><span class="o">.</span><span class="n">emit</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">thresholdEdit</span><span class="o">.</span><span class="n">editingFinished</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">changed</span><span class="o">.</span><span class="n">emit</span><span class="p">)</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">enabled</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">checkBox</span><span class="o">.</span><span class="n">isChecked</span><span class="p">()</span>
+
+<div class="viewcode-block" id="GaussianFitStrip.threshold">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.widgets.gaussian_fit.html#daplis_rtp.gui.widgets.GaussianFitStrip.threshold">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">threshold</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">float_value</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">thresholdEdit</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="GaussianFitStrip.clear">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.widgets.gaussian_fit.html#daplis_rtp.gui.widgets.GaussianFitStrip.clear">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">""</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">text</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="GaussianFitStrip.show_fits">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.widgets.gaussian_fit.html#daplis_rtp.gui.widgets.GaussianFitStrip.show_fits">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">show_fits</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fits</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Render one refresh's fits, sigma first, in the result line."""</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">fits</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">clear</span><span class="p">(</span><span class="s2">"no lines above threshold"</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">"    "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">describe_fit</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">fits</span><span class="p">))</span>
+        <span class="c1"># The full account goes in the tooltip, where the line itself</span>
+        <span class="c1"># only has room for the width.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">setToolTip</span><span class="p">(</span>
+            <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">describe_fit</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">short</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">fits</span><span class="p">)</span>
+        <span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Sergei Kulkov.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

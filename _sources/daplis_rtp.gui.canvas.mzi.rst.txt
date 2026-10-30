@@ -1,0 +1,7 @@
+daplis\_rtp.gui.canvas.mzi module
+=================================
+
+.. automodule:: daplis_rtp.gui.canvas.mzi
+   :members:
+   :show-inheritance:
+   :undoc-members:

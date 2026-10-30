@@ -1,0 +1,7 @@
+daplis\_rtp.gui.widgets.gaussian\_fit module
+============================================
+
+.. automodule:: daplis_rtp.gui.widgets.gaussian_fit
+   :members:
+   :show-inheritance:
+   :undoc-members:

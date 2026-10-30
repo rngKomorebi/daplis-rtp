@@ -1,0 +1,453 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>daplis_rtp.gui.widgets.controls &mdash; Data Analysis Package for LinoSPAD2 - Real-Time Plotting 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            Data Analysis Package for LinoSPAD2 - Real-Time Plotting
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation and usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../daplis_rtp.gui.html">daplis_rtp.gui package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../daplis_rtp.functions.html">daplis_rtp.functions package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contribute.html">How to contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../license.html">License and contact info</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../acknowledgement.html">Acknowledgement</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">Data Analysis Package for LinoSPAD2 - Real-Time Plotting</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">daplis_rtp.gui.widgets.controls</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for daplis_rtp.gui.widgets.controls</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""The controls the tabs are made of, built once and used by all of them.</span>
+
+<span class="sd">Four tabs choose a daughterboard, a motherboard, a firmware version and</span>
+<span class="sd">a number of timestamps. Before this module each of them built those</span>
+<span class="sd">four itself, which is how the "Full Sensor" combo boxes came to be 80 px</span>
+<span class="sd">``Expanding`` while everyone else's were 100 px ``Fixed``, and how one</span>
+<span class="sd">tab came to offer a motherboard the others did not. A control that</span>
+<span class="sd">exists once cannot drift.</span>
+
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">PyQt5</span><span class="w"> </span><span class="kn">import</span> <span class="n">QtCore</span><span class="p">,</span> <span class="n">QtGui</span><span class="p">,</span> <span class="n">QtWidgets</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">daplis_rtp.gui.layout</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">SPACING</span><span class="p">,</span>
+    <span class="n">allow_shrink</span><span class="p">,</span>
+    <span class="n">control_box_width</span><span class="p">,</span>
+    <span class="n">row_height</span><span class="p">,</span>
+    <span class="n">size_like_ui_tabs</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># The hardware the group has. Editable combo boxes, because a board that</span>
+<span class="c1"># is not on the list is a board that arrived after the last release and</span>
+<span class="c1"># still has to be usable.</span>
+<span class="n">DAUGHTERBOARDS</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"B7d"</span><span class="p">,</span> <span class="s2">"NL11"</span><span class="p">,</span> <span class="s2">"A5"</span><span class="p">,</span> <span class="s2">"D2b"</span><span class="p">)</span>
+<span class="n">MOTHERBOARDS</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"#28"</span><span class="p">,</span> <span class="s2">"#33"</span><span class="p">,</span> <span class="s2">"#21"</span><span class="p">,</span> <span class="s2">"#36"</span><span class="p">,</span> <span class="s2">"#37"</span><span class="p">,</span> <span class="s2">"#4"</span><span class="p">,</span> <span class="s2">"#29"</span><span class="p">)</span>
+<span class="n">FIRMWARE_VERSIONS</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"2212b"</span><span class="p">,</span> <span class="s2">"2212s"</span><span class="p">)</span>
+
+<span class="c1"># Slots a TDC has per acquisition cycle, and what the tabs open at.</span>
+<span class="n">MAX_TIMESTAMPS</span> <span class="o">=</span> <span class="mi">1536</span>
+<span class="n">DEFAULT_TIMESTAMPS</span> <span class="o">=</span> <span class="mi">300</span>
+
+<span class="n">PIXELS_PER_BOARD</span> <span class="o">=</span> <span class="mi">256</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_editable</span><span class="p">(</span><span class="n">combo</span><span class="p">,</span> <span class="n">items</span><span class="p">):</span>
+    <span class="n">combo</span><span class="o">.</span><span class="n">setEditable</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">combo</span><span class="o">.</span><span class="n">setInsertPolicy</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QComboBox</span><span class="o">.</span><span class="n">InsertAtCurrent</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">items</span><span class="p">:</span>
+        <span class="n">combo</span><span class="o">.</span><span class="n">addItem</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">combo</span>
+
+
+<div class="viewcode-block" id="daughterboard_combo">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.widgets.controls.html#daplis_rtp.gui.widgets.daughterboard_combo">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">daughterboard_combo</span><span class="p">(</span><span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">_editable</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QComboBox</span><span class="p">(</span><span class="n">parent</span><span class="p">),</span> <span class="n">DAUGHTERBOARDS</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="motherboard_combo">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.widgets.controls.html#daplis_rtp.gui.widgets.motherboard_combo">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">motherboard_combo</span><span class="p">(</span><span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">_editable</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QComboBox</span><span class="p">(</span><span class="n">parent</span><span class="p">),</span> <span class="n">MOTHERBOARDS</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="firmware_combo">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.widgets.controls.html#daplis_rtp.gui.widgets.firmware_combo">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">firmware_combo</span><span class="p">(</span><span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Not editable: the unpacking only knows these two."""</span>
+    <span class="n">combo</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QComboBox</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">FIRMWARE_VERSIONS</span><span class="p">:</span>
+        <span class="n">combo</span><span class="o">.</span><span class="n">addItem</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">combo</span></div>
+
+
+
+<div class="viewcode-block" id="timestamps_spin">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.widgets.controls.html#daplis_rtp.gui.widgets.timestamps_spin">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">timestamps_spin</span><span class="p">(</span><span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="n">spin</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QSpinBox</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+    <span class="n">spin</span><span class="o">.</span><span class="n">setRange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">MAX_TIMESTAMPS</span><span class="p">)</span>
+    <span class="n">spin</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="n">DEFAULT_TIMESTAMPS</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">spin</span></div>
+
+
+
+<div class="viewcode-block" id="pixel_spin">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.widgets.controls.html#daplis_rtp.gui.widgets.pixel_spin">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">pixel_spin</span><span class="p">(</span><span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">maximum</span><span class="o">=</span><span class="n">PIXELS_PER_BOARD</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+    <span class="n">spin</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QSpinBox</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+    <span class="n">spin</span><span class="o">.</span><span class="n">setRange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">maximum</span><span class="p">)</span>
+    <span class="c1"># Without this, 'valueChanged' fires on every keystroke, so typing a</span>
+    <span class="c1"># smaller number gets clamped against its neighbour halfway through.</span>
+    <span class="c1"># The value is committed on Enter or focus loss instead, and the</span>
+    <span class="c1"># arrows still work as before.</span>
+    <span class="n">spin</span><span class="o">.</span><span class="n">setKeyboardTracking</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">spin</span></div>
+
+
+
+<div class="viewcode-block" id="float_field">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.widgets.controls.html#daplis_rtp.gui.widgets.float_field">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">float_field</span><span class="p">(</span><span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">placeholder</span><span class="o">=</span><span class="s2">"auto"</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""A field for one axis limit, or nothing at all.</span>
+
+<span class="sd">    A line edit rather than a spin box because a spin box has no way to</span>
+<span class="sd">    say "unset", and an edge left unset is one that autoscales. Accepts</span>
+<span class="sd">    '-1.5', '2e-3', '10e3'; the range is deliberately the whole of</span>
+<span class="sd">    float, since a photon rate and a stream length share no scale worth</span>
+<span class="sd">    capping.</span>
+
+<span class="sd">    """</span>
+    <span class="n">field</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QLineEdit</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+    <span class="n">field</span><span class="o">.</span><span class="n">setPlaceholderText</span><span class="p">(</span><span class="n">placeholder</span><span class="p">)</span>
+    <span class="n">validator</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QDoubleValidator</span><span class="p">(</span><span class="n">field</span><span class="p">)</span>
+    <span class="n">validator</span><span class="o">.</span><span class="n">setNotation</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QDoubleValidator</span><span class="o">.</span><span class="n">ScientificNotation</span><span class="p">)</span>
+    <span class="n">field</span><span class="o">.</span><span class="n">setValidator</span><span class="p">(</span><span class="n">validator</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">field</span></div>
+
+
+
+<div class="viewcode-block" id="float_value">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.widgets.controls.html#daplis_rtp.gui.widgets.float_value">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">float_value</span><span class="p">(</span><span class="n">field</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""A field's value as a float, or ``None`` when it is unset.</span>
+
+<span class="sd">    A field left empty - or holding a fragment the validator tolerated</span>
+<span class="sd">    while typing, such as a lone '-' or 'e' - means that edge should</span>
+<span class="sd">    autoscale rather than break the plot.</span>
+
+<span class="sd">    """</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">text</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">text</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+
+
+<div class="viewcode-block" id="info_badge">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.widgets.controls.html#daplis_rtp.gui.widgets.info_badge">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">info_badge</span><span class="p">(</span><span class="n">tooltip</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""The small boxed 'i' that carries an explanation beside a control."""</span>
+    <span class="n">badge</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QLabel</span><span class="p">(</span><span class="s2">"i"</span><span class="p">,</span> <span class="n">parent</span><span class="p">)</span>
+    <span class="n">side</span> <span class="o">=</span> <span class="n">row_height</span><span class="p">()</span> <span class="o">-</span> <span class="mi">8</span>
+    <span class="n">badge</span><span class="o">.</span><span class="n">setFixedSize</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">QSize</span><span class="p">(</span><span class="n">side</span><span class="p">,</span> <span class="n">side</span><span class="p">))</span>
+    <span class="n">badge</span><span class="o">.</span><span class="n">setFrameShape</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QFrame</span><span class="o">.</span><span class="n">Box</span><span class="p">)</span>
+    <span class="n">badge</span><span class="o">.</span><span class="n">setAlignment</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">AlignCenter</span><span class="p">)</span>
+    <span class="n">badge</span><span class="o">.</span><span class="n">setToolTip</span><span class="p">(</span><span class="n">tooltip</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">badge</span></div>
+
+
+
+<div class="viewcode-block" id="DirectoryPicker">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.widgets.controls.html#daplis_rtp.gui.widgets.DirectoryPicker">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">DirectoryPicker</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QWidget</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""A caption, a path, and a Browse button - one header row's worth.</span>
+
+<span class="sd">    Every tab that reads data files has one of these, and on the full</span>
+<span class="sd">    sensor tab there are two, which is why the shell reserves two header</span>
+<span class="sd">    rows on every tab: the plot has to start at the same height whether</span>
+<span class="sd">    a tab fills both or one.</span>
+
+<span class="sd">    """</span>
+
+    <span class="n">changed</span> <span class="o">=</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">pyqtSignal</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+
+<div class="viewcode-block" id="DirectoryPicker.__init__">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.widgets.controls.html#daplis_rtp.gui.widgets.DirectoryPicker.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">caption</span><span class="o">=</span><span class="s2">"Data folder"</span><span class="p">,</span>
+        <span class="n">title</span><span class="o">=</span><span class="s2">"Select Directory"</span><span class="p">,</span>
+        <span class="n">tip</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_title</span> <span class="o">=</span> <span class="n">title</span>
+
+        <span class="n">box</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QHBoxLayout</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">box</span><span class="o">.</span><span class="n">setContentsMargins</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">box</span><span class="o">.</span><span class="n">setSpacing</span><span class="p">(</span><span class="n">SPACING</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">label</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QLabel</span><span class="p">(</span><span class="n">caption</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="n">box</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">label</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QLineEdit</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit</span><span class="o">.</span><span class="n">setPlaceholderText</span><span class="p">(</span>
+            <span class="s2">"folder the board writes its .dat files to"</span>
+        <span class="p">)</span>
+        <span class="n">box</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lineEdit</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QPushButton</span><span class="p">(</span><span class="s2">"Browse"</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton</span><span class="o">.</span><span class="n">setFixedWidth</span><span class="p">(</span><span class="n">control_box_width</span><span class="p">())</span>
+        <span class="n">box</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pushButton</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">tip</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">setToolTip</span><span class="p">(</span><span class="n">tip</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_browse</span><span class="p">)</span>
+        <span class="c1"># 'textChanged', not 'editingFinished': a path pasted into the</span>
+        <span class="c1"># field has to work exactly as one chosen with the button, and</span>
+        <span class="c1"># pasting never moves the focus.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit</span><span class="o">.</span><span class="n">textChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">changed</span><span class="o">.</span><span class="n">emit</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_browse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QFileDialog</span><span class="o">.</span><span class="n">getExistingDirectory</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_title</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">()</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">path</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+
+<div class="viewcode-block" id="DirectoryPicker.path">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.widgets.controls.html#daplis_rtp.gui.widgets.DirectoryPicker.path">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit</span><span class="o">.</span><span class="n">text</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="DirectoryPicker.set_path">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.widgets.controls.html#daplis_rtp.gui.widgets.DirectoryPicker.set_path">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="ReadoutStrip">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.widgets.controls.html#daplis_rtp.gui.widgets.ReadoutStrip">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ReadoutStrip</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QWidget</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""A row of 'name: value' readings, for the second header row.</span>
+
+<span class="sd">    The tabs that need only one browse row put a reading here instead of</span>
+<span class="sd">    leaving the row empty - which is how the top-most pixels came out of</span>
+<span class="sd">    the control column, where they were costing every tab in the</span>
+<span class="sd">    application a row of height.</span>
+
+<span class="sd">    """</span>
+
+<div class="viewcode-block" id="ReadoutStrip.__init__">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.widgets.controls.html#daplis_rtp.gui.widgets.ReadoutStrip.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_box</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QHBoxLayout</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_box</span><span class="o">.</span><span class="n">setContentsMargins</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_box</span><span class="o">.</span><span class="n">setSpacing</span><span class="p">(</span><span class="n">SPACING</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_values</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="c1"># A row of readings must not decide how narrow the window can be</span>
+        <span class="c1"># made; the plot is what is being sized here.</span>
+        <span class="n">allow_shrink</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ReadoutStrip.add">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.widgets.controls.html#daplis_rtp.gui.widgets.ReadoutStrip.add">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">caption</span><span class="p">,</span> <span class="n">initial</span><span class="o">=</span><span class="s2">"—"</span><span class="p">,</span> <span class="n">tip</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QLabel</span><span class="p">(</span><span class="s2">"</span><span class="si">{}</span><span class="s2">:"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">caption</span><span class="p">),</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QLabel</span><span class="p">(</span><span class="n">initial</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="n">value</span><span class="o">.</span><span class="n">setObjectName</span><span class="p">(</span><span class="s2">"readoutValue"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">width</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">value</span><span class="o">.</span><span class="n">setMinimumWidth</span><span class="p">(</span><span class="n">width</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">tip</span><span class="p">:</span>
+            <span class="n">name</span><span class="o">.</span><span class="n">setToolTip</span><span class="p">(</span><span class="n">tip</span><span class="p">)</span>
+            <span class="n">value</span><span class="o">.</span><span class="n">setToolTip</span><span class="p">(</span><span class="n">tip</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_box</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_box</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_box</span><span class="o">.</span><span class="n">addSpacing</span><span class="p">(</span><span class="n">SPACING</span> <span class="o">*</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_values</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">return</span> <span class="n">value</span></div>
+
+
+<div class="viewcode-block" id="ReadoutStrip.add_stretch">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.widgets.controls.html#daplis_rtp.gui.widgets.ReadoutStrip.add_stretch">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_stretch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_box</span><span class="o">.</span><span class="n">addStretch</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ReadoutStrip.set">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.widgets.controls.html#daplis_rtp.gui.widgets.ReadoutStrip.set">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="n">widget</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_values</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">widget</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">widget</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">text</span><span class="p">))</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="LimitPair">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.widgets.controls.html#daplis_rtp.gui.widgets.LimitPair">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">LimitPair</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QWidget</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Two edges of one axis, side by side under the plot.</span>
+
+<span class="sd">    ``spin`` builds the integer pair the pixel axes use, where every</span>
+<span class="sd">    value is a pixel and both edges always have one; the float pair is</span>
+<span class="sd">    for the axes where an edge can simply be left to autoscale.</span>
+
+<span class="sd">    """</span>
+
+    <span class="n">changed</span> <span class="o">=</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">pyqtSignal</span><span class="p">()</span>
+
+<div class="viewcode-block" id="LimitPair.__init__">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.widgets.controls.html#daplis_rtp.gui.widgets.LimitPair.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">caption</span><span class="o">=</span><span class="s2">"x limits"</span><span class="p">,</span> <span class="n">spin</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">maximum</span><span class="o">=</span><span class="mi">255</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">),</span> <span class="n">tip</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_spin</span> <span class="o">=</span> <span class="n">spin</span>
+
+        <span class="n">box</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QHBoxLayout</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">box</span><span class="o">.</span><span class="n">setContentsMargins</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">box</span><span class="o">.</span><span class="n">setSpacing</span><span class="p">(</span><span class="n">SPACING</span><span class="p">)</span>
+        <span class="n">label</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QLabel</span><span class="p">(</span><span class="n">caption</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="n">box</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">spin</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">low</span> <span class="o">=</span> <span class="n">pixel_spin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">maximum</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">high</span> <span class="o">=</span> <span class="n">pixel_spin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">maximum</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">low</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">high</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">low</span><span class="o">.</span><span class="n">valueChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_keep_ordered</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">high</span><span class="o">.</span><span class="n">valueChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_keep_ordered</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">low</span> <span class="o">=</span> <span class="n">float_field</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">high</span> <span class="o">=</span> <span class="n">float_field</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">low</span><span class="o">.</span><span class="n">editingFinished</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">changed</span><span class="o">.</span><span class="n">emit</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">high</span><span class="o">.</span><span class="n">editingFinished</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">changed</span><span class="o">.</span><span class="n">emit</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">widget</span> <span class="ow">in</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">low</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">high</span><span class="p">):</span>
+            <span class="n">size_like_ui_tabs</span><span class="p">(</span><span class="n">widget</span><span class="p">)</span>
+            <span class="n">box</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">widget</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">tip</span><span class="p">:</span>
+            <span class="n">label</span><span class="o">.</span><span class="n">setToolTip</span><span class="p">(</span><span class="n">tip</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">low</span><span class="o">.</span><span class="n">setToolTip</span><span class="p">(</span><span class="n">tip</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">high</span><span class="o">.</span><span class="n">setToolTip</span><span class="p">(</span><span class="n">tip</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_keep_ordered</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Stop the two edges from crossing, then report the change."""</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">low</span><span class="o">.</span><span class="n">value</span><span class="p">()</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">high</span><span class="o">.</span><span class="n">value</span><span class="p">():</span>
+            <span class="n">sender</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sender</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">sender</span> <span class="ow">is</span> <span class="bp">self</span><span class="o">.</span><span class="n">low</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">low</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">high</span><span class="o">.</span><span class="n">value</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">high</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">low</span><span class="o">.</span><span class="n">value</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">changed</span><span class="o">.</span><span class="n">emit</span><span class="p">()</span>
+
+<div class="viewcode-block" id="LimitPair.values">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.widgets.controls.html#daplis_rtp.gui.widgets.LimitPair.values">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_spin</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">low</span><span class="o">.</span><span class="n">value</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">high</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">float_value</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">low</span><span class="p">),</span> <span class="n">float_value</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">high</span><span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Sergei Kulkov.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

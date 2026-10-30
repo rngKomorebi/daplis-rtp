@@ -1,0 +1,953 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>daplis_rtp.gui.theme &mdash; Data Analysis Package for LinoSPAD2 - Real-Time Plotting 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Data Analysis Package for LinoSPAD2 - Real-Time Plotting
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation and usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../daplis_rtp.gui.html">daplis_rtp.gui package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../daplis_rtp.functions.html">daplis_rtp.functions package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contribute.html">How to contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../license.html">License and contact info</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../acknowledgement.html">Acknowledgement</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Data Analysis Package for LinoSPAD2 - Real-Time Plotting</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">daplis_rtp.gui.theme</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for daplis_rtp.gui.theme</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Where every colour, font size and plot style in the application comes from.</span>
+
+<span class="sd">One object holds the lot - the window palette, the accent, the colours</span>
+<span class="sd">the traces are drawn in, the two font sizes - and one signal says it has</span>
+<span class="sd">changed. Nothing else in the package hard-codes a colour.</span>
+
+<span class="sd">The reason is that the old application chose its colours in a dozen</span>
+<span class="sd">places: ``plt.style.use("dark_background")`` in three canvas modules,</span>
+<span class="sd">``#f48383`` and ``teal`` written into the plotting calls, ``qdarkstyle``</span>
+<span class="sd">on the application, and a ``setPointSize`` on very nearly every widget</span>
+<span class="sd">built. Changing the look meant finding all of them, and a user who</span>
+<span class="sd">wanted a lighter background, or a colour they could actually</span>
+<span class="sd">distinguish, had nowhere to say so.</span>
+
+<span class="sd">Two rules keep it that way:</span>
+
+<span class="sd">* **Widgets do not set their own font.** The application font is set</span>
+<span class="sd">  here and inherited; a widget that needs a different one gets an</span>
+<span class="sd">  object name and a rule in the stylesheet below. A per-widget</span>
+<span class="sd">  ``setFont`` pins that widget at the size it was built with and</span>
+<span class="sd">  ignores every later change.</span>
+<span class="sd">* **Canvases ask for their colours when they draw.** They hold no</span>
+<span class="sd">  copies, so a theme change is a redraw, not a rebuild.</span>
+
+<span class="sd">Settings are stored per user through ``QSettings`` - on Windows in the</span>
+<span class="sd">registry under ``HKCU\\Software\\DAPLIS\\daplis-rtp`` - so two people</span>
+<span class="sd">sharing a machine keep their own.</span>
+
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">copy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">replace</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">PyQt5</span><span class="w"> </span><span class="kn">import</span> <span class="n">QtCore</span><span class="p">,</span> <span class="n">QtWidgets</span>
+
+<span class="c1"># 'QSettings' needs these to find the right corner of the registry, and</span>
+<span class="c1"># they must be set before the first 'QSettings' is built.</span>
+<span class="n">ORGANISATION</span> <span class="o">=</span> <span class="s2">"DAPLIS"</span>
+<span class="n">APPLICATION</span> <span class="o">=</span> <span class="s2">"daplis-rtp"</span>
+
+<span class="c1"># The two font sizes the user can move. The interface one is applied to</span>
+<span class="c1"># the whole application; the plot one is a starting point that the tabs</span>
+<span class="c1"># scale up on a wide window, as they did before.</span>
+<span class="n">UI_FONT_RANGE</span> <span class="o">=</span> <span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mi">16</span><span class="p">)</span>
+<span class="n">PLOT_FONT_RANGE</span> <span class="o">=</span> <span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">32</span><span class="p">)</span>
+
+<span class="n">DEFAULT_UI_FONT_SIZE</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">DEFAULT_PLOT_FONT_SIZE</span> <span class="o">=</span> <span class="mi">16</span>
+
+<span class="c1"># How many series colours a theme carries. Five is what the application</span>
+<span class="c1"># actually draws - board 1, board 2, the histogram, and the two MZI</span>
+<span class="c1"># pixels - with one spare, so that a new trace need not mean a new</span>
+<span class="c1"># theme.</span>
+<span class="n">N_SERIES</span> <span class="o">=</span> <span class="mi">5</span>
+
+
+<div class="viewcode-block" id="Theme">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.theme.html#daplis_rtp.gui.theme.Theme">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Theme</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""A complete look: window, controls and plots together.</span>
+
+<span class="sd">    Frozen because a theme is a value, not a thing that is edited. The</span>
+<span class="sd">    user's changes are kept separately, as overrides, and applied with</span>
+<span class="sd">    ``dataclasses.replace`` when the effective theme is built - so</span>
+<span class="sd">    "reset to preset" is throwing the overrides away rather than</span>
+<span class="sd">    reconstructing anything.</span>
+
+<span class="sd">    """</span>
+
+    <span class="n">key</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="c1"># 'dark' or 'light'. Picks which of qdarkstyle's two palettes the</span>
+    <span class="c1"># controls are drawn with; everything else here is ours.</span>
+    <span class="n">base</span><span class="p">:</span> <span class="nb">str</span>
+
+    <span class="c1"># --- interface -------------------------------------------------</span>
+    <span class="n">window</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">surface</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">text</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">muted</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">accent</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">ok</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">warn</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">error</span><span class="p">:</span> <span class="nb">str</span>
+
+    <span class="c1"># --- plots -----------------------------------------------------</span>
+    <span class="n">figure_bg</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">axes_bg</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="c1"># Ticks and the axis labels - everything that is read as text.</span>
+    <span class="n">axes_fg</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="c1"># The box around the data. Separate from the text because several</span>
+    <span class="c1"># of the ported styles depend on the difference: Blueprint draws a</span>
+    <span class="c1"># dim blue frame under bright white labels, and Solarized a grey</span>
+    <span class="c1"># one under slate text. Set it equal to 'axes_fg' for a theme that</span>
+    <span class="c1"># wants one colour for the lot.</span>
+    <span class="n">axes_edge</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">grid</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">series</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+    <span class="c1"># The dashed line marking the seam between the two sensor halves on</span>
+    <span class="c1"># the full-sensor plot, and the vertical lines the grouping switch</span>
+    <span class="c1"># draws. Distinct from the series colours on purpose: they mark the</span>
+    <span class="c1"># sensor, not the data.</span>
+    <span class="n">marker</span><span class="p">:</span> <span class="nb">str</span>
+
+    <span class="c1"># --- effects ---------------------------------------------------</span>
+    <span class="c1"># The glow under the traces, from 'mplcyberpunk'. Good-looking and</span>
+    <span class="c1"># not free: it redraws each line several times, which is felt on a</span>
+    <span class="c1"># stream refreshing every 100 ms, so it is a switch rather than a</span>
+    <span class="c1"># fact of the application.</span>
+    <span class="n">glow</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="n">grid_on</span><span class="p">:</span> <span class="nb">bool</span>
+
+<div class="viewcode-block" id="Theme.colour">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.theme.html#daplis_rtp.gui.theme.Theme.colour">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">colour</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Series colour ``index``, wrapping round rather than raising."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">series</span><span class="p">[</span><span class="n">index</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">series</span><span class="p">)]</span></div>
+</div>
+
+
+
+<span class="n">PRESETS</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Theme</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_preset</span><span class="p">(</span><span class="n">theme</span><span class="p">):</span>
+    <span class="n">PRESETS</span><span class="p">[</span><span class="n">theme</span><span class="o">.</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">theme</span>
+    <span class="k">return</span> <span class="n">theme</span>
+
+
+<span class="c1"># Defined dark first, then light, because that is the order they are</span>
+<span class="c1"># offered in: the menu puts a separator where the base changes, and a</span>
+<span class="c1"># list that alternates would need one between every pair.</span>
+<span class="c1">#</span>
+<span class="c1"># The six after the first two are ports of the matplotlib styles in</span>
+<span class="c1"># 'komorebi_mpl' (github.com/rngKomorebi/komorebi_mpl). The figure,</span>
+<span class="c1"># axes, grid and trace colours are that package's; the window</span>
+<span class="c1"># chrome - and the three status colours - are chosen here, since a</span>
+<span class="c1"># matplotlib style sheet has nothing to say about a control panel. The</span>
+<span class="c1"># status colours deliberately sit outside some of the palettes: a</span>
+<span class="c1"># warning lamp that matches the data it is warning about is not a</span>
+<span class="c1"># warning.</span>
+
+<span class="c1"># The look the application shipped with: a near-black figure, coral</span>
+<span class="c1"># traces and the 'mplcyberpunk' glow under them. Kept as the default so</span>
+<span class="c1"># that an existing user opens the new version to the application they</span>
+<span class="c1"># know.</span>
+<span class="n">_preset</span><span class="p">(</span>
+    <span class="n">Theme</span><span class="p">(</span>
+        <span class="n">key</span><span class="o">=</span><span class="s2">"cyberpunk"</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">"Cyberpunk"</span><span class="p">,</span>
+        <span class="n">base</span><span class="o">=</span><span class="s2">"dark"</span><span class="p">,</span>
+        <span class="n">window</span><span class="o">=</span><span class="s2">"#14181f"</span><span class="p">,</span>
+        <span class="n">surface</span><span class="o">=</span><span class="s2">"#1b212b"</span><span class="p">,</span>
+        <span class="n">text</span><span class="o">=</span><span class="s2">"#e3e9f2"</span><span class="p">,</span>
+        <span class="n">muted</span><span class="o">=</span><span class="s2">"#8c97a8"</span><span class="p">,</span>
+        <span class="n">accent</span><span class="o">=</span><span class="s2">"#08f7fe"</span><span class="p">,</span>
+        <span class="n">ok</span><span class="o">=</span><span class="s2">"#00e676"</span><span class="p">,</span>
+        <span class="n">warn</span><span class="o">=</span><span class="s2">"#ffc400"</span><span class="p">,</span>
+        <span class="n">error</span><span class="o">=</span><span class="s2">"#ff5370"</span><span class="p">,</span>
+        <span class="n">figure_bg</span><span class="o">=</span><span class="s2">"#0d0f14"</span><span class="p">,</span>
+        <span class="n">axes_bg</span><span class="o">=</span><span class="s2">"#0d0f14"</span><span class="p">,</span>
+        <span class="n">axes_fg</span><span class="o">=</span><span class="s2">"#c7d0dd"</span><span class="p">,</span>
+        <span class="n">axes_edge</span><span class="o">=</span><span class="s2">"#c7d0dd"</span><span class="p">,</span>
+        <span class="n">grid</span><span class="o">=</span><span class="s2">"#2a3140"</span><span class="p">,</span>
+        <span class="n">series</span><span class="o">=</span><span class="p">(</span><span class="s2">"#f48383"</span><span class="p">,</span> <span class="s2">"#08f7fe"</span><span class="p">,</span> <span class="s2">"#fe53bb"</span><span class="p">,</span> <span class="s2">"#f5d300"</span><span class="p">,</span> <span class="s2">"#00ff9f"</span><span class="p">),</span>
+        <span class="n">marker</span><span class="o">=</span><span class="s2">"#00b8b8"</span><span class="p">,</span>
+        <span class="n">glow</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">grid_on</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+
+<span class="c1"># The same dark window without the glow. Every redraw is one draw, so</span>
+<span class="c1"># this is the one to use when a stream is refreshing as fast as the</span>
+<span class="c1"># files arrive.</span>
+<span class="n">_preset</span><span class="p">(</span>
+    <span class="n">Theme</span><span class="p">(</span>
+        <span class="n">key</span><span class="o">=</span><span class="s2">"midnight"</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">"Midnight"</span><span class="p">,</span>
+        <span class="n">base</span><span class="o">=</span><span class="s2">"dark"</span><span class="p">,</span>
+        <span class="n">window</span><span class="o">=</span><span class="s2">"#19232d"</span><span class="p">,</span>
+        <span class="n">surface</span><span class="o">=</span><span class="s2">"#222b35"</span><span class="p">,</span>
+        <span class="n">text</span><span class="o">=</span><span class="s2">"#dfe4ec"</span><span class="p">,</span>
+        <span class="n">muted</span><span class="o">=</span><span class="s2">"#8a94a3"</span><span class="p">,</span>
+        <span class="n">accent</span><span class="o">=</span><span class="s2">"#4d9de0"</span><span class="p">,</span>
+        <span class="n">ok</span><span class="o">=</span><span class="s2">"#7fd18b"</span><span class="p">,</span>
+        <span class="n">warn</span><span class="o">=</span><span class="s2">"#e7c26b"</span><span class="p">,</span>
+        <span class="n">error</span><span class="o">=</span><span class="s2">"#e06c75"</span><span class="p">,</span>
+        <span class="n">figure_bg</span><span class="o">=</span><span class="s2">"#19232d"</span><span class="p">,</span>
+        <span class="n">axes_bg</span><span class="o">=</span><span class="s2">"#19232d"</span><span class="p">,</span>
+        <span class="n">axes_fg</span><span class="o">=</span><span class="s2">"#d8dee9"</span><span class="p">,</span>
+        <span class="n">axes_edge</span><span class="o">=</span><span class="s2">"#d8dee9"</span><span class="p">,</span>
+        <span class="n">grid</span><span class="o">=</span><span class="s2">"#36404e"</span><span class="p">,</span>
+        <span class="n">series</span><span class="o">=</span><span class="p">(</span><span class="s2">"#e06c75"</span><span class="p">,</span> <span class="s2">"#61afef"</span><span class="p">,</span> <span class="s2">"#98c379"</span><span class="p">,</span> <span class="s2">"#e5c07b"</span><span class="p">,</span> <span class="s2">"#c678dd"</span><span class="p">),</span>
+        <span class="n">marker</span><span class="o">=</span><span class="s2">"#56b6c2"</span><span class="p">,</span>
+        <span class="n">glow</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">grid_on</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+
+<span class="c1"># komorebi_mpl's 'night_wave': synthwave neon on a violet ground. The</span>
+<span class="c1"># only other theme that earns the glow, because the palette was built</span>
+<span class="c1"># for it.</span>
+<span class="n">_preset</span><span class="p">(</span>
+    <span class="n">Theme</span><span class="p">(</span>
+        <span class="n">key</span><span class="o">=</span><span class="s2">"night_wave"</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">"Night wave"</span><span class="p">,</span>
+        <span class="n">base</span><span class="o">=</span><span class="s2">"dark"</span><span class="p">,</span>
+        <span class="n">window</span><span class="o">=</span><span class="s2">"#221d2f"</span><span class="p">,</span>
+        <span class="n">surface</span><span class="o">=</span><span class="s2">"#382c47"</span><span class="p">,</span>
+        <span class="n">text</span><span class="o">=</span><span class="s2">"#ffffff"</span><span class="p">,</span>
+        <span class="n">muted</span><span class="o">=</span><span class="s2">"#9a8fb0"</span><span class="p">,</span>
+        <span class="n">accent</span><span class="o">=</span><span class="s2">"#eb67f5"</span><span class="p">,</span>
+        <span class="n">ok</span><span class="o">=</span><span class="s2">"#44d492"</span><span class="p">,</span>
+        <span class="n">warn</span><span class="o">=</span><span class="s2">"#f5eb67"</span><span class="p">,</span>
+        <span class="n">error</span><span class="o">=</span><span class="s2">"#fa233e"</span><span class="p">,</span>
+        <span class="n">figure_bg</span><span class="o">=</span><span class="s2">"#221d2f"</span><span class="p">,</span>
+        <span class="n">axes_bg</span><span class="o">=</span><span class="s2">"#221d2f"</span><span class="p">,</span>
+        <span class="n">axes_fg</span><span class="o">=</span><span class="s2">"#f2f2f2"</span><span class="p">,</span>
+        <span class="n">axes_edge</span><span class="o">=</span><span class="s2">"#bfbfbf"</span><span class="p">,</span>
+        <span class="n">grid</span><span class="o">=</span><span class="s2">"#aac7df"</span><span class="p">,</span>
+        <span class="n">series</span><span class="o">=</span><span class="p">(</span><span class="s2">"#eb67f5"</span><span class="p">,</span> <span class="s2">"#88f7e2"</span><span class="p">,</span> <span class="s2">"#44d492"</span><span class="p">,</span> <span class="s2">"#f5eb67"</span><span class="p">,</span> <span class="s2">"#ffa15c"</span><span class="p">),</span>
+        <span class="c1"># The grid blue: the one colour in the palette that is not a</span>
+        <span class="c1"># neon, so a boundary line drawn in it stays a boundary line.</span>
+        <span class="n">marker</span><span class="o">=</span><span class="s2">"#aac7df"</span><span class="p">,</span>
+        <span class="n">glow</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">grid_on</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+
+<span class="c1"># komorebi_mpl's 'blueprint': a CAD drawing. White and ice-blue lines</span>
+<span class="c1"># on deep navy, with the frame a dimmer blue than the labels - which is</span>
+<span class="c1"># the whole reason the axis colour is two fields.</span>
+<span class="n">_preset</span><span class="p">(</span>
+    <span class="n">Theme</span><span class="p">(</span>
+        <span class="n">key</span><span class="o">=</span><span class="s2">"blueprint"</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">"Blueprint"</span><span class="p">,</span>
+        <span class="n">base</span><span class="o">=</span><span class="s2">"dark"</span><span class="p">,</span>
+        <span class="n">window</span><span class="o">=</span><span class="s2">"#0d1f3c"</span><span class="p">,</span>
+        <span class="n">surface</span><span class="o">=</span><span class="s2">"#142848"</span><span class="p">,</span>
+        <span class="n">text</span><span class="o">=</span><span class="s2">"#e8f1fa"</span><span class="p">,</span>
+        <span class="n">muted</span><span class="o">=</span><span class="s2">"#b8d4ea"</span><span class="p">,</span>
+        <span class="n">accent</span><span class="o">=</span><span class="s2">"#7ec8e3"</span><span class="p">,</span>
+        <span class="n">ok</span><span class="o">=</span><span class="s2">"#7ec8e3"</span><span class="p">,</span>
+        <span class="n">warn</span><span class="o">=</span><span class="s2">"#f0a030"</span><span class="p">,</span>
+        <span class="n">error</span><span class="o">=</span><span class="s2">"#ff6b6b"</span><span class="p">,</span>
+        <span class="n">figure_bg</span><span class="o">=</span><span class="s2">"#0d1f3c"</span><span class="p">,</span>
+        <span class="n">axes_bg</span><span class="o">=</span><span class="s2">"#0d1f3c"</span><span class="p">,</span>
+        <span class="n">axes_fg</span><span class="o">=</span><span class="s2">"#e8f1fa"</span><span class="p">,</span>
+        <span class="n">axes_edge</span><span class="o">=</span><span class="s2">"#3a6186"</span><span class="p">,</span>
+        <span class="n">grid</span><span class="o">=</span><span class="s2">"#3a6186"</span><span class="p">,</span>
+        <span class="n">series</span><span class="o">=</span><span class="p">(</span><span class="s2">"#f0f4f8"</span><span class="p">,</span> <span class="s2">"#7ec8e3"</span><span class="p">,</span> <span class="s2">"#a3d9ff"</span><span class="p">,</span> <span class="s2">"#4fa3c5"</span><span class="p">,</span> <span class="s2">"#c8e6f5"</span><span class="p">),</span>
+        <span class="n">marker</span><span class="o">=</span><span class="s2">"#60b0d4"</span><span class="p">,</span>
+        <span class="n">glow</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">grid_on</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+
+<span class="c1"># Maximum separation between the data and everything else: pure black,</span>
+<span class="c1"># white axes, and series colours chosen to stay apart both for normal</span>
+<span class="c1"># vision and for the common forms of colour blindness.</span>
+<span class="n">_preset</span><span class="p">(</span>
+    <span class="n">Theme</span><span class="p">(</span>
+        <span class="n">key</span><span class="o">=</span><span class="s2">"contrast"</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">"High contrast"</span><span class="p">,</span>
+        <span class="n">base</span><span class="o">=</span><span class="s2">"dark"</span><span class="p">,</span>
+        <span class="n">window</span><span class="o">=</span><span class="s2">"#000000"</span><span class="p">,</span>
+        <span class="n">surface</span><span class="o">=</span><span class="s2">"#121212"</span><span class="p">,</span>
+        <span class="n">text</span><span class="o">=</span><span class="s2">"#ffffff"</span><span class="p">,</span>
+        <span class="n">muted</span><span class="o">=</span><span class="s2">"#b0b0b0"</span><span class="p">,</span>
+        <span class="n">accent</span><span class="o">=</span><span class="s2">"#ffd400"</span><span class="p">,</span>
+        <span class="n">ok</span><span class="o">=</span><span class="s2">"#00e676"</span><span class="p">,</span>
+        <span class="n">warn</span><span class="o">=</span><span class="s2">"#ffd400"</span><span class="p">,</span>
+        <span class="n">error</span><span class="o">=</span><span class="s2">"#ff5252"</span><span class="p">,</span>
+        <span class="n">figure_bg</span><span class="o">=</span><span class="s2">"#000000"</span><span class="p">,</span>
+        <span class="n">axes_bg</span><span class="o">=</span><span class="s2">"#000000"</span><span class="p">,</span>
+        <span class="n">axes_fg</span><span class="o">=</span><span class="s2">"#ffffff"</span><span class="p">,</span>
+        <span class="n">axes_edge</span><span class="o">=</span><span class="s2">"#ffffff"</span><span class="p">,</span>
+        <span class="n">grid</span><span class="o">=</span><span class="s2">"#555555"</span><span class="p">,</span>
+        <span class="n">series</span><span class="o">=</span><span class="p">(</span><span class="s2">"#ffffff"</span><span class="p">,</span> <span class="s2">"#ffd400"</span><span class="p">,</span> <span class="s2">"#00e5ff"</span><span class="p">,</span> <span class="s2">"#ff6ec7"</span><span class="p">,</span> <span class="s2">"#7cff00"</span><span class="p">),</span>
+        <span class="n">marker</span><span class="o">=</span><span class="s2">"#00e5ff"</span><span class="p">,</span>
+        <span class="n">glow</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">grid_on</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+
+<span class="c1"># For a bright room, and for a plot that is going to be printed or</span>
+<span class="c1"># pasted into a document - a white figure needs no editing afterwards.</span>
+<span class="n">_preset</span><span class="p">(</span>
+    <span class="n">Theme</span><span class="p">(</span>
+        <span class="n">key</span><span class="o">=</span><span class="s2">"daylight"</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">"Daylight"</span><span class="p">,</span>
+        <span class="n">base</span><span class="o">=</span><span class="s2">"light"</span><span class="p">,</span>
+        <span class="n">window</span><span class="o">=</span><span class="s2">"#f0f2f5"</span><span class="p">,</span>
+        <span class="n">surface</span><span class="o">=</span><span class="s2">"#ffffff"</span><span class="p">,</span>
+        <span class="n">text</span><span class="o">=</span><span class="s2">"#1c2430"</span><span class="p">,</span>
+        <span class="n">muted</span><span class="o">=</span><span class="s2">"#5b6675"</span><span class="p">,</span>
+        <span class="n">accent</span><span class="o">=</span><span class="s2">"#1565c0"</span><span class="p">,</span>
+        <span class="n">ok</span><span class="o">=</span><span class="s2">"#2e7d32"</span><span class="p">,</span>
+        <span class="n">warn</span><span class="o">=</span><span class="s2">"#ef6c00"</span><span class="p">,</span>
+        <span class="n">error</span><span class="o">=</span><span class="s2">"#c62828"</span><span class="p">,</span>
+        <span class="n">figure_bg</span><span class="o">=</span><span class="s2">"#ffffff"</span><span class="p">,</span>
+        <span class="n">axes_bg</span><span class="o">=</span><span class="s2">"#ffffff"</span><span class="p">,</span>
+        <span class="n">axes_fg</span><span class="o">=</span><span class="s2">"#1c2430"</span><span class="p">,</span>
+        <span class="n">axes_edge</span><span class="o">=</span><span class="s2">"#1c2430"</span><span class="p">,</span>
+        <span class="n">grid</span><span class="o">=</span><span class="s2">"#d4d9e0"</span><span class="p">,</span>
+        <span class="n">series</span><span class="o">=</span><span class="p">(</span><span class="s2">"#c0392b"</span><span class="p">,</span> <span class="s2">"#1565c0"</span><span class="p">,</span> <span class="s2">"#2e7d32"</span><span class="p">,</span> <span class="s2">"#d35400"</span><span class="p">,</span> <span class="s2">"#6a1b9a"</span><span class="p">),</span>
+        <span class="n">marker</span><span class="o">=</span><span class="s2">"#00838f"</span><span class="p">,</span>
+        <span class="n">glow</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">grid_on</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+
+<span class="c1"># komorebi_mpl's own: sunlight through a forest canopy. Deep gold,</span>
+<span class="c1"># forest green and sky blue on parchment.</span>
+<span class="n">_preset</span><span class="p">(</span>
+    <span class="n">Theme</span><span class="p">(</span>
+        <span class="n">key</span><span class="o">=</span><span class="s2">"komorebi"</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">"Komorebi"</span><span class="p">,</span>
+        <span class="n">base</span><span class="o">=</span><span class="s2">"light"</span><span class="p">,</span>
+        <span class="n">window</span><span class="o">=</span><span class="s2">"#f0ede2"</span><span class="p">,</span>
+        <span class="n">surface</span><span class="o">=</span><span class="s2">"#faf8f0"</span><span class="p">,</span>
+        <span class="n">text</span><span class="o">=</span><span class="s2">"#2c2416"</span><span class="p">,</span>
+        <span class="n">muted</span><span class="o">=</span><span class="s2">"#6b6252"</span><span class="p">,</span>
+        <span class="n">accent</span><span class="o">=</span><span class="s2">"#c8860a"</span><span class="p">,</span>
+        <span class="n">ok</span><span class="o">=</span><span class="s2">"#2d6a4f"</span><span class="p">,</span>
+        <span class="n">warn</span><span class="o">=</span><span class="s2">"#c8860a"</span><span class="p">,</span>
+        <span class="n">error</span><span class="o">=</span><span class="s2">"#9b2335"</span><span class="p">,</span>
+        <span class="n">figure_bg</span><span class="o">=</span><span class="s2">"#faf8f0"</span><span class="p">,</span>
+        <span class="n">axes_bg</span><span class="o">=</span><span class="s2">"#faf8f0"</span><span class="p">,</span>
+        <span class="n">axes_fg</span><span class="o">=</span><span class="s2">"#2c2416"</span><span class="p">,</span>
+        <span class="n">axes_edge</span><span class="o">=</span><span class="s2">"#5a5040"</span><span class="p">,</span>
+        <span class="n">grid</span><span class="o">=</span><span class="s2">"#c8b898"</span><span class="p">,</span>
+        <span class="n">series</span><span class="o">=</span><span class="p">(</span><span class="s2">"#c8860a"</span><span class="p">,</span> <span class="s2">"#2d6a4f"</span><span class="p">,</span> <span class="s2">"#4a86b8"</span><span class="p">,</span> <span class="s2">"#a0522d"</span><span class="p">,</span> <span class="s2">"#6baa25"</span><span class="p">),</span>
+        <span class="c1"># The dusk lavender that ends the cycle: nothing else in the</span>
+        <span class="c1"># palette is close to it.</span>
+        <span class="n">marker</span><span class="o">=</span><span class="s2">"#8b7bc8"</span><span class="p">,</span>
+        <span class="n">glow</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">grid_on</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+
+<span class="c1"># komorebi_mpl's 'earth': terracotta, rust, olive and sage on aged</span>
+<span class="c1"># paper, with the axes a shade darker than the figure around them.</span>
+<span class="n">_preset</span><span class="p">(</span>
+    <span class="n">Theme</span><span class="p">(</span>
+        <span class="n">key</span><span class="o">=</span><span class="s2">"earth"</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">"Earth"</span><span class="p">,</span>
+        <span class="n">base</span><span class="o">=</span><span class="s2">"light"</span><span class="p">,</span>
+        <span class="n">window</span><span class="o">=</span><span class="s2">"#ede4ce"</span><span class="p">,</span>
+        <span class="n">surface</span><span class="o">=</span><span class="s2">"#f5ecd7"</span><span class="p">,</span>
+        <span class="n">text</span><span class="o">=</span><span class="s2">"#2c1810"</span><span class="p">,</span>
+        <span class="n">muted</span><span class="o">=</span><span class="s2">"#6b5540"</span><span class="p">,</span>
+        <span class="n">accent</span><span class="o">=</span><span class="s2">"#9b2335"</span><span class="p">,</span>
+        <span class="n">ok</span><span class="o">=</span><span class="s2">"#5e7a28"</span><span class="p">,</span>
+        <span class="n">warn</span><span class="o">=</span><span class="s2">"#d4622a"</span><span class="p">,</span>
+        <span class="n">error</span><span class="o">=</span><span class="s2">"#9b2335"</span><span class="p">,</span>
+        <span class="n">figure_bg</span><span class="o">=</span><span class="s2">"#f5ecd7"</span><span class="p">,</span>
+        <span class="n">axes_bg</span><span class="o">=</span><span class="s2">"#ede0c8"</span><span class="p">,</span>
+        <span class="n">axes_fg</span><span class="o">=</span><span class="s2">"#2c1810"</span><span class="p">,</span>
+        <span class="n">axes_edge</span><span class="o">=</span><span class="s2">"#a08060"</span><span class="p">,</span>
+        <span class="n">grid</span><span class="o">=</span><span class="s2">"#c8b898"</span><span class="p">,</span>
+        <span class="n">series</span><span class="o">=</span><span class="p">(</span><span class="s2">"#9b2335"</span><span class="p">,</span> <span class="s2">"#d4622a"</span><span class="p">,</span> <span class="s2">"#5e7a28"</span><span class="p">,</span> <span class="s2">"#8b5e3c"</span><span class="p">,</span> <span class="s2">"#c9984a"</span><span class="p">),</span>
+        <span class="n">marker</span><span class="o">=</span><span class="s2">"#4a7462"</span><span class="p">,</span>
+        <span class="n">glow</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">grid_on</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+
+<span class="c1"># Ethan Schoonover's Solarized, by way of komorebi_mpl. The low</span>
+<span class="c1"># contrast between the slate text and the cream ground is the point of</span>
+<span class="c1"># it, not an oversight.</span>
+<span class="n">_preset</span><span class="p">(</span>
+    <span class="n">Theme</span><span class="p">(</span>
+        <span class="n">key</span><span class="o">=</span><span class="s2">"solarized"</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">"Solarized"</span><span class="p">,</span>
+        <span class="n">base</span><span class="o">=</span><span class="s2">"light"</span><span class="p">,</span>
+        <span class="n">window</span><span class="o">=</span><span class="s2">"#eee8d5"</span><span class="p">,</span>
+        <span class="n">surface</span><span class="o">=</span><span class="s2">"#fdf6e3"</span><span class="p">,</span>
+        <span class="n">text</span><span class="o">=</span><span class="s2">"#586e75"</span><span class="p">,</span>
+        <span class="n">muted</span><span class="o">=</span><span class="s2">"#93a1a1"</span><span class="p">,</span>
+        <span class="n">accent</span><span class="o">=</span><span class="s2">"#268bd2"</span><span class="p">,</span>
+        <span class="n">ok</span><span class="o">=</span><span class="s2">"#859900"</span><span class="p">,</span>
+        <span class="n">warn</span><span class="o">=</span><span class="s2">"#b58900"</span><span class="p">,</span>
+        <span class="n">error</span><span class="o">=</span><span class="s2">"#dc322f"</span><span class="p">,</span>
+        <span class="n">figure_bg</span><span class="o">=</span><span class="s2">"#fdf6e3"</span><span class="p">,</span>
+        <span class="n">axes_bg</span><span class="o">=</span><span class="s2">"#eee8d5"</span><span class="p">,</span>
+        <span class="n">axes_fg</span><span class="o">=</span><span class="s2">"#657b83"</span><span class="p">,</span>
+        <span class="n">axes_edge</span><span class="o">=</span><span class="s2">"#93a1a1"</span><span class="p">,</span>
+        <span class="n">grid</span><span class="o">=</span><span class="s2">"#d3ccb8"</span><span class="p">,</span>
+        <span class="n">series</span><span class="o">=</span><span class="p">(</span><span class="s2">"#268bd2"</span><span class="p">,</span> <span class="s2">"#dc322f"</span><span class="p">,</span> <span class="s2">"#859900"</span><span class="p">,</span> <span class="s2">"#d33682"</span><span class="p">,</span> <span class="s2">"#2aa198"</span><span class="p">),</span>
+        <span class="n">marker</span><span class="o">=</span><span class="s2">"#b58900"</span><span class="p">,</span>
+        <span class="n">glow</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">grid_on</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+
+<span class="c1"># komorebi_mpl's 'daplis': this package's own house palette, anchored on</span>
+<span class="c1"># rebeccapurple and darkorange and chosen to stay legible for the common</span>
+<span class="c1"># forms of colour blindness. The one to export a figure in.</span>
+<span class="n">_preset</span><span class="p">(</span>
+    <span class="n">Theme</span><span class="p">(</span>
+        <span class="n">key</span><span class="o">=</span><span class="s2">"daplis"</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">"Daplis (publication)"</span><span class="p">,</span>
+        <span class="n">base</span><span class="o">=</span><span class="s2">"light"</span><span class="p">,</span>
+        <span class="n">window</span><span class="o">=</span><span class="s2">"#f2f2f2"</span><span class="p">,</span>
+        <span class="n">surface</span><span class="o">=</span><span class="s2">"#ffffff"</span><span class="p">,</span>
+        <span class="n">text</span><span class="o">=</span><span class="s2">"#1a1a1a"</span><span class="p">,</span>
+        <span class="n">muted</span><span class="o">=</span><span class="s2">"#5a5a5a"</span><span class="p">,</span>
+        <span class="n">accent</span><span class="o">=</span><span class="s2">"#663399"</span><span class="p">,</span>
+        <span class="n">ok</span><span class="o">=</span><span class="s2">"#008080"</span><span class="p">,</span>
+        <span class="n">warn</span><span class="o">=</span><span class="s2">"#ff8c00"</span><span class="p">,</span>
+        <span class="n">error</span><span class="o">=</span><span class="s2">"#8b0000"</span><span class="p">,</span>
+        <span class="n">figure_bg</span><span class="o">=</span><span class="s2">"#ffffff"</span><span class="p">,</span>
+        <span class="n">axes_bg</span><span class="o">=</span><span class="s2">"#ffffff"</span><span class="p">,</span>
+        <span class="n">axes_fg</span><span class="o">=</span><span class="s2">"#000000"</span><span class="p">,</span>
+        <span class="n">axes_edge</span><span class="o">=</span><span class="s2">"#000000"</span><span class="p">,</span>
+        <span class="n">grid</span><span class="o">=</span><span class="s2">"#bfbfbf"</span><span class="p">,</span>
+        <span class="n">series</span><span class="o">=</span><span class="p">(</span><span class="s2">"#663399"</span><span class="p">,</span> <span class="s2">"#ff8c00"</span><span class="p">,</span> <span class="s2">"#008080"</span><span class="p">,</span> <span class="s2">"#fa8072"</span><span class="p">,</span> <span class="s2">"#483d8b"</span><span class="p">),</span>
+        <span class="n">marker</span><span class="o">=</span><span class="s2">"#cd5c5c"</span><span class="p">,</span>
+        <span class="n">glow</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">grid_on</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+
+<span class="n">DEFAULT_PRESET</span> <span class="o">=</span> <span class="s2">"cyberpunk"</span>
+
+<span class="c1"># Overrides are stored by field name, but three of the fields are not</span>
+<span class="c1"># colours the user can pick - they identify the preset itself, and a</span>
+<span class="c1"># stored override for one of them would survive a preset change and</span>
+<span class="c1"># make the dialog disagree with what is drawn.</span>
+<span class="n">UNOVERRIDABLE</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"key"</span><span class="p">,</span> <span class="s2">"name"</span><span class="p">,</span> <span class="s2">"base"</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="preset_names">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.theme.html#daplis_rtp.gui.theme.preset_names">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">preset_names</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">"""``(key, display name)`` for every preset, in the order defined."""</span>
+    <span class="k">return</span> <span class="p">[(</span><span class="n">key</span><span class="p">,</span> <span class="n">theme</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">theme</span> <span class="ow">in</span> <span class="n">PRESETS</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span></div>
+
+
+
+<div class="viewcode-block" id="ThemeManager">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.theme.html#daplis_rtp.gui.theme.ThemeManager">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ThemeManager</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">QObject</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""The live theme, the user's changes to it, and who to tell.</span>
+
+<span class="sd">    One of these exists per process - see :func:`theme_manager`. It is a</span>
+<span class="sd">    ``QObject`` for one reason: it emits a signal. Everything that draws</span>
+<span class="sd">    connects to :attr:`changed` and redraws itself, which is what makes</span>
+<span class="sd">    a colour picked in the Preferences dialog show up on the plot while</span>
+<span class="sd">    the dialog is still open.</span>
+
+<span class="sd">    """</span>
+
+    <span class="n">changed</span> <span class="o">=</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">pyqtSignal</span><span class="p">()</span>
+
+<div class="viewcode-block" id="ThemeManager.__init__">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.theme.html#daplis_rtp.gui.theme.ThemeManager.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_preset_key</span> <span class="o">=</span> <span class="n">DEFAULT_PRESET</span>
+        <span class="c1"># Only what the user has actually changed, keyed by field name.</span>
+        <span class="c1"># Keeping it separate from the theme is what lets a preset be</span>
+        <span class="c1"># swapped underneath a custom accent colour, and what makes</span>
+        <span class="c1"># 'reset' a one-liner.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_overrides</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ui_font_size</span> <span class="o">=</span> <span class="n">DEFAULT_UI_FONT_SIZE</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_plot_font_size</span> <span class="o">=</span> <span class="n">DEFAULT_PLOT_FONT_SIZE</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_settings</span> <span class="o">=</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">QSettings</span><span class="p">(</span><span class="n">ORGANISATION</span><span class="p">,</span> <span class="n">APPLICATION</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">load</span><span class="p">()</span></div>
+
+
+    <span class="c1"># -- the effective theme ------------------------------------------</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">preset_key</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_preset_key</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">theme</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""The preset with the user's overrides laid over it."""</span>
+        <span class="n">base</span> <span class="o">=</span> <span class="n">PRESETS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_preset_key</span><span class="p">,</span> <span class="n">PRESETS</span><span class="p">[</span><span class="n">DEFAULT_PRESET</span><span class="p">])</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_overrides</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">base</span>
+        <span class="k">return</span> <span class="n">replace</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_overrides</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">ui_font_size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ui_font_size</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">plot_font_size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plot_font_size</span>
+
+<div class="viewcode-block" id="ThemeManager.overrides">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.theme.html#daplis_rtp.gui.theme.ThemeManager.overrides">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">overrides</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""A copy, so a caller editing it cannot change the theme."""</span>
+        <span class="k">return</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_overrides</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ThemeManager.is_overridden">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.theme.html#daplis_rtp.gui.theme.ThemeManager.is_overridden">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_overridden</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_overrides</span></div>
+
+
+    <span class="c1"># -- changing it ---------------------------------------------------</span>
+
+<div class="viewcode-block" id="ThemeManager.set_preset">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.theme.html#daplis_rtp.gui.theme.ThemeManager.set_preset">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_preset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">keep_overrides</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Switch preset.</span>
+
+<span class="sd">        The overrides are dropped by default, and that is deliberate:</span>
+<span class="sd">        picking a new preset and getting the last one's accent back is</span>
+<span class="sd">        the surprising behaviour, not the helpful one.</span>
+
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">PRESETS</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_preset_key</span> <span class="o">=</span> <span class="n">key</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">keep_overrides</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_overrides</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_emit</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="ThemeManager.set_override">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.theme.html#daplis_rtp.gui.theme.ThemeManager.set_override">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_override</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Override one field of the preset, or clear it with ``None``."""</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">UNOVERRIDABLE</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_overrides</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_overrides</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_emit</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="ThemeManager.set_series_colour">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.theme.html#daplis_rtp.gui.theme.ThemeManager.set_series_colour">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_series_colour</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">colour</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Override one trace colour, leaving the others alone."""</span>
+        <span class="n">series</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">theme</span><span class="o">.</span><span class="n">series</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">index</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">series</span><span class="p">):</span>
+            <span class="k">return</span>
+        <span class="n">series</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">colour</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_overrides</span><span class="p">[</span><span class="s2">"series"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">series</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_emit</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="ThemeManager.set_ui_font_size">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.theme.html#daplis_rtp.gui.theme.ThemeManager.set_ui_font_size">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_ui_font_size</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">points</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ui_font_size</span> <span class="o">=</span> <span class="n">_clamp</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">UI_FONT_RANGE</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_emit</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="ThemeManager.set_plot_font_size">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.theme.html#daplis_rtp.gui.theme.ThemeManager.set_plot_font_size">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_plot_font_size</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">points</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_plot_font_size</span> <span class="o">=</span> <span class="n">_clamp</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">PLOT_FONT_RANGE</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_emit</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="ThemeManager.reset">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.theme.html#daplis_rtp.gui.theme.ThemeManager.reset">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Back to the shipped defaults, overrides and fonts included."""</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_preset_key</span> <span class="o">=</span> <span class="n">DEFAULT_PRESET</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_overrides</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ui_font_size</span> <span class="o">=</span> <span class="n">DEFAULT_UI_FONT_SIZE</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_plot_font_size</span> <span class="o">=</span> <span class="n">DEFAULT_PLOT_FONT_SIZE</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_emit</span><span class="p">()</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_emit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">changed</span><span class="o">.</span><span class="n">emit</span><span class="p">()</span>
+
+    <span class="c1"># -- persistence ---------------------------------------------------</span>
+
+<div class="viewcode-block" id="ThemeManager.load">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.theme.html#daplis_rtp.gui.theme.ThemeManager.load">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Read the stored settings, ignoring anything unrecognised.</span>
+
+<span class="sd">        A stored value that no longer names a field - a preset that was</span>
+<span class="sd">        renamed, a colour written by a newer version - is skipped rather</span>
+<span class="sd">        than raising. A settings file is not something the user can</span>
+<span class="sd">        easily repair, so it must never be able to stop the application</span>
+<span class="sd">        opening.</span>
+
+<span class="sd">        """</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_settings</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">beginGroup</span><span class="p">(</span><span class="s2">"theme"</span><span class="p">)</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="s2">"preset"</span><span class="p">,</span> <span class="n">DEFAULT_PRESET</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_preset_key</span> <span class="o">=</span> <span class="n">key</span> <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">PRESETS</span> <span class="k">else</span> <span class="n">DEFAULT_PRESET</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ui_font_size</span> <span class="o">=</span> <span class="n">_clamp</span><span class="p">(</span>
+            <span class="n">s</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="s2">"ui_font_size"</span><span class="p">,</span> <span class="n">DEFAULT_UI_FONT_SIZE</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">),</span>
+            <span class="n">UI_FONT_RANGE</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_plot_font_size</span> <span class="o">=</span> <span class="n">_clamp</span><span class="p">(</span>
+            <span class="n">s</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="s2">"plot_font_size"</span><span class="p">,</span> <span class="n">DEFAULT_PLOT_FONT_SIZE</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">),</span>
+            <span class="n">PLOT_FONT_RANGE</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_overrides</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">Theme</span><span class="o">.</span><span class="n">__dataclass_fields__</span><span class="p">)</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">beginGroup</span><span class="p">(</span><span class="s2">"overrides"</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">s</span><span class="o">.</span><span class="n">childKeys</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">fields</span> <span class="ow">or</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">UNOVERRIDABLE</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"glow"</span><span class="p">,</span> <span class="s2">"grid_on"</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_overrides</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">"series"</span><span class="p">:</span>
+                <span class="n">stored</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">)</span>
+                <span class="n">colours</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span>
+                    <span class="n">part</span> <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">stored</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">","</span><span class="p">)</span> <span class="k">if</span> <span class="n">part</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="n">colours</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_overrides</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">colours</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_overrides</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">)</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">endGroup</span><span class="p">()</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">endGroup</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="ThemeManager.save">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.theme.html#daplis_rtp.gui.theme.ThemeManager.save">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_settings</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">beginGroup</span><span class="p">(</span><span class="s2">"theme"</span><span class="p">)</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="s2">"preset"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_preset_key</span><span class="p">)</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="s2">"ui_font_size"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ui_font_size</span><span class="p">)</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="s2">"plot_font_size"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plot_font_size</span><span class="p">)</span>
+        <span class="c1"># Cleared rather than merged: an override the user has just</span>
+        <span class="c1"># removed has to leave the stored settings too, or it comes</span>
+        <span class="c1"># back on the next start.</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s2">"overrides"</span><span class="p">)</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">beginGroup</span><span class="p">(</span><span class="s2">"overrides"</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_overrides</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">"series"</span><span class="p">:</span>
+                <span class="n">s</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">","</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">s</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">endGroup</span><span class="p">()</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">endGroup</span><span class="p">()</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">sync</span><span class="p">()</span></div>
+
+
+    <span class="c1"># -- applying it ---------------------------------------------------</span>
+
+<div class="viewcode-block" id="ThemeManager.apply_to_app">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.theme.html#daplis_rtp.gui.theme.ThemeManager.apply_to_app">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">apply_to_app</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Put the current theme on the application.</span>
+
+<span class="sd">        The font goes on the ``QApplication`` rather than on the</span>
+<span class="sd">        widgets, so that every widget built before or after this call</span>
+<span class="sd">        picks it up. That is the whole reason nothing in the package</span>
+<span class="sd">        calls ``setFont`` any more.</span>
+
+<span class="sd">        """</span>
+        <span class="n">app</span> <span class="o">=</span> <span class="n">app</span> <span class="ow">or</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QApplication</span><span class="o">.</span><span class="n">instance</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">app</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="n">font</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">font</span><span class="p">()</span>
+        <span class="n">font</span><span class="o">.</span><span class="n">setPointSize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ui_font_size</span><span class="p">)</span>
+        <span class="n">app</span><span class="o">.</span><span class="n">setFont</span><span class="p">(</span><span class="n">font</span><span class="p">)</span>
+        <span class="n">app</span><span class="o">.</span><span class="n">setStyleSheet</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stylesheet</span><span class="p">())</span></div>
+
+
+<div class="viewcode-block" id="ThemeManager.stylesheet">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.theme.html#daplis_rtp.gui.theme.ThemeManager.stylesheet">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">stylesheet</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""qdarkstyle for the controls, our own rules on top.</span>
+
+<span class="sd">        qdarkstyle is kept because it styles the sixty-odd widget</span>
+<span class="sd">        classes Qt ships and nobody wants to write that. What it does</span>
+<span class="sd">        not know about is this application's accent colour and the</span>
+<span class="sd">        handful of named widgets - the tab title, the hint line, the</span>
+<span class="sd">        log - that need to look different from their neighbours.</span>
+
+<span class="sd">        """</span>
+        <span class="n">theme</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">theme</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="kn">import</span><span class="w"> </span><span class="nn">qdarkstyle</span>
+
+            <span class="n">palette</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">qdarkstyle</span><span class="o">.</span><span class="n">LightPalette</span>
+                <span class="k">if</span> <span class="n">theme</span><span class="o">.</span><span class="n">base</span> <span class="o">==</span> <span class="s2">"light"</span>
+                <span class="k">else</span> <span class="n">qdarkstyle</span><span class="o">.</span><span class="n">DarkPalette</span>
+            <span class="p">)</span>
+            <span class="n">base</span> <span class="o">=</span> <span class="n">qdarkstyle</span><span class="o">.</span><span class="n">load_stylesheet</span><span class="p">(</span>
+                <span class="n">qt_api</span><span class="o">=</span><span class="s2">"pyqt5"</span><span class="p">,</span> <span class="n">palette</span><span class="o">=</span><span class="n">palette</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="c1"># An application with no stylesheet is plain, not broken -</span>
+            <span class="c1"># much better than one that will not start because a</span>
+            <span class="c1"># styling package changed its API.</span>
+            <span class="n">base</span> <span class="o">=</span> <span class="s2">""</span>
+        <span class="k">return</span> <span class="n">base</span> <span class="o">+</span> <span class="n">_OVERLAY_QSS</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">accent</span><span class="o">=</span><span class="n">theme</span><span class="o">.</span><span class="n">accent</span><span class="p">,</span>
+            <span class="n">text</span><span class="o">=</span><span class="n">theme</span><span class="o">.</span><span class="n">text</span><span class="p">,</span>
+            <span class="n">muted</span><span class="o">=</span><span class="n">theme</span><span class="o">.</span><span class="n">muted</span><span class="p">,</span>
+            <span class="n">surface</span><span class="o">=</span><span class="n">theme</span><span class="o">.</span><span class="n">surface</span><span class="p">,</span>
+            <span class="n">ok</span><span class="o">=</span><span class="n">theme</span><span class="o">.</span><span class="n">ok</span><span class="p">,</span>
+            <span class="n">warn</span><span class="o">=</span><span class="n">theme</span><span class="o">.</span><span class="n">warn</span><span class="p">,</span>
+            <span class="n">error</span><span class="o">=</span><span class="n">theme</span><span class="o">.</span><span class="n">error</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+    <span class="c1"># -- matplotlib ----------------------------------------------------</span>
+
+<div class="viewcode-block" id="ThemeManager.mpl_rc">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.theme.html#daplis_rtp.gui.theme.ThemeManager.mpl_rc">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">mpl_rc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""The theme as matplotlib rcParams.</span>
+
+<span class="sd">        Handed to ``rc_context`` around a draw rather than pushed into</span>
+<span class="sd">        the global ``rcParams``. The old code called ``plt.style.use``</span>
+<span class="sd">        at import time and ``plt.rcParams.update`` from inside draws,</span>
+<span class="sd">        which meant the last canvas to be built decided how all of them</span>
+<span class="sd">        looked.</span>
+
+<span class="sd">        """</span>
+        <span class="n">theme</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">theme</span>
+        <span class="n">size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plot_font_size</span> <span class="k">if</span> <span class="n">fontsize</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">fontsize</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">"figure.facecolor"</span><span class="p">:</span> <span class="n">theme</span><span class="o">.</span><span class="n">figure_bg</span><span class="p">,</span>
+            <span class="s2">"figure.edgecolor"</span><span class="p">:</span> <span class="n">theme</span><span class="o">.</span><span class="n">figure_bg</span><span class="p">,</span>
+            <span class="s2">"savefig.facecolor"</span><span class="p">:</span> <span class="n">theme</span><span class="o">.</span><span class="n">figure_bg</span><span class="p">,</span>
+            <span class="s2">"savefig.edgecolor"</span><span class="p">:</span> <span class="n">theme</span><span class="o">.</span><span class="n">figure_bg</span><span class="p">,</span>
+            <span class="s2">"axes.facecolor"</span><span class="p">:</span> <span class="n">theme</span><span class="o">.</span><span class="n">axes_bg</span><span class="p">,</span>
+            <span class="s2">"axes.edgecolor"</span><span class="p">:</span> <span class="n">theme</span><span class="o">.</span><span class="n">axes_edge</span><span class="p">,</span>
+            <span class="s2">"axes.labelcolor"</span><span class="p">:</span> <span class="n">theme</span><span class="o">.</span><span class="n">axes_fg</span><span class="p">,</span>
+            <span class="s2">"axes.titlecolor"</span><span class="p">:</span> <span class="n">theme</span><span class="o">.</span><span class="n">axes_fg</span><span class="p">,</span>
+            <span class="s2">"axes.grid"</span><span class="p">:</span> <span class="n">theme</span><span class="o">.</span><span class="n">grid_on</span><span class="p">,</span>
+            <span class="s2">"axes.axisbelow"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s2">"grid.color"</span><span class="p">:</span> <span class="n">theme</span><span class="o">.</span><span class="n">grid</span><span class="p">,</span>
+            <span class="s2">"grid.alpha"</span><span class="p">:</span> <span class="mf">0.45</span><span class="p">,</span>
+            <span class="s2">"grid.linestyle"</span><span class="p">:</span> <span class="s2">"--"</span><span class="p">,</span>
+            <span class="s2">"grid.linewidth"</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">,</span>
+            <span class="s2">"text.color"</span><span class="p">:</span> <span class="n">theme</span><span class="o">.</span><span class="n">axes_fg</span><span class="p">,</span>
+            <span class="s2">"xtick.color"</span><span class="p">:</span> <span class="n">theme</span><span class="o">.</span><span class="n">axes_fg</span><span class="p">,</span>
+            <span class="s2">"ytick.color"</span><span class="p">:</span> <span class="n">theme</span><span class="o">.</span><span class="n">axes_fg</span><span class="p">,</span>
+            <span class="s2">"xtick.labelcolor"</span><span class="p">:</span> <span class="n">theme</span><span class="o">.</span><span class="n">axes_fg</span><span class="p">,</span>
+            <span class="s2">"ytick.labelcolor"</span><span class="p">:</span> <span class="n">theme</span><span class="o">.</span><span class="n">axes_fg</span><span class="p">,</span>
+            <span class="s2">"font.size"</span><span class="p">:</span> <span class="n">size</span><span class="p">,</span>
+            <span class="s2">"axes.labelsize"</span><span class="p">:</span> <span class="n">size</span><span class="p">,</span>
+            <span class="s2">"xtick.labelsize"</span><span class="p">:</span> <span class="n">size</span><span class="p">,</span>
+            <span class="s2">"ytick.labelsize"</span><span class="p">:</span> <span class="n">size</span><span class="p">,</span>
+            <span class="s2">"legend.fontsize"</span><span class="p">:</span> <span class="n">size</span><span class="p">,</span>
+            <span class="s2">"legend.facecolor"</span><span class="p">:</span> <span class="n">theme</span><span class="o">.</span><span class="n">axes_bg</span><span class="p">,</span>
+            <span class="s2">"legend.edgecolor"</span><span class="p">:</span> <span class="n">theme</span><span class="o">.</span><span class="n">axes_fg</span><span class="p">,</span>
+            <span class="s2">"lines.linewidth"</span><span class="p">:</span> <span class="mf">1.6</span><span class="p">,</span>
+            <span class="s2">"lines.markersize"</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+        <span class="p">}</span></div>
+</div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_clamp</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">bounds</span><span class="p">):</span>
+    <span class="n">low</span><span class="p">,</span> <span class="n">high</span> <span class="o">=</span> <span class="n">bounds</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">low</span>
+    <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="n">low</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="n">high</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span>
+
+
+<span class="c1"># Rules qdarkstyle has no opinion about. Kept short on purpose: every</span>
+<span class="c1"># rule here is one more thing that can disagree with the base sheet.</span>
+<span class="n">_OVERLAY_QSS</span> <span class="o">=</span> <span class="s2">"""</span>
+<span class="s2">QTabBar::tab:selected {{</span>
+<span class="s2">    border-bottom: 2px solid </span><span class="si">{accent}</span><span class="s2">;</span>
+<span class="s2">    color: </span><span class="si">{text}</span><span class="s2">;</span>
+<span class="s2">}}</span>
+<span class="s2">QTabBar::tab:!selected {{</span>
+<span class="s2">    color: </span><span class="si">{muted}</span><span class="s2">;</span>
+<span class="s2">}}</span>
+<span class="s2">QGroupBox::title {{</span>
+<span class="s2">    color: </span><span class="si">{accent}</span><span class="s2">;</span>
+<span class="s2">}}</span>
+<span class="s2">QLabel#tabTitle {{</span>
+<span class="s2">    color: </span><span class="si">{text}</span><span class="s2">;</span>
+<span class="s2">    font-weight: bold;</span>
+<span class="s2">}}</span>
+<span class="s2">QLabel#tabHint {{</span>
+<span class="s2">    color: </span><span class="si">{muted}</span><span class="s2">;</span>
+<span class="s2">}}</span>
+<span class="s2">QLabel#readoutValue {{</span>
+<span class="s2">    color: </span><span class="si">{accent}</span><span class="s2">;</span>
+<span class="s2">    font-weight: bold;</span>
+<span class="s2">}}</span>
+<span class="s2">QPlainTextEdit#logView, QLabel#monoValue {{</span>
+<span class="s2">    font-family: "Consolas", "DejaVu Sans Mono", monospace;</span>
+<span class="s2">}}</span>
+<span class="s2">QPushButton#primaryAction {{</span>
+<span class="s2">    border: 1px solid </span><span class="si">{accent}</span><span class="s2">;</span>
+<span class="s2">    font-weight: bold;</span>
+<span class="s2">}}</span>
+<span class="s2">QPushButton#primaryAction:hover {{</span>
+<span class="s2">    background-color: </span><span class="si">{surface}</span><span class="s2">;</span>
+<span class="s2">    border: 1px solid </span><span class="si">{accent}</span><span class="s2">;</span>
+<span class="s2">}}</span>
+<span class="s2">QLabel[ledState="ok"] {{ color: </span><span class="si">{ok}</span><span class="s2">; }}</span>
+<span class="s2">QLabel[ledState="warn"] {{ color: </span><span class="si">{warn}</span><span class="s2">; }}</span>
+<span class="s2">QLabel[ledState="error"] {{ color: </span><span class="si">{error}</span><span class="s2">; }}</span>
+<span class="s2">QLabel[ledState="idle"] {{ color: </span><span class="si">{muted}</span><span class="s2">; }}</span>
+<span class="s2">"""</span>
+
+
+<span class="n">_MANAGER</span> <span class="o">=</span> <span class="kc">None</span>
+
+
+<div class="viewcode-block" id="theme_manager">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.theme.html#daplis_rtp.gui.theme.theme_manager">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">theme_manager</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">"""The process-wide theme.</span>
+
+<span class="sd">    Built on first use rather than at import, because ``QSettings``</span>
+<span class="sd">    wants the organisation and application names set first, and because</span>
+<span class="sd">    a module that touches Qt state at import time is a module that</span>
+<span class="sd">    cannot be imported by a test.</span>
+
+<span class="sd">    """</span>
+    <span class="k">global</span> <span class="n">_MANAGER</span>
+    <span class="k">if</span> <span class="n">_MANAGER</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">QtCore</span><span class="o">.</span><span class="n">QCoreApplication</span><span class="o">.</span><span class="n">setOrganizationName</span><span class="p">(</span><span class="n">ORGANISATION</span><span class="p">)</span>
+        <span class="n">QtCore</span><span class="o">.</span><span class="n">QCoreApplication</span><span class="o">.</span><span class="n">setApplicationName</span><span class="p">(</span><span class="n">APPLICATION</span><span class="p">)</span>
+        <span class="n">_MANAGER</span> <span class="o">=</span> <span class="n">ThemeManager</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">_MANAGER</span></div>
+
+
+
+<div class="viewcode-block" id="current_theme">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.theme.html#daplis_rtp.gui.theme.current_theme">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">current_theme</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">"""Shorthand for ``theme_manager().theme``."""</span>
+    <span class="k">return</span> <span class="n">theme_manager</span><span class="p">()</span><span class="o">.</span><span class="n">theme</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Sergei Kulkov.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

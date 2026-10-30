@@ -1,0 +1,897 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>daplis_rtp.gui.widgets package &mdash; Data Analysis Package for LinoSPAD2 - Real-Time Plotting 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=8d563738"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="daplis_rtp.gui.widgets.controls module" href="daplis_rtp.gui.widgets.controls.html" />
+    <link rel="prev" title="daplis_rtp.gui.tabs.synchronization module" href="daplis_rtp.gui.tabs.synchronization.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Data Analysis Package for LinoSPAD2 - Real-Time Plotting
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation and usage</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="daplis_rtp.gui.html">daplis_rtp.gui package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="daplis_rtp.gui.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.canvas.html">daplis_rtp.gui.canvas package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.html">daplis_rtp.gui.tabs package</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">daplis_rtp.gui.widgets package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#daplis_rtp.gui.widgets.BoardOccupancy"><code class="docutils literal notranslate"><span class="pre">BoardOccupancy</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#daplis_rtp.gui.widgets.DirectoryPicker"><code class="docutils literal notranslate"><span class="pre">DirectoryPicker</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#daplis_rtp.gui.widgets.FileSyncPanel"><code class="docutils literal notranslate"><span class="pre">FileSyncPanel</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#daplis_rtp.gui.widgets.GaussianFitStrip"><code class="docutils literal notranslate"><span class="pre">GaussianFitStrip</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#daplis_rtp.gui.widgets.LimitPair"><code class="docutils literal notranslate"><span class="pre">LimitPair</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#daplis_rtp.gui.widgets.PeakStatsPanel"><code class="docutils literal notranslate"><span class="pre">PeakStatsPanel</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#daplis_rtp.gui.widgets.PixelMaskWindow"><code class="docutils literal notranslate"><span class="pre">PixelMaskWindow</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#daplis_rtp.gui.widgets.ReadoutStrip"><code class="docutils literal notranslate"><span class="pre">ReadoutStrip</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#daplis_rtp.gui.widgets.TdcOccupancyPanel"><code class="docutils literal notranslate"><span class="pre">TdcOccupancyPanel</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#daplis_rtp.gui.widgets.daughterboard_combo"><code class="docutils literal notranslate"><span class="pre">daughterboard_combo()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#daplis_rtp.gui.widgets.describe_fit"><code class="docutils literal notranslate"><span class="pre">describe_fit()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#daplis_rtp.gui.widgets.firmware_combo"><code class="docutils literal notranslate"><span class="pre">firmware_combo()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#daplis_rtp.gui.widgets.fit_peaks"><code class="docutils literal notranslate"><span class="pre">fit_peaks()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#daplis_rtp.gui.widgets.float_value"><code class="docutils literal notranslate"><span class="pre">float_value()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#daplis_rtp.gui.widgets.info_badge"><code class="docutils literal notranslate"><span class="pre">info_badge()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#daplis_rtp.gui.widgets.mask_summary"><code class="docutils literal notranslate"><span class="pre">mask_summary()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#daplis_rtp.gui.widgets.masked_array"><code class="docutils literal notranslate"><span class="pre">masked_array()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#daplis_rtp.gui.widgets.motherboard_combo"><code class="docutils literal notranslate"><span class="pre">motherboard_combo()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#daplis_rtp.gui.widgets.peak_stats"><code class="docutils literal notranslate"><span class="pre">peak_stats()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#daplis_rtp.gui.widgets.pixel_spin"><code class="docutils literal notranslate"><span class="pre">pixel_spin()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#daplis_rtp.gui.widgets.pixels_of_interest"><code class="docutils literal notranslate"><span class="pre">pixels_of_interest()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#daplis_rtp.gui.widgets.timestamps_spin"><code class="docutils literal notranslate"><span class="pre">timestamps_spin()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.html#submodules">Submodules</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="daplis_rtp.functions.html">daplis_rtp.functions package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contribute.html">How to contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">License and contact info</a></li>
+<li class="toctree-l1"><a class="reference internal" href="acknowledgement.html">Acknowledgement</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Data Analysis Package for LinoSPAD2 - Real-Time Plotting</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="daplis_rtp.gui.html">daplis_rtp.gui package</a></li>
+      <li class="breadcrumb-item active">daplis_rtp.gui.widgets package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/daplis_rtp.gui.widgets.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-daplis_rtp.gui.widgets">
+<span id="daplis-rtp-gui-widgets-package"></span><h1>daplis_rtp.gui.widgets package<a class="headerlink" href="#module-daplis_rtp.gui.widgets" title="Link to this heading"></a></h1>
+<p>Widgets the tabs share: the controls, the two status boxes, the mask.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.BoardOccupancy">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">daplis_rtp.gui.widgets.</span></span><span class="sig-name descname"><span class="pre">BoardOccupancy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">occupancy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tdcs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/tdc_occupancy.html#BoardOccupancy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.BoardOccupancy" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>One board’s occupancy, ready for the panel to render.</p>
+<p>‘tdcs’ holds the TDCs of interest - the ones carrying the pixels
+being measured - as read out by the board, so a caller using
+‘pix_add_fix’ must have mapped its pixels through
+‘tdc_occupancy.pixel_to_tdc_map’ with the same flag. Callers hand
+over one entry per pixel, four of which share a TDC, so the list is
+reduced to the TDCs themselves here.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.BoardOccupancy.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">occupancy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tdcs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/tdc_occupancy.html#BoardOccupancy.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.BoardOccupancy.__init__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.DirectoryPicker">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">daplis_rtp.gui.widgets.</span></span><span class="sig-name descname"><span class="pre">DirectoryPicker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">caption</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Data</span> <span class="pre">folder'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Select</span> <span class="pre">Directory'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tip</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/controls.html#DirectoryPicker"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.DirectoryPicker" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">QWidget</span></code></p>
+<p>A caption, a path, and a Browse button - one header row’s worth.</p>
+<p>Every tab that reads data files has one of these, and on the full
+sensor tab there are two, which is why the shell reserves two header
+rows on every tab: the plot has to start at the same height whether
+a tab fills both or one.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.DirectoryPicker.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">caption</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Data</span> <span class="pre">folder'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Select</span> <span class="pre">Directory'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tip</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/controls.html#DirectoryPicker.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.DirectoryPicker.__init__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.DirectoryPicker.changed">
+<span class="sig-name descname"><span class="pre">changed</span></span><a class="headerlink" href="#daplis_rtp.gui.widgets.DirectoryPicker.changed" title="Link to this definition"></a></dt>
+<dd><p>str = …, revision: int = …, arguments: Sequence = …) -&gt; PYQT_SIGNAL</p>
+<p>types is normally a sequence of individual types.  Each type is either a
+type object or a string that is the name of a C++ type.  Alternatively
+each type could itself be a sequence of types each describing a different
+overloaded signal.
+name is the optional C++ name of the signal.  If it is not specified then
+the name of the class attribute that is bound to the signal is used.
+revision is the optional revision of the signal that is exported to QML.
+If it is not specified then 0 is used.
+arguments is the optional sequence of the names of the signal’s arguments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pyqtSignal(<a href="#id1"><span class="problematic" id="id2">*</span></a>types, name</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.DirectoryPicker.path">
+<span class="sig-name descname"><span class="pre">path</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/controls.html#DirectoryPicker.path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.DirectoryPicker.path" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.DirectoryPicker.set_path">
+<span class="sig-name descname"><span class="pre">set_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/controls.html#DirectoryPicker.set_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.DirectoryPicker.set_path" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.FileSyncPanel">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">daplis_rtp.gui.widgets.</span></span><span class="sig-name descname"><span class="pre">FileSyncPanel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('Board</span> <span class="pre">1',</span> <span class="pre">'Board</span> <span class="pre">2')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_paths</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/file_sync.html#FileSyncPanel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.FileSyncPanel" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">QGroupBox</span></code></p>
+<p>Status box for the check, with the sweeping thread behind it.</p>
+<p>The host tab calls ‘start’ when the acquisition starts and ‘stop’
+when it ends; with ‘with_paths’ the box also carries its own pair
+of directory selectors, for tabs that do not have them already.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.FileSyncPanel.LED_STATES">
+<span class="sig-name descname"><span class="pre">LED_STATES</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'bad':</span> <span class="pre">'error',</span> <span class="pre">'idle':</span> <span class="pre">'idle',</span> <span class="pre">'ok':</span> <span class="pre">'ok',</span> <span class="pre">'pending':</span> <span class="pre">'warn',</span> <span class="pre">'waiting':</span> <span class="pre">'warn'}</span></span><a class="headerlink" href="#daplis_rtp.gui.widgets.FileSyncPanel.LED_STATES" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.FileSyncPanel.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('Board</span> <span class="pre">1',</span> <span class="pre">'Board</span> <span class="pre">2')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_paths</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/file_sync.html#FileSyncPanel.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.FileSyncPanel.__init__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.FileSyncPanel.is_enabled">
+<span class="sig-name descname"><span class="pre">is_enabled</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/file_sync.html#FileSyncPanel.is_enabled"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.FileSyncPanel.is_enabled" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.FileSyncPanel.paths">
+<span class="sig-name descname"><span class="pre">paths</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/file_sync.html#FileSyncPanel.paths"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.FileSyncPanel.paths" title="Link to this definition"></a></dt>
+<dd><p>The pair of directories the check compares.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.FileSyncPanel.problem">
+<span class="sig-name descname"><span class="pre">problem</span></span><a class="headerlink" href="#daplis_rtp.gui.widgets.FileSyncPanel.problem" title="Link to this definition"></a></dt>
+<dd><p>str = …, revision: int = …, arguments: Sequence = …) -&gt; PYQT_SIGNAL</p>
+<p>types is normally a sequence of individual types.  Each type is either a
+type object or a string that is the name of a C++ type.  Alternatively
+each type could itself be a sequence of types each describing a different
+overloaded signal.
+name is the optional C++ name of the signal.  If it is not specified then
+the name of the class attribute that is bound to the signal is used.
+revision is the optional revision of the signal that is exported to QML.
+If it is not specified then 0 is used.
+arguments is the optional sequence of the names of the signal’s arguments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pyqtSignal(<a href="#id3"><span class="problematic" id="id4">*</span></a>types, name</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.FileSyncPanel.set_paths">
+<span class="sig-name descname"><span class="pre">set_paths</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/file_sync.html#FileSyncPanel.set_paths"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.FileSyncPanel.set_paths" title="Link to this definition"></a></dt>
+<dd><p>Point the check at the two working directories.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.FileSyncPanel.start">
+<span class="sig-name descname"><span class="pre">start</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/file_sync.html#FileSyncPanel.start"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.FileSyncPanel.start" title="Link to this definition"></a></dt>
+<dd><p>Begin sweeping; re-arms the alert of a previous run.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.FileSyncPanel.stop">
+<span class="sig-name descname"><span class="pre">stop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/file_sync.html#FileSyncPanel.stop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.FileSyncPanel.stop" title="Link to this definition"></a></dt>
+<dd><p>End the sweep; the last verdict stays on display.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.GaussianFitStrip">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">daplis_rtp.gui.widgets.</span></span><span class="sig-name descname"><span class="pre">GaussianFitStrip</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/gaussian_fit.html#GaussianFitStrip"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.GaussianFitStrip" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">QWidget</span></code></p>
+<p>The switch, the threshold, and one sigma per line, in one row.</p>
+<p>Sits directly above the plot, under the row naming the brightest
+pixels, so that the widths being watched are read in the same glance
+as the peaks they belong to.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.GaussianFitStrip.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/gaussian_fit.html#GaussianFitStrip.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.GaussianFitStrip.__init__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.GaussianFitStrip.changed">
+<span class="sig-name descname"><span class="pre">changed</span></span><a class="headerlink" href="#daplis_rtp.gui.widgets.GaussianFitStrip.changed" title="Link to this definition"></a></dt>
+<dd><p>str = …, revision: int = …, arguments: Sequence = …) -&gt; PYQT_SIGNAL</p>
+<p>types is normally a sequence of individual types.  Each type is either a
+type object or a string that is the name of a C++ type.  Alternatively
+each type could itself be a sequence of types each describing a different
+overloaded signal.
+name is the optional C++ name of the signal.  If it is not specified then
+the name of the class attribute that is bound to the signal is used.
+revision is the optional revision of the signal that is exported to QML.
+If it is not specified then 0 is used.
+arguments is the optional sequence of the names of the signal’s arguments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pyqtSignal(<a href="#id5"><span class="problematic" id="id6">*</span></a>types, name</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.GaussianFitStrip.clear">
+<span class="sig-name descname"><span class="pre">clear</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/gaussian_fit.html#GaussianFitStrip.clear"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.GaussianFitStrip.clear" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.GaussianFitStrip.enabled">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">enabled</span></span><a class="headerlink" href="#daplis_rtp.gui.widgets.GaussianFitStrip.enabled" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.GaussianFitStrip.show_fits">
+<span class="sig-name descname"><span class="pre">show_fits</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fits</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/gaussian_fit.html#GaussianFitStrip.show_fits"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.GaussianFitStrip.show_fits" title="Link to this definition"></a></dt>
+<dd><p>Render one refresh’s fits, sigma first, in the result line.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.GaussianFitStrip.threshold">
+<span class="sig-name descname"><span class="pre">threshold</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/gaussian_fit.html#GaussianFitStrip.threshold"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.GaussianFitStrip.threshold" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.LimitPair">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">daplis_rtp.gui.widgets.</span></span><span class="sig-name descname"><span class="pre">LimitPair</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">caption</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'x</span> <span class="pre">limits'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maximum</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">255</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0,</span> <span class="pre">255)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tip</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/controls.html#LimitPair"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.LimitPair" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">QWidget</span></code></p>
+<p>Two edges of one axis, side by side under the plot.</p>
+<p><code class="docutils literal notranslate"><span class="pre">spin</span></code> builds the integer pair the pixel axes use, where every
+value is a pixel and both edges always have one; the float pair is
+for the axes where an edge can simply be left to autoscale.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.LimitPair.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">caption</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'x</span> <span class="pre">limits'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maximum</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">255</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0,</span> <span class="pre">255)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tip</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/controls.html#LimitPair.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.LimitPair.__init__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.LimitPair.changed">
+<span class="sig-name descname"><span class="pre">changed</span></span><a class="headerlink" href="#daplis_rtp.gui.widgets.LimitPair.changed" title="Link to this definition"></a></dt>
+<dd><p>str = …, revision: int = …, arguments: Sequence = …) -&gt; PYQT_SIGNAL</p>
+<p>types is normally a sequence of individual types.  Each type is either a
+type object or a string that is the name of a C++ type.  Alternatively
+each type could itself be a sequence of types each describing a different
+overloaded signal.
+name is the optional C++ name of the signal.  If it is not specified then
+the name of the class attribute that is bound to the signal is used.
+revision is the optional revision of the signal that is exported to QML.
+If it is not specified then 0 is used.
+arguments is the optional sequence of the names of the signal’s arguments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pyqtSignal(<a href="#id7"><span class="problematic" id="id8">*</span></a>types, name</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.LimitPair.values">
+<span class="sig-name descname"><span class="pre">values</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/controls.html#LimitPair.values"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.LimitPair.values" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.PeakStatsPanel">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">daplis_rtp.gui.widgets.</span></span><span class="sig-name descname"><span class="pre">PeakStatsPanel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/peak_stats.html#PeakStatsPanel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.PeakStatsPanel" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">QGroupBox</span></code></p>
+<p>The four figures, in the control column.</p>
+<p>Checkable, like the other two status boxes, and for the same reason:
+the tick is a row of the column saved over a check box of its own.
+Cleared, it stops the host asking for the arithmetic at all.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.PeakStatsPanel.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/peak_stats.html#PeakStatsPanel.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.PeakStatsPanel.__init__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.PeakStatsPanel.clear">
+<span class="sig-name descname"><span class="pre">clear</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'—'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/peak_stats.html#PeakStatsPanel.clear"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.PeakStatsPanel.clear" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.PeakStatsPanel.enabled">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">enabled</span></span><a class="headerlink" href="#daplis_rtp.gui.widgets.PeakStatsPanel.enabled" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.PeakStatsPanel.show_stats">
+<span class="sig-name descname"><span class="pre">show_stats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stats</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/peak_stats.html#PeakStatsPanel.show_stats"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.PeakStatsPanel.show_stats" title="Link to this definition"></a></dt>
+<dd><p>Render one refresh’s figures, or blank them.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.PixelMaskWindow">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">daplis_rtp.gui.widgets.</span></span><span class="sig-name descname"><span class="pre">PixelMaskWindow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boards</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(('',</span> <span class="pre">4,</span> <span class="pre">64),)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Pixel</span> <span class="pre">mask'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_pixels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">256</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/pixel_mask.html#PixelMaskWindow"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.PixelMaskWindow" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">QDialog</span></code></p>
+<p>Non-modal window holding one grid of check boxes per board.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parent</strong> (<em>QWidget</em>) – The host tab. The window is a top-level one all the same, so it
+can be moved away from the application and left beside it.</p></li>
+<li><p><strong>boards</strong> (<em>sequence</em>) – One <code class="docutils literal notranslate"><span class="pre">(label,</span> <span class="pre">columns,</span> <span class="pre">rows)</span></code> per board; <code class="docutils literal notranslate"><span class="pre">columns</span> <span class="pre">*</span> <span class="pre">rows</span></code>
+must come to <code class="docutils literal notranslate"><span class="pre">n_pixels</span></code>. The grid is filled across, so the
+first row is pixels 0 to <code class="docutils literal notranslate"><span class="pre">columns</span> <span class="pre">-</span> <span class="pre">1</span></code>.</p></li>
+<li><p><strong>title</strong> (<em>str</em><em>, </em><em>optional</em>) – Window title.</p></li>
+<li><p><strong>n_pixels</strong> (<em>int</em><em>, </em><em>optional</em>) – Pixels per board, by default 256.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.PixelMaskWindow.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boards</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(('',</span> <span class="pre">4,</span> <span class="pre">64),)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Pixel</span> <span class="pre">mask'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_pixels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">256</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/pixel_mask.html#PixelMaskWindow.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.PixelMaskWindow.__init__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.PixelMaskWindow.changed">
+<span class="sig-name descname"><span class="pre">changed</span></span><a class="headerlink" href="#daplis_rtp.gui.widgets.PixelMaskWindow.changed" title="Link to this definition"></a></dt>
+<dd><p>str = …, revision: int = …, arguments: Sequence = …) -&gt; PYQT_SIGNAL</p>
+<p>types is normally a sequence of individual types.  Each type is either a
+type object or a string that is the name of a C++ type.  Alternatively
+each type could itself be a sequence of types each describing a different
+overloaded signal.
+name is the optional C++ name of the signal.  If it is not specified then
+the name of the class attribute that is bound to the signal is used.
+revision is the optional revision of the signal that is exported to QML.
+If it is not specified then 0 is used.
+arguments is the optional sequence of the names of the signal’s arguments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pyqtSignal(<a href="#id9"><span class="problematic" id="id10">*</span></a>types, name</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.PixelMaskWindow.clear_requested">
+<span class="sig-name descname"><span class="pre">clear_requested</span></span><a class="headerlink" href="#daplis_rtp.gui.widgets.PixelMaskWindow.clear_requested" title="Link to this definition"></a></dt>
+<dd><p>str = …, revision: int = …, arguments: Sequence = …) -&gt; PYQT_SIGNAL</p>
+<p>types is normally a sequence of individual types.  Each type is either a
+type object or a string that is the name of a C++ type.  Alternatively
+each type could itself be a sequence of types each describing a different
+overloaded signal.
+name is the optional C++ name of the signal.  If it is not specified then
+the name of the class attribute that is bound to the signal is used.
+revision is the optional revision of the signal that is exported to QML.
+If it is not specified then 0 is used.
+arguments is the optional sequence of the names of the signal’s arguments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pyqtSignal(<a href="#id11"><span class="problematic" id="id12">*</span></a>types, name</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.PixelMaskWindow.masked_counts">
+<span class="sig-name descname"><span class="pre">masked_counts</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/pixel_mask.html#PixelMaskWindow.masked_counts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.PixelMaskWindow.masked_counts" title="Link to this definition"></a></dt>
+<dd><p>Masked pixels per board, for the host’s summary label.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.PixelMaskWindow.open_beside">
+<span class="sig-name descname"><span class="pre">open_beside</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/pixel_mask.html#PixelMaskWindow.open_beside"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.PixelMaskWindow.open_beside" title="Link to this definition"></a></dt>
+<dd><p>Show the window, raising it if it is already open.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.PixelMaskWindow.refresh_counts">
+<span class="sig-name descname"><span class="pre">refresh_counts</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/pixel_mask.html#PixelMaskWindow.refresh_counts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.PixelMaskWindow.refresh_counts" title="Link to this definition"></a></dt>
+<dd><p>Update the ‘n masked’ line under each board’s grid.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.PixelMaskWindow.set_all">
+<span class="sig-name descname"><span class="pre">set_all</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">masked</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/pixel_mask.html#PixelMaskWindow.set_all"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.PixelMaskWindow.set_all" title="Link to this definition"></a></dt>
+<dd><p>Tick or untick every box on every board, with one <code class="docutils literal notranslate"><span class="pre">changed</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.PixelMaskWindow.set_pixels">
+<span class="sig-name descname"><span class="pre">set_pixels</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">board</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pixels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">masked</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/pixel_mask.html#PixelMaskWindow.set_pixels"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.PixelMaskWindow.set_pixels" title="Link to this definition"></a></dt>
+<dd><p>Tick or untick many boxes at once, with one <code class="docutils literal notranslate"><span class="pre">changed</span></code>.</p>
+<p>The preset mask ticks a couple of hundred boxes in a row, and
+each one emitting for itself would be a couple of hundred
+redraws of the plot - which is what masking now triggers, since
+a tick is meant to take effect on the trace immediately rather
+than at the next data file.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.ReadoutStrip">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">daplis_rtp.gui.widgets.</span></span><span class="sig-name descname"><span class="pre">ReadoutStrip</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/controls.html#ReadoutStrip"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.ReadoutStrip" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">QWidget</span></code></p>
+<p>A row of ‘name: value’ readings, for the second header row.</p>
+<p>The tabs that need only one browse row put a reading here instead of
+leaving the row empty - which is how the top-most pixels came out of
+the control column, where they were costing every tab in the
+application a row of height.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.ReadoutStrip.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/controls.html#ReadoutStrip.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.ReadoutStrip.__init__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.ReadoutStrip.add">
+<span class="sig-name descname"><span class="pre">add</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">caption</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'—'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tip</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/controls.html#ReadoutStrip.add"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.ReadoutStrip.add" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.ReadoutStrip.add_stretch">
+<span class="sig-name descname"><span class="pre">add_stretch</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/controls.html#ReadoutStrip.add_stretch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.ReadoutStrip.add_stretch" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.ReadoutStrip.set">
+<span class="sig-name descname"><span class="pre">set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/controls.html#ReadoutStrip.set"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.ReadoutStrip.set" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.TdcOccupancyPanel">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">daplis_rtp.gui.widgets.</span></span><span class="sig-name descname"><span class="pre">TdcOccupancyPanel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_pixels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">256</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/tdc_occupancy.html#TdcOccupancyPanel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.TdcOccupancyPanel" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">QGroupBox</span></code></p>
+<p>The status box, and the pixel selection that feeds it.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.TdcOccupancyPanel.LED_STATES">
+<span class="sig-name descname"><span class="pre">LED_STATES</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'bad':</span> <span class="pre">'error',</span> <span class="pre">'idle':</span> <span class="pre">'idle',</span> <span class="pre">'ok':</span> <span class="pre">'ok',</span> <span class="pre">'waiting':</span> <span class="pre">'warn',</span> <span class="pre">'warn':</span> <span class="pre">'warn'}</span></span><a class="headerlink" href="#daplis_rtp.gui.widgets.TdcOccupancyPanel.LED_STATES" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.TdcOccupancyPanel.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_pixels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">256</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/tdc_occupancy.html#TdcOccupancyPanel.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.TdcOccupancyPanel.__init__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.TdcOccupancyPanel.attach_timestamps_spinbox">
+<span class="sig-name descname"><span class="pre">attach_timestamps_spinbox</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spin_box</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/tdc_occupancy.html#TdcOccupancyPanel.attach_timestamps_spinbox"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.TdcOccupancyPanel.attach_timestamps_spinbox" title="Link to this definition"></a></dt>
+<dd><p>Point ‘Apply’ at the tab’s ‘Timestamps’ box.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.TdcOccupancyPanel.clear">
+<span class="sig-name descname"><span class="pre">clear</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'not</span> <span class="pre">running'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/tdc_occupancy.html#TdcOccupancyPanel.clear"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.TdcOccupancyPanel.clear" title="Link to this definition"></a></dt>
+<dd><p>Blank the readout, e.g. when the check is switched off.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.TdcOccupancyPanel.enabled">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">enabled</span></span><a class="headerlink" href="#daplis_rtp.gui.widgets.TdcOccupancyPanel.enabled" title="Link to this definition"></a></dt>
+<dd><p>Whether the host should ask for the occupancy at all.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.TdcOccupancyPanel.explicit_pixels">
+<span class="sig-name descname"><span class="pre">explicit_pixels</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/tdc_occupancy.html#TdcOccupancyPanel.explicit_pixels"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.TdcOccupancyPanel.explicit_pixels" title="Link to this definition"></a></dt>
+<dd><p>The typed-in pixels, or None when the mask is to be used.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – If the text cannot be read as pixels; the caller decides
+    whether to report it or to carry on with the mask.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.TdcOccupancyPanel.problem">
+<span class="sig-name descname"><span class="pre">problem</span></span><a class="headerlink" href="#daplis_rtp.gui.widgets.TdcOccupancyPanel.problem" title="Link to this definition"></a></dt>
+<dd><p>str = …, revision: int = …, arguments: Sequence = …) -&gt; PYQT_SIGNAL</p>
+<p>types is normally a sequence of individual types.  Each type is either a
+type object or a string that is the name of a C++ type.  Alternatively
+each type could itself be a sequence of types each describing a different
+overloaded signal.
+name is the optional C++ name of the signal.  If it is not specified then
+the name of the class attribute that is bound to the signal is used.
+revision is the optional revision of the signal that is exported to QML.
+If it is not specified then 0 is used.
+arguments is the optional sequence of the names of the signal’s arguments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pyqtSignal(<a href="#id13"><span class="problematic" id="id14">*</span></a>types, name</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.TdcOccupancyPanel.reset">
+<span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/tdc_occupancy.html#TdcOccupancyPanel.reset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.TdcOccupancyPanel.reset" title="Link to this definition"></a></dt>
+<dd><p>Called when a stream starts: clear the once-per-run alert.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.TdcOccupancyPanel.show_result">
+<span class="sig-name descname"><span class="pre">show_result</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">boards</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/tdc_occupancy.html#TdcOccupancyPanel.show_result"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.TdcOccupancyPanel.show_result" title="Link to this definition"></a></dt>
+<dd><p>Render one refresh.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>boards</strong> (<em>list</em><em> of </em><a class="reference internal" href="#daplis_rtp.gui.widgets.BoardOccupancy" title="daplis_rtp.gui.widgets.BoardOccupancy"><em>BoardOccupancy</em></a>) – One entry per board plotted. The worst ‘Signal’ figure
+across the boards is the one shown, and likewise the worst
+‘Sensor’ one - a full-sensor run is only as good as its
+worse half.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.daughterboard_combo">
+<span class="sig-prename descclassname"><span class="pre">daplis_rtp.gui.widgets.</span></span><span class="sig-name descname"><span class="pre">daughterboard_combo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/controls.html#daughterboard_combo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.daughterboard_combo" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.describe_fit">
+<span class="sig-prename descclassname"><span class="pre">daplis_rtp.gui.widgets.</span></span><span class="sig-name descname"><span class="pre">describe_fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">short</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/gaussian_fit.html#describe_fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.describe_fit" title="Link to this definition"></a></dt>
+<dd><p>One line for one fit, as the strip and the export show it.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.firmware_combo">
+<span class="sig-prename descclassname"><span class="pre">daplis_rtp.gui.widgets.</span></span><span class="sig-name descname"><span class="pre">firmware_combo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/controls.html#firmware_combo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.firmware_combo" title="Link to this definition"></a></dt>
+<dd><p>Not editable: the unpacking only knows these two.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.fit_peaks">
+<span class="sig-prename descclassname"><span class="pre">daplis_rtp.gui.widgets.</span></span><span class="sig-name descname"><span class="pre">fit_peaks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rates</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_lim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">valid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/gaussian_fit.html#fit_peaks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.fit_peaks" title="Link to this definition"></a></dt>
+<dd><p>Fit a Gaussian to every line above <code class="docutils literal notranslate"><span class="pre">threshold</span></code> in view.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>rates</strong> (<em>array-like</em>) – Photon rate per pixel, indexed by pixel number.</p></li>
+<li><p><strong>threshold</strong> (<em>float</em>) – Rate a pixel must exceed to belong to a line.</p></li>
+<li><p><strong>x_lim</strong> (<em>tuple</em><em>, </em><em>optional</em>) – <code class="docutils literal notranslate"><span class="pre">(low,</span> <span class="pre">high)</span></code> pixel numbers, inclusive, as shown on the plot.
+The whole array when omitted.</p></li>
+<li><p><strong>valid</strong> (<em>array-like</em><em>, </em><em>optional</em>) – Truthy for the pixels that may be used. Masked pixels read zero,
+and a zero inside a line would drag its fit down, so they are
+left out of the fit rather than fitted as data.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>One per line, left to right. Each has <code class="docutils literal notranslate"><span class="pre">peak_pixel</span></code>, <code class="docutils literal notranslate"><span class="pre">low</span></code>
+and <code class="docutils literal notranslate"><span class="pre">high</span></code> (the window fitted). A successful fit adds
+<code class="docutils literal notranslate"><span class="pre">amplitude</span></code>, <code class="docutils literal notranslate"><span class="pre">centre</span></code>, <code class="docutils literal notranslate"><span class="pre">sigma</span></code> and <code class="docutils literal notranslate"><span class="pre">background</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">centre_err</span></code> and <code class="docutils literal notranslate"><span class="pre">sigma_err</span></code> - <code class="docutils literal notranslate"><span class="pre">None</span></code> where the fit could
+not say. A failed one has <code class="docutils literal notranslate"><span class="pre">error</span></code> instead, saying why.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list of dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.float_value">
+<span class="sig-prename descclassname"><span class="pre">daplis_rtp.gui.widgets.</span></span><span class="sig-name descname"><span class="pre">float_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">field</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/controls.html#float_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.float_value" title="Link to this definition"></a></dt>
+<dd><p>A field’s value as a float, or <code class="docutils literal notranslate"><span class="pre">None</span></code> when it is unset.</p>
+<p>A field left empty - or holding a fragment the validator tolerated
+while typing, such as a lone ‘-’ or ‘e’ - means that edge should
+autoscale rather than break the plot.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.info_badge">
+<span class="sig-prename descclassname"><span class="pre">daplis_rtp.gui.widgets.</span></span><span class="sig-name descname"><span class="pre">info_badge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tooltip</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/controls.html#info_badge"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.info_badge" title="Link to this definition"></a></dt>
+<dd><p>The small boxed ‘i’ that carries an explanation beside a control.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.mask_summary">
+<span class="sig-prename descclassname"><span class="pre">daplis_rtp.gui.widgets.</span></span><span class="sig-name descname"><span class="pre">mask_summary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">counts</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/pixel_mask.html#mask_summary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.mask_summary" title="Link to this definition"></a></dt>
+<dd><p>‘18 masked’, or ‘b1: 18, b2: 0’ for two boards.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.masked_array">
+<span class="sig-prename descclassname"><span class="pre">daplis_rtp.gui.widgets.</span></span><span class="sig-name descname"><span class="pre">masked_array</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">boxes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_pixels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">256</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/pixel_mask.html#masked_array"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.masked_array" title="Link to this definition"></a></dt>
+<dd><p>1 where the pixel is <em>not</em> masked, as the tabs’ mask arrays are.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.motherboard_combo">
+<span class="sig-prename descclassname"><span class="pre">daplis_rtp.gui.widgets.</span></span><span class="sig-name descname"><span class="pre">motherboard_combo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/controls.html#motherboard_combo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.motherboard_combo" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.peak_stats">
+<span class="sig-prename descclassname"><span class="pre">daplis_rtp.gui.widgets.</span></span><span class="sig-name descname"><span class="pre">peak_stats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rates</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_lim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/peak_stats.html#peak_stats"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.peak_stats" title="Link to this definition"></a></dt>
+<dd><p>Describe the peak in <code class="docutils literal notranslate"><span class="pre">rates</span></code> between the given x-limits.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>rates</strong> (<em>array-like</em>) – Photon rate per pixel, indexed by pixel number.</p></li>
+<li><p><strong>x_lim</strong> (<em>tuple</em><em>, </em><em>optional</em>) – <code class="docutils literal notranslate"><span class="pre">(low,</span> <span class="pre">high)</span></code> pixel numbers, inclusive, as shown on the plot.
+The whole array when omitted.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">None</span></code> when the window holds nothing to describe - no pixels,
+or every one of them at zero. Otherwise <code class="docutils literal notranslate"><span class="pre">peak_pixel</span></code>,
+<code class="docutils literal notranslate"><span class="pre">peak_rate</span></code>, <code class="docutils literal notranslate"><span class="pre">centroid</span></code>, <code class="docutils literal notranslate"><span class="pre">fwhm</span></code> and <code class="docutils literal notranslate"><span class="pre">total</span></code>, any of
+which except the first two may be <code class="docutils literal notranslate"><span class="pre">None</span></code> where the window does
+not support the figure.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict or None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.pixel_spin">
+<span class="sig-prename descclassname"><span class="pre">daplis_rtp.gui.widgets.</span></span><span class="sig-name descname"><span class="pre">pixel_spin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maximum</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">255</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/controls.html#pixel_spin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.pixel_spin" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.pixels_of_interest">
+<span class="sig-prename descclassname"><span class="pre">daplis_rtp.gui.widgets.</span></span><span class="sig-name descname"><span class="pre">pixels_of_interest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">explicit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask_valid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_lim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_pixels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">256</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/tdc_occupancy.html#pixels_of_interest"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.pixels_of_interest" title="Link to this definition"></a></dt>
+<dd><p>Which of one board’s pixels are worth watching.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>explicit</strong> (<em>ndarray</em><em> or </em><em>None</em>) – Pixels typed in by hand, in the coordinates of the plot’s
+x-axis. None to fall back on the mask and the x-limits.</p></li>
+<li><p><strong>mask_valid</strong> (<em>array-like</em>) – The tab’s mask array for this board, one entry per pixel,
+nonzero where the pixel is <em>not</em> masked.</p></li>
+<li><p><strong>x_lim</strong> (<em>tuple</em>) – Current x-axis limits, in the coordinates of the plot.</p></li>
+<li><p><strong>offset</strong> (<em>int</em><em>, </em><em>optional</em>) – Where this board starts on that x-axis: 0 for a single board or
+for board 1 of the full-sensor tab, 256 for board 2.</p></li>
+<li><p><strong>n_pixels</strong> (<em>int</em><em>, </em><em>optional</em>) – Pixels on the board, by default 256.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Pixel indices local to the board, 0..n_pixels-1. Empty when the
+board lies wholly outside the x-limits, or when every pixel of
+it is masked.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.timestamps_spin">
+<span class="sig-prename descclassname"><span class="pre">daplis_rtp.gui.widgets.</span></span><span class="sig-name descname"><span class="pre">timestamps_spin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/controls.html#timestamps_spin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.timestamps_spin" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="daplis_rtp.gui.widgets.controls.html">daplis_rtp.gui.widgets.controls module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.widgets.controls.html#daplis_rtp.gui.widgets.controls.DirectoryPicker"><code class="docutils literal notranslate"><span class="pre">DirectoryPicker</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.controls.html#daplis_rtp.gui.widgets.controls.DirectoryPicker.__init__"><code class="docutils literal notranslate"><span class="pre">DirectoryPicker.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.controls.html#daplis_rtp.gui.widgets.controls.DirectoryPicker.changed"><code class="docutils literal notranslate"><span class="pre">DirectoryPicker.changed</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.controls.html#daplis_rtp.gui.widgets.controls.DirectoryPicker.path"><code class="docutils literal notranslate"><span class="pre">DirectoryPicker.path()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.controls.html#daplis_rtp.gui.widgets.controls.DirectoryPicker.set_path"><code class="docutils literal notranslate"><span class="pre">DirectoryPicker.set_path()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.widgets.controls.html#daplis_rtp.gui.widgets.controls.LimitPair"><code class="docutils literal notranslate"><span class="pre">LimitPair</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.controls.html#daplis_rtp.gui.widgets.controls.LimitPair.__init__"><code class="docutils literal notranslate"><span class="pre">LimitPair.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.controls.html#daplis_rtp.gui.widgets.controls.LimitPair.changed"><code class="docutils literal notranslate"><span class="pre">LimitPair.changed</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.controls.html#daplis_rtp.gui.widgets.controls.LimitPair.values"><code class="docutils literal notranslate"><span class="pre">LimitPair.values()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.widgets.controls.html#daplis_rtp.gui.widgets.controls.ReadoutStrip"><code class="docutils literal notranslate"><span class="pre">ReadoutStrip</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.controls.html#daplis_rtp.gui.widgets.controls.ReadoutStrip.__init__"><code class="docutils literal notranslate"><span class="pre">ReadoutStrip.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.controls.html#daplis_rtp.gui.widgets.controls.ReadoutStrip.add"><code class="docutils literal notranslate"><span class="pre">ReadoutStrip.add()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.controls.html#daplis_rtp.gui.widgets.controls.ReadoutStrip.add_stretch"><code class="docutils literal notranslate"><span class="pre">ReadoutStrip.add_stretch()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.controls.html#daplis_rtp.gui.widgets.controls.ReadoutStrip.set"><code class="docutils literal notranslate"><span class="pre">ReadoutStrip.set()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.widgets.controls.html#daplis_rtp.gui.widgets.controls.daughterboard_combo"><code class="docutils literal notranslate"><span class="pre">daughterboard_combo()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.widgets.controls.html#daplis_rtp.gui.widgets.controls.firmware_combo"><code class="docutils literal notranslate"><span class="pre">firmware_combo()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.widgets.controls.html#daplis_rtp.gui.widgets.controls.float_field"><code class="docutils literal notranslate"><span class="pre">float_field()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.widgets.controls.html#daplis_rtp.gui.widgets.controls.float_value"><code class="docutils literal notranslate"><span class="pre">float_value()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.widgets.controls.html#daplis_rtp.gui.widgets.controls.info_badge"><code class="docutils literal notranslate"><span class="pre">info_badge()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.widgets.controls.html#daplis_rtp.gui.widgets.controls.motherboard_combo"><code class="docutils literal notranslate"><span class="pre">motherboard_combo()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.widgets.controls.html#daplis_rtp.gui.widgets.controls.pixel_spin"><code class="docutils literal notranslate"><span class="pre">pixel_spin()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.widgets.controls.html#daplis_rtp.gui.widgets.controls.timestamps_spin"><code class="docutils literal notranslate"><span class="pre">timestamps_spin()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="daplis_rtp.gui.widgets.file_sync.html">daplis_rtp.gui.widgets.file_sync module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.widgets.file_sync.html#daplis_rtp.gui.widgets.file_sync.FileSyncPanel"><code class="docutils literal notranslate"><span class="pre">FileSyncPanel</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.file_sync.html#daplis_rtp.gui.widgets.file_sync.FileSyncPanel.LED_STATES"><code class="docutils literal notranslate"><span class="pre">FileSyncPanel.LED_STATES</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.file_sync.html#daplis_rtp.gui.widgets.file_sync.FileSyncPanel.__init__"><code class="docutils literal notranslate"><span class="pre">FileSyncPanel.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.file_sync.html#daplis_rtp.gui.widgets.file_sync.FileSyncPanel.is_enabled"><code class="docutils literal notranslate"><span class="pre">FileSyncPanel.is_enabled()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.file_sync.html#daplis_rtp.gui.widgets.file_sync.FileSyncPanel.paths"><code class="docutils literal notranslate"><span class="pre">FileSyncPanel.paths()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.file_sync.html#daplis_rtp.gui.widgets.file_sync.FileSyncPanel.problem"><code class="docutils literal notranslate"><span class="pre">FileSyncPanel.problem</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.file_sync.html#daplis_rtp.gui.widgets.file_sync.FileSyncPanel.set_paths"><code class="docutils literal notranslate"><span class="pre">FileSyncPanel.set_paths()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.file_sync.html#daplis_rtp.gui.widgets.file_sync.FileSyncPanel.start"><code class="docutils literal notranslate"><span class="pre">FileSyncPanel.start()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.file_sync.html#daplis_rtp.gui.widgets.file_sync.FileSyncPanel.stop"><code class="docutils literal notranslate"><span class="pre">FileSyncPanel.stop()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.widgets.file_sync.html#daplis_rtp.gui.widgets.file_sync.FileSyncWorker"><code class="docutils literal notranslate"><span class="pre">FileSyncWorker</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.file_sync.html#daplis_rtp.gui.widgets.file_sync.FileSyncWorker.__init__"><code class="docutils literal notranslate"><span class="pre">FileSyncWorker.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.file_sync.html#daplis_rtp.gui.widgets.file_sync.FileSyncWorker.problem"><code class="docutils literal notranslate"><span class="pre">FileSyncWorker.problem</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.file_sync.html#daplis_rtp.gui.widgets.file_sync.FileSyncWorker.run"><code class="docutils literal notranslate"><span class="pre">FileSyncWorker.run()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.file_sync.html#daplis_rtp.gui.widgets.file_sync.FileSyncWorker.status"><code class="docutils literal notranslate"><span class="pre">FileSyncWorker.status</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.file_sync.html#daplis_rtp.gui.widgets.file_sync.FileSyncWorker.stop"><code class="docutils literal notranslate"><span class="pre">FileSyncWorker.stop()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.widgets.file_sync.html#daplis_rtp.gui.widgets.file_sync.SyncStatus"><code class="docutils literal notranslate"><span class="pre">SyncStatus</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.file_sync.html#daplis_rtp.gui.widgets.file_sync.SyncStatus.__init__"><code class="docutils literal notranslate"><span class="pre">SyncStatus.__init__()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.widgets.file_sync.html#daplis_rtp.gui.widgets.file_sync.baseline"><code class="docutils literal notranslate"><span class="pre">baseline()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="daplis_rtp.gui.widgets.gaussian_fit.html">daplis_rtp.gui.widgets.gaussian_fit module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.widgets.gaussian_fit.html#daplis_rtp.gui.widgets.gaussian_fit.GaussianFitStrip"><code class="docutils literal notranslate"><span class="pre">GaussianFitStrip</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.gaussian_fit.html#daplis_rtp.gui.widgets.gaussian_fit.GaussianFitStrip.__init__"><code class="docutils literal notranslate"><span class="pre">GaussianFitStrip.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.gaussian_fit.html#daplis_rtp.gui.widgets.gaussian_fit.GaussianFitStrip.changed"><code class="docutils literal notranslate"><span class="pre">GaussianFitStrip.changed</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.gaussian_fit.html#daplis_rtp.gui.widgets.gaussian_fit.GaussianFitStrip.clear"><code class="docutils literal notranslate"><span class="pre">GaussianFitStrip.clear()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.gaussian_fit.html#daplis_rtp.gui.widgets.gaussian_fit.GaussianFitStrip.enabled"><code class="docutils literal notranslate"><span class="pre">GaussianFitStrip.enabled</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.gaussian_fit.html#daplis_rtp.gui.widgets.gaussian_fit.GaussianFitStrip.show_fits"><code class="docutils literal notranslate"><span class="pre">GaussianFitStrip.show_fits()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.gaussian_fit.html#daplis_rtp.gui.widgets.gaussian_fit.GaussianFitStrip.threshold"><code class="docutils literal notranslate"><span class="pre">GaussianFitStrip.threshold()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.widgets.gaussian_fit.html#daplis_rtp.gui.widgets.gaussian_fit.describe_fit"><code class="docutils literal notranslate"><span class="pre">describe_fit()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.widgets.gaussian_fit.html#daplis_rtp.gui.widgets.gaussian_fit.fit_peaks"><code class="docutils literal notranslate"><span class="pre">fit_peaks()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.widgets.gaussian_fit.html#daplis_rtp.gui.widgets.gaussian_fit.gaussian"><code class="docutils literal notranslate"><span class="pre">gaussian()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="daplis_rtp.gui.widgets.peak_stats.html">daplis_rtp.gui.widgets.peak_stats module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.widgets.peak_stats.html#daplis_rtp.gui.widgets.peak_stats.PeakStatsPanel"><code class="docutils literal notranslate"><span class="pre">PeakStatsPanel</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.peak_stats.html#daplis_rtp.gui.widgets.peak_stats.PeakStatsPanel.__init__"><code class="docutils literal notranslate"><span class="pre">PeakStatsPanel.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.peak_stats.html#daplis_rtp.gui.widgets.peak_stats.PeakStatsPanel.clear"><code class="docutils literal notranslate"><span class="pre">PeakStatsPanel.clear()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.peak_stats.html#daplis_rtp.gui.widgets.peak_stats.PeakStatsPanel.enabled"><code class="docutils literal notranslate"><span class="pre">PeakStatsPanel.enabled</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.peak_stats.html#daplis_rtp.gui.widgets.peak_stats.PeakStatsPanel.show_stats"><code class="docutils literal notranslate"><span class="pre">PeakStatsPanel.show_stats()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.widgets.peak_stats.html#daplis_rtp.gui.widgets.peak_stats.peak_stats"><code class="docutils literal notranslate"><span class="pre">peak_stats()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="daplis_rtp.gui.widgets.pixel_mask.html">daplis_rtp.gui.widgets.pixel_mask module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.widgets.pixel_mask.html#daplis_rtp.gui.widgets.pixel_mask.PixelMaskWindow"><code class="docutils literal notranslate"><span class="pre">PixelMaskWindow</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.pixel_mask.html#daplis_rtp.gui.widgets.pixel_mask.PixelMaskWindow.__init__"><code class="docutils literal notranslate"><span class="pre">PixelMaskWindow.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.pixel_mask.html#daplis_rtp.gui.widgets.pixel_mask.PixelMaskWindow.changed"><code class="docutils literal notranslate"><span class="pre">PixelMaskWindow.changed</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.pixel_mask.html#daplis_rtp.gui.widgets.pixel_mask.PixelMaskWindow.clear_requested"><code class="docutils literal notranslate"><span class="pre">PixelMaskWindow.clear_requested</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.pixel_mask.html#daplis_rtp.gui.widgets.pixel_mask.PixelMaskWindow.masked_counts"><code class="docutils literal notranslate"><span class="pre">PixelMaskWindow.masked_counts()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.pixel_mask.html#daplis_rtp.gui.widgets.pixel_mask.PixelMaskWindow.open_beside"><code class="docutils literal notranslate"><span class="pre">PixelMaskWindow.open_beside()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.pixel_mask.html#daplis_rtp.gui.widgets.pixel_mask.PixelMaskWindow.refresh_counts"><code class="docutils literal notranslate"><span class="pre">PixelMaskWindow.refresh_counts()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.pixel_mask.html#daplis_rtp.gui.widgets.pixel_mask.PixelMaskWindow.set_all"><code class="docutils literal notranslate"><span class="pre">PixelMaskWindow.set_all()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.pixel_mask.html#daplis_rtp.gui.widgets.pixel_mask.PixelMaskWindow.set_pixels"><code class="docutils literal notranslate"><span class="pre">PixelMaskWindow.set_pixels()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.widgets.pixel_mask.html#daplis_rtp.gui.widgets.pixel_mask.mask_summary"><code class="docutils literal notranslate"><span class="pre">mask_summary()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.widgets.pixel_mask.html#daplis_rtp.gui.widgets.pixel_mask.masked_array"><code class="docutils literal notranslate"><span class="pre">masked_array()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="daplis_rtp.gui.widgets.tdc_occupancy.html">daplis_rtp.gui.widgets.tdc_occupancy module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.widgets.tdc_occupancy.html#daplis_rtp.gui.widgets.tdc_occupancy.BoardOccupancy"><code class="docutils literal notranslate"><span class="pre">BoardOccupancy</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.tdc_occupancy.html#daplis_rtp.gui.widgets.tdc_occupancy.BoardOccupancy.__init__"><code class="docutils literal notranslate"><span class="pre">BoardOccupancy.__init__()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.widgets.tdc_occupancy.html#daplis_rtp.gui.widgets.tdc_occupancy.TdcOccupancyPanel"><code class="docutils literal notranslate"><span class="pre">TdcOccupancyPanel</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.tdc_occupancy.html#daplis_rtp.gui.widgets.tdc_occupancy.TdcOccupancyPanel.LED_STATES"><code class="docutils literal notranslate"><span class="pre">TdcOccupancyPanel.LED_STATES</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.tdc_occupancy.html#daplis_rtp.gui.widgets.tdc_occupancy.TdcOccupancyPanel.__init__"><code class="docutils literal notranslate"><span class="pre">TdcOccupancyPanel.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.tdc_occupancy.html#daplis_rtp.gui.widgets.tdc_occupancy.TdcOccupancyPanel.attach_timestamps_spinbox"><code class="docutils literal notranslate"><span class="pre">TdcOccupancyPanel.attach_timestamps_spinbox()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.tdc_occupancy.html#daplis_rtp.gui.widgets.tdc_occupancy.TdcOccupancyPanel.clear"><code class="docutils literal notranslate"><span class="pre">TdcOccupancyPanel.clear()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.tdc_occupancy.html#daplis_rtp.gui.widgets.tdc_occupancy.TdcOccupancyPanel.enabled"><code class="docutils literal notranslate"><span class="pre">TdcOccupancyPanel.enabled</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.tdc_occupancy.html#daplis_rtp.gui.widgets.tdc_occupancy.TdcOccupancyPanel.explicit_pixels"><code class="docutils literal notranslate"><span class="pre">TdcOccupancyPanel.explicit_pixels()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.tdc_occupancy.html#daplis_rtp.gui.widgets.tdc_occupancy.TdcOccupancyPanel.problem"><code class="docutils literal notranslate"><span class="pre">TdcOccupancyPanel.problem</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.tdc_occupancy.html#daplis_rtp.gui.widgets.tdc_occupancy.TdcOccupancyPanel.reset"><code class="docutils literal notranslate"><span class="pre">TdcOccupancyPanel.reset()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.tdc_occupancy.html#daplis_rtp.gui.widgets.tdc_occupancy.TdcOccupancyPanel.show_result"><code class="docutils literal notranslate"><span class="pre">TdcOccupancyPanel.show_result()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.widgets.tdc_occupancy.html#daplis_rtp.gui.widgets.tdc_occupancy.pixels_of_interest"><code class="docutils literal notranslate"><span class="pre">pixels_of_interest()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="daplis_rtp.gui.tabs.synchronization.html" class="btn btn-neutral float-left" title="daplis_rtp.gui.tabs.synchronization module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="daplis_rtp.gui.widgets.controls.html" class="btn btn-neutral float-right" title="daplis_rtp.gui.widgets.controls module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Sergei Kulkov.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

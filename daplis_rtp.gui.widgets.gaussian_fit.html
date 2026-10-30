@@ -1,0 +1,268 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>daplis_rtp.gui.widgets.gaussian_fit module &mdash; Data Analysis Package for LinoSPAD2 - Real-Time Plotting 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=8d563738"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="daplis_rtp.gui.widgets.peak_stats module" href="daplis_rtp.gui.widgets.peak_stats.html" />
+    <link rel="prev" title="daplis_rtp.gui.widgets.file_sync module" href="daplis_rtp.gui.widgets.file_sync.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Data Analysis Package for LinoSPAD2 - Real-Time Plotting
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation and usage</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="daplis_rtp.gui.html">daplis_rtp.gui package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="daplis_rtp.gui.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.canvas.html">daplis_rtp.gui.canvas package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.html">daplis_rtp.gui.tabs package</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="daplis_rtp.gui.widgets.html">daplis_rtp.gui.widgets package</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.BoardOccupancy"><code class="docutils literal notranslate"><span class="pre">BoardOccupancy</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.DirectoryPicker"><code class="docutils literal notranslate"><span class="pre">DirectoryPicker</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.FileSyncPanel"><code class="docutils literal notranslate"><span class="pre">FileSyncPanel</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.GaussianFitStrip"><code class="docutils literal notranslate"><span class="pre">GaussianFitStrip</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.LimitPair"><code class="docutils literal notranslate"><span class="pre">LimitPair</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.PeakStatsPanel"><code class="docutils literal notranslate"><span class="pre">PeakStatsPanel</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.PixelMaskWindow"><code class="docutils literal notranslate"><span class="pre">PixelMaskWindow</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.ReadoutStrip"><code class="docutils literal notranslate"><span class="pre">ReadoutStrip</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.TdcOccupancyPanel"><code class="docutils literal notranslate"><span class="pre">TdcOccupancyPanel</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.daughterboard_combo"><code class="docutils literal notranslate"><span class="pre">daughterboard_combo()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.describe_fit"><code class="docutils literal notranslate"><span class="pre">describe_fit()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.firmware_combo"><code class="docutils literal notranslate"><span class="pre">firmware_combo()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.fit_peaks"><code class="docutils literal notranslate"><span class="pre">fit_peaks()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.float_value"><code class="docutils literal notranslate"><span class="pre">float_value()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.info_badge"><code class="docutils literal notranslate"><span class="pre">info_badge()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.mask_summary"><code class="docutils literal notranslate"><span class="pre">mask_summary()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.masked_array"><code class="docutils literal notranslate"><span class="pre">masked_array()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.motherboard_combo"><code class="docutils literal notranslate"><span class="pre">motherboard_combo()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.peak_stats"><code class="docutils literal notranslate"><span class="pre">peak_stats()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.pixel_spin"><code class="docutils literal notranslate"><span class="pre">pixel_spin()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.pixels_of_interest"><code class="docutils literal notranslate"><span class="pre">pixels_of_interest()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.timestamps_spin"><code class="docutils literal notranslate"><span class="pre">timestamps_spin()</span></code></a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="daplis_rtp.gui.widgets.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.html#submodules">Submodules</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="daplis_rtp.functions.html">daplis_rtp.functions package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contribute.html">How to contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">License and contact info</a></li>
+<li class="toctree-l1"><a class="reference internal" href="acknowledgement.html">Acknowledgement</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Data Analysis Package for LinoSPAD2 - Real-Time Plotting</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="daplis_rtp.gui.html">daplis_rtp.gui package</a></li>
+          <li class="breadcrumb-item"><a href="daplis_rtp.gui.widgets.html">daplis_rtp.gui.widgets package</a></li>
+      <li class="breadcrumb-item active">daplis_rtp.gui.widgets.gaussian_fit module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/daplis_rtp.gui.widgets.gaussian_fit.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-daplis_rtp.gui.widgets.gaussian_fit">
+<span id="daplis-rtp-gui-widgets-gaussian-fit-module"></span><h1>daplis_rtp.gui.widgets.gaussian_fit module<a class="headerlink" href="#module-daplis_rtp.gui.widgets.gaussian_fit" title="Link to this heading"></a></h1>
+<p>Gaussian fits of the lines in view, refreshed with every file.</p>
+<p>The “Peak in view” box describes one peak, the brightest, by its shape
+alone. Aligning a spectrometer on a neon lamp wants more than that: every
+line on the sensor at once, and a width that is a fitted parameter with
+an uncertainty, so that a change in focus can be told apart from noise
+while the mirror is still being turned.</p>
+<p>What counts as a line is decided by a threshold set by hand. Hot pixels
+and lines both stand above the dark floor, and nothing in one trace
+tells them apart reliably, but the person at the bench can see which is
+which - so the threshold is theirs to set, and the plot shows it as a
+dashed line to set it against.</p>
+<p>A line is a run of neighbouring pixels above the threshold. Each run is
+fitted with a Gaussian on a constant background, over a window wide
+enough to see the background on either side, then fitted again over
+four sigmas of what the first fit found. Two lines close enough that
+the trace never drops below the threshold between them are one run and
+one fit: raise the threshold to split them.</p>
+<p>The arithmetic is a plain function, like <code class="docutils literal notranslate"><span class="pre">peak_stats</span></code>, so that it can
+be tested on shapes whose answers are known; the strip below only
+displays what it returns.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.gaussian_fit.GaussianFitStrip">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">daplis_rtp.gui.widgets.gaussian_fit.</span></span><span class="sig-name descname"><span class="pre">GaussianFitStrip</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/gaussian_fit.html#GaussianFitStrip"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.gaussian_fit.GaussianFitStrip" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">QWidget</span></code></p>
+<p>The switch, the threshold, and one sigma per line, in one row.</p>
+<p>Sits directly above the plot, under the row naming the brightest
+pixels, so that the widths being watched are read in the same glance
+as the peaks they belong to.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.gaussian_fit.GaussianFitStrip.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/gaussian_fit.html#GaussianFitStrip.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.gaussian_fit.GaussianFitStrip.__init__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.gaussian_fit.GaussianFitStrip.changed">
+<span class="sig-name descname"><span class="pre">changed</span></span><a class="headerlink" href="#daplis_rtp.gui.widgets.gaussian_fit.GaussianFitStrip.changed" title="Link to this definition"></a></dt>
+<dd><p>str = …, revision: int = …, arguments: Sequence = …) -&gt; PYQT_SIGNAL</p>
+<p>types is normally a sequence of individual types.  Each type is either a
+type object or a string that is the name of a C++ type.  Alternatively
+each type could itself be a sequence of types each describing a different
+overloaded signal.
+name is the optional C++ name of the signal.  If it is not specified then
+the name of the class attribute that is bound to the signal is used.
+revision is the optional revision of the signal that is exported to QML.
+If it is not specified then 0 is used.
+arguments is the optional sequence of the names of the signal’s arguments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pyqtSignal(<a href="#id1"><span class="problematic" id="id2">*</span></a>types, name</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.gaussian_fit.GaussianFitStrip.clear">
+<span class="sig-name descname"><span class="pre">clear</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/gaussian_fit.html#GaussianFitStrip.clear"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.gaussian_fit.GaussianFitStrip.clear" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.gaussian_fit.GaussianFitStrip.enabled">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">enabled</span></span><a class="headerlink" href="#daplis_rtp.gui.widgets.gaussian_fit.GaussianFitStrip.enabled" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.gaussian_fit.GaussianFitStrip.show_fits">
+<span class="sig-name descname"><span class="pre">show_fits</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fits</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/gaussian_fit.html#GaussianFitStrip.show_fits"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.gaussian_fit.GaussianFitStrip.show_fits" title="Link to this definition"></a></dt>
+<dd><p>Render one refresh’s fits, sigma first, in the result line.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.gaussian_fit.GaussianFitStrip.threshold">
+<span class="sig-name descname"><span class="pre">threshold</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/gaussian_fit.html#GaussianFitStrip.threshold"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.gaussian_fit.GaussianFitStrip.threshold" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.gaussian_fit.describe_fit">
+<span class="sig-prename descclassname"><span class="pre">daplis_rtp.gui.widgets.gaussian_fit.</span></span><span class="sig-name descname"><span class="pre">describe_fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">short</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/gaussian_fit.html#describe_fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.gaussian_fit.describe_fit" title="Link to this definition"></a></dt>
+<dd><p>One line for one fit, as the strip and the export show it.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.gaussian_fit.fit_peaks">
+<span class="sig-prename descclassname"><span class="pre">daplis_rtp.gui.widgets.gaussian_fit.</span></span><span class="sig-name descname"><span class="pre">fit_peaks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rates</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_lim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">valid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/gaussian_fit.html#fit_peaks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.gaussian_fit.fit_peaks" title="Link to this definition"></a></dt>
+<dd><p>Fit a Gaussian to every line above <code class="docutils literal notranslate"><span class="pre">threshold</span></code> in view.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>rates</strong> (<em>array-like</em>) – Photon rate per pixel, indexed by pixel number.</p></li>
+<li><p><strong>threshold</strong> (<em>float</em>) – Rate a pixel must exceed to belong to a line.</p></li>
+<li><p><strong>x_lim</strong> (<em>tuple</em><em>, </em><em>optional</em>) – <code class="docutils literal notranslate"><span class="pre">(low,</span> <span class="pre">high)</span></code> pixel numbers, inclusive, as shown on the plot.
+The whole array when omitted.</p></li>
+<li><p><strong>valid</strong> (<em>array-like</em><em>, </em><em>optional</em>) – Truthy for the pixels that may be used. Masked pixels read zero,
+and a zero inside a line would drag its fit down, so they are
+left out of the fit rather than fitted as data.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>One per line, left to right. Each has <code class="docutils literal notranslate"><span class="pre">peak_pixel</span></code>, <code class="docutils literal notranslate"><span class="pre">low</span></code>
+and <code class="docutils literal notranslate"><span class="pre">high</span></code> (the window fitted). A successful fit adds
+<code class="docutils literal notranslate"><span class="pre">amplitude</span></code>, <code class="docutils literal notranslate"><span class="pre">centre</span></code>, <code class="docutils literal notranslate"><span class="pre">sigma</span></code> and <code class="docutils literal notranslate"><span class="pre">background</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">centre_err</span></code> and <code class="docutils literal notranslate"><span class="pre">sigma_err</span></code> - <code class="docutils literal notranslate"><span class="pre">None</span></code> where the fit could
+not say. A failed one has <code class="docutils literal notranslate"><span class="pre">error</span></code> instead, saying why.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list of dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.gaussian_fit.gaussian">
+<span class="sig-prename descclassname"><span class="pre">daplis_rtp.gui.widgets.gaussian_fit.</span></span><span class="sig-name descname"><span class="pre">gaussian</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">amplitude</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">centre</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">background</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/gaussian_fit.html#gaussian"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.gaussian_fit.gaussian" title="Link to this definition"></a></dt>
+<dd><p>The model every line is fitted with.</p>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="daplis_rtp.gui.widgets.file_sync.html" class="btn btn-neutral float-left" title="daplis_rtp.gui.widgets.file_sync module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="daplis_rtp.gui.widgets.peak_stats.html" class="btn btn-neutral float-right" title="daplis_rtp.gui.widgets.peak_stats module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Sergei Kulkov.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

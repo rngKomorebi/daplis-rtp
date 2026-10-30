@@ -1,0 +1,704 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>daplis_rtp.gui.tabs.full_sensor &mdash; Data Analysis Package for LinoSPAD2 - Real-Time Plotting 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            Data Analysis Package for LinoSPAD2 - Real-Time Plotting
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation and usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../daplis_rtp.gui.html">daplis_rtp.gui package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../daplis_rtp.functions.html">daplis_rtp.functions package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contribute.html">How to contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../license.html">License and contact info</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../acknowledgement.html">Acknowledgement</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">Data Analysis Package for LinoSPAD2 - Real-Time Plotting</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">daplis_rtp.gui.tabs.full_sensor</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for daplis_rtp.gui.tabs.full_sensor</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Full Sensor: both halves of the LinoSPAD2 sensor, 512 pixels at once.</span>
+
+<span class="sd">Two boards, each writing into a directory of its own, plotted end to end</span>
+<span class="sd">with a dashed line marking the seam. Pixel-address correction is always</span>
+<span class="sd">applied to board 2 and never to board 1, as the sensor geometry</span>
+<span class="sd">requires, so no switch is offered for it; the same holds for the</span>
+<span class="sd">absolute timestamps, which full-sensor data are always collected with</span>
+<span class="sd">because they are what synchronizes the two halves.</span>
+
+<span class="sd">Both browse rows are used here, which is why every other tab reserves</span>
+<span class="sd">two as well: the plot has to begin at the same height on all five.</span>
+
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">PyQt5</span><span class="w"> </span><span class="kn">import</span> <span class="n">QtWidgets</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">daplis_rtp._compat</span><span class="w"> </span><span class="kn">import</span> <span class="n">files</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">daplis_rtp.functions.sen_pop</span><span class="w"> </span><span class="kn">import</span> <span class="n">sen_pop</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">daplis_rtp.functions.tdc_occupancy</span><span class="w"> </span><span class="kn">import</span> <span class="n">pixel_to_tdc_map</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">daplis_rtp.gui.canvas</span><span class="w"> </span><span class="kn">import</span> <span class="n">DualSensorCanvas</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">daplis_rtp.gui.tabs.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">PlotTab</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">daplis_rtp.gui.widgets</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">BoardOccupancy</span><span class="p">,</span>
+    <span class="n">DirectoryPicker</span><span class="p">,</span>
+    <span class="n">FileSyncPanel</span><span class="p">,</span>
+    <span class="n">LimitPair</span><span class="p">,</span>
+    <span class="n">PeakStatsPanel</span><span class="p">,</span>
+    <span class="n">PixelMaskWindow</span><span class="p">,</span>
+    <span class="n">TdcOccupancyPanel</span><span class="p">,</span>
+    <span class="n">daughterboard_combo</span><span class="p">,</span>
+    <span class="n">firmware_combo</span><span class="p">,</span>
+    <span class="n">info_badge</span><span class="p">,</span>
+    <span class="n">mask_summary</span><span class="p">,</span>
+    <span class="n">masked_array</span><span class="p">,</span>
+    <span class="n">motherboard_combo</span><span class="p">,</span>
+    <span class="n">peak_stats</span><span class="p">,</span>
+    <span class="n">pixels_of_interest</span><span class="p">,</span>
+    <span class="n">timestamps_spin</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">N_PIXELS</span> <span class="o">=</span> <span class="mi">256</span>
+<span class="n">N_PIXELS_TOTAL</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">N_PIXELS</span>
+
+
+<div class="viewcode-block" id="LinoSPAD2Dual">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.tabs.full_sensor.html#daplis_rtp.gui.tabs.LinoSPAD2Dual">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">LinoSPAD2Dual</span><span class="p">(</span><span class="n">PlotTab</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Photon rate across both sensor halves, from two boards at once."""</span>
+
+    <span class="n">hint_text</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">"Both sensor halves end to end, from two boards writing in "</span>
+        <span class="s2">"step. Board 2 is always address-corrected; Ctrl+click a pixel "</span>
+        <span class="s2">"to mask it."</span>
+    <span class="p">)</span>
+    <span class="n">canvas_class</span> <span class="o">=</span> <span class="n">DualSensorCanvas</span>
+    <span class="n">session_scope</span> <span class="o">=</span> <span class="s2">"full_sensor"</span>
+
+<div class="viewcode-block" id="LinoSPAD2Dual.build">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.tabs.full_sensor.html#daplis_rtp.gui.tabs.LinoSPAD2Dual.build">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">maskValidPixels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">N_PIXELS</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">maskValidPixels_b2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">N_PIXELS</span><span class="p">)</span>
+        <span class="c1"># Unmasked, as read. The mask is applied when the plot is drawn,</span>
+        <span class="c1"># so that ticking a pixel off changes the trace at once rather</span>
+        <span class="c1"># than at the next pair of files.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_last_rates</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_last_files</span> <span class="o">=</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_file_ctime_1</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_file_ctime_2</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_build_header</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_build_footer</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_build_controls</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_build_actions</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">widget_figure</span><span class="o">.</span><span class="n">pixel_ctrl_clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">toggle_pixel_mask</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">slot_mask_changed</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="LinoSPAD2Dual.bind_session">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.tabs.full_sensor.html#daplis_rtp.gui.tabs.LinoSPAD2Dual.bind_session">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">bind_session</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">bind_all</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">"folder_1"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">picker_1</span><span class="o">.</span><span class="n">lineEdit</span><span class="p">,</span>
+                <span class="s2">"folder_2"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">picker_2</span><span class="o">.</span><span class="n">lineEdit</span><span class="p">,</span>
+                <span class="s2">"daughterboard"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">comboBox_mask_2</span><span class="p">,</span>
+                <span class="s2">"motherboard_1"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">comboBox_mb_1</span><span class="p">,</span>
+                <span class="s2">"motherboard_2"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">comboBox_mb_2</span><span class="p">,</span>
+                <span class="s2">"firmware"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">comboBox_FW_2</span><span class="p">,</span>
+                <span class="s2">"timestamps"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">spinBox_timestamps_2</span><span class="p">,</span>
+                <span class="s2">"linear_scale"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">checkBox_linearScale_2</span><span class="p">,</span>
+                <span class="s2">"grouping"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">checkBox_grouping_2</span><span class="p">,</span>
+                <span class="s2">"x_low"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">xLimits</span><span class="o">.</span><span class="n">low</span><span class="p">,</span>
+                <span class="s2">"x_high"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">xLimits</span><span class="o">.</span><span class="n">high</span><span class="p">,</span>
+                <span class="s2">"boards_in_step"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">fileSyncPanel</span><span class="p">,</span>
+                <span class="s2">"tdc_memory"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">panel_occupancy</span><span class="p">,</span>
+                <span class="s2">"peak_stats"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">panel_peak</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LinoSPAD2Dual.watched_paths">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.tabs.full_sensor.html#daplis_rtp.gui.tabs.LinoSPAD2Dual.watched_paths">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">watched_paths</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">picker_1</span><span class="o">.</span><span class="n">path</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">picker_2</span><span class="o">.</span><span class="n">path</span><span class="p">()]</span></div>
+
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="c1"># Construction</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_build_header</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">picker_1</span> <span class="o">=</span> <span class="n">DirectoryPicker</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">caption</span><span class="o">=</span><span class="s2">"Board 1 folder"</span><span class="p">,</span>
+            <span class="n">title</span><span class="o">=</span><span class="s2">"Select Directory — Board 1"</span><span class="p">,</span>
+            <span class="n">tip</span><span class="o">=</span><span class="s2">"Folder board 1 writes its data files to. Pixels 0-255 "</span>
+                <span class="s2">"of the plot come from here."</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">header_row</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">picker_1</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">picker_2</span> <span class="o">=</span> <span class="n">DirectoryPicker</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">caption</span><span class="o">=</span><span class="s2">"Board 2 folder"</span><span class="p">,</span>
+            <span class="n">title</span><span class="o">=</span><span class="s2">"Select Directory — Board 2"</span><span class="p">,</span>
+            <span class="n">tip</span><span class="o">=</span><span class="s2">"Folder board 2 writes its data files to. Pixels "</span>
+                <span class="s2">"256-511 of the plot come from here, always with the "</span>
+                <span class="s2">"pixel-address correction applied."</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">header_row</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">picker_2</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_build_footer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xLimits</span> <span class="o">=</span> <span class="n">LimitPair</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">caption</span><span class="o">=</span><span class="s2">"x limits (pixel)"</span><span class="p">,</span>
+            <span class="n">spin</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">maximum</span><span class="o">=</span><span class="n">N_PIXELS_TOTAL</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="n">values</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">N_PIXELS_TOTAL</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span>
+            <span class="n">tip</span><span class="o">=</span><span class="s2">"The range of pixels shown, spanning both halves. Also "</span>
+                <span class="s2">"narrows the pixels the TDC memory check watches."</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xLimits</span><span class="o">.</span><span class="n">changed</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_redraw_current</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">footer_row</span><span class="p">()</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xLimits</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">footer_row</span><span class="p">()</span><span class="o">.</span><span class="n">addStretch</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_build_controls</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">column</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">controls</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">comboBox_mask_2</span> <span class="o">=</span> <span class="n">column</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span>
+            <span class="s2">"Daughterboard"</span><span class="p">,</span>
+            <span class="n">daughterboard_combo</span><span class="p">(),</span>
+            <span class="n">tip</span><span class="o">=</span><span class="s2">"Shared by both boards: one daughterboard carries the "</span>
+                <span class="s2">"whole sensor."</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">comboBox_mb_1</span> <span class="o">=</span> <span class="n">column</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span>
+            <span class="s2">"Motherboard 1"</span><span class="p">,</span>
+            <span class="n">motherboard_combo</span><span class="p">(),</span>
+            <span class="n">tip</span><span class="o">=</span><span class="s2">"Motherboard of board 1, which carries pixels 0-255."</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">comboBox_mb_2</span> <span class="o">=</span> <span class="n">column</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span>
+            <span class="s2">"Motherboard 2"</span><span class="p">,</span>
+            <span class="n">motherboard_combo</span><span class="p">(),</span>
+            <span class="n">tip</span><span class="o">=</span><span class="s2">"Motherboard of board 2, which carries pixels 256-511."</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">comboBox_FW_2</span> <span class="o">=</span> <span class="n">column</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span>
+            <span class="s2">"Firmware version"</span><span class="p">,</span> <span class="n">firmware_combo</span><span class="p">()</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spinBox_timestamps_2</span> <span class="o">=</span> <span class="n">column</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span>
+            <span class="s2">"Timestamps"</span><span class="p">,</span>
+            <span class="n">timestamps_spin</span><span class="p">(),</span>
+            <span class="n">tip</span><span class="o">=</span><span class="s2">"Number of timestamps per pixel per acquisition cycle, "</span>
+                <span class="s2">"the same on both boards."</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_build_mask_controls</span><span class="p">(</span><span class="n">column</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">checkBox_linearScale_2</span> <span class="o">=</span> <span class="n">column</span><span class="o">.</span><span class="n">add_wide_row</span><span class="p">(</span>
+            <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QCheckBox</span><span class="p">(</span><span class="s2">"Linear scale"</span><span class="p">),</span>
+            <span class="n">tip</span><span class="o">=</span><span class="s2">"Clear for a logarithmic y-axis."</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">checkBox_linearScale_2</span><span class="o">.</span><span class="n">setChecked</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">checkBox_linearScale_2</span><span class="o">.</span><span class="n">toggled</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">widget_figure</span><span class="o">.</span><span class="n">set_scale_linear</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">checkBox_grouping_2</span> <span class="o">=</span> <span class="n">column</span><span class="o">.</span><span class="n">add_wide_row</span><span class="p">(</span>
+            <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QCheckBox</span><span class="p">(</span><span class="s2">"Group of 64"</span><span class="p">),</span>
+            <span class="n">tip</span><span class="o">=</span><span class="s2">"Draw vertical lines at every group boundary on both "</span>
+                <span class="s2">"halves."</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">checkBox_grouping_2</span><span class="o">.</span><span class="n">toggled</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_redraw_current</span><span class="p">)</span>
+
+        <span class="c1"># 'Both boards in step' and 'TDC memory', in that order and in</span>
+        <span class="c1"># the same place they hold on the tabs that also carry them.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fileSyncPanel</span> <span class="o">=</span> <span class="n">FileSyncPanel</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="p">(</span><span class="s2">"Board 1"</span><span class="p">,</span> <span class="s2">"Board 2"</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">column</span><span class="o">.</span><span class="n">add_widget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fileSyncPanel</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">panel_peak</span> <span class="o">=</span> <span class="n">PeakStatsPanel</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">panel_peak</span><span class="o">.</span><span class="n">toggled</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_redraw_current</span><span class="p">)</span>
+        <span class="n">column</span><span class="o">.</span><span class="n">add_widget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">panel_peak</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">panel_occupancy</span> <span class="o">=</span> <span class="n">TdcOccupancyPanel</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">panel_occupancy</span><span class="o">.</span><span class="n">attach_timestamps_spinbox</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">spinBox_timestamps_2</span>
+        <span class="p">)</span>
+        <span class="n">column</span><span class="o">.</span><span class="n">add_widget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">panel_occupancy</span><span class="p">)</span>
+        <span class="n">column</span><span class="o">.</span><span class="n">add_stretch</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_build_mask_controls</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">column</span><span class="p">):</span>
+        <span class="n">box</span><span class="p">,</span> <span class="n">inner</span> <span class="o">=</span> <span class="n">column</span><span class="o">.</span><span class="n">add_group</span><span class="p">(</span><span class="s2">"Pixel mask"</span><span class="p">)</span>
+
+        <span class="n">preset_row</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QHBoxLayout</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">checkBox_presetMask_2</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QCheckBox</span><span class="p">(</span><span class="s2">"Preset mask"</span><span class="p">,</span> <span class="n">box</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">checkBox_presetMask_2</span><span class="o">.</span><span class="n">stateChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">presetmask_pixels</span>
+        <span class="p">)</span>
+        <span class="n">preset_row</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">checkBox_presetMask_2</span><span class="p">)</span>
+        <span class="n">preset_row</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span>
+            <span class="n">info_badge</span><span class="p">(</span>
+                <span class="s2">"The warm-pixel mask of each board, looked up from the "</span>
+                <span class="s2">"shared daughterboard and that board's motherboard."</span><span class="p">,</span>
+                <span class="n">box</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">preset_row</span><span class="o">.</span><span class="n">addStretch</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">inner</span><span class="o">.</span><span class="n">addLayout</span><span class="p">(</span><span class="n">preset_row</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">mask_window</span> <span class="o">=</span> <span class="n">PixelMaskWindow</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">boards</span><span class="o">=</span><span class="p">[(</span><span class="s2">"Board 1"</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">64</span><span class="p">),</span> <span class="p">(</span><span class="s2">"Board 2"</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">64</span><span class="p">)],</span>
+            <span class="n">title</span><span class="o">=</span><span class="s2">"Pixel mask — Full Sensor"</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">checkBoxPixel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mask_window</span><span class="o">.</span><span class="n">boxes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">checkBoxPixel_b2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mask_window</span><span class="o">.</span><span class="n">boxes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mask_window</span><span class="o">.</span><span class="n">changed</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">slot_mask_changed</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mask_window</span><span class="o">.</span><span class="n">clear_requested</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reset_pix_mask</span><span class="p">)</span>
+
+        <span class="n">button_row</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QHBoxLayout</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_editMask</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QPushButton</span><span class="p">(</span><span class="s2">"Edit mask…"</span><span class="p">,</span> <span class="n">box</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_editMask</span><span class="o">.</span><span class="n">setToolTip</span><span class="p">(</span>
+            <span class="s2">"Open both boards' pixel masks in a window of their own; it "</span>
+            <span class="s2">"can be left open beside the plot while the stream runs."</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_editMask</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mask_window</span><span class="o">.</span><span class="n">open_beside</span><span class="p">)</span>
+        <span class="n">button_row</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pushButton_editMask</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_resetMask_2</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QPushButton</span><span class="p">(</span><span class="s2">"Reset"</span><span class="p">,</span> <span class="n">box</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_resetMask_2</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reset_pix_mask</span><span class="p">)</span>
+        <span class="n">button_row</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pushButton_resetMask_2</span><span class="p">)</span>
+        <span class="n">inner</span><span class="o">.</span><span class="n">addLayout</span><span class="p">(</span><span class="n">button_row</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">label_maskCount</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QLabel</span><span class="p">(</span><span class="s2">""</span><span class="p">,</span> <span class="n">box</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">label_maskCount</span><span class="o">.</span><span class="n">setObjectName</span><span class="p">(</span><span class="s2">"tabHint"</span><span class="p">)</span>
+        <span class="n">inner</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">label_maskCount</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_build_actions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_refreshPlot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">actions</span><span class="o">.</span><span class="n">add_button</span><span class="p">(</span>
+            <span class="s2">"Refresh plot"</span><span class="p">,</span> <span class="n">tip</span><span class="o">=</span><span class="s2">"Read the newest file of each board again."</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_refreshPlot</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">slot_refresh</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_startStream</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">actions</span><span class="o">.</span><span class="n">add_button</span><span class="p">(</span>
+            <span class="s2">"Start stream"</span><span class="p">,</span>
+            <span class="n">tip</span><span class="o">=</span><span class="s2">"Follow both folders, redrawing whenever either gets a "</span>
+                <span class="s2">"newer file. Also starts the check that the two boards "</span>
+                <span class="s2">"keep writing in step."</span><span class="p">,</span>
+            <span class="n">primary</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_startStream</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">toggle_stream</span><span class="p">)</span>
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="c1"># Stream</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+
+<div class="viewcode-block" id="LinoSPAD2Dual.on_stream_start">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.tabs.full_sensor.html#daplis_rtp.gui.tabs.LinoSPAD2Dual.on_stream_start">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">on_stream_start</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_file_ctime_1</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_file_ctime_2</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">panel_occupancy</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fileSyncPanel</span><span class="o">.</span><span class="n">set_paths</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">picker_1</span><span class="o">.</span><span class="n">path</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">picker_2</span><span class="o">.</span><span class="n">path</span><span class="p">()</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fileSyncPanel</span><span class="o">.</span><span class="n">start</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="LinoSPAD2Dual.on_stream_stop">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.tabs.full_sensor.html#daplis_rtp.gui.tabs.LinoSPAD2Dual.on_stream_stop">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">on_stream_stop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_file_ctime_1</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_file_ctime_2</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fileSyncPanel</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="LinoSPAD2Dual.on_refresh_requested">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.tabs.full_sensor.html#daplis_rtp.gui.tabs.LinoSPAD2Dual.on_refresh_requested">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">on_refresh_requested</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_file_ctime_1</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_file_ctime_2</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">panel_occupancy</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span></div>
+
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="c1"># Display</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_redraw_current</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_last_rates</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_last_rates</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rates</span><span class="p">):</span>
+        <span class="n">low</span><span class="p">,</span> <span class="n">high</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">xLimits</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+        <span class="n">masked</span> <span class="o">=</span> <span class="n">rates</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">combined_mask</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">widget_figure</span><span class="o">.</span><span class="n">set_data</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">"rates"</span><span class="p">:</span> <span class="n">masked</span><span class="p">,</span>
+                <span class="s2">"x_lim"</span><span class="p">:</span> <span class="p">(</span><span class="n">low</span><span class="p">,</span> <span class="n">high</span><span class="p">),</span>
+                <span class="s2">"grouping"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">checkBox_grouping_2</span><span class="o">.</span><span class="n">isChecked</span><span class="p">(),</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">panel_peak</span><span class="o">.</span><span class="n">enabled</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">panel_peak</span><span class="o">.</span><span class="n">show_stats</span><span class="p">(</span><span class="n">peak_stats</span><span class="p">(</span><span class="n">masked</span><span class="p">,</span> <span class="p">(</span><span class="n">low</span><span class="p">,</span> <span class="n">high</span><span class="p">)))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">panel_peak</span><span class="o">.</span><span class="n">clear</span><span class="p">(</span><span class="s2">"switched off"</span><span class="p">)</span>
+
+<div class="viewcode-block" id="LinoSPAD2Dual.combined_mask">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.tabs.full_sensor.html#daplis_rtp.gui.tabs.LinoSPAD2Dual.combined_mask">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">combined_mask</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Both boards' masks laid end to end on the 0-511 axis."""</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
+            <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">maskValidPixels</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">maskValidPixels_b2</span><span class="p">]</span>
+        <span class="p">)</span></div>
+
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="c1"># Data</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+
+<div class="viewcode-block" id="LinoSPAD2Dual.refresh">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.tabs.full_sensor.html#daplis_rtp.gui.tabs.LinoSPAD2Dual.refresh">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">refresh</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mask_pixels</span><span class="p">()</span>
+
+        <span class="n">path_1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">picker_1</span><span class="o">.</span><span class="n">path</span><span class="p">()</span>
+        <span class="n">path_2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">picker_2</span><span class="o">.</span><span class="n">path</span><span class="p">()</span>
+        <span class="n">last_file_1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_data_file</span><span class="p">(</span><span class="n">path_1</span><span class="p">)</span>
+        <span class="n">last_file_2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_data_file</span><span class="p">(</span><span class="n">path_2</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">last_file_1</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">last_file_2</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">last_file_1</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">last_file_2</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">where</span> <span class="o">=</span> <span class="s2">"either working directory"</span>
+            <span class="k">elif</span> <span class="n">last_file_1</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">where</span> <span class="o">=</span> <span class="s2">"the working directory of board 1"</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">where</span> <span class="o">=</span> <span class="s2">"the working directory of board 2"</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">no_data</span><span class="p">(</span>
+                <span class="s2">"No data files found in </span><span class="si">{}</span><span class="s2"> — they may have been "</span>
+                <span class="s2">"removed. Check both working directories."</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">where</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">new_ctime_1</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getctime</span><span class="p">(</span><span class="n">last_file_1</span><span class="p">)</span>
+            <span class="n">new_ctime_2</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getctime</span><span class="p">(</span><span class="n">last_file_2</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+            <span class="c1"># A file went away between the listing and the question</span>
+            <span class="k">return</span>
+
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">new_ctime_1</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_file_ctime_1</span>
+            <span class="ow">and</span> <span class="n">new_ctime_2</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_file_ctime_2</span>
+        <span class="p">):</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_file_ctime_1</span> <span class="o">=</span> <span class="n">new_ctime_1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_file_ctime_2</span> <span class="o">=</span> <span class="n">new_ctime_2</span>
+
+        <span class="n">fw_ver</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comboBox_FW_2</span><span class="o">.</span><span class="n">currentText</span><span class="p">()</span>
+        <span class="n">timestamps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spinBox_timestamps_2</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
+        <span class="n">board</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comboBox_mask_2</span><span class="o">.</span><span class="n">currentText</span><span class="p">()</span>
+        <span class="n">check_slots</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">panel_occupancy</span><span class="o">.</span><span class="n">enabled</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Full-sensor data are always collected with the absolute</span>
+            <span class="c1"># timestamps, which are what synchronizes the two boards, so</span>
+            <span class="c1"># no control is offered for them. Pixel-address correction</span>
+            <span class="c1"># is always applied to board 2 and never to board 1.</span>
+            <span class="n">result_1</span> <span class="o">=</span> <span class="n">sen_pop</span><span class="p">(</span>
+                <span class="n">last_file_1</span><span class="p">,</span>
+                <span class="n">board_number</span><span class="o">=</span><span class="n">board</span><span class="p">,</span>
+                <span class="n">fw_ver</span><span class="o">=</span><span class="n">fw_ver</span><span class="p">,</span>
+                <span class="n">timestamps</span><span class="o">=</span><span class="n">timestamps</span><span class="p">,</span>
+                <span class="n">pix_add_fix</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">absolute_timestamps</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">return_occupancy</span><span class="o">=</span><span class="n">check_slots</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">result_2</span> <span class="o">=</span> <span class="n">sen_pop</span><span class="p">(</span>
+                <span class="n">last_file_2</span><span class="p">,</span>
+                <span class="n">board_number</span><span class="o">=</span><span class="n">board</span><span class="p">,</span>
+                <span class="n">fw_ver</span><span class="o">=</span><span class="n">fw_ver</span><span class="p">,</span>
+                <span class="n">timestamps</span><span class="o">=</span><span class="n">timestamps</span><span class="p">,</span>
+                <span class="n">pix_add_fix</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">absolute_timestamps</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">return_occupancy</span><span class="o">=</span><span class="n">check_slots</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="c1"># A file removed while it is being read shows up as OSError; a</span>
+        <span class="c1"># truncated or half-written one as ValueError or IndexError</span>
+        <span class="c1"># from the unpacking.</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">IndexError</span><span class="p">,</span> <span class="ne">OSError</span><span class="p">)</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">report_error</span><span class="p">(</span>
+                <span class="s2">"Cannot read data file — it may have been removed. "</span>
+                <span class="s2">"Check the timestamp setting and the firmware version; "</span>
+                <span class="s2">"full-sensor data must hold the absolute timestamps."</span><span class="p">,</span>
+                <span class="n">err</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="k">if</span> <span class="n">check_slots</span><span class="p">:</span>
+            <span class="n">rates_1</span><span class="p">,</span> <span class="n">occupancy_1</span> <span class="o">=</span> <span class="n">result_1</span>
+            <span class="n">rates_2</span><span class="p">,</span> <span class="n">occupancy_2</span> <span class="o">=</span> <span class="n">result_2</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">report_occupancy</span><span class="p">(</span><span class="n">fw_ver</span><span class="p">,</span> <span class="n">occupancy_1</span><span class="p">,</span> <span class="n">occupancy_2</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">rates_1</span><span class="p">,</span> <span class="n">rates_2</span> <span class="o">=</span> <span class="n">result_1</span><span class="p">,</span> <span class="n">result_2</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">panel_occupancy</span><span class="o">.</span><span class="n">clear</span><span class="p">(</span><span class="s2">"switched off"</span><span class="p">)</span>
+
+        <span class="n">combined</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">rates_1</span><span class="p">,</span> <span class="n">rates_2</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_last_rates</span> <span class="o">=</span> <span class="n">combined</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_last_files</span> <span class="o">=</span> <span class="p">(</span><span class="n">last_file_1</span><span class="p">,</span> <span class="n">last_file_2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_plot</span><span class="p">(</span><span class="n">combined</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LinoSPAD2Dual.report_occupancy">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.tabs.full_sensor.html#daplis_rtp.gui.tabs.LinoSPAD2Dual.report_occupancy">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">report_occupancy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fw_ver</span><span class="p">,</span> <span class="n">occupancy_1</span><span class="p">,</span> <span class="n">occupancy_2</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Hand one refresh's slot occupancy to the status box.</span>
+
+<span class="sd">        The pixels of interest are given on the 0-511 x-axis of this</span>
+<span class="sd">        tab, so each board takes the part of them that falls on its own</span>
+<span class="sd">        half and maps it to TDCs with the ``pix_add_fix`` its rates were</span>
+<span class="sd">        built with - always off for board 1 and on for board 2.</span>
+
+<span class="sd">        """</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">explicit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">panel_occupancy</span><span class="o">.</span><span class="n">explicit_pixels</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="c1"># A half-typed pixel list should not blank the readout, and</span>
+            <span class="c1"># it certainly should not raise into the plotting path</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">panel_occupancy</span><span class="o">.</span><span class="n">clear</span><span class="p">(</span><span class="s2">"pixels of interest: </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">err</span><span class="p">))</span>
+            <span class="k">return</span>
+
+        <span class="n">x_lim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">xLimits</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+        <span class="n">boards</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">occupancy</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">pix_add_fix</span> <span class="ow">in</span> <span class="p">(</span>
+            <span class="p">(</span><span class="s2">"board 1"</span><span class="p">,</span> <span class="n">occupancy_1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">maskValidPixels</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">"board 2"</span><span class="p">,</span> <span class="n">occupancy_2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">maskValidPixels_b2</span><span class="p">,</span> <span class="n">N_PIXELS</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+        <span class="p">):</span>
+            <span class="n">pixels</span> <span class="o">=</span> <span class="n">pixels_of_interest</span><span class="p">(</span><span class="n">explicit</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">x_lim</span><span class="p">,</span> <span class="n">offset</span><span class="p">)</span>
+            <span class="n">boards</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">BoardOccupancy</span><span class="p">(</span>
+                    <span class="n">label</span><span class="p">,</span>
+                    <span class="n">occupancy</span><span class="p">,</span>
+                    <span class="n">pixel_to_tdc_map</span><span class="p">(</span><span class="n">fw_ver</span><span class="p">,</span> <span class="n">pix_add_fix</span><span class="p">)[</span><span class="n">pixels</span><span class="p">],</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">panel_occupancy</span><span class="o">.</span><span class="n">show_result</span><span class="p">(</span><span class="n">boards</span><span class="p">)</span></div>
+
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="c1"># Export</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+
+<div class="viewcode-block" id="LinoSPAD2Dual.plotted_data">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.tabs.full_sensor.html#daplis_rtp.gui.tabs.LinoSPAD2Dual.plotted_data">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">plotted_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_last_rates</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">combined_mask</span><span class="p">()</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">"stem"</span><span class="p">:</span> <span class="s2">"full-sensor"</span><span class="p">,</span>
+            <span class="s2">"columns"</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">"pixel"</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">N_PIXELS_TOTAL</span><span class="p">),</span>
+                <span class="s2">"board"</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">N_PIXELS_TOTAL</span><span class="p">)</span> <span class="o">//</span> <span class="n">N_PIXELS</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
+                <span class="s2">"rate_Hz"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_last_rates</span> <span class="o">*</span> <span class="n">mask</span><span class="p">,</span>
+                <span class="s2">"masked"</span><span class="p">:</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">mask</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+            <span class="p">},</span>
+            <span class="s2">"notes"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"Full Sensor - photon rate across both halves"</span><span class="p">,</span>
+                <span class="s2">"board 1 file: </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_last_files</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+                <span class="s2">"board 2 file: </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_last_files</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+                <span class="s2">"daughterboard </span><span class="si">{}</span><span class="s2">, motherboards </span><span class="si">{}</span><span class="s2"> and </span><span class="si">{}</span><span class="s2">, firmware "</span>
+                <span class="s2">"</span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">comboBox_mask_2</span><span class="o">.</span><span class="n">currentText</span><span class="p">(),</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">comboBox_mb_1</span><span class="o">.</span><span class="n">currentText</span><span class="p">(),</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">comboBox_mb_2</span><span class="o">.</span><span class="n">currentText</span><span class="p">(),</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">comboBox_FW_2</span><span class="o">.</span><span class="n">currentText</span><span class="p">(),</span>
+                <span class="p">),</span>
+                <span class="s2">"timestamps </span><span class="si">{}</span><span class="s2">; board 2 address-corrected, absolute "</span>
+                <span class="s2">"timestamps assumed"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">spinBox_timestamps_2</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
+                <span class="p">),</span>
+                <span class="s2">"x limits shown: </span><span class="si">{}</span><span class="s2"> to </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">xLimits</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span>
+                <span class="s2">"'masked' is 1 where the pixel was masked, and its rate "</span>
+                <span class="s2">"was forced to zero"</span><span class="p">,</span>
+            <span class="p">],</span>
+        <span class="p">}</span></div>
+
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="c1"># Pixel mask</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+
+<div class="viewcode-block" id="LinoSPAD2Dual.toggle_pixel_mask">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.tabs.full_sensor.html#daplis_rtp.gui.tabs.LinoSPAD2Dual.toggle_pixel_mask">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">toggle_pixel_mask</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pixel</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Ctrl+click on the plot: mask this pixel, or unmask it.</span>
+
+<span class="sd">        The plot's x-axis runs 0-511 across both halves, so which board</span>
+<span class="sd">        the click landed on is the half it fell in.</span>
+
+<span class="sd">        """</span>
+        <span class="n">board</span><span class="p">,</span> <span class="n">local</span> <span class="o">=</span> <span class="nb">divmod</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">pixel</span><span class="p">),</span> <span class="n">N_PIXELS</span><span class="p">)</span>
+        <span class="n">boxes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mask_window</span><span class="o">.</span><span class="n">boxes</span><span class="p">[</span><span class="n">board</span><span class="p">]</span>
+        <span class="n">boxes</span><span class="p">[</span><span class="n">local</span><span class="p">]</span><span class="o">.</span><span class="n">setChecked</span><span class="p">(</span><span class="ow">not</span> <span class="n">boxes</span><span class="p">[</span><span class="n">local</span><span class="p">]</span><span class="o">.</span><span class="n">isChecked</span><span class="p">())</span></div>
+
+
+<div class="viewcode-block" id="LinoSPAD2Dual.slot_mask_changed">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.tabs.full_sensor.html#daplis_rtp.gui.tabs.LinoSPAD2Dual.slot_mask_changed">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">slot_mask_changed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Rebuild both masks, update the count, and redraw."""</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">label_maskCount</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span>
+            <span class="n">mask_summary</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mask_window</span><span class="o">.</span><span class="n">masked_counts</span><span class="p">())</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mask_pixels</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_redraw_current</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="LinoSPAD2Dual.mask_pixels">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.tabs.full_sensor.html#daplis_rtp.gui.tabs.LinoSPAD2Dual.mask_pixels">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">mask_pixels</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">maskValidPixels</span> <span class="o">=</span> <span class="n">masked_array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">checkBoxPixel</span><span class="p">,</span> <span class="n">N_PIXELS</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">maskValidPixels_b2</span> <span class="o">=</span> <span class="n">masked_array</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">checkBoxPixel_b2</span><span class="p">,</span> <span class="n">N_PIXELS</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LinoSPAD2Dual.presetmask_pixels">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.tabs.full_sensor.html#daplis_rtp.gui.tabs.LinoSPAD2Dual.presetmask_pixels">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">presetmask_pixels</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Apply each board's recorded warm-pixel mask, or lift them.</span>
+
+<span class="sd">        Each board uses the shared daughterboard and its own motherboard</span>
+<span class="sd">        to look up its file. A board with no mask recorded is skipped</span>
+<span class="sd">        silently; the warning comes only when neither has one, since one</span>
+<span class="sd">        board masked and the other not is a perfectly ordinary state.</span>
+
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">checkBox_presetMask_2</span><span class="o">.</span><span class="n">isChecked</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mask_window</span><span class="o">.</span><span class="n">set_all</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="n">board</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comboBox_mask_2</span><span class="o">.</span><span class="n">currentText</span><span class="p">()</span>
+        <span class="n">loaded</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">combo</span> <span class="ow">in</span> <span class="p">(</span>
+            <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">comboBox_mb_1</span><span class="p">),</span>
+            <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">comboBox_mb_2</span><span class="p">),</span>
+        <span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">path</span> <span class="o">=</span> <span class="n">files</span><span class="p">(</span><span class="s2">"daplis_rtp.params.masks"</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span>
+                    <span class="s2">"mask_</span><span class="si">{}</span><span class="s2">_</span><span class="si">{}</span><span class="s2">.txt"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">board</span><span class="p">,</span> <span class="n">combo</span><span class="o">.</span><span class="n">currentText</span><span class="p">())</span>
+                <span class="p">)</span>
+                <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">genfromtxt</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s2">","</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">"int"</span><span class="p">)</span>
+            <span class="k">except</span> <span class="p">(</span><span class="ne">IndexError</span><span class="p">,</span> <span class="ne">FileNotFoundError</span><span class="p">,</span> <span class="ne">OSError</span><span class="p">):</span>
+                <span class="k">continue</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mask_window</span><span class="o">.</span><span class="n">set_pixels</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">mask</span><span class="p">),</span> <span class="kc">True</span><span class="p">)</span>
+            <span class="n">loaded</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">loaded</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">checkBox_presetMask_2</span><span class="o">.</span><span class="n">setChecked</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QMessageBox</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="bp">self</span><span class="p">,</span>
+                <span class="s2">"Preset mask"</span><span class="p">,</span>
+                <span class="s2">"No mask data were found for this daughterboard and "</span>
+                <span class="s2">"motherboard combination, for either board."</span><span class="p">,</span>
+            <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LinoSPAD2Dual.reset_pix_mask">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.tabs.full_sensor.html#daplis_rtp.gui.tabs.LinoSPAD2Dual.reset_pix_mask">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">reset_pix_mask</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mask_window</span><span class="o">.</span><span class="n">set_all</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">checkBox_presetMask_2</span><span class="o">.</span><span class="n">setChecked</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Sergei Kulkov.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

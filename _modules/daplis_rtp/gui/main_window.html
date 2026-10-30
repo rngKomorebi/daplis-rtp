@@ -1,0 +1,465 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>daplis_rtp.gui.main_window &mdash; Data Analysis Package for LinoSPAD2 - Real-Time Plotting 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Data Analysis Package for LinoSPAD2 - Real-Time Plotting
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation and usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../daplis_rtp.gui.html">daplis_rtp.gui package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../daplis_rtp.functions.html">daplis_rtp.functions package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contribute.html">How to contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../license.html">License and contact info</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../acknowledgement.html">Acknowledgement</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Data Analysis Package for LinoSPAD2 - Real-Time Plotting</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">daplis_rtp.gui.main_window</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for daplis_rtp.gui.main_window</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""The window: five tabs, a menu bar, and the theme wired to both.</span>
+
+<span class="sd">The old main window was a ``pyuic`` file that nobody could edit by hand</span>
+<span class="sd">without losing the edit on the next export, and it carried a menu bar</span>
+<span class="sd">that was built, shown, and left empty. Here the menu bar earns its</span>
+<span class="sd">place - it is where the theme is chosen - and the window opens at a</span>
+<span class="sd">deliberate size instead of at whatever minimum the tallest tab happened</span>
+<span class="sd">to impose.</span>
+
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">PyQt5</span><span class="w"> </span><span class="kn">import</span> <span class="n">QtCore</span><span class="p">,</span> <span class="n">QtWidgets</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">daplis_rtp</span><span class="w"> </span><span class="kn">import</span> <span class="n">__version__</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">daplis_rtp.gui.layout</span><span class="w"> </span><span class="kn">import</span> <span class="n">WINDOW_DEFAULT_SIZE</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">daplis_rtp.gui.preferences</span><span class="w"> </span><span class="kn">import</span> <span class="n">PreferencesDialog</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">daplis_rtp.gui.tabs</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">LinoSPAD2Dual</span><span class="p">,</span>
+    <span class="n">LiveTimestamps</span><span class="p">,</span>
+    <span class="n">MZI</span><span class="p">,</span>
+    <span class="n">SinglePixelHistogram</span><span class="p">,</span>
+    <span class="n">Synchronization</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">daplis_rtp.gui.theme</span><span class="w"> </span><span class="kn">import</span> <span class="n">PRESETS</span><span class="p">,</span> <span class="n">preset_names</span><span class="p">,</span> <span class="n">theme_manager</span>
+
+<span class="c1"># How long a worker thread is given to finish on its own when the window</span>
+<span class="c1"># closes, in milliseconds.</span>
+<span class="n">WORKER_WAIT_MS</span> <span class="o">=</span> <span class="mi">2000</span>
+
+<span class="c1"># The tabs, in the order they are shown.</span>
+<span class="n">TABS</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="p">(</span><span class="n">LiveTimestamps</span><span class="p">,</span> <span class="s2">"Online plot"</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">SinglePixelHistogram</span><span class="p">,</span> <span class="s2">"Single Pixel Histogram"</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">MZI</span><span class="p">,</span> <span class="s2">"MZI"</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">LinoSPAD2Dual</span><span class="p">,</span> <span class="s2">"Full Sensor"</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">Synchronization</span><span class="p">,</span> <span class="s2">"Synchronization"</span><span class="p">),</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="write_plotted_data">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.main_window.html#daplis_rtp.gui.main_window.write_plotted_data">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">write_plotted_data</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Write one tab's plotted numbers to ``path``.</span>
+
+<span class="sd">    CSV or ``.npz``, by extension. The CSV carries the tab's notes as</span>
+<span class="sd">    ``#`` comments above the header - which ``numpy.loadtxt`` and</span>
+<span class="sd">    ``pandas.read_csv`` both skip by default - so that a file found on a</span>
+<span class="sd">    disk six months later can still say which board, which firmware and</span>
+<span class="sd">    which settings it came from. A plot whose provenance has to be</span>
+<span class="sd">    remembered is a plot nobody trusts.</span>
+
+<span class="sd">    """</span>
+    <span class="n">columns</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">"columns"</span><span class="p">]</span>
+    <span class="n">headings</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">columns</span><span class="p">)</span>
+    <span class="n">table</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">columns</span><span class="p">[</span><span class="n">h</span><span class="p">])</span> <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">headings</span><span class="p">])</span>
+
+    <span class="n">stamp</span> <span class="o">=</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">QDateTime</span><span class="o">.</span><span class="n">currentDateTime</span><span class="p">()</span><span class="o">.</span><span class="n">toString</span><span class="p">(</span>
+        <span class="s2">"yyyy-MM-dd HH:mm:ss"</span>
+    <span class="p">)</span>
+    <span class="n">notes</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"daplis-rtp </span><span class="si">{}</span><span class="s2"> - exported </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">__version__</span><span class="p">,</span> <span class="n">stamp</span><span class="p">)]</span>
+    <span class="n">notes</span> <span class="o">+=</span> <span class="nb">list</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"notes"</span><span class="p">,</span> <span class="p">[]))</span>
+
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">path</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">".npz"</span><span class="p">:</span>
+        <span class="c1"># A plain string array rather than an object one, so that</span>
+        <span class="c1"># 'np.load' reads it back without 'allow_pickle'.</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">savez_compressed</span><span class="p">(</span>
+            <span class="n">path</span><span class="p">,</span>
+            <span class="n">notes</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">notes</span><span class="p">),</span>
+            <span class="o">**</span><span class="p">{</span><span class="n">h</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">columns</span><span class="p">[</span><span class="n">h</span><span class="p">])</span> <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">headings</span><span class="p">}</span>
+        <span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="c1"># Written by hand rather than with 'savetxt', which comments out</span>
+    <span class="c1"># every header line it is given - including the column names, which</span>
+    <span class="c1"># is what a spreadsheet needs left alone.</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s2">""</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">notes</span><span class="p">:</span>
+            <span class="n">handle</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">"# </span><span class="si">{}</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">line</span><span class="p">))</span>
+        <span class="n">handle</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">","</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">headings</span><span class="p">)</span> <span class="o">+</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">table</span><span class="p">:</span>
+            <span class="n">handle</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+                <span class="s2">","</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">"</span><span class="si">{:.10g}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">row</span><span class="p">)</span> <span class="o">+</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span>
+            <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="quiesce">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.main_window.html#daplis_rtp.gui.main_window.quiesce">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">quiesce</span><span class="p">(</span><span class="n">tab</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Stop whatever one tab left running.</span>
+
+<span class="sd">    Everything here outlives the widget that started it unless it is</span>
+<span class="sd">    stopped by hand, and each one is fatal in its own way: a QTimer</span>
+<span class="sd">    fires into a deleted object, and a QThread destroyed while still</span>
+<span class="sd">    running aborts the process outright.</span>
+
+<span class="sd">    """</span>
+    <span class="c1"># Every plotting tab starts a refresh timer when the stream starts,</span>
+    <span class="c1"># and none of them stops it on the way out</span>
+    <span class="n">timer</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">tab</span><span class="p">,</span> <span class="s2">"timer"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">timer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">timer</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+
+    <span class="c1"># The pixel mask is a window of its own, so it does not necessarily</span>
+    <span class="c1"># go when its tab does</span>
+    <span class="n">mask_window</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">tab</span><span class="p">,</span> <span class="s2">"mask_window"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">mask_window</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">mask_window</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="c1"># 'Both boards in step' sweeps directories in a thread. Its own</span>
+    <span class="c1"># 'stop' asks the sweep to finish and leaves a hung one muted and</span>
+    <span class="c1"># referenced rather than killing it, which is the right thing here</span>
+    <span class="c1"># too - so it is used as it stands.</span>
+    <span class="n">panel</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">tab</span><span class="p">,</span> <span class="s2">"fileSyncPanel"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">panel</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">panel</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+
+    <span class="c1"># The Synchronization tab's acquisition thread has no flag to set:</span>
+    <span class="c1"># it is a blocking socket conversation with two boards. So it is</span>
+    <span class="c1"># given a moment to finish and then cut short - the one place the</span>
+    <span class="c1"># package does that, and still better than destroying it running.</span>
+    <span class="n">worker</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">tab</span><span class="p">,</span> <span class="s2">"_worker"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">worker</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">worker</span><span class="o">.</span><span class="n">isRunning</span><span class="p">():</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">worker</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="n">WORKER_WAIT_MS</span><span class="p">):</span>
+            <span class="n">worker</span><span class="o">.</span><span class="n">terminate</span><span class="p">()</span>
+            <span class="n">worker</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="n">WORKER_WAIT_MS</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="MainWindow">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.main_window.html#daplis_rtp.gui.main_window.MainWindow">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">MainWindow</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QMainWindow</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""The application window."""</span>
+
+<div class="viewcode-block" id="MainWindow.__init__">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.main_window.html#daplis_rtp.gui.main_window.MainWindow.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setWindowTitle</span><span class="p">(</span><span class="s2">"DAPLIS - Real Time Plotting"</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span> <span class="o">=</span> <span class="n">theme_manager</span><span class="p">()</span>
+        <span class="c1"># Connected before the tabs are built, so that a theme change</span>
+        <span class="c1"># restyles the application - and so sets the font the rows are</span>
+        <span class="c1"># measured from - before any tab re-measures itself against it.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="o">.</span><span class="n">changed</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_theme_changed</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_preferences</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">tabWidget</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QTabWidget</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tabWidget</span><span class="o">.</span><span class="n">setObjectName</span><span class="p">(</span><span class="s2">"tabWidget"</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">factory</span><span class="p">,</span> <span class="n">title</span> <span class="ow">in</span> <span class="n">TABS</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tabWidget</span><span class="o">.</span><span class="n">addTab</span><span class="p">(</span><span class="n">factory</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="n">title</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setCentralWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tabWidget</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_build_menu</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_build_status_bar</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tabWidget</span><span class="o">.</span><span class="n">currentChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sync_export_action</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sync_export_action</span><span class="p">()</span>
+
+        <span class="c1"># The old window had no 'resize' at all, so it opened at its own</span>
+        <span class="c1"># minimum - which is why that minimum had been the subject of so</span>
+        <span class="c1"># much attention. It opens at a comfortable size now, and the</span>
+        <span class="c1"># minimum is only a floor.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="o">*</span><span class="n">WINDOW_DEFAULT_SIZE</span><span class="p">)</span></div>
+
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="c1"># Menu and status bar</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_build_menu</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">file_menu</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">menuBar</span><span class="p">()</span><span class="o">.</span><span class="n">addMenu</span><span class="p">(</span><span class="s2">"&amp;File"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_export_action</span> <span class="o">=</span> <span class="n">file_menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s2">"&amp;Export plotted data…"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_export_action</span><span class="o">.</span><span class="n">setShortcut</span><span class="p">(</span><span class="s2">"Ctrl+E"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_export_action</span><span class="o">.</span><span class="n">setStatusTip</span><span class="p">(</span>
+            <span class="s2">"Save the numbers behind the current plot, not a picture of "</span>
+            <span class="s2">"them."</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_export_action</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">export_current_tab</span><span class="p">)</span>
+        <span class="n">file_menu</span><span class="o">.</span><span class="n">addSeparator</span><span class="p">()</span>
+        <span class="n">quit_action</span> <span class="o">=</span> <span class="n">file_menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s2">"&amp;Quit"</span><span class="p">)</span>
+        <span class="n">quit_action</span><span class="o">.</span><span class="n">setShortcut</span><span class="p">(</span><span class="s2">"Ctrl+Q"</span><span class="p">)</span>
+        <span class="n">quit_action</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">)</span>
+
+        <span class="n">view</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">menuBar</span><span class="p">()</span><span class="o">.</span><span class="n">addMenu</span><span class="p">(</span><span class="s2">"&amp;View"</span><span class="p">)</span>
+
+        <span class="n">theme_menu</span> <span class="o">=</span> <span class="n">view</span><span class="o">.</span><span class="n">addMenu</span><span class="p">(</span><span class="s2">"&amp;Theme"</span><span class="p">)</span>
+        <span class="c1"># One group, so that exactly one preset is ticked at a time.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_theme_group</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QActionGroup</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_theme_group</span><span class="o">.</span><span class="n">setExclusive</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_theme_actions</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="c1"># The presets are defined dark first, then light; a rule drawn</span>
+        <span class="c1"># where the base changes saves reading ten names to find the</span>
+        <span class="c1"># half of the list that suits the room.</span>
+        <span class="n">previous_base</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">preset_names</span><span class="p">():</span>
+            <span class="n">base</span> <span class="o">=</span> <span class="n">PRESETS</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">base</span>
+            <span class="k">if</span> <span class="n">previous_base</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">base</span> <span class="o">!=</span> <span class="n">previous_base</span><span class="p">:</span>
+                <span class="n">theme_menu</span><span class="o">.</span><span class="n">addSeparator</span><span class="p">()</span>
+            <span class="n">previous_base</span> <span class="o">=</span> <span class="n">base</span>
+            <span class="n">action</span> <span class="o">=</span> <span class="n">theme_menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+            <span class="n">action</span><span class="o">.</span><span class="n">setCheckable</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">action</span><span class="o">.</span><span class="n">setData</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_theme_group</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_theme_actions</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">action</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_theme_group</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">action</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="o">.</span><span class="n">set_preset</span><span class="p">(</span><span class="n">action</span><span class="o">.</span><span class="n">data</span><span class="p">())</span>
+        <span class="p">)</span>
+
+        <span class="n">view</span><span class="o">.</span><span class="n">addSeparator</span><span class="p">()</span>
+        <span class="n">preferences</span> <span class="o">=</span> <span class="n">view</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s2">"&amp;Preferences…"</span><span class="p">)</span>
+        <span class="n">preferences</span><span class="o">.</span><span class="n">setShortcut</span><span class="p">(</span><span class="s2">"Ctrl+,"</span><span class="p">)</span>
+        <span class="n">preferences</span><span class="o">.</span><span class="n">setStatusTip</span><span class="p">(</span>
+            <span class="s2">"Colours, trace colours and font sizes, applied as they are "</span>
+            <span class="s2">"chosen."</span>
+        <span class="p">)</span>
+        <span class="n">preferences</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">open_preferences</span><span class="p">)</span>
+
+        <span class="n">help_menu</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">menuBar</span><span class="p">()</span><span class="o">.</span><span class="n">addMenu</span><span class="p">(</span><span class="s2">"&amp;Help"</span><span class="p">)</span>
+        <span class="n">about</span> <span class="o">=</span> <span class="n">help_menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s2">"&amp;About"</span><span class="p">)</span>
+        <span class="n">about</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_about</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_build_status_bar</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_theme_label</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QLabel</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">statusBar</span><span class="p">()</span><span class="o">.</span><span class="n">addPermanentWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_theme_label</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sync_theme_widgets</span><span class="p">()</span>
+
+<div class="viewcode-block" id="MainWindow.open_preferences">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.main_window.html#daplis_rtp.gui.main_window.MainWindow.open_preferences">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">open_preferences</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Built on first use: the dialog is a window of its own, and</span>
+        <span class="c1"># most sessions never open it.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_preferences</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_preferences</span> <span class="o">=</span> <span class="n">PreferencesDialog</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_preferences</span><span class="o">.</span><span class="n">open_beside</span><span class="p">()</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_about</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QMessageBox</span><span class="o">.</span><span class="n">about</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="s2">"DAPLIS - Real Time Plotting"</span><span class="p">,</span>
+            <span class="s2">"&lt;b&gt;DAPLIS - Real Time Plotting </span><span class="si">{}</span><span class="s2">&lt;/b&gt;"</span>
+            <span class="s2">"&lt;p&gt;Live plotting for the LinoSPAD2 detector.&lt;/p&gt;"</span>
+            <span class="s2">"&lt;p&gt;Colours and font sizes are under "</span>
+            <span class="s2">"&lt;i&gt;View &amp;rarr; Preferences&lt;/i&gt;, and are remembered per "</span>
+            <span class="s2">"user.&lt;/p&gt;"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">__version__</span><span class="p">),</span>
+        <span class="p">)</span>
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="c1"># Export</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_current_tab</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">tabWidget</span><span class="o">.</span><span class="n">currentWidget</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_sync_export_action</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Grey out the export when the tab in front has nothing to give.</span>
+
+<span class="sd">        Checked when the tab changes rather than when the menu opens,</span>
+<span class="sd">        because a greyed-out item with a keyboard shortcut also has to</span>
+<span class="sd">        do nothing when the shortcut is pressed.</span>
+
+<span class="sd">        """</span>
+        <span class="n">tab</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_current_tab</span><span class="p">()</span>
+        <span class="n">getter</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">tab</span><span class="p">,</span> <span class="s2">"plotted_data"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_export_action</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span>
+            <span class="n">getter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">getter</span><span class="p">()</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="MainWindow.export_current_tab">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.main_window.html#daplis_rtp.gui.main_window.MainWindow.export_current_tab">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">export_current_tab</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Write the current plot's numbers to a file the user picks."""</span>
+        <span class="n">tab</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_current_tab</span><span class="p">()</span>
+        <span class="n">getter</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">tab</span><span class="p">,</span> <span class="s2">"plotted_data"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">getter</span><span class="p">()</span> <span class="k">if</span> <span class="n">getter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QMessageBox</span><span class="o">.</span><span class="n">information</span><span class="p">(</span>
+                <span class="bp">self</span><span class="p">,</span>
+                <span class="s2">"Export"</span><span class="p">,</span>
+                <span class="s2">"There is nothing plotted on this tab yet."</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="n">suggested</span> <span class="o">=</span> <span class="s2">"</span><span class="si">{}</span><span class="s2">-</span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">"stem"</span><span class="p">],</span>
+            <span class="n">QtCore</span><span class="o">.</span><span class="n">QDateTime</span><span class="o">.</span><span class="n">currentDateTime</span><span class="p">()</span><span class="o">.</span><span class="n">toString</span><span class="p">(</span><span class="s2">"yyyyMMdd-HHmmss"</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="n">path</span><span class="p">,</span> <span class="n">selected</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QFileDialog</span><span class="o">.</span><span class="n">getSaveFileName</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="s2">"Export plotted data"</span><span class="p">,</span>
+            <span class="n">suggested</span><span class="p">,</span>
+            <span class="s2">"Comma-separated values (*.csv);;NumPy archive (*.npz)"</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">path</span><span class="p">)[</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="n">path</span> <span class="o">+=</span> <span class="s2">".npz"</span> <span class="k">if</span> <span class="s2">"npz"</span> <span class="ow">in</span> <span class="n">selected</span> <span class="k">else</span> <span class="s2">".csv"</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">write_plotted_data</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QMessageBox</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="bp">self</span><span class="p">,</span> <span class="s2">"Export"</span><span class="p">,</span> <span class="s2">"Could not write the file.</span><span class="se">\n\n</span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">statusBar</span><span class="p">()</span><span class="o">.</span><span class="n">showMessage</span><span class="p">(</span>
+            <span class="s2">"Exported to </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">path</span><span class="p">)),</span> <span class="mi">5000</span>
+        <span class="p">)</span></div>
+
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="c1"># Theme</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_theme_changed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="o">.</span><span class="n">apply_to_app</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sync_theme_widgets</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_sync_theme_widgets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">theme</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="o">.</span><span class="n">theme</span>
+        <span class="n">action</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_theme_actions</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="o">.</span><span class="n">preset_key</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">action</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">action</span><span class="o">.</span><span class="n">isChecked</span><span class="p">():</span>
+            <span class="c1"># Without blocking, ticking it here would fire 'triggered'</span>
+            <span class="c1"># and set the preset the window is already showing - which</span>
+            <span class="c1"># would drop the user's overrides as a side effect of</span>
+            <span class="c1"># displaying them.</span>
+            <span class="n">blocked</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_theme_group</span><span class="o">.</span><span class="n">blockSignals</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">action</span><span class="o">.</span><span class="n">setChecked</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_theme_group</span><span class="o">.</span><span class="n">blockSignals</span><span class="p">(</span><span class="n">blocked</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_theme_label</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">"Theme: </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">theme</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="c1"># Closing</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+
+<div class="viewcode-block" id="MainWindow.closeEvent">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.main_window.html#daplis_rtp.gui.main_window.MainWindow.closeEvent">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">closeEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Stop what the tabs left running, then close.</span>
+
+<span class="sd">        This used to call ``QApplication.quit()``. Run from a terminal</span>
+<span class="sd">        that made no difference - closing the last window ends the event</span>
+<span class="sd">        loop anyway - but in an interpreter that outlives the call it</span>
+<span class="sd">        tore down the QApplication the session was still holding, and</span>
+<span class="sd">        the next run crashed the kernel.</span>
+
+<span class="sd">        """</span>
+        <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tabWidget</span><span class="o">.</span><span class="n">count</span><span class="p">()):</span>
+            <span class="n">quiesce</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tabWidget</span><span class="o">.</span><span class="n">widget</span><span class="p">(</span><span class="n">index</span><span class="p">))</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_preferences</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_preferences</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="n">event</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Sergei Kulkov.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

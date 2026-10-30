@@ -1,0 +1,7 @@
+daplis\_rtp.gui.tabs.single\_pixel\_histogram module
+====================================================
+
+.. automodule:: daplis_rtp.gui.tabs.single_pixel_histogram
+   :members:
+   :show-inheritance:
+   :undoc-members:

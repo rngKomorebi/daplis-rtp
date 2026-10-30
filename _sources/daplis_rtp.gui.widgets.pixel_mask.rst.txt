@@ -1,0 +1,7 @@
+daplis\_rtp.gui.widgets.pixel\_mask module
+==========================================
+
+.. automodule:: daplis_rtp.gui.widgets.pixel_mask
+   :members:
+   :show-inheritance:
+   :undoc-members:

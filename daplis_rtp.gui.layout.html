@@ -1,0 +1,516 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>daplis_rtp.gui.layout module &mdash; Data Analysis Package for LinoSPAD2 - Real-Time Plotting 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=8d563738"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="daplis_rtp.gui.main_window module" href="daplis_rtp.gui.main_window.html" />
+    <link rel="prev" title="daplis_rtp.gui.app_icon module" href="daplis_rtp.gui.app_icon.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Data Analysis Package for LinoSPAD2 - Real-Time Plotting
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation and usage</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="daplis_rtp.gui.html">daplis_rtp.gui package</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="daplis_rtp.gui.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.app_icon.html">daplis_rtp.gui.app_icon module</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">daplis_rtp.gui.layout module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#daplis_rtp.gui.layout.ActionBar"><code class="docutils literal notranslate"><span class="pre">ActionBar</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#daplis_rtp.gui.layout.ControlColumn"><code class="docutils literal notranslate"><span class="pre">ControlColumn</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#daplis_rtp.gui.layout.ElidedLabel"><code class="docutils literal notranslate"><span class="pre">ElidedLabel</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#daplis_rtp.gui.layout.TabShell"><code class="docutils literal notranslate"><span class="pre">TabShell</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#daplis_rtp.gui.layout.action_height"><code class="docutils literal notranslate"><span class="pre">action_height()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#daplis_rtp.gui.layout.allow_shrink"><code class="docutils literal notranslate"><span class="pre">allow_shrink()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#daplis_rtp.gui.layout.control_box_width"><code class="docutils literal notranslate"><span class="pre">control_box_width()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#daplis_rtp.gui.layout.control_column_width"><code class="docutils literal notranslate"><span class="pre">control_column_width()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#daplis_rtp.gui.layout.control_content_width"><code class="docutils literal notranslate"><span class="pre">control_content_width()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#daplis_rtp.gui.layout.fixed_row"><code class="docutils literal notranslate"><span class="pre">fixed_row()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#daplis_rtp.gui.layout.hint_height"><code class="docutils literal notranslate"><span class="pre">hint_height()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#daplis_rtp.gui.layout.label"><code class="docutils literal notranslate"><span class="pre">label()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#daplis_rtp.gui.layout.led"><code class="docutils literal notranslate"><span class="pre">led()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#daplis_rtp.gui.layout.row_height"><code class="docutils literal notranslate"><span class="pre">row_height()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#daplis_rtp.gui.layout.scale"><code class="docutils literal notranslate"><span class="pre">scale()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#daplis_rtp.gui.layout.set_led"><code class="docutils literal notranslate"><span class="pre">set_led()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#daplis_rtp.gui.layout.size_like_ui_tabs"><code class="docutils literal notranslate"><span class="pre">size_like_ui_tabs()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.main_window.html">daplis_rtp.gui.main_window module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.preferences.html">daplis_rtp.gui.preferences module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.session.html">daplis_rtp.gui.session module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.theme.html">daplis_rtp.gui.theme module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="daplis_rtp.functions.html">daplis_rtp.functions package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contribute.html">How to contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">License and contact info</a></li>
+<li class="toctree-l1"><a class="reference internal" href="acknowledgement.html">Acknowledgement</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Data Analysis Package for LinoSPAD2 - Real-Time Plotting</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="daplis_rtp.gui.html">daplis_rtp.gui package</a></li>
+      <li class="breadcrumb-item active">daplis_rtp.gui.layout module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/daplis_rtp.gui.layout.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-daplis_rtp.gui.layout">
+<span id="daplis-rtp-gui-layout-module"></span><h1>daplis_rtp.gui.layout module<a class="headerlink" href="#module-daplis_rtp.gui.layout" title="Link to this heading"></a></h1>
+<p>One set of geometry rules for every tab.</p>
+<p>Nothing in the old application decided how large it was. Five tabs each
+decided for themselves, in two different ways - three generated from
+<code class="docutils literal notranslate"><span class="pre">.ui</span></code> files by <code class="docutils literal notranslate"><span class="pre">pyuic</span></code>, two built by hand in Python - and the window
+took the largest minimum of the five. A panel added to the tab nobody
+was looking at set how tall the application opened, and a widget sized
+differently from its counterpart on another tab was invisible until the
+two were put side by side.</p>
+<p>That cost real time. A status box added to one control column made
+every tab open 70 px taller; three tabs carried a 500x425 placeholder
+widget that nothing drew; the “Full Sensor” combo boxes had drifted to
+80 px <code class="docutils literal notranslate"><span class="pre">Expanding</span></code> against everyone else’s 100 px <code class="docutils literal notranslate"><span class="pre">Fixed</span></code>. All three
+were found by measuring, not by looking.</p>
+<p>So the numbers live here, once, and the tabs are built from
+<a class="reference internal" href="#daplis_rtp.gui.layout.TabShell" title="daplis_rtp.gui.layout.TabShell"><code class="xref py py-class docutils literal notranslate"><span class="pre">TabShell</span></code></a> rather than each inventing its own skeleton. What that
+buys is the thing the eye actually notices: the plot is the same size
+and in the same place on every tab, and so is every button.</p>
+<p>The rules that govern, none of them obvious and all of them learnt the
+expensive way:</p>
+<ul class="simple">
+<li><p><strong>A control column’s minimum height is the sum of the panels stacked
+in it.</strong> Nothing in a <code class="docutils literal notranslate"><span class="pre">QVBoxLayout</span></code> gives height back. So every box
+added to a column used to be height the window could never lose, on
+every tab, forever. Hence <a class="reference internal" href="#daplis_rtp.gui.layout.ControlColumn" title="daplis_rtp.gui.layout.ControlColumn"><code class="xref py py-class docutils literal notranslate"><span class="pre">ControlColumn</span></code></a>, which is a scroll
+area: a column too tall for the window scrolls instead of pushing the
+window taller. That is what stops one tab’s panel from setting the
+size of all five.</p></li>
+<li><p><strong>The canvas is the only other thing that yields.</strong>
+<code class="xref py py-data docutils literal notranslate"><span class="pre">MIN_CANVAS_HEIGHT</span></code> is 240, tuned as the largest value that
+costs the window no height of its own.</p></li>
+<li><p><strong>The navigation toolbar does not push back.</strong> Squeeze a <code class="docutils literal notranslate"><span class="pre">QToolBar</span></code>
+below its contents and it hides them behind an overflow button rather
+than forcing its parent wider - and the cursor readout, which is how
+pixel numbers are read off the plot, is the first thing to go. See
+<code class="docutils literal notranslate"><span class="pre">canvas.base.toolbar_min_width</span></code>.</p></li>
+<li><p><strong>The window’s minimum is the worst tab, per axis.</strong> Height can come
+from one tab and width from another, which is why
+<code class="docutils literal notranslate"><span class="pre">tests/test_tab_geometry.py</span></code> measures all five.</p></li>
+</ul>
+<p>Sizes here are quoted at the default 10 pt interface font and scaled
+with it, so that turning the font up in Preferences moves the rows and
+the control column with it instead of clipping them.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="daplis_rtp.gui.layout.ActionBar">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">daplis_rtp.gui.layout.</span></span><span class="sig-name descname"><span class="pre">ActionBar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/layout.html#ActionBar"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.layout.ActionBar" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">QWidget</span></code></p>
+<p>The buttons at the foot of the control column.</p>
+<p>Three slots, stacked, on every tab. A tab with one button leaves two
+empty rather than letting its button grow or the bar shrink - which
+is what puts “Refresh plot” under the same pixels whichever tab is
+in front.</p>
+<p>Stacked rather than side by side because the column is 272 px wide:
+three buttons across it get 85 px each, which is narrower than the
+words on them. Full width each, and they are all legible and all
+the same size.</p>
+<p>The slots mean something, and the tabs fill them the same way:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>slot</p></th>
+<th class="head"><p>what goes in it</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>1</p></td>
+<td><p>look again now - “Refresh plot”, “Check clocks”</p></td>
+</tr>
+<tr class="row-odd"><td><p>2</p></td>
+<td><p>the thing the tab is for, and the one that runs - “Start
+stream”, “Acquire”. Marked <code class="docutils literal notranslate"><span class="pre">primary</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p>3</p></td>
+<td><p>the extra, if there is one - “Reset”, “Launch boards”</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.layout.ActionBar.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/layout.html#ActionBar.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.layout.ActionBar.__init__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.layout.ActionBar.add_button">
+<span class="sig-name descname"><span class="pre">add_button</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tip</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">primary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/layout.html#ActionBar.add_button"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.layout.ActionBar.add_button" title="Link to this definition"></a></dt>
+<dd><p>Put a button in a slot - the next free one unless told.</p>
+<p><code class="docutils literal notranslate"><span class="pre">primary</span></code> marks the one the tab is really for, which the
+stylesheet outlines in the accent colour.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.layout.ActionBar.apply_metrics">
+<span class="sig-name descname"><span class="pre">apply_metrics</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/layout.html#ActionBar.apply_metrics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.layout.ActionBar.apply_metrics" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="daplis_rtp.gui.layout.ControlColumn">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">daplis_rtp.gui.layout.</span></span><span class="sig-name descname"><span class="pre">ControlColumn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/layout.html#ControlColumn"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.layout.ControlColumn" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">QScrollArea</span></code></p>
+<p>The right-hand column of controls, identical on every tab.</p>
+<p>A scroll area rather than a plain column, and that is the whole
+point: a column with one panel too many scrolls, where before it
+made every tab in the application open taller. The width is fixed,
+so the plot beside it starts at the same x on all five tabs.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.layout.ControlColumn.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/layout.html#ControlColumn.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.layout.ControlColumn.__init__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.layout.ControlColumn.add_group">
+<span class="sig-name descname"><span class="pre">add_group</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">title</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/layout.html#ControlColumn.add_group"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.layout.ControlColumn.add_group" title="Link to this definition"></a></dt>
+<dd><p>A titled box to put rows in, returned with its layout.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.layout.ControlColumn.add_heading">
+<span class="sig-name descname"><span class="pre">add_heading</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/layout.html#ControlColumn.add_heading"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.layout.ControlColumn.add_heading" title="Link to this definition"></a></dt>
+<dd><p>A small caption dividing one run of rows from the next.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.layout.ControlColumn.add_pair_row">
+<span class="sig-name descname"><span class="pre">add_pair_row</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">left</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">right</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/layout.html#ControlColumn.add_pair_row"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.layout.ControlColumn.add_pair_row" title="Link to this definition"></a></dt>
+<dd><p>Two controls side by side, sharing one row’s height.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.layout.ControlColumn.add_row">
+<span class="sig-name descname"><span class="pre">add_row</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">widget</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tip</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/layout.html#ControlColumn.add_row"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.layout.ControlColumn.add_row" title="Link to this definition"></a></dt>
+<dd><p>A label on the left, one fixed-width control on the right.</p>
+<p>Every control column is this row repeated a dozen times, which
+is why it is a function rather than four lines written out each
+time.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.layout.ControlColumn.add_stretch">
+<span class="sig-name descname"><span class="pre">add_stretch</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/layout.html#ControlColumn.add_stretch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.layout.ControlColumn.add_stretch" title="Link to this definition"></a></dt>
+<dd><p>Push everything above it to the top of the column.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.layout.ControlColumn.add_wide_row">
+<span class="sig-name descname"><span class="pre">add_wide_row</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">widget</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tip</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/layout.html#ControlColumn.add_wide_row"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.layout.ControlColumn.add_wide_row" title="Link to this definition"></a></dt>
+<dd><p>One control across the full width - a check box, a button.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.layout.ControlColumn.add_widget">
+<span class="sig-name descname"><span class="pre">add_widget</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">widget</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/layout.html#ControlColumn.add_widget"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.layout.ControlColumn.add_widget" title="Link to this definition"></a></dt>
+<dd><p>A panel that brings its own height - a group box, a readout.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.layout.ControlColumn.apply_metrics">
+<span class="sig-name descname"><span class="pre">apply_metrics</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/layout.html#ControlColumn.apply_metrics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.layout.ControlColumn.apply_metrics" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="daplis_rtp.gui.layout.ElidedLabel">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">daplis_rtp.gui.layout.</span></span><span class="sig-name descname"><span class="pre">ElidedLabel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/layout.html#ElidedLabel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.layout.ElidedLabel" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">QLabel</span></code></p>
+<p>A one-line label that shortens itself rather than widening the window.</p>
+<p>A plain <code class="docutils literal notranslate"><span class="pre">QLabel</span></code> reports a minimum width equal to the whole of its
+text, and a layout never goes below that - so the sentence of
+guidance across the top of each tab set the narrowest the whole
+application could be made, at well over 2000 px. This one reports
+almost no minimum and paints an ellipsis instead, keeping the full
+text in its tooltip so nothing is actually lost.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.layout.ElidedLabel.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/layout.html#ElidedLabel.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.layout.ElidedLabel.__init__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.layout.ElidedLabel.minimumSizeHint">
+<span class="sig-name descname"><span class="pre">minimumSizeHint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">QSize</span></span></span><a class="reference internal" href="_modules/daplis_rtp/gui/layout.html#ElidedLabel.minimumSizeHint"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.layout.ElidedLabel.minimumSizeHint" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.layout.ElidedLabel.paintEvent">
+<span class="sig-name descname"><span class="pre">paintEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a0</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">QPaintEvent</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/layout.html#ElidedLabel.paintEvent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.layout.ElidedLabel.paintEvent" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.layout.ElidedLabel.setText">
+<span class="sig-name descname"><span class="pre">setText</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a0</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/layout.html#ElidedLabel.setText"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.layout.ElidedLabel.setText" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="daplis_rtp.gui.layout.TabShell">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">daplis_rtp.gui.layout.</span></span><span class="sig-name descname"><span class="pre">TabShell</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/layout.html#TabShell"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.layout.TabShell" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">QWidget</span></code></p>
+<p>The skeleton every tab is built in.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">+------------------------------------------------------------+</span>
+<span class="o">|</span> <span class="n">hint</span>                                                       <span class="o">|</span>
+<span class="o">+-------------------------------------------+----------------+</span>
+<span class="o">|</span> <span class="n">header</span> <span class="n">row</span> <span class="mi">0</span>                              <span class="o">|</span>                <span class="o">|</span>
+<span class="o">|</span> <span class="n">header</span> <span class="n">row</span> <span class="mi">1</span>                              <span class="o">|</span>  <span class="n">control</span>       <span class="o">|</span>
+<span class="o">|</span>                                           <span class="o">|</span>  <span class="n">column</span>        <span class="o">|</span>
+<span class="o">|</span>            <span class="n">canvas</span> <span class="n">area</span>                    <span class="o">|</span>  <span class="p">(</span><span class="n">scrolls</span><span class="p">)</span>     <span class="o">|</span>
+<span class="o">|</span>                                           <span class="o">|</span>                <span class="o">|</span>
+<span class="o">|</span> <span class="n">footer</span> <span class="n">row</span>                                <span class="o">+----------------+</span>
+<span class="o">|</span>                                           <span class="o">|</span>  <span class="n">action</span> <span class="n">bar</span>    <span class="o">|</span>
+<span class="o">+-------------------------------------------+----------------+</span>
+</pre></div>
+</div>
+<p>Every one of those slots is the same height and width on all five
+tabs, whether or not the tab has anything to put in it. A tab that
+leaves the second header row empty still starts its plot at the
+same y as the tab that fills it.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.layout.TabShell.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/layout.html#TabShell.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.layout.TabShell.__init__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.layout.TabShell.add_canvas_strip">
+<span class="sig-name descname"><span class="pre">add_canvas_strip</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">widget</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/layout.html#TabShell.add_canvas_strip"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.layout.TabShell.add_canvas_strip" title="Link to this definition"></a></dt>
+<dd><p>A row of controls across the top of the plot, on this tab only.</p>
+<p>Inside the canvas area rather than a third header row, so the
+area itself stays the same rectangle on every tab: the row is
+taken out of this tab’s plot, and the tabs without one keep the
+height.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.layout.TabShell.apply_metrics">
+<span class="sig-name descname"><span class="pre">apply_metrics</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/layout.html#TabShell.apply_metrics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.layout.TabShell.apply_metrics" title="Link to this definition"></a></dt>
+<dd><p>Re-apply every font-dependent size.</p>
+<p>Connected to the theme, so that changing the interface font in
+Preferences moves the rows rather than clipping their contents.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="daplis_rtp.gui.layout.TabShell.canvas_area">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">canvas_area</span></span><a class="headerlink" href="#daplis_rtp.gui.layout.TabShell.canvas_area" title="Link to this definition"></a></dt>
+<dd><p>The rectangle the plot occupies.</p>
+<p>Exposed so that <code class="docutils literal notranslate"><span class="pre">tests/test_tab_geometry.py</span></code> can assert it is
+the same rectangle on all five tabs, which is the one property
+of this module the eye actually notices.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.layout.TabShell.footer_row">
+<span class="sig-name descname"><span class="pre">footer_row</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/layout.html#TabShell.footer_row"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.layout.TabShell.footer_row" title="Link to this definition"></a></dt>
+<dd><p>The horizontal box of the row under the plot.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.layout.TabShell.header_row">
+<span class="sig-name descname"><span class="pre">header_row</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/layout.html#TabShell.header_row"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.layout.TabShell.header_row" title="Link to this definition"></a></dt>
+<dd><p>The horizontal box of header row <code class="docutils literal notranslate"><span class="pre">index</span></code> (0 or 1).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.layout.TabShell.set_canvas">
+<span class="sig-name descname"><span class="pre">set_canvas</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">widget</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/layout.html#TabShell.set_canvas"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.layout.TabShell.set_canvas" title="Link to this definition"></a></dt>
+<dd><p>Put the plot - or, on the Synchronization tab, the log - in.</p>
+<p>Named for the plot because that is what it holds on four tabs
+out of five, and because the point of the shell is that the
+fifth occupies exactly the same rectangle.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.layout.TabShell.set_hint">
+<span class="sig-name descname"><span class="pre">set_hint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/layout.html#TabShell.set_hint"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.layout.TabShell.set_hint" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="daplis_rtp.gui.layout.action_height">
+<span class="sig-prename descclassname"><span class="pre">daplis_rtp.gui.layout.</span></span><span class="sig-name descname"><span class="pre">action_height</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/layout.html#action_height"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.layout.action_height" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="daplis_rtp.gui.layout.allow_shrink">
+<span class="sig-prename descclassname"><span class="pre">daplis_rtp.gui.layout.</span></span><span class="sig-name descname"><span class="pre">allow_shrink</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">widget</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/layout.html#allow_shrink"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.layout.allow_shrink" title="Link to this definition"></a></dt>
+<dd><p>Let a widget be squeezed below the width of its own contents.</p>
+<p>A row of readings, or a status line, must not be what decides how
+narrow the window can be made: the plot is the thing being sized,
+and a reading that is clipped at 1300 px is a smaller loss than a
+window that cannot be made narrower than 1600. Qt’s <code class="docutils literal notranslate"><span class="pre">Ignored</span></code>
+policy is exactly this - the layout stops counting the widget’s
+minimum, and it takes whatever space is left.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="daplis_rtp.gui.layout.control_box_width">
+<span class="sig-prename descclassname"><span class="pre">daplis_rtp.gui.layout.</span></span><span class="sig-name descname"><span class="pre">control_box_width</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/layout.html#control_box_width"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.layout.control_box_width" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="daplis_rtp.gui.layout.control_column_width">
+<span class="sig-prename descclassname"><span class="pre">daplis_rtp.gui.layout.</span></span><span class="sig-name descname"><span class="pre">control_column_width</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/layout.html#control_column_width"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.layout.control_column_width" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="daplis_rtp.gui.layout.control_content_width">
+<span class="sig-prename descclassname"><span class="pre">daplis_rtp.gui.layout.</span></span><span class="sig-name descname"><span class="pre">control_content_width</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/layout.html#control_content_width"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.layout.control_content_width" title="Link to this definition"></a></dt>
+<dd><p>The column’s width less the room kept for its scroll bar.</p>
+<p>Everything in the column - the rows, the panels, the action buttons
+- is laid out to this, so that the contents sit in the same place
+on a tab whose column scrolls and one whose column does not.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="daplis_rtp.gui.layout.fixed_row">
+<span class="sig-prename descclassname"><span class="pre">daplis_rtp.gui.layout.</span></span><span class="sig-name descname"><span class="pre">fixed_row</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/layout.html#fixed_row"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.layout.fixed_row" title="Link to this definition"></a></dt>
+<dd><p>A widget of exactly one row’s height, holding a horizontal box.</p>
+<p>Used for the rows above and below the plot. Fixed rather than
+minimum, so that a tab which leaves one empty still starts its plot
+at the same height as the tab beside it.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="daplis_rtp.gui.layout.hint_height">
+<span class="sig-prename descclassname"><span class="pre">daplis_rtp.gui.layout.</span></span><span class="sig-name descname"><span class="pre">hint_height</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/layout.html#hint_height"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.layout.hint_height" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="daplis_rtp.gui.layout.label">
+<span class="sig-prename descclassname"><span class="pre">daplis_rtp.gui.layout.</span></span><span class="sig-name descname"><span class="pre">label</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">object_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/layout.html#label"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.layout.label" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="daplis_rtp.gui.layout.led">
+<span class="sig-prename descclassname"><span class="pre">daplis_rtp.gui.layout.</span></span><span class="sig-name descname"><span class="pre">led</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/layout.html#led"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.layout.led" title="Link to this definition"></a></dt>
+<dd><p>The round status lamp used by the panels and the sync tab.</p>
+<p>Its colour comes from the <code class="docutils literal notranslate"><span class="pre">ledState</span></code> property and the stylesheet
+rather than from a per-widget palette, so it follows the theme.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="daplis_rtp.gui.layout.row_height">
+<span class="sig-prename descclassname"><span class="pre">daplis_rtp.gui.layout.</span></span><span class="sig-name descname"><span class="pre">row_height</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/layout.html#row_height"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.layout.row_height" title="Link to this definition"></a></dt>
+<dd><p>One control row, never shorter than the text it has to hold.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="daplis_rtp.gui.layout.scale">
+<span class="sig-prename descclassname"><span class="pre">daplis_rtp.gui.layout.</span></span><span class="sig-name descname"><span class="pre">scale</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/layout.html#scale"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.layout.scale" title="Link to this definition"></a></dt>
+<dd><p>How far the interface font is from the size the numbers assume.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="daplis_rtp.gui.layout.set_led">
+<span class="sig-prename descclassname"><span class="pre">daplis_rtp.gui.layout.</span></span><span class="sig-name descname"><span class="pre">set_led</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lamp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">state</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/layout.html#set_led"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.layout.set_led" title="Link to this definition"></a></dt>
+<dd><p>Re-colour a lamp: ‘idle’, ‘ok’, ‘warn’ or ‘error’.</p>
+<p>The property alone changes nothing on screen - Qt only re-reads the
+stylesheet when told to - so the widget is unpolished and polished
+again, which is the documented way of doing this.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="daplis_rtp.gui.layout.size_like_ui_tabs">
+<span class="sig-prename descclassname"><span class="pre">daplis_rtp.gui.layout.</span></span><span class="sig-name descname"><span class="pre">size_like_ui_tabs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">widget</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/layout.html#size_like_ui_tabs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.layout.size_like_ui_tabs" title="Link to this definition"></a></dt>
+<dd><p>Give one control the width and height every other control has.</p>
+<p>Named after what it was for: the two hand-built tabs had to be made
+to agree with the three generated ones. Now it is the only way any
+of them is sized.</p>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="daplis_rtp.gui.app_icon.html" class="btn btn-neutral float-left" title="daplis_rtp.gui.app_icon module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="daplis_rtp.gui.main_window.html" class="btn btn-neutral float-right" title="daplis_rtp.gui.main_window module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Sergei Kulkov.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

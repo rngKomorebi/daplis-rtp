@@ -1,0 +1,501 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>daplis_rtp.gui.preferences &mdash; Data Analysis Package for LinoSPAD2 - Real-Time Plotting 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Data Analysis Package for LinoSPAD2 - Real-Time Plotting
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation and usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../daplis_rtp.gui.html">daplis_rtp.gui package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../daplis_rtp.functions.html">daplis_rtp.functions package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contribute.html">How to contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../license.html">License and contact info</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../acknowledgement.html">Acknowledgement</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Data Analysis Package for LinoSPAD2 - Real-Time Plotting</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">daplis_rtp.gui.preferences</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for daplis_rtp.gui.preferences</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""The Preferences window: pick a theme, or build one.</span>
+
+<span class="sd">Deliberately not modal. Every change is applied the moment it is made,</span>
+<span class="sd">to the window and to every plot already drawn, so the way to choose a</span>
+<span class="sd">colour is to put this window beside the plot and watch the plot change.</span>
+<span class="sd">A modal dialog with an "Apply" button would mean choosing colours from</span>
+<span class="sd">memory.</span>
+
+<span class="sd">Nothing here computes a look. It reads and writes</span>
+<span class="sd">:class:`~daplis_rtp.gui.theme.ThemeManager`, which is what everything</span>
+<span class="sd">else reads too.</span>
+
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">PyQt5</span><span class="w"> </span><span class="kn">import</span> <span class="n">QtCore</span><span class="p">,</span> <span class="n">QtGui</span><span class="p">,</span> <span class="n">QtWidgets</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">daplis_rtp.gui.layout</span><span class="w"> </span><span class="kn">import</span> <span class="n">MARGIN</span><span class="p">,</span> <span class="n">SPACING</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">daplis_rtp.gui.theme</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">N_SERIES</span><span class="p">,</span>
+    <span class="n">PLOT_FONT_RANGE</span><span class="p">,</span>
+    <span class="n">UI_FONT_RANGE</span><span class="p">,</span>
+    <span class="n">preset_names</span><span class="p">,</span>
+    <span class="n">theme_manager</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># The theme fields offered as colour pickers, as (field, caption, tip).</span>
+<span class="n">INTERFACE_COLOURS</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="p">(</span>
+        <span class="s2">"accent"</span><span class="p">,</span>
+        <span class="s2">"Accent"</span><span class="p">,</span>
+        <span class="s2">"The selected tab, the group-box titles, and the outline round "</span>
+        <span class="s2">"the button each tab is really for."</span><span class="p">,</span>
+    <span class="p">),</span>
+<span class="p">)</span>
+
+<span class="n">PLOT_COLOURS</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="p">(</span><span class="s2">"figure_bg"</span><span class="p">,</span> <span class="s2">"Figure background"</span><span class="p">,</span> <span class="s2">"Behind the axes, and the margin."</span><span class="p">),</span>
+    <span class="p">(</span>
+        <span class="s2">"axes_bg"</span><span class="p">,</span>
+        <span class="s2">"Plot background"</span><span class="p">,</span>
+        <span class="s2">"Inside the axes. Setting it apart from the figure background "</span>
+        <span class="s2">"frames the data; setting it the same keeps the plot flat."</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="p">(</span>
+        <span class="s2">"axes_fg"</span><span class="p">,</span>
+        <span class="s2">"Ticks and labels"</span><span class="p">,</span>
+        <span class="s2">"Everything on the axes that is read as text."</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="p">(</span>
+        <span class="s2">"axes_edge"</span><span class="p">,</span>
+        <span class="s2">"Axes frame"</span><span class="p">,</span>
+        <span class="s2">"The box around the data. Set it to the same colour as the "</span>
+        <span class="s2">"ticks and labels for a plot with one axis colour; a dimmer "</span>
+        <span class="s2">"frame under brighter text puts the emphasis on the numbers."</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="p">(</span><span class="s2">"grid"</span><span class="p">,</span> <span class="s2">"Grid"</span><span class="p">,</span> <span class="s2">"The grid lines, when the grid is switched on."</span><span class="p">),</span>
+    <span class="p">(</span>
+        <span class="s2">"marker"</span><span class="p">,</span>
+        <span class="s2">"Markers"</span><span class="p">,</span>
+        <span class="s2">"The line marking the seam between the two sensor halves, and "</span>
+        <span class="s2">"the group-of-64 lines."</span><span class="p">,</span>
+    <span class="p">),</span>
+<span class="p">)</span>
+
+<span class="c1"># Width of the colour buttons, and of the two spin boxes beside them.</span>
+<span class="c1"># One number, so that the left edge of every field in the window lines</span>
+<span class="c1"># up with the one above it.</span>
+<span class="n">FIELD_WIDTH</span> <span class="o">=</span> <span class="mi">84</span>
+
+<span class="c1"># What each series colour is actually used for, so that picking one is</span>
+<span class="c1"># not guesswork.</span>
+<span class="n">SERIES_USE</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">"Sensor population, and the first MZI pixel"</span><span class="p">,</span>
+    <span class="s2">"The second MZI pixel"</span><span class="p">,</span>
+    <span class="s2">"The single-pixel histogram"</span><span class="p">,</span>
+    <span class="s2">"Spare"</span><span class="p">,</span>
+    <span class="s2">"Spare"</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_readable_on</span><span class="p">(</span><span class="n">colour</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Black or white, whichever can be read on ``colour``.</span>
+
+<span class="sd">    The picker buttons carry their own hex code as a label, and a light</span>
+<span class="sd">    grey code on a light grey button is no label at all.</span>
+
+<span class="sd">    """</span>
+    <span class="n">shade</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QColor</span><span class="p">(</span><span class="n">colour</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">shade</span><span class="o">.</span><span class="n">isValid</span><span class="p">():</span>
+        <span class="k">return</span> <span class="s2">"#000000"</span>
+    <span class="c1"># Rec. 601 luma: the eye weights green far above blue, so a plain</span>
+    <span class="c1"># mean of the channels calls yellow dark and blue light.</span>
+    <span class="n">luma</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="mf">0.299</span> <span class="o">*</span> <span class="n">shade</span><span class="o">.</span><span class="n">red</span><span class="p">()</span> <span class="o">+</span> <span class="mf">0.587</span> <span class="o">*</span> <span class="n">shade</span><span class="o">.</span><span class="n">green</span><span class="p">()</span> <span class="o">+</span> <span class="mf">0.114</span> <span class="o">*</span> <span class="n">shade</span><span class="o">.</span><span class="n">blue</span><span class="p">()</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="s2">"#000000"</span> <span class="k">if</span> <span class="n">luma</span> <span class="o">&gt;</span> <span class="mi">140</span> <span class="k">else</span> <span class="s2">"#ffffff"</span>
+
+
+<div class="viewcode-block" id="ColourButton">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.preferences.html#daplis_rtp.gui.preferences.ColourButton">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ColourButton</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QPushButton</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""A button that is the colour it stands for, and opens a picker."""</span>
+
+    <span class="n">picked</span> <span class="o">=</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">pyqtSignal</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ColourButton.__init__">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.preferences.html#daplis_rtp.gui.preferences.ColourButton.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">colour</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">"Choose a colour"</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_title</span> <span class="o">=</span> <span class="n">title</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_colour</span> <span class="o">=</span> <span class="n">colour</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setFixedWidth</span><span class="p">(</span><span class="n">FIELD_WIDTH</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setCursor</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">PointingHandCursor</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_colour</span><span class="p">(</span><span class="n">colour</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_choose</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ColourButton.set_colour">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.preferences.html#daplis_rtp.gui.preferences.ColourButton.set_colour">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_colour</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">colour</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_colour</span> <span class="o">=</span> <span class="n">colour</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">colour</span><span class="p">)</span>
+        <span class="c1"># An instance stylesheet beats the application one for this</span>
+        <span class="c1"># widget, which is what keeps qdarkstyle from painting over it.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setStyleSheet</span><span class="p">(</span>
+            <span class="s2">"QPushButton {{"</span>
+            <span class="s2">" background-color: </span><span class="si">{}</span><span class="s2">; color: </span><span class="si">{}</span><span class="s2">;"</span>
+            <span class="s2">" border: 1px solid #7a7a7a; padding: 3px;"</span>
+            <span class="s2">"}}"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">colour</span><span class="p">,</span> <span class="n">_readable_on</span><span class="p">(</span><span class="n">colour</span><span class="p">))</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ColourButton.colour">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.preferences.html#daplis_rtp.gui.preferences.ColourButton.colour">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">colour</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_colour</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_choose</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">chosen</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QColorDialog</span><span class="o">.</span><span class="n">getColor</span><span class="p">(</span>
+            <span class="n">QtGui</span><span class="o">.</span><span class="n">QColor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_colour</span><span class="p">),</span> <span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_title</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">chosen</span><span class="o">.</span><span class="n">isValid</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_colour</span><span class="p">(</span><span class="n">chosen</span><span class="o">.</span><span class="n">name</span><span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">picked</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">chosen</span><span class="o">.</span><span class="n">name</span><span class="p">())</span></div>
+
+
+
+<div class="viewcode-block" id="PreferencesDialog">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.preferences.html#daplis_rtp.gui.preferences.PreferencesDialog">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">PreferencesDialog</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QDialog</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Theme, colours and font sizes, applied as they are chosen."""</span>
+
+<div class="viewcode-block" id="PreferencesDialog.__init__">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.preferences.html#daplis_rtp.gui.preferences.PreferencesDialog.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setWindowTitle</span><span class="p">(</span><span class="s2">"Preferences"</span><span class="p">)</span>
+        <span class="c1"># A window of its own rather than a sheet over the tab, so it</span>
+        <span class="c1"># can be put beside the plot it is being used to colour.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setWindowFlags</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">Window</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setModal</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span> <span class="o">=</span> <span class="n">theme_manager</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_colour_buttons</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_series_buttons</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1"># Set while the widgets are being written to from the theme, so</span>
+        <span class="c1"># that doing so does not read back as the user changing them.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_loading</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_build_ui</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reload</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="o">.</span><span class="n">changed</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reload</span><span class="p">)</span></div>
+
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="c1"># Construction</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_build_ui</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">outer</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QVBoxLayout</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">outer</span><span class="o">.</span><span class="n">setContentsMargins</span><span class="p">(</span><span class="n">MARGIN</span><span class="p">,</span> <span class="n">MARGIN</span><span class="p">,</span> <span class="n">MARGIN</span><span class="p">,</span> <span class="n">MARGIN</span><span class="p">)</span>
+        <span class="n">outer</span><span class="o">.</span><span class="n">setSpacing</span><span class="p">(</span><span class="n">SPACING</span><span class="p">)</span>
+
+        <span class="n">preset_row</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QHBoxLayout</span><span class="p">()</span>
+        <span class="n">preset_row</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QLabel</span><span class="p">(</span><span class="s2">"Theme"</span><span class="p">,</span> <span class="bp">self</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">comboBox_preset</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QComboBox</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">preset_names</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">comboBox_preset</span><span class="o">.</span><span class="n">addItem</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">comboBox_preset</span><span class="o">.</span><span class="n">setToolTip</span><span class="p">(</span>
+            <span class="s2">"A starting point. Any colour below can be changed "</span>
+            <span class="s2">"afterwards; picking a preset again clears those changes."</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">comboBox_preset</span><span class="o">.</span><span class="n">activated</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_preset_chosen</span><span class="p">)</span>
+        <span class="n">preset_row</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">comboBox_preset</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">outer</span><span class="o">.</span><span class="n">addLayout</span><span class="p">(</span><span class="n">preset_row</span><span class="p">)</span>
+
+        <span class="n">outer</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_interface_box</span><span class="p">())</span>
+        <span class="n">outer</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_plot_box</span><span class="p">())</span>
+        <span class="n">outer</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_series_box</span><span class="p">())</span>
+
+        <span class="n">outer</span><span class="o">.</span><span class="n">addStretch</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">buttons</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QHBoxLayout</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_reset</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QPushButton</span><span class="p">(</span>
+            <span class="s2">"Reset to defaults"</span><span class="p">,</span> <span class="bp">self</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_reset</span><span class="o">.</span><span class="n">setToolTip</span><span class="p">(</span>
+            <span class="s2">"Back to the shipped theme and font sizes, throwing away "</span>
+            <span class="s2">"every change made here."</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_reset</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_reset</span><span class="p">)</span>
+        <span class="n">buttons</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pushButton_reset</span><span class="p">)</span>
+        <span class="n">buttons</span><span class="o">.</span><span class="n">addStretch</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">close</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QPushButton</span><span class="p">(</span><span class="s2">"Close"</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="n">close</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hide</span><span class="p">)</span>
+        <span class="n">buttons</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">close</span><span class="p">)</span>
+        <span class="n">outer</span><span class="o">.</span><span class="n">addLayout</span><span class="p">(</span><span class="n">buttons</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_interface_box</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">box</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QGroupBox</span><span class="p">(</span><span class="s2">"Interface"</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="n">form</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QFormLayout</span><span class="p">(</span><span class="n">box</span><span class="p">)</span>
+        <span class="n">form</span><span class="o">.</span><span class="n">setSpacing</span><span class="p">(</span><span class="n">SPACING</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">field</span><span class="p">,</span> <span class="n">caption</span><span class="p">,</span> <span class="n">tip</span> <span class="ow">in</span> <span class="n">INTERFACE_COLOURS</span><span class="p">:</span>
+            <span class="n">form</span><span class="o">.</span><span class="n">addRow</span><span class="p">(</span><span class="n">caption</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_colour_row</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">caption</span><span class="p">,</span> <span class="n">tip</span><span class="p">,</span> <span class="n">box</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">spinBox_uiFont</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QSpinBox</span><span class="p">(</span><span class="n">box</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spinBox_uiFont</span><span class="o">.</span><span class="n">setRange</span><span class="p">(</span><span class="o">*</span><span class="n">UI_FONT_RANGE</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spinBox_uiFont</span><span class="o">.</span><span class="n">setSuffix</span><span class="p">(</span><span class="s2">" pt"</span><span class="p">)</span>
+        <span class="c1"># Held to the width of the colour buttons above it. A form</span>
+        <span class="c1"># layout gives its field the whole row otherwise, and a spin box</span>
+        <span class="c1"># holding two digits stretched across 400 px looks like a</span>
+        <span class="c1"># mistake.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spinBox_uiFont</span><span class="o">.</span><span class="n">setFixedWidth</span><span class="p">(</span><span class="n">FIELD_WIDTH</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spinBox_uiFont</span><span class="o">.</span><span class="n">setToolTip</span><span class="p">(</span>
+            <span class="s2">"Size of the text in the window. The rows, the control "</span>
+            <span class="s2">"column and the buttons are measured from it, so they grow "</span>
+            <span class="s2">"with it rather than clipping."</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spinBox_uiFont</span><span class="o">.</span><span class="n">valueChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ui_font_changed</span><span class="p">)</span>
+        <span class="n">form</span><span class="o">.</span><span class="n">addRow</span><span class="p">(</span><span class="s2">"Font size"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">spinBox_uiFont</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">box</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_plot_box</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">box</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QGroupBox</span><span class="p">(</span><span class="s2">"Plots"</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="n">form</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QFormLayout</span><span class="p">(</span><span class="n">box</span><span class="p">)</span>
+        <span class="n">form</span><span class="o">.</span><span class="n">setSpacing</span><span class="p">(</span><span class="n">SPACING</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">field</span><span class="p">,</span> <span class="n">caption</span><span class="p">,</span> <span class="n">tip</span> <span class="ow">in</span> <span class="n">PLOT_COLOURS</span><span class="p">:</span>
+            <span class="n">form</span><span class="o">.</span><span class="n">addRow</span><span class="p">(</span><span class="n">caption</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_colour_row</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">caption</span><span class="p">,</span> <span class="n">tip</span><span class="p">,</span> <span class="n">box</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">spinBox_plotFont</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QSpinBox</span><span class="p">(</span><span class="n">box</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spinBox_plotFont</span><span class="o">.</span><span class="n">setRange</span><span class="p">(</span><span class="o">*</span><span class="n">PLOT_FONT_RANGE</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spinBox_plotFont</span><span class="o">.</span><span class="n">setSuffix</span><span class="p">(</span><span class="s2">" pt"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spinBox_plotFont</span><span class="o">.</span><span class="n">setFixedWidth</span><span class="p">(</span><span class="n">FIELD_WIDTH</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spinBox_plotFont</span><span class="o">.</span><span class="n">setToolTip</span><span class="p">(</span>
+            <span class="s2">"Size of the axis labels on a small window. The plots grow "</span>
+            <span class="s2">"it from here as the window widens."</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spinBox_plotFont</span><span class="o">.</span><span class="n">valueChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_plot_font_changed</span><span class="p">)</span>
+        <span class="n">form</span><span class="o">.</span><span class="n">addRow</span><span class="p">(</span><span class="s2">"Font size"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">spinBox_plotFont</span><span class="p">)</span>
+
+        <span class="n">switches</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QHBoxLayout</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">checkBox_glow</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QCheckBox</span><span class="p">(</span><span class="s2">"Glow"</span><span class="p">,</span> <span class="n">box</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">checkBox_glow</span><span class="o">.</span><span class="n">setToolTip</span><span class="p">(</span>
+            <span class="s2">"The glow under the traces. Good-looking and not free: each "</span>
+            <span class="s2">"line is drawn several times over, which is felt on a "</span>
+            <span class="s2">"stream refreshing as fast as the files arrive."</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">checkBox_glow</span><span class="o">.</span><span class="n">toggled</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">on</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_override</span><span class="p">(</span><span class="s2">"glow"</span><span class="p">,</span> <span class="n">on</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">switches</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">checkBox_glow</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">checkBox_grid</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QCheckBox</span><span class="p">(</span><span class="s2">"Grid"</span><span class="p">,</span> <span class="n">box</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">checkBox_grid</span><span class="o">.</span><span class="n">setToolTip</span><span class="p">(</span>
+            <span class="s2">"Grid lines behind the data, in the grid colour above."</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">checkBox_grid</span><span class="o">.</span><span class="n">toggled</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">on</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_override</span><span class="p">(</span><span class="s2">"grid_on"</span><span class="p">,</span> <span class="n">on</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">switches</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">checkBox_grid</span><span class="p">)</span>
+        <span class="n">switches</span><span class="o">.</span><span class="n">addStretch</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">form</span><span class="o">.</span><span class="n">addRow</span><span class="p">(</span><span class="s2">""</span><span class="p">,</span> <span class="n">switches</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">box</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_series_box</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">box</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QGroupBox</span><span class="p">(</span><span class="s2">"Trace colours"</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="n">form</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QFormLayout</span><span class="p">(</span><span class="n">box</span><span class="p">)</span>
+        <span class="n">form</span><span class="o">.</span><span class="n">setSpacing</span><span class="p">(</span><span class="n">SPACING</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N_SERIES</span><span class="p">):</span>
+            <span class="n">button</span> <span class="o">=</span> <span class="n">ColourButton</span><span class="p">(</span>
+                <span class="s2">"#000000"</span><span class="p">,</span> <span class="n">box</span><span class="p">,</span> <span class="s2">"Trace </span><span class="si">{}</span><span class="s2"> colour"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">button</span><span class="o">.</span><span class="n">setToolTip</span><span class="p">(</span><span class="n">SERIES_USE</span><span class="p">[</span><span class="n">index</span><span class="p">])</span>
+            <span class="n">button</span><span class="o">.</span><span class="n">picked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
+                <span class="k">lambda</span> <span class="n">colour</span><span class="p">,</span> <span class="n">i</span><span class="o">=</span><span class="n">index</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_series_picked</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">colour</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_series_buttons</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">button</span><span class="p">)</span>
+            <span class="n">row</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QHBoxLayout</span><span class="p">()</span>
+            <span class="n">row</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">button</span><span class="p">)</span>
+            <span class="n">caption</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QLabel</span><span class="p">(</span><span class="n">SERIES_USE</span><span class="p">[</span><span class="n">index</span><span class="p">],</span> <span class="n">box</span><span class="p">)</span>
+            <span class="n">caption</span><span class="o">.</span><span class="n">setObjectName</span><span class="p">(</span><span class="s2">"tabHint"</span><span class="p">)</span>
+            <span class="n">row</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">caption</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">holder</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QWidget</span><span class="p">(</span><span class="n">box</span><span class="p">)</span>
+            <span class="n">holder</span><span class="o">.</span><span class="n">setLayout</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+            <span class="n">row</span><span class="o">.</span><span class="n">setContentsMargins</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="n">form</span><span class="o">.</span><span class="n">addRow</span><span class="p">(</span><span class="s2">"Trace </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="n">holder</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">box</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_colour_row</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">caption</span><span class="p">,</span> <span class="n">tip</span><span class="p">,</span> <span class="n">parent</span><span class="p">):</span>
+        <span class="n">button</span> <span class="o">=</span> <span class="n">ColourButton</span><span class="p">(</span>
+            <span class="s2">"#000000"</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="s2">"</span><span class="si">{}</span><span class="s2"> colour"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">caption</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">button</span><span class="o">.</span><span class="n">setToolTip</span><span class="p">(</span><span class="n">tip</span><span class="p">)</span>
+        <span class="n">button</span><span class="o">.</span><span class="n">picked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">colour</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">field</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_override</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">colour</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_colour_buttons</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="n">button</span>
+        <span class="k">return</span> <span class="n">button</span>
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="c1"># Reading the theme back into the widgets</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+
+<div class="viewcode-block" id="PreferencesDialog.reload">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.preferences.html#daplis_rtp.gui.preferences.PreferencesDialog.reload">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">reload</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Show what the theme currently says.</span>
+
+<span class="sd">        Connected to the theme as well as called at build time, so that</span>
+<span class="sd">        a reset - or a preset chosen while this window is open - moves</span>
+<span class="sd">        the controls rather than leaving them showing the old values.</span>
+
+<span class="sd">        """</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_loading</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">theme</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="o">.</span><span class="n">theme</span>
+            <span class="n">index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comboBox_preset</span><span class="o">.</span><span class="n">findData</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="o">.</span><span class="n">preset_key</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">index</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">comboBox_preset</span><span class="o">.</span><span class="n">setCurrentIndex</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">field</span><span class="p">,</span> <span class="n">button</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_colour_buttons</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">button</span><span class="o">.</span><span class="n">set_colour</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">theme</span><span class="p">,</span> <span class="n">field</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">button</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_series_buttons</span><span class="p">):</span>
+                <span class="n">button</span><span class="o">.</span><span class="n">set_colour</span><span class="p">(</span><span class="n">theme</span><span class="o">.</span><span class="n">colour</span><span class="p">(</span><span class="n">index</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">spinBox_uiFont</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="o">.</span><span class="n">ui_font_size</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">spinBox_plotFont</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="o">.</span><span class="n">plot_font_size</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">checkBox_glow</span><span class="o">.</span><span class="n">setChecked</span><span class="p">(</span><span class="n">theme</span><span class="o">.</span><span class="n">glow</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">checkBox_grid</span><span class="o">.</span><span class="n">setChecked</span><span class="p">(</span><span class="n">theme</span><span class="o">.</span><span class="n">grid_on</span><span class="p">)</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_loading</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="c1"># Writing the widgets back into the theme</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_preset_chosen</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_loading</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="o">.</span><span class="n">set_preset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">comboBox_preset</span><span class="o">.</span><span class="n">itemData</span><span class="p">(</span><span class="n">index</span><span class="p">))</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_override</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_loading</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="o">.</span><span class="n">set_override</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_series_picked</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">colour</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_loading</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="o">.</span><span class="n">set_series_colour</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">colour</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_ui_font_changed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_loading</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="o">.</span><span class="n">set_ui_font_size</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_plot_font_changed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_loading</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="o">.</span><span class="n">set_plot_font_size</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+
+<div class="viewcode-block" id="PreferencesDialog.open_beside">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.preferences.html#daplis_rtp.gui.preferences.PreferencesDialog.open_beside">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">open_beside</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">raise_</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">activateWindow</span><span class="p">()</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Sergei Kulkov.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

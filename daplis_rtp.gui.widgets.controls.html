@@ -1,0 +1,327 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>daplis_rtp.gui.widgets.controls module &mdash; Data Analysis Package for LinoSPAD2 - Real-Time Plotting 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=8d563738"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="daplis_rtp.gui.widgets.file_sync module" href="daplis_rtp.gui.widgets.file_sync.html" />
+    <link rel="prev" title="daplis_rtp.gui.widgets package" href="daplis_rtp.gui.widgets.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Data Analysis Package for LinoSPAD2 - Real-Time Plotting
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation and usage</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="daplis_rtp.gui.html">daplis_rtp.gui package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="daplis_rtp.gui.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.canvas.html">daplis_rtp.gui.canvas package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.html">daplis_rtp.gui.tabs package</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="daplis_rtp.gui.widgets.html">daplis_rtp.gui.widgets package</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.BoardOccupancy"><code class="docutils literal notranslate"><span class="pre">BoardOccupancy</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.DirectoryPicker"><code class="docutils literal notranslate"><span class="pre">DirectoryPicker</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.FileSyncPanel"><code class="docutils literal notranslate"><span class="pre">FileSyncPanel</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.GaussianFitStrip"><code class="docutils literal notranslate"><span class="pre">GaussianFitStrip</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.LimitPair"><code class="docutils literal notranslate"><span class="pre">LimitPair</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.PeakStatsPanel"><code class="docutils literal notranslate"><span class="pre">PeakStatsPanel</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.PixelMaskWindow"><code class="docutils literal notranslate"><span class="pre">PixelMaskWindow</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.ReadoutStrip"><code class="docutils literal notranslate"><span class="pre">ReadoutStrip</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.TdcOccupancyPanel"><code class="docutils literal notranslate"><span class="pre">TdcOccupancyPanel</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.daughterboard_combo"><code class="docutils literal notranslate"><span class="pre">daughterboard_combo()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.describe_fit"><code class="docutils literal notranslate"><span class="pre">describe_fit()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.firmware_combo"><code class="docutils literal notranslate"><span class="pre">firmware_combo()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.fit_peaks"><code class="docutils literal notranslate"><span class="pre">fit_peaks()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.float_value"><code class="docutils literal notranslate"><span class="pre">float_value()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.info_badge"><code class="docutils literal notranslate"><span class="pre">info_badge()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.mask_summary"><code class="docutils literal notranslate"><span class="pre">mask_summary()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.masked_array"><code class="docutils literal notranslate"><span class="pre">masked_array()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.motherboard_combo"><code class="docutils literal notranslate"><span class="pre">motherboard_combo()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.peak_stats"><code class="docutils literal notranslate"><span class="pre">peak_stats()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.pixel_spin"><code class="docutils literal notranslate"><span class="pre">pixel_spin()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.pixels_of_interest"><code class="docutils literal notranslate"><span class="pre">pixels_of_interest()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.timestamps_spin"><code class="docutils literal notranslate"><span class="pre">timestamps_spin()</span></code></a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="daplis_rtp.gui.widgets.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.html#submodules">Submodules</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="daplis_rtp.functions.html">daplis_rtp.functions package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contribute.html">How to contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">License and contact info</a></li>
+<li class="toctree-l1"><a class="reference internal" href="acknowledgement.html">Acknowledgement</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Data Analysis Package for LinoSPAD2 - Real-Time Plotting</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="daplis_rtp.gui.html">daplis_rtp.gui package</a></li>
+          <li class="breadcrumb-item"><a href="daplis_rtp.gui.widgets.html">daplis_rtp.gui.widgets package</a></li>
+      <li class="breadcrumb-item active">daplis_rtp.gui.widgets.controls module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/daplis_rtp.gui.widgets.controls.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-daplis_rtp.gui.widgets.controls">
+<span id="daplis-rtp-gui-widgets-controls-module"></span><h1>daplis_rtp.gui.widgets.controls module<a class="headerlink" href="#module-daplis_rtp.gui.widgets.controls" title="Link to this heading"></a></h1>
+<p>The controls the tabs are made of, built once and used by all of them.</p>
+<p>Four tabs choose a daughterboard, a motherboard, a firmware version and
+a number of timestamps. Before this module each of them built those
+four itself, which is how the “Full Sensor” combo boxes came to be 80 px
+<code class="docutils literal notranslate"><span class="pre">Expanding</span></code> while everyone else’s were 100 px <code class="docutils literal notranslate"><span class="pre">Fixed</span></code>, and how one
+tab came to offer a motherboard the others did not. A control that
+exists once cannot drift.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.controls.DirectoryPicker">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">daplis_rtp.gui.widgets.controls.</span></span><span class="sig-name descname"><span class="pre">DirectoryPicker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">caption</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Data</span> <span class="pre">folder'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Select</span> <span class="pre">Directory'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tip</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/controls.html#DirectoryPicker"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.controls.DirectoryPicker" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">QWidget</span></code></p>
+<p>A caption, a path, and a Browse button - one header row’s worth.</p>
+<p>Every tab that reads data files has one of these, and on the full
+sensor tab there are two, which is why the shell reserves two header
+rows on every tab: the plot has to start at the same height whether
+a tab fills both or one.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.controls.DirectoryPicker.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">caption</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Data</span> <span class="pre">folder'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Select</span> <span class="pre">Directory'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tip</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/controls.html#DirectoryPicker.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.controls.DirectoryPicker.__init__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.controls.DirectoryPicker.changed">
+<span class="sig-name descname"><span class="pre">changed</span></span><a class="headerlink" href="#daplis_rtp.gui.widgets.controls.DirectoryPicker.changed" title="Link to this definition"></a></dt>
+<dd><p>str = …, revision: int = …, arguments: Sequence = …) -&gt; PYQT_SIGNAL</p>
+<p>types is normally a sequence of individual types.  Each type is either a
+type object or a string that is the name of a C++ type.  Alternatively
+each type could itself be a sequence of types each describing a different
+overloaded signal.
+name is the optional C++ name of the signal.  If it is not specified then
+the name of the class attribute that is bound to the signal is used.
+revision is the optional revision of the signal that is exported to QML.
+If it is not specified then 0 is used.
+arguments is the optional sequence of the names of the signal’s arguments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pyqtSignal(<a href="#id1"><span class="problematic" id="id2">*</span></a>types, name</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.controls.DirectoryPicker.path">
+<span class="sig-name descname"><span class="pre">path</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/controls.html#DirectoryPicker.path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.controls.DirectoryPicker.path" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.controls.DirectoryPicker.set_path">
+<span class="sig-name descname"><span class="pre">set_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/controls.html#DirectoryPicker.set_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.controls.DirectoryPicker.set_path" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.controls.LimitPair">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">daplis_rtp.gui.widgets.controls.</span></span><span class="sig-name descname"><span class="pre">LimitPair</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">caption</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'x</span> <span class="pre">limits'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maximum</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">255</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0,</span> <span class="pre">255)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tip</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/controls.html#LimitPair"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.controls.LimitPair" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">QWidget</span></code></p>
+<p>Two edges of one axis, side by side under the plot.</p>
+<p><code class="docutils literal notranslate"><span class="pre">spin</span></code> builds the integer pair the pixel axes use, where every
+value is a pixel and both edges always have one; the float pair is
+for the axes where an edge can simply be left to autoscale.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.controls.LimitPair.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">caption</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'x</span> <span class="pre">limits'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maximum</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">255</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0,</span> <span class="pre">255)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tip</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/controls.html#LimitPair.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.controls.LimitPair.__init__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.controls.LimitPair.changed">
+<span class="sig-name descname"><span class="pre">changed</span></span><a class="headerlink" href="#daplis_rtp.gui.widgets.controls.LimitPair.changed" title="Link to this definition"></a></dt>
+<dd><p>str = …, revision: int = …, arguments: Sequence = …) -&gt; PYQT_SIGNAL</p>
+<p>types is normally a sequence of individual types.  Each type is either a
+type object or a string that is the name of a C++ type.  Alternatively
+each type could itself be a sequence of types each describing a different
+overloaded signal.
+name is the optional C++ name of the signal.  If it is not specified then
+the name of the class attribute that is bound to the signal is used.
+revision is the optional revision of the signal that is exported to QML.
+If it is not specified then 0 is used.
+arguments is the optional sequence of the names of the signal’s arguments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pyqtSignal(<a href="#id3"><span class="problematic" id="id4">*</span></a>types, name</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.controls.LimitPair.values">
+<span class="sig-name descname"><span class="pre">values</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/controls.html#LimitPair.values"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.controls.LimitPair.values" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.controls.ReadoutStrip">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">daplis_rtp.gui.widgets.controls.</span></span><span class="sig-name descname"><span class="pre">ReadoutStrip</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/controls.html#ReadoutStrip"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.controls.ReadoutStrip" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">QWidget</span></code></p>
+<p>A row of ‘name: value’ readings, for the second header row.</p>
+<p>The tabs that need only one browse row put a reading here instead of
+leaving the row empty - which is how the top-most pixels came out of
+the control column, where they were costing every tab in the
+application a row of height.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.controls.ReadoutStrip.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/controls.html#ReadoutStrip.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.controls.ReadoutStrip.__init__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.controls.ReadoutStrip.add">
+<span class="sig-name descname"><span class="pre">add</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">caption</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'—'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tip</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/controls.html#ReadoutStrip.add"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.controls.ReadoutStrip.add" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.controls.ReadoutStrip.add_stretch">
+<span class="sig-name descname"><span class="pre">add_stretch</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/controls.html#ReadoutStrip.add_stretch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.controls.ReadoutStrip.add_stretch" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.controls.ReadoutStrip.set">
+<span class="sig-name descname"><span class="pre">set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/controls.html#ReadoutStrip.set"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.controls.ReadoutStrip.set" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.controls.daughterboard_combo">
+<span class="sig-prename descclassname"><span class="pre">daplis_rtp.gui.widgets.controls.</span></span><span class="sig-name descname"><span class="pre">daughterboard_combo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/controls.html#daughterboard_combo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.controls.daughterboard_combo" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.controls.firmware_combo">
+<span class="sig-prename descclassname"><span class="pre">daplis_rtp.gui.widgets.controls.</span></span><span class="sig-name descname"><span class="pre">firmware_combo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/controls.html#firmware_combo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.controls.firmware_combo" title="Link to this definition"></a></dt>
+<dd><p>Not editable: the unpacking only knows these two.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.controls.float_field">
+<span class="sig-prename descclassname"><span class="pre">daplis_rtp.gui.widgets.controls.</span></span><span class="sig-name descname"><span class="pre">float_field</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">placeholder</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'auto'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/controls.html#float_field"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.controls.float_field" title="Link to this definition"></a></dt>
+<dd><p>A field for one axis limit, or nothing at all.</p>
+<p>A line edit rather than a spin box because a spin box has no way to
+say “unset”, and an edge left unset is one that autoscales. Accepts
+‘-1.5’, ‘2e-3’, ‘10e3’; the range is deliberately the whole of
+float, since a photon rate and a stream length share no scale worth
+capping.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.controls.float_value">
+<span class="sig-prename descclassname"><span class="pre">daplis_rtp.gui.widgets.controls.</span></span><span class="sig-name descname"><span class="pre">float_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">field</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/controls.html#float_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.controls.float_value" title="Link to this definition"></a></dt>
+<dd><p>A field’s value as a float, or <code class="docutils literal notranslate"><span class="pre">None</span></code> when it is unset.</p>
+<p>A field left empty - or holding a fragment the validator tolerated
+while typing, such as a lone ‘-’ or ‘e’ - means that edge should
+autoscale rather than break the plot.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.controls.info_badge">
+<span class="sig-prename descclassname"><span class="pre">daplis_rtp.gui.widgets.controls.</span></span><span class="sig-name descname"><span class="pre">info_badge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tooltip</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/controls.html#info_badge"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.controls.info_badge" title="Link to this definition"></a></dt>
+<dd><p>The small boxed ‘i’ that carries an explanation beside a control.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.controls.motherboard_combo">
+<span class="sig-prename descclassname"><span class="pre">daplis_rtp.gui.widgets.controls.</span></span><span class="sig-name descname"><span class="pre">motherboard_combo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/controls.html#motherboard_combo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.controls.motherboard_combo" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.controls.pixel_spin">
+<span class="sig-prename descclassname"><span class="pre">daplis_rtp.gui.widgets.controls.</span></span><span class="sig-name descname"><span class="pre">pixel_spin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maximum</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">255</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/controls.html#pixel_spin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.controls.pixel_spin" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="daplis_rtp.gui.widgets.controls.timestamps_spin">
+<span class="sig-prename descclassname"><span class="pre">daplis_rtp.gui.widgets.controls.</span></span><span class="sig-name descname"><span class="pre">timestamps_spin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/widgets/controls.html#timestamps_spin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.widgets.controls.timestamps_spin" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="daplis_rtp.gui.widgets.html" class="btn btn-neutral float-left" title="daplis_rtp.gui.widgets package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="daplis_rtp.gui.widgets.file_sync.html" class="btn btn-neutral float-right" title="daplis_rtp.gui.widgets.file_sync module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Sergei Kulkov.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

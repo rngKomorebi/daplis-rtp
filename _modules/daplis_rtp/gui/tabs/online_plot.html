@@ -1,0 +1,695 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>daplis_rtp.gui.tabs.online_plot &mdash; Data Analysis Package for LinoSPAD2 - Real-Time Plotting 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            Data Analysis Package for LinoSPAD2 - Real-Time Plotting
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation and usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../daplis_rtp.gui.html">daplis_rtp.gui package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../daplis_rtp.functions.html">daplis_rtp.functions package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contribute.html">How to contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../license.html">License and contact info</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../acknowledgement.html">Acknowledgement</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">Data Analysis Package for LinoSPAD2 - Real-Time Plotting</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">daplis_rtp.gui.tabs.online_plot</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for daplis_rtp.gui.tabs.online_plot</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Online plot: sensor population of one board, refreshed as files land.</span>
+
+<span class="sd">The tab the application is mostly used through. A folder is chosen, the</span>
+<span class="sd">stream is started, and the plot follows the newest file in it - which is</span>
+<span class="sd">how the setup is aligned, since a change to the optics shows up on the</span>
+<span class="sd">plot within a file or two.</span>
+
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">PyQt5</span><span class="w"> </span><span class="kn">import</span> <span class="n">QtWidgets</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">daplis_rtp._compat</span><span class="w"> </span><span class="kn">import</span> <span class="n">files</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">daplis_rtp.functions.sen_pop</span><span class="w"> </span><span class="kn">import</span> <span class="n">sen_pop</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">daplis_rtp.functions.tdc_occupancy</span><span class="w"> </span><span class="kn">import</span> <span class="n">pixel_to_tdc_map</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">daplis_rtp.gui.canvas</span><span class="w"> </span><span class="kn">import</span> <span class="n">SensorCanvas</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">daplis_rtp.gui.tabs.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">PlotTab</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">daplis_rtp.gui.widgets</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">BoardOccupancy</span><span class="p">,</span>
+    <span class="n">DirectoryPicker</span><span class="p">,</span>
+    <span class="n">GaussianFitStrip</span><span class="p">,</span>
+    <span class="n">LimitPair</span><span class="p">,</span>
+    <span class="n">PeakStatsPanel</span><span class="p">,</span>
+    <span class="n">PixelMaskWindow</span><span class="p">,</span>
+    <span class="n">ReadoutStrip</span><span class="p">,</span>
+    <span class="n">TdcOccupancyPanel</span><span class="p">,</span>
+    <span class="n">daughterboard_combo</span><span class="p">,</span>
+    <span class="n">describe_fit</span><span class="p">,</span>
+    <span class="n">firmware_combo</span><span class="p">,</span>
+    <span class="n">fit_peaks</span><span class="p">,</span>
+    <span class="n">info_badge</span><span class="p">,</span>
+    <span class="n">mask_summary</span><span class="p">,</span>
+    <span class="n">masked_array</span><span class="p">,</span>
+    <span class="n">motherboard_combo</span><span class="p">,</span>
+    <span class="n">peak_stats</span><span class="p">,</span>
+    <span class="n">pixels_of_interest</span><span class="p">,</span>
+    <span class="n">timestamps_spin</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">N_PIXELS</span> <span class="o">=</span> <span class="mi">256</span>
+
+
+<div class="viewcode-block" id="LiveTimestamps">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.tabs.online_plot.html#daplis_rtp.gui.tabs.LiveTimestamps">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">LiveTimestamps</span><span class="p">(</span><span class="n">PlotTab</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Photon rate per pixel, for a single LinoSPAD2 board."""</span>
+
+    <span class="n">hint_text</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">"Photon rate per pixel, from the newest file in the folder. "</span>
+        <span class="s2">"Start the stream to follow it as files arrive; Ctrl+click a "</span>
+        <span class="s2">"pixel to mask it."</span>
+    <span class="p">)</span>
+    <span class="n">canvas_class</span> <span class="o">=</span> <span class="n">SensorCanvas</span>
+    <span class="n">session_scope</span> <span class="o">=</span> <span class="s2">"online_plot"</span>
+
+<div class="viewcode-block" id="LiveTimestamps.build">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.tabs.online_plot.html#daplis_rtp.gui.tabs.LiveTimestamps.build">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_build_header</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_build_footer</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_build_controls</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_build_actions</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">maskValidPixels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">N_PIXELS</span><span class="p">)</span>
+        <span class="c1"># The rates as they were read, before the mask. Masking is</span>
+        <span class="c1"># applied when the plot is drawn rather than here, so that</span>
+        <span class="c1"># ticking a pixel off changes the trace at once instead of at</span>
+        <span class="c1"># the next data file - which is the whole point of being able to</span>
+        <span class="c1"># Ctrl+click one.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_last_rates</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_last_file</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_last_fits</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">widget_figure</span><span class="o">.</span><span class="n">pixel_ctrl_clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">toggle_pixel_mask</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">slot_mask_changed</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="LiveTimestamps.bind_session">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.tabs.online_plot.html#daplis_rtp.gui.tabs.LiveTimestamps.bind_session">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">bind_session</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">bind_all</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">"folder"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">picker</span><span class="o">.</span><span class="n">lineEdit</span><span class="p">,</span>
+                <span class="s2">"daughterboard"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">comboBox_mask_2</span><span class="p">,</span>
+                <span class="s2">"motherboard"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">comboBox_mb_2</span><span class="p">,</span>
+                <span class="s2">"firmware"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">comboBox_FW_2</span><span class="p">,</span>
+                <span class="s2">"timestamps"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">spinBox_timestamps_2</span><span class="p">,</span>
+                <span class="s2">"pix_add_fix"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">checkBox_pix_add_fix</span><span class="p">,</span>
+                <span class="s2">"absolute_timestamps"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">checkBox_abs_timestamps</span><span class="p">,</span>
+                <span class="s2">"linear_scale"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">checkBox_linearScale_2</span><span class="p">,</span>
+                <span class="s2">"grouping"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">checkBox_grouping_2</span><span class="p">,</span>
+                <span class="s2">"x_low"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">xLimits</span><span class="o">.</span><span class="n">low</span><span class="p">,</span>
+                <span class="s2">"x_high"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">xLimits</span><span class="o">.</span><span class="n">high</span><span class="p">,</span>
+                <span class="s2">"tdc_memory"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">panel_occupancy</span><span class="p">,</span>
+                <span class="s2">"peak_stats"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">panel_peak</span><span class="p">,</span>
+                <span class="s2">"gaussian_fit"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit_strip</span><span class="o">.</span><span class="n">checkBox</span><span class="p">,</span>
+                <span class="s2">"fit_threshold"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit_strip</span><span class="o">.</span><span class="n">thresholdEdit</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LiveTimestamps.on_waiting_for_data">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.tabs.online_plot.html#daplis_rtp.gui.tabs.LiveTimestamps.on_waiting_for_data">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">on_waiting_for_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">readout</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">"file"</span><span class="p">,</span> <span class="s2">"waiting…"</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LiveTimestamps.watched_paths">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.tabs.online_plot.html#daplis_rtp.gui.tabs.LiveTimestamps.watched_paths">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">watched_paths</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">picker</span><span class="o">.</span><span class="n">path</span><span class="p">()]</span></div>
+
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="c1"># Construction</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_build_header</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">picker</span> <span class="o">=</span> <span class="n">DirectoryPicker</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">caption</span><span class="o">=</span><span class="s2">"Data folder"</span><span class="p">,</span>
+            <span class="n">title</span><span class="o">=</span><span class="s2">"Select Directory"</span><span class="p">,</span>
+            <span class="n">tip</span><span class="o">=</span><span class="s2">"Folder the board writes its data files to. The newest "</span>
+                <span class="s2">"'.dat' file in it is the one plotted."</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">header_row</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">picker</span><span class="p">)</span>
+
+        <span class="c1"># The two brightest pixels, which used to be a pair of LCD</span>
+        <span class="c1"># displays in the control column - where they cost every tab in</span>
+        <span class="c1"># the application a row of height, since the window's minimum is</span>
+        <span class="c1"># the tallest column of the five.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">readout</span> <span class="o">=</span> <span class="n">ReadoutStrip</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">readout</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+            <span class="s2">"top1"</span><span class="p">,</span>
+            <span class="s2">"Brightest pixel"</span><span class="p">,</span>
+            <span class="n">tip</span><span class="o">=</span><span class="s2">"Pixel with the highest rate in the last file plotted."</span><span class="p">,</span>
+            <span class="n">width</span><span class="o">=</span><span class="mi">48</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">readout</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">"top2"</span><span class="p">,</span> <span class="s2">"Second"</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">48</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">readout</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">"masked"</span><span class="p">,</span> <span class="s2">"Masked"</span><span class="p">,</span> <span class="n">initial</span><span class="o">=</span><span class="s2">"0 masked"</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">80</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">readout</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+            <span class="s2">"file"</span><span class="p">,</span> <span class="s2">"File"</span><span class="p">,</span> <span class="n">tip</span><span class="o">=</span><span class="s2">"The data file the plot was drawn from."</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">readout</span><span class="o">.</span><span class="n">add_stretch</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">header_row</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">readout</span><span class="p">)</span>
+
+        <span class="c1"># Under the brightest pixels: the widths of the lines, read in</span>
+        <span class="c1"># the same glance as where the peaks are.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fit_strip</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_canvas_strip</span><span class="p">(</span><span class="n">GaussianFitStrip</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fit_strip</span><span class="o">.</span><span class="n">changed</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_redraw_current</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_build_footer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xLimits</span> <span class="o">=</span> <span class="n">LimitPair</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">caption</span><span class="o">=</span><span class="s2">"x limits (pixel)"</span><span class="p">,</span>
+            <span class="n">spin</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">maximum</span><span class="o">=</span><span class="n">N_PIXELS</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="n">values</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">N_PIXELS</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span>
+            <span class="n">tip</span><span class="o">=</span><span class="s2">"The range of pixels shown. Also narrows the pixels the "</span>
+                <span class="s2">"TDC memory check watches."</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xLimits</span><span class="o">.</span><span class="n">changed</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_limits_changed</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">footer_row</span><span class="p">()</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xLimits</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">footer_row</span><span class="p">()</span><span class="o">.</span><span class="n">addStretch</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_build_controls</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">column</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">controls</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">comboBox_mask_2</span> <span class="o">=</span> <span class="n">column</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span>
+            <span class="s2">"Daughterboard"</span><span class="p">,</span>
+            <span class="n">daughterboard_combo</span><span class="p">(),</span>
+            <span class="n">tip</span><span class="o">=</span><span class="s2">"The LinoSPAD2 daughterboard the data came from. "</span>
+                <span class="s2">"Used, with the motherboard, to pick the preset "</span>
+                <span class="s2">"mask."</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">comboBox_mb_2</span> <span class="o">=</span> <span class="n">column</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span>
+            <span class="s2">"Motherboard"</span><span class="p">,</span>
+            <span class="n">motherboard_combo</span><span class="p">(),</span>
+            <span class="n">tip</span><span class="o">=</span><span class="s2">"The LinoSPAD2 motherboard the data came from. "</span>
+                <span class="s2">"Used to pick the preset mask."</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">comboBox_FW_2</span> <span class="o">=</span> <span class="n">column</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span>
+            <span class="s2">"Firmware version"</span><span class="p">,</span> <span class="n">firmware_combo</span><span class="p">()</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spinBox_timestamps_2</span> <span class="o">=</span> <span class="n">column</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span>
+            <span class="s2">"Timestamps"</span><span class="p">,</span>
+            <span class="n">timestamps_spin</span><span class="p">(),</span>
+            <span class="n">tip</span><span class="o">=</span><span class="s2">"Number of timestamps per pixel per acquisition cycle."</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">checkBox_pix_add_fix</span> <span class="o">=</span> <span class="n">column</span><span class="o">.</span><span class="n">add_wide_row</span><span class="p">(</span>
+            <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QCheckBox</span><span class="p">(</span><span class="s2">"Correct pixel addressing"</span><span class="p">),</span>
+            <span class="n">tip</span><span class="o">=</span><span class="s2">"Undo the address scrambling of the sensor's second "</span>
+                <span class="s2">"half, for data that need it."</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">checkBox_abs_timestamps</span> <span class="o">=</span> <span class="n">column</span><span class="o">.</span><span class="n">add_wide_row</span><span class="p">(</span>
+            <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QCheckBox</span><span class="p">(</span><span class="s2">"Absolute timestamps"</span><span class="p">),</span>
+            <span class="n">tip</span><span class="o">=</span><span class="s2">"Tick if the files were collected with absolute "</span>
+                <span class="s2">"timestamps: two extra 32-bit words at the start of "</span>
+                <span class="s2">"each acquisition cycle."</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_build_mask_controls</span><span class="p">(</span><span class="n">column</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">checkBox_linearScale_2</span> <span class="o">=</span> <span class="n">column</span><span class="o">.</span><span class="n">add_wide_row</span><span class="p">(</span>
+            <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QCheckBox</span><span class="p">(</span><span class="s2">"Linear scale"</span><span class="p">),</span>
+            <span class="n">tip</span><span class="o">=</span><span class="s2">"Clear for a logarithmic y-axis, which is the one to "</span>
+                <span class="s2">"use when a few bright pixels flatten everything else."</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">checkBox_linearScale_2</span><span class="o">.</span><span class="n">setChecked</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">checkBox_linearScale_2</span><span class="o">.</span><span class="n">toggled</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">widget_figure</span><span class="o">.</span><span class="n">set_scale_linear</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">checkBox_grouping_2</span> <span class="o">=</span> <span class="n">column</span><span class="o">.</span><span class="n">add_wide_row</span><span class="p">(</span>
+            <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QCheckBox</span><span class="p">(</span><span class="s2">"Group of 64"</span><span class="p">),</span>
+            <span class="n">tip</span><span class="o">=</span><span class="s2">"Draw vertical lines at pixels 64, 128 and 192, to help "</span>
+                <span class="s2">"align the peaks within one group of 64."</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">checkBox_grouping_2</span><span class="o">.</span><span class="n">toggled</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_redraw_current</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">panel_peak</span> <span class="o">=</span> <span class="n">PeakStatsPanel</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">panel_peak</span><span class="o">.</span><span class="n">toggled</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_redraw_current</span><span class="p">)</span>
+        <span class="n">column</span><span class="o">.</span><span class="n">add_widget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">panel_peak</span><span class="p">)</span>
+
+        <span class="c1"># Last panel of the column, above the two buttons - the same</span>
+        <span class="c1"># place it sits on the full-sensor tab, so that what is watched</span>
+        <span class="c1"># during a run is watched in the same place on either.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">panel_occupancy</span> <span class="o">=</span> <span class="n">TdcOccupancyPanel</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">panel_occupancy</span><span class="o">.</span><span class="n">attach_timestamps_spinbox</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">spinBox_timestamps_2</span>
+        <span class="p">)</span>
+        <span class="n">column</span><span class="o">.</span><span class="n">add_widget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">panel_occupancy</span><span class="p">)</span>
+        <span class="n">column</span><span class="o">.</span><span class="n">add_stretch</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_build_mask_controls</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">column</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""The preset mask, the count, and the button that opens the grid."""</span>
+        <span class="n">box</span><span class="p">,</span> <span class="n">inner</span> <span class="o">=</span> <span class="n">column</span><span class="o">.</span><span class="n">add_group</span><span class="p">(</span><span class="s2">"Pixel mask"</span><span class="p">)</span>
+
+        <span class="n">preset_row</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QHBoxLayout</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">checkBox_presetMask_2</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QCheckBox</span><span class="p">(</span><span class="s2">"Preset mask"</span><span class="p">,</span> <span class="n">box</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">checkBox_presetMask_2</span><span class="o">.</span><span class="n">stateChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">presetmask_pixels</span>
+        <span class="p">)</span>
+        <span class="n">preset_row</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">checkBox_presetMask_2</span><span class="p">)</span>
+        <span class="n">preset_row</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span>
+            <span class="n">info_badge</span><span class="p">(</span>
+                <span class="s2">"The warm-pixel mask recorded for this daughterboard "</span>
+                <span class="s2">"and motherboard combination."</span><span class="p">,</span>
+                <span class="n">box</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">preset_row</span><span class="o">.</span><span class="n">addStretch</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">inner</span><span class="o">.</span><span class="n">addLayout</span><span class="p">(</span><span class="n">preset_row</span><span class="p">)</span>
+
+        <span class="c1"># 256 check boxes, in a window of their own. In the column they</span>
+        <span class="c1"># took 250 px, which both set how tall the application opened</span>
+        <span class="c1"># and showed a handful of the 64 rows at a time; here they can</span>
+        <span class="c1"># be dragged next to the plot and left there while the stream</span>
+        <span class="c1"># runs.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mask_window</span> <span class="o">=</span> <span class="n">PixelMaskWindow</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">boards</span><span class="o">=</span><span class="p">[(</span><span class="s2">"Pixels"</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">64</span><span class="p">)],</span>
+            <span class="n">title</span><span class="o">=</span><span class="s2">"Pixel mask — Online plot"</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">checkBoxPixel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mask_window</span><span class="o">.</span><span class="n">boxes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mask_window</span><span class="o">.</span><span class="n">changed</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">slot_mask_changed</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mask_window</span><span class="o">.</span><span class="n">clear_requested</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reset_pix_mask</span><span class="p">)</span>
+
+        <span class="n">button_row</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QHBoxLayout</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_editMask</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QPushButton</span><span class="p">(</span><span class="s2">"Edit mask…"</span><span class="p">,</span> <span class="n">box</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_editMask</span><span class="o">.</span><span class="n">setToolTip</span><span class="p">(</span>
+            <span class="s2">"Open the pixel mask in a window of its own; it can be left "</span>
+            <span class="s2">"open beside the plot while the stream runs."</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_editMask</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mask_window</span><span class="o">.</span><span class="n">open_beside</span><span class="p">)</span>
+        <span class="n">button_row</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pushButton_editMask</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_resetMask_2</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QPushButton</span><span class="p">(</span><span class="s2">"Reset"</span><span class="p">,</span> <span class="n">box</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_resetMask_2</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reset_pix_mask</span><span class="p">)</span>
+        <span class="n">button_row</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pushButton_resetMask_2</span><span class="p">)</span>
+        <span class="n">inner</span><span class="o">.</span><span class="n">addLayout</span><span class="p">(</span><span class="n">button_row</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_build_actions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_refreshPlot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">actions</span><span class="o">.</span><span class="n">add_button</span><span class="p">(</span>
+            <span class="s2">"Refresh plot"</span><span class="p">,</span> <span class="n">tip</span><span class="o">=</span><span class="s2">"Read the newest file again and redraw."</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_refreshPlot</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">slot_refresh</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_startStream</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">actions</span><span class="o">.</span><span class="n">add_button</span><span class="p">(</span>
+            <span class="s2">"Start stream"</span><span class="p">,</span>
+            <span class="n">tip</span><span class="o">=</span><span class="s2">"Follow the folder, redrawing whenever a newer file "</span>
+                <span class="s2">"appears in it."</span><span class="p">,</span>
+            <span class="n">primary</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_startStream</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">toggle_stream</span><span class="p">)</span>
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="c1"># Stream</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+
+<div class="viewcode-block" id="LiveTimestamps.on_stream_start">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.tabs.online_plot.html#daplis_rtp.gui.tabs.LiveTimestamps.on_stream_start">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">on_stream_start</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># A new run gets a new saturation warning, even if the last one</span>
+        <span class="c1"># was already dismissed</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">panel_occupancy</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="LiveTimestamps.on_refresh_requested">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.tabs.online_plot.html#daplis_rtp.gui.tabs.LiveTimestamps.on_refresh_requested">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">on_refresh_requested</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># An explicit look again asks for the saturation warning again</span>
+        <span class="c1"># too - typically the 'Timestamps' setting has just been changed</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">panel_occupancy</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span></div>
+
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="c1"># Display</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_limits_changed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_redraw_current</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_redraw_current</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Re-apply the display switches without re-reading the file."""</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_last_rates</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_last_rates</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rates</span><span class="p">):</span>
+        <span class="n">low</span><span class="p">,</span> <span class="n">high</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">xLimits</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+        <span class="n">masked</span> <span class="o">=</span> <span class="n">rates</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">maskValidPixels</span>
+        <span class="n">threshold</span><span class="p">,</span> <span class="n">fits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fit_lines</span><span class="p">(</span><span class="n">masked</span><span class="p">,</span> <span class="p">(</span><span class="n">low</span><span class="p">,</span> <span class="n">high</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">widget_figure</span><span class="o">.</span><span class="n">set_data</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">"rates"</span><span class="p">:</span> <span class="n">masked</span><span class="p">,</span>
+                <span class="s2">"x_lim"</span><span class="p">:</span> <span class="p">(</span><span class="n">low</span><span class="p">,</span> <span class="n">high</span><span class="p">),</span>
+                <span class="s2">"grouping"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">checkBox_grouping_2</span><span class="o">.</span><span class="n">isChecked</span><span class="p">(),</span>
+                <span class="s2">"fit_threshold"</span><span class="p">:</span> <span class="n">threshold</span><span class="p">,</span>
+                <span class="s2">"fits"</span><span class="p">:</span> <span class="n">fits</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_report_peak</span><span class="p">(</span><span class="n">masked</span><span class="p">,</span> <span class="p">(</span><span class="n">low</span><span class="p">,</span> <span class="n">high</span><span class="p">))</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_fit_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rates</span><span class="p">,</span> <span class="n">x_lim</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""The threshold to draw and the fits above it, or ``None, []``."""</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_last_fits</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit_strip</span><span class="o">.</span><span class="n">enabled</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fit_strip</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+            <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="p">[]</span>
+        <span class="n">threshold</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit_strip</span><span class="o">.</span><span class="n">threshold</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">threshold</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fit_strip</span><span class="o">.</span><span class="n">clear</span><span class="p">(</span><span class="s2">"set a threshold to fit"</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_last_fits</span> <span class="o">=</span> <span class="n">fit_peaks</span><span class="p">(</span>
+            <span class="n">rates</span><span class="p">,</span> <span class="n">threshold</span><span class="p">,</span> <span class="n">x_lim</span><span class="p">,</span> <span class="n">valid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">maskValidPixels</span> <span class="o">&gt;</span> <span class="mi">0</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fit_strip</span><span class="o">.</span><span class="n">show_fits</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_last_fits</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">threshold</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_last_fits</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_report_peak</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rates</span><span class="p">,</span> <span class="n">x_lim</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">panel_peak</span><span class="o">.</span><span class="n">enabled</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">panel_peak</span><span class="o">.</span><span class="n">clear</span><span class="p">(</span><span class="s2">"switched off"</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">panel_peak</span><span class="o">.</span><span class="n">show_stats</span><span class="p">(</span><span class="n">peak_stats</span><span class="p">(</span><span class="n">rates</span><span class="p">,</span> <span class="n">x_lim</span><span class="p">))</span>
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="c1"># Data</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+
+<div class="viewcode-block" id="LiveTimestamps.refresh">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.tabs.online_plot.html#daplis_rtp.gui.tabs.LiveTimestamps.refresh">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">refresh</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mask_pixels</span><span class="p">()</span>
+
+        <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">picker</span><span class="o">.</span><span class="n">path</span><span class="p">()</span>
+        <span class="n">last_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_data_file</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">last_file</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">no_data</span><span class="p">(</span>
+                <span class="s2">"No data files found — check the working directory."</span>
+            <span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">new_ctime</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getctime</span><span class="p">(</span><span class="n">last_file</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+            <span class="c1"># The file went away between the listing and the question</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="n">new_ctime</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_file_ctime</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_file_ctime</span> <span class="o">=</span> <span class="n">new_ctime</span>
+
+        <span class="n">fw_ver</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comboBox_FW_2</span><span class="o">.</span><span class="n">currentText</span><span class="p">()</span>
+        <span class="n">pix_add_fix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">checkBox_pix_add_fix</span><span class="o">.</span><span class="n">isChecked</span><span class="p">()</span>
+        <span class="n">check_slots</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">panel_occupancy</span><span class="o">.</span><span class="n">enabled</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">sen_pop</span><span class="p">(</span>
+                <span class="n">last_file</span><span class="p">,</span>
+                <span class="n">board_number</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">comboBox_mask_2</span><span class="o">.</span><span class="n">currentText</span><span class="p">(),</span>
+                <span class="n">fw_ver</span><span class="o">=</span><span class="n">fw_ver</span><span class="p">,</span>
+                <span class="n">timestamps</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">spinBox_timestamps_2</span><span class="o">.</span><span class="n">value</span><span class="p">(),</span>
+                <span class="n">pix_add_fix</span><span class="o">=</span><span class="n">pix_add_fix</span><span class="p">,</span>
+                <span class="n">absolute_timestamps</span><span class="o">=</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">checkBox_abs_timestamps</span><span class="o">.</span><span class="n">isChecked</span><span class="p">()</span>
+                <span class="p">),</span>
+                <span class="n">return_occupancy</span><span class="o">=</span><span class="n">check_slots</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="c1"># ValueError: the firmware version or the timestamp count does</span>
+        <span class="c1"># not match the file; IndexError: a truncated or half-written</span>
+        <span class="c1"># one; OSError: the file went away while it was being read.</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">IndexError</span><span class="p">,</span> <span class="ne">OSError</span><span class="p">)</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">report_error</span><span class="p">(</span>
+                <span class="s2">"Cannot read data file — it may have been removed. "</span>
+                <span class="s2">"Check the timestamp setting, the firmware version, "</span>
+                <span class="s2">"and whether the data hold absolute timestamps."</span><span class="p">,</span>
+                <span class="n">err</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="k">if</span> <span class="n">check_slots</span><span class="p">:</span>
+            <span class="n">rates</span><span class="p">,</span> <span class="n">occupancy</span> <span class="o">=</span> <span class="n">result</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">report_occupancy</span><span class="p">(</span><span class="n">occupancy</span><span class="p">,</span> <span class="n">fw_ver</span><span class="p">,</span> <span class="n">pix_add_fix</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">rates</span> <span class="o">=</span> <span class="n">result</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">panel_occupancy</span><span class="o">.</span><span class="n">clear</span><span class="p">(</span><span class="s2">"switched off"</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_last_rates</span> <span class="o">=</span> <span class="n">rates</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_last_file</span> <span class="o">=</span> <span class="n">last_file</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_plot</span><span class="p">(</span><span class="n">rates</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_readout</span><span class="p">(</span><span class="n">rates</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">maskValidPixels</span><span class="p">,</span> <span class="n">last_file</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_update_readout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rates</span><span class="p">,</span> <span class="n">last_file</span><span class="p">):</span>
+        <span class="n">order</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">rates</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">readout</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">"top1"</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">order</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">readout</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">"top2"</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">order</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">readout</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">"file"</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">last_file</span><span class="p">))</span>
+
+<div class="viewcode-block" id="LiveTimestamps.report_occupancy">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.tabs.online_plot.html#daplis_rtp.gui.tabs.LiveTimestamps.report_occupancy">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">report_occupancy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">occupancy</span><span class="p">,</span> <span class="n">fw_ver</span><span class="p">,</span> <span class="n">pix_add_fix</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Hand one refresh's slot occupancy to the status box.</span>
+
+<span class="sd">        The pixels of interest come either from the box's own field or</span>
+<span class="sd">        from the mask and the x-limits; they are pixel numbers as</span>
+<span class="sd">        plotted, so they are mapped to TDCs with the same</span>
+<span class="sd">        ``pix_add_fix`` the rates were built with.</span>
+
+<span class="sd">        """</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">explicit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">panel_occupancy</span><span class="o">.</span><span class="n">explicit_pixels</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="c1"># A half-typed pixel list should not blank the readout, and</span>
+            <span class="c1"># it certainly should not raise into the plotting path</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">panel_occupancy</span><span class="o">.</span><span class="n">clear</span><span class="p">(</span><span class="s2">"pixels of interest: </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">err</span><span class="p">))</span>
+            <span class="k">return</span>
+
+        <span class="n">pixels</span> <span class="o">=</span> <span class="n">pixels_of_interest</span><span class="p">(</span>
+            <span class="n">explicit</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">maskValidPixels</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">xLimits</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+        <span class="p">)</span>
+        <span class="n">tdcs</span> <span class="o">=</span> <span class="n">pixel_to_tdc_map</span><span class="p">(</span><span class="n">fw_ver</span><span class="p">,</span> <span class="n">pix_add_fix</span><span class="p">)[</span><span class="n">pixels</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">panel_occupancy</span><span class="o">.</span><span class="n">show_result</span><span class="p">([</span><span class="n">BoardOccupancy</span><span class="p">(</span><span class="s2">""</span><span class="p">,</span> <span class="n">occupancy</span><span class="p">,</span> <span class="n">tdcs</span><span class="p">)])</span></div>
+
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="c1"># Export</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+
+<div class="viewcode-block" id="LiveTimestamps.plotted_data">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.tabs.online_plot.html#daplis_rtp.gui.tabs.LiveTimestamps.plotted_data">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">plotted_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_last_rates</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">"stem"</span><span class="p">:</span> <span class="s2">"online-plot"</span><span class="p">,</span>
+            <span class="s2">"columns"</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">"pixel"</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">N_PIXELS</span><span class="p">),</span>
+                <span class="s2">"rate_Hz"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_last_rates</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">maskValidPixels</span><span class="p">,</span>
+                <span class="s2">"masked"</span><span class="p">:</span> <span class="mi">1</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">maskValidPixels</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+            <span class="p">},</span>
+            <span class="s2">"notes"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"Online plot - photon rate per pixel"</span><span class="p">,</span>
+                <span class="s2">"source file: </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_last_file</span><span class="p">),</span>
+                <span class="s2">"daughterboard </span><span class="si">{}</span><span class="s2">, motherboard </span><span class="si">{}</span><span class="s2">, firmware </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">comboBox_mask_2</span><span class="o">.</span><span class="n">currentText</span><span class="p">(),</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">comboBox_mb_2</span><span class="o">.</span><span class="n">currentText</span><span class="p">(),</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">comboBox_FW_2</span><span class="o">.</span><span class="n">currentText</span><span class="p">(),</span>
+                <span class="p">),</span>
+                <span class="s2">"timestamps </span><span class="si">{}</span><span class="s2">, pixel addressing corrected: </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">spinBox_timestamps_2</span><span class="o">.</span><span class="n">value</span><span class="p">(),</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">checkBox_pix_add_fix</span><span class="o">.</span><span class="n">isChecked</span><span class="p">(),</span>
+                <span class="p">),</span>
+                <span class="s2">"x limits shown: </span><span class="si">{}</span><span class="s2"> to </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">xLimits</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span>
+                <span class="s2">"'masked' is 1 where the pixel was masked, and its rate "</span>
+                <span class="s2">"was forced to zero"</span><span class="p">,</span>
+            <span class="p">]</span>
+            <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fit_notes</span><span class="p">(),</span>
+        <span class="p">}</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_fit_notes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_last_fits</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[]</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="s2">"Gaussian fits above </span><span class="si">{}</span><span class="s2"> Hz (sigma in pixels):"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">fit_strip</span><span class="o">.</span><span class="n">threshold</span><span class="p">()</span>
+            <span class="p">)</span>
+        <span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="s2">"  "</span> <span class="o">+</span> <span class="n">describe_fit</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">short</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_last_fits</span><span class="p">]</span>
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="c1"># Pixel mask</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+
+<div class="viewcode-block" id="LiveTimestamps.toggle_pixel_mask">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.tabs.online_plot.html#daplis_rtp.gui.tabs.LiveTimestamps.toggle_pixel_mask">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">toggle_pixel_mask</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pixel</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Ctrl+click on the plot: mask this pixel, or unmask it."""</span>
+        <span class="n">box</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">checkBoxPixel</span><span class="p">[</span><span class="n">pixel</span><span class="p">]</span>
+        <span class="n">box</span><span class="o">.</span><span class="n">setChecked</span><span class="p">(</span><span class="ow">not</span> <span class="n">box</span><span class="o">.</span><span class="n">isChecked</span><span class="p">())</span></div>
+
+
+<div class="viewcode-block" id="LiveTimestamps.slot_mask_changed">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.tabs.online_plot.html#daplis_rtp.gui.tabs.LiveTimestamps.slot_mask_changed">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">slot_mask_changed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Rebuild the mask, update the count, and redraw.</span>
+
+<span class="sd">        Redrawing here is what makes a tick visible at once: the rates</span>
+<span class="sd">        are kept unmasked, so re-applying the mask to them is the whole</span>
+<span class="sd">        of the work, and it costs one redraw rather than a re-read of</span>
+<span class="sd">        the file.</span>
+
+<span class="sd">        """</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">readout</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
+            <span class="s2">"masked"</span><span class="p">,</span> <span class="n">mask_summary</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mask_window</span><span class="o">.</span><span class="n">masked_counts</span><span class="p">())</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mask_pixels</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_redraw_current</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="LiveTimestamps.mask_pixels">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.tabs.online_plot.html#daplis_rtp.gui.tabs.LiveTimestamps.mask_pixels">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">mask_pixels</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">maskValidPixels</span> <span class="o">=</span> <span class="n">masked_array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">checkBoxPixel</span><span class="p">,</span> <span class="n">N_PIXELS</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LiveTimestamps.presetmask_pixels">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.tabs.online_plot.html#daplis_rtp.gui.tabs.LiveTimestamps.presetmask_pixels">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">presetmask_pixels</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Apply the recorded warm-pixel mask, or lift it again.</span>
+
+<span class="sd">        The file is looked up from the daughterboard and motherboard</span>
+<span class="sd">        chosen above; a combination that has no mask recorded says so</span>
+<span class="sd">        and clears the tick rather than leaving it set over nothing.</span>
+
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">checkBox_presetMask_2</span><span class="o">.</span><span class="n">isChecked</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mask_window</span><span class="o">.</span><span class="n">set_all</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">files</span><span class="p">(</span><span class="s2">"daplis_rtp.params.masks"</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span>
+                <span class="s2">"mask_</span><span class="si">{}</span><span class="s2">_</span><span class="si">{}</span><span class="s2">.txt"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">comboBox_mask_2</span><span class="o">.</span><span class="n">currentText</span><span class="p">(),</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">comboBox_mb_2</span><span class="o">.</span><span class="n">currentText</span><span class="p">(),</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">genfromtxt</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s2">","</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">"int"</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">IndexError</span><span class="p">,</span> <span class="ne">FileNotFoundError</span><span class="p">,</span> <span class="ne">OSError</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">checkBox_presetMask_2</span><span class="o">.</span><span class="n">setChecked</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QMessageBox</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="bp">self</span><span class="p">,</span>
+                <span class="s2">"Preset mask"</span><span class="p">,</span>
+                <span class="s2">"No mask data were found for this daughterboard and "</span>
+                <span class="s2">"motherboard combination."</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">mask_window</span><span class="o">.</span><span class="n">set_pixels</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">mask</span><span class="p">),</span> <span class="kc">True</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LiveTimestamps.reset_pix_mask">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.tabs.online_plot.html#daplis_rtp.gui.tabs.LiveTimestamps.reset_pix_mask">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">reset_pix_mask</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mask_window</span><span class="o">.</span><span class="n">set_all</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">checkBox_presetMask_2</span><span class="o">.</span><span class="n">setChecked</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Sergei Kulkov.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

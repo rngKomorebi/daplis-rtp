@@ -1,0 +1,7 @@
+daplis\_rtp.gui.app\_icon module
+================================
+
+.. automodule:: daplis_rtp.gui.app_icon
+   :members:
+   :show-inheritance:
+   :undoc-members:

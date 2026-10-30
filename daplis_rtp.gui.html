@@ -1,0 +1,617 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>daplis_rtp.gui package &mdash; Data Analysis Package for LinoSPAD2 - Real-Time Plotting 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=8d563738"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="daplis_rtp.gui.canvas package" href="daplis_rtp.gui.canvas.html" />
+    <link rel="prev" title="Installation and usage" href="installation.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Data Analysis Package for LinoSPAD2 - Real-Time Plotting
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation and usage</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">daplis_rtp.gui package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.canvas.html">daplis_rtp.gui.canvas package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.html">daplis_rtp.gui.tabs package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.html">daplis_rtp.gui.widgets package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.app_icon.html">daplis_rtp.gui.app_icon module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.layout.html">daplis_rtp.gui.layout module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.main_window.html">daplis_rtp.gui.main_window module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.preferences.html">daplis_rtp.gui.preferences module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.session.html">daplis_rtp.gui.session module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.theme.html">daplis_rtp.gui.theme module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="daplis_rtp.functions.html">daplis_rtp.functions package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contribute.html">How to contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">License and contact info</a></li>
+<li class="toctree-l1"><a class="reference internal" href="acknowledgement.html">Acknowledgement</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Data Analysis Package for LinoSPAD2 - Real-Time Plotting</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">daplis_rtp.gui package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/daplis_rtp.gui.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-daplis_rtp.gui">
+<span id="daplis-rtp-gui-package"></span><h1>daplis_rtp.gui package<a class="headerlink" href="#module-daplis_rtp.gui" title="Link to this heading"></a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="daplis_rtp.gui.canvas.html">daplis_rtp.gui.canvas package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.canvas.html#daplis_rtp.gui.canvas.BaseCanvas"><code class="docutils literal notranslate"><span class="pre">BaseCanvas</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.canvas.html#daplis_rtp.gui.canvas.BaseCanvas.__init__"><code class="docutils literal notranslate"><span class="pre">BaseCanvas.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.canvas.html#daplis_rtp.gui.canvas.BaseCanvas.clear"><code class="docutils literal notranslate"><span class="pre">BaseCanvas.clear()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.canvas.html#daplis_rtp.gui.canvas.BaseCanvas.draw_data"><code class="docutils literal notranslate"><span class="pre">BaseCanvas.draw_data()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.canvas.html#daplis_rtp.gui.canvas.BaseCanvas.fontsize"><code class="docutils literal notranslate"><span class="pre">BaseCanvas.fontsize</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.canvas.html#daplis_rtp.gui.canvas.BaseCanvas.glow"><code class="docutils literal notranslate"><span class="pre">BaseCanvas.glow()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.canvas.html#daplis_rtp.gui.canvas.BaseCanvas.rc"><code class="docutils literal notranslate"><span class="pre">BaseCanvas.rc()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.canvas.html#daplis_rtp.gui.canvas.BaseCanvas.refresh_theme"><code class="docutils literal notranslate"><span class="pre">BaseCanvas.refresh_theme()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.canvas.html#daplis_rtp.gui.canvas.BaseCanvas.render"><code class="docutils literal notranslate"><span class="pre">BaseCanvas.render()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.canvas.html#daplis_rtp.gui.canvas.BaseCanvas.resizeEvent"><code class="docutils literal notranslate"><span class="pre">BaseCanvas.resizeEvent()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.canvas.html#daplis_rtp.gui.canvas.BaseCanvas.scientific_y"><code class="docutils literal notranslate"><span class="pre">BaseCanvas.scientific_y()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.canvas.html#daplis_rtp.gui.canvas.BaseCanvas.set_data"><code class="docutils literal notranslate"><span class="pre">BaseCanvas.set_data()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.canvas.html#daplis_rtp.gui.canvas.BaseCanvas.set_scale_linear"><code class="docutils literal notranslate"><span class="pre">BaseCanvas.set_scale_linear()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.canvas.html#daplis_rtp.gui.canvas.BaseCanvas.style_axes"><code class="docutils literal notranslate"><span class="pre">BaseCanvas.style_axes()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.canvas.html#daplis_rtp.gui.canvas.BaseCanvas.theme"><code class="docutils literal notranslate"><span class="pre">BaseCanvas.theme</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.canvas.html#daplis_rtp.gui.canvas.BaseCanvas.twin"><code class="docutils literal notranslate"><span class="pre">BaseCanvas.twin</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.canvas.html#daplis_rtp.gui.canvas.BaseCanvas.x_label"><code class="docutils literal notranslate"><span class="pre">BaseCanvas.x_label</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.canvas.html#daplis_rtp.gui.canvas.BaseCanvas.y_label"><code class="docutils literal notranslate"><span class="pre">BaseCanvas.y_label</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.canvas.html#daplis_rtp.gui.canvas.DualSensorCanvas"><code class="docutils literal notranslate"><span class="pre">DualSensorCanvas</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.canvas.html#daplis_rtp.gui.canvas.DualSensorCanvas.boundary"><code class="docutils literal notranslate"><span class="pre">DualSensorCanvas.boundary</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.canvas.html#daplis_rtp.gui.canvas.DualSensorCanvas.group_lines"><code class="docutils literal notranslate"><span class="pre">DualSensorCanvas.group_lines</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.canvas.html#daplis_rtp.gui.canvas.DualSensorCanvas.n_pixels"><code class="docutils literal notranslate"><span class="pre">DualSensorCanvas.n_pixels</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.canvas.html#daplis_rtp.gui.canvas.HistogramCanvas"><code class="docutils literal notranslate"><span class="pre">HistogramCanvas</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.canvas.html#daplis_rtp.gui.canvas.HistogramCanvas.draw_data"><code class="docutils literal notranslate"><span class="pre">HistogramCanvas.draw_data()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.canvas.html#daplis_rtp.gui.canvas.HistogramCanvas.x_label"><code class="docutils literal notranslate"><span class="pre">HistogramCanvas.x_label</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.canvas.html#daplis_rtp.gui.canvas.HistogramCanvas.y_label"><code class="docutils literal notranslate"><span class="pre">HistogramCanvas.y_label</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.canvas.html#daplis_rtp.gui.canvas.MziCanvas"><code class="docutils literal notranslate"><span class="pre">MziCanvas</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.canvas.html#daplis_rtp.gui.canvas.MziCanvas.draw_data"><code class="docutils literal notranslate"><span class="pre">MziCanvas.draw_data()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.canvas.html#daplis_rtp.gui.canvas.MziCanvas.twin"><code class="docutils literal notranslate"><span class="pre">MziCanvas.twin</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.canvas.html#daplis_rtp.gui.canvas.MziCanvas.x_label"><code class="docutils literal notranslate"><span class="pre">MziCanvas.x_label</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.canvas.html#daplis_rtp.gui.canvas.MziCanvas.y_label"><code class="docutils literal notranslate"><span class="pre">MziCanvas.y_label</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.canvas.html#daplis_rtp.gui.canvas.SensorCanvas"><code class="docutils literal notranslate"><span class="pre">SensorCanvas</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.canvas.html#daplis_rtp.gui.canvas.SensorCanvas.__init__"><code class="docutils literal notranslate"><span class="pre">SensorCanvas.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.canvas.html#daplis_rtp.gui.canvas.SensorCanvas.boundary"><code class="docutils literal notranslate"><span class="pre">SensorCanvas.boundary</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.canvas.html#daplis_rtp.gui.canvas.SensorCanvas.draw_data"><code class="docutils literal notranslate"><span class="pre">SensorCanvas.draw_data()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.canvas.html#daplis_rtp.gui.canvas.SensorCanvas.group_lines"><code class="docutils literal notranslate"><span class="pre">SensorCanvas.group_lines</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.canvas.html#daplis_rtp.gui.canvas.SensorCanvas.n_pixels"><code class="docutils literal notranslate"><span class="pre">SensorCanvas.n_pixels</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.canvas.html#daplis_rtp.gui.canvas.SensorCanvas.pixel_ctrl_clicked"><code class="docutils literal notranslate"><span class="pre">SensorCanvas.pixel_ctrl_clicked</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.canvas.html#daplis_rtp.gui.canvas.SensorCanvas.x_label"><code class="docutils literal notranslate"><span class="pre">SensorCanvas.x_label</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.canvas.html#daplis_rtp.gui.canvas.SensorCanvas.y_label"><code class="docutils literal notranslate"><span class="pre">SensorCanvas.y_label</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.canvas.html#daplis_rtp.gui.canvas.toolbar_min_width"><code class="docutils literal notranslate"><span class="pre">toolbar_min_width()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.canvas.html#submodules">Submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.canvas.base.html">daplis_rtp.gui.canvas.base module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.canvas.base.html#daplis_rtp.gui.canvas.base.BaseCanvas"><code class="docutils literal notranslate"><span class="pre">BaseCanvas</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.canvas.base.html#daplis_rtp.gui.canvas.base.toolbar_min_width"><code class="docutils literal notranslate"><span class="pre">toolbar_min_width()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.canvas.histogram.html">daplis_rtp.gui.canvas.histogram module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.canvas.histogram.html#daplis_rtp.gui.canvas.histogram.HistogramCanvas"><code class="docutils literal notranslate"><span class="pre">HistogramCanvas</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.canvas.mzi.html">daplis_rtp.gui.canvas.mzi module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.canvas.mzi.html#daplis_rtp.gui.canvas.mzi.MziCanvas"><code class="docutils literal notranslate"><span class="pre">MziCanvas</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.canvas.sensor.html">daplis_rtp.gui.canvas.sensor module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.canvas.sensor.html#daplis_rtp.gui.canvas.sensor.DualSensorCanvas"><code class="docutils literal notranslate"><span class="pre">DualSensorCanvas</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.canvas.sensor.html#daplis_rtp.gui.canvas.sensor.FitLabel"><code class="docutils literal notranslate"><span class="pre">FitLabel</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.canvas.sensor.html#daplis_rtp.gui.canvas.sensor.SensorCanvas"><code class="docutils literal notranslate"><span class="pre">SensorCanvas</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="daplis_rtp.gui.tabs.html">daplis_rtp.gui.tabs package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.tabs.html#daplis_rtp.gui.tabs.LinoSPAD2Dual"><code class="docutils literal notranslate"><span class="pre">LinoSPAD2Dual</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.html#daplis_rtp.gui.tabs.LinoSPAD2Dual.bind_session"><code class="docutils literal notranslate"><span class="pre">LinoSPAD2Dual.bind_session()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.html#daplis_rtp.gui.tabs.LinoSPAD2Dual.build"><code class="docutils literal notranslate"><span class="pre">LinoSPAD2Dual.build()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.html#daplis_rtp.gui.tabs.LinoSPAD2Dual.canvas_class"><code class="docutils literal notranslate"><span class="pre">LinoSPAD2Dual.canvas_class</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.html#daplis_rtp.gui.tabs.LinoSPAD2Dual.combined_mask"><code class="docutils literal notranslate"><span class="pre">LinoSPAD2Dual.combined_mask()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.html#daplis_rtp.gui.tabs.LinoSPAD2Dual.hint_text"><code class="docutils literal notranslate"><span class="pre">LinoSPAD2Dual.hint_text</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.html#daplis_rtp.gui.tabs.LinoSPAD2Dual.mask_pixels"><code class="docutils literal notranslate"><span class="pre">LinoSPAD2Dual.mask_pixels()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.html#daplis_rtp.gui.tabs.LinoSPAD2Dual.on_refresh_requested"><code class="docutils literal notranslate"><span class="pre">LinoSPAD2Dual.on_refresh_requested()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.html#daplis_rtp.gui.tabs.LinoSPAD2Dual.on_stream_start"><code class="docutils literal notranslate"><span class="pre">LinoSPAD2Dual.on_stream_start()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.html#daplis_rtp.gui.tabs.LinoSPAD2Dual.on_stream_stop"><code class="docutils literal notranslate"><span class="pre">LinoSPAD2Dual.on_stream_stop()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.html#daplis_rtp.gui.tabs.LinoSPAD2Dual.plotted_data"><code class="docutils literal notranslate"><span class="pre">LinoSPAD2Dual.plotted_data()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.html#daplis_rtp.gui.tabs.LinoSPAD2Dual.presetmask_pixels"><code class="docutils literal notranslate"><span class="pre">LinoSPAD2Dual.presetmask_pixels()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.html#daplis_rtp.gui.tabs.LinoSPAD2Dual.refresh"><code class="docutils literal notranslate"><span class="pre">LinoSPAD2Dual.refresh()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.html#daplis_rtp.gui.tabs.LinoSPAD2Dual.report_occupancy"><code class="docutils literal notranslate"><span class="pre">LinoSPAD2Dual.report_occupancy()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.html#daplis_rtp.gui.tabs.LinoSPAD2Dual.reset_pix_mask"><code class="docutils literal notranslate"><span class="pre">LinoSPAD2Dual.reset_pix_mask()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.html#daplis_rtp.gui.tabs.LinoSPAD2Dual.session_scope"><code class="docutils literal notranslate"><span class="pre">LinoSPAD2Dual.session_scope</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.html#daplis_rtp.gui.tabs.LinoSPAD2Dual.slot_mask_changed"><code class="docutils literal notranslate"><span class="pre">LinoSPAD2Dual.slot_mask_changed()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.html#daplis_rtp.gui.tabs.LinoSPAD2Dual.toggle_pixel_mask"><code class="docutils literal notranslate"><span class="pre">LinoSPAD2Dual.toggle_pixel_mask()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.html#daplis_rtp.gui.tabs.LinoSPAD2Dual.watched_paths"><code class="docutils literal notranslate"><span class="pre">LinoSPAD2Dual.watched_paths()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.tabs.html#daplis_rtp.gui.tabs.LiveTimestamps"><code class="docutils literal notranslate"><span class="pre">LiveTimestamps</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.html#daplis_rtp.gui.tabs.LiveTimestamps.bind_session"><code class="docutils literal notranslate"><span class="pre">LiveTimestamps.bind_session()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.html#daplis_rtp.gui.tabs.LiveTimestamps.build"><code class="docutils literal notranslate"><span class="pre">LiveTimestamps.build()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.html#daplis_rtp.gui.tabs.LiveTimestamps.canvas_class"><code class="docutils literal notranslate"><span class="pre">LiveTimestamps.canvas_class</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.html#daplis_rtp.gui.tabs.LiveTimestamps.hint_text"><code class="docutils literal notranslate"><span class="pre">LiveTimestamps.hint_text</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.html#daplis_rtp.gui.tabs.LiveTimestamps.mask_pixels"><code class="docutils literal notranslate"><span class="pre">LiveTimestamps.mask_pixels()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.html#daplis_rtp.gui.tabs.LiveTimestamps.on_refresh_requested"><code class="docutils literal notranslate"><span class="pre">LiveTimestamps.on_refresh_requested()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.html#daplis_rtp.gui.tabs.LiveTimestamps.on_stream_start"><code class="docutils literal notranslate"><span class="pre">LiveTimestamps.on_stream_start()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.html#daplis_rtp.gui.tabs.LiveTimestamps.on_waiting_for_data"><code class="docutils literal notranslate"><span class="pre">LiveTimestamps.on_waiting_for_data()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.html#daplis_rtp.gui.tabs.LiveTimestamps.plotted_data"><code class="docutils literal notranslate"><span class="pre">LiveTimestamps.plotted_data()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.html#daplis_rtp.gui.tabs.LiveTimestamps.presetmask_pixels"><code class="docutils literal notranslate"><span class="pre">LiveTimestamps.presetmask_pixels()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.html#daplis_rtp.gui.tabs.LiveTimestamps.refresh"><code class="docutils literal notranslate"><span class="pre">LiveTimestamps.refresh()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.html#daplis_rtp.gui.tabs.LiveTimestamps.report_occupancy"><code class="docutils literal notranslate"><span class="pre">LiveTimestamps.report_occupancy()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.html#daplis_rtp.gui.tabs.LiveTimestamps.reset_pix_mask"><code class="docutils literal notranslate"><span class="pre">LiveTimestamps.reset_pix_mask()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.html#daplis_rtp.gui.tabs.LiveTimestamps.session_scope"><code class="docutils literal notranslate"><span class="pre">LiveTimestamps.session_scope</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.html#daplis_rtp.gui.tabs.LiveTimestamps.slot_mask_changed"><code class="docutils literal notranslate"><span class="pre">LiveTimestamps.slot_mask_changed()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.html#daplis_rtp.gui.tabs.LiveTimestamps.toggle_pixel_mask"><code class="docutils literal notranslate"><span class="pre">LiveTimestamps.toggle_pixel_mask()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.html#daplis_rtp.gui.tabs.LiveTimestamps.watched_paths"><code class="docutils literal notranslate"><span class="pre">LiveTimestamps.watched_paths()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.tabs.html#daplis_rtp.gui.tabs.MZI"><code class="docutils literal notranslate"><span class="pre">MZI</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.html#daplis_rtp.gui.tabs.MZI.bind_session"><code class="docutils literal notranslate"><span class="pre">MZI.bind_session()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.html#daplis_rtp.gui.tabs.MZI.build"><code class="docutils literal notranslate"><span class="pre">MZI.build()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.html#daplis_rtp.gui.tabs.MZI.canvas_class"><code class="docutils literal notranslate"><span class="pre">MZI.canvas_class</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.html#daplis_rtp.gui.tabs.MZI.hint_text"><code class="docutils literal notranslate"><span class="pre">MZI.hint_text</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.html#daplis_rtp.gui.tabs.MZI.on_stream_start"><code class="docutils literal notranslate"><span class="pre">MZI.on_stream_start()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.html#daplis_rtp.gui.tabs.MZI.on_waiting_for_data"><code class="docutils literal notranslate"><span class="pre">MZI.on_waiting_for_data()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.html#daplis_rtp.gui.tabs.MZI.plotted_data"><code class="docutils literal notranslate"><span class="pre">MZI.plotted_data()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.html#daplis_rtp.gui.tabs.MZI.refresh"><code class="docutils literal notranslate"><span class="pre">MZI.refresh()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.html#daplis_rtp.gui.tabs.MZI.resetPlot"><code class="docutils literal notranslate"><span class="pre">MZI.resetPlot()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.html#daplis_rtp.gui.tabs.MZI.session_scope"><code class="docutils literal notranslate"><span class="pre">MZI.session_scope</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.html#daplis_rtp.gui.tabs.MZI.watched_paths"><code class="docutils literal notranslate"><span class="pre">MZI.watched_paths()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.tabs.html#daplis_rtp.gui.tabs.SinglePixelHistogram"><code class="docutils literal notranslate"><span class="pre">SinglePixelHistogram</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.html#daplis_rtp.gui.tabs.SinglePixelHistogram.bind_session"><code class="docutils literal notranslate"><span class="pre">SinglePixelHistogram.bind_session()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.html#daplis_rtp.gui.tabs.SinglePixelHistogram.build"><code class="docutils literal notranslate"><span class="pre">SinglePixelHistogram.build()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.html#daplis_rtp.gui.tabs.SinglePixelHistogram.canvas_class"><code class="docutils literal notranslate"><span class="pre">SinglePixelHistogram.canvas_class</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.html#daplis_rtp.gui.tabs.SinglePixelHistogram.cycle_length_change"><code class="docutils literal notranslate"><span class="pre">SinglePixelHistogram.cycle_length_change()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.html#daplis_rtp.gui.tabs.SinglePixelHistogram.hint_text"><code class="docutils literal notranslate"><span class="pre">SinglePixelHistogram.hint_text</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.html#daplis_rtp.gui.tabs.SinglePixelHistogram.on_session_restored"><code class="docutils literal notranslate"><span class="pre">SinglePixelHistogram.on_session_restored()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.html#daplis_rtp.gui.tabs.SinglePixelHistogram.plotted_data"><code class="docutils literal notranslate"><span class="pre">SinglePixelHistogram.plotted_data()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.html#daplis_rtp.gui.tabs.SinglePixelHistogram.refresh"><code class="docutils literal notranslate"><span class="pre">SinglePixelHistogram.refresh()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.html#daplis_rtp.gui.tabs.SinglePixelHistogram.session_scope"><code class="docutils literal notranslate"><span class="pre">SinglePixelHistogram.session_scope</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.tabs.html#daplis_rtp.gui.tabs.Synchronization"><code class="docutils literal notranslate"><span class="pre">Synchronization</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.html#daplis_rtp.gui.tabs.Synchronization.BOARD_INFO"><code class="docutils literal notranslate"><span class="pre">Synchronization.BOARD_INFO</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.html#daplis_rtp.gui.tabs.Synchronization.HINT"><code class="docutils literal notranslate"><span class="pre">Synchronization.HINT</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.html#daplis_rtp.gui.tabs.Synchronization.__init__"><code class="docutils literal notranslate"><span class="pre">Synchronization.__init__()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.tabs.html#submodules">Submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.base.html">daplis_rtp.gui.tabs.base module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.tabs.base.html#daplis_rtp.gui.tabs.base.PlotTab"><code class="docutils literal notranslate"><span class="pre">PlotTab</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.full_sensor.html">daplis_rtp.gui.tabs.full_sensor module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.tabs.full_sensor.html#daplis_rtp.gui.tabs.full_sensor.LinoSPAD2Dual"><code class="docutils literal notranslate"><span class="pre">LinoSPAD2Dual</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.mzi.html">daplis_rtp.gui.tabs.mzi module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.tabs.mzi.html#daplis_rtp.gui.tabs.mzi.MZI"><code class="docutils literal notranslate"><span class="pre">MZI</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.online_plot.html">daplis_rtp.gui.tabs.online_plot module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.tabs.online_plot.html#daplis_rtp.gui.tabs.online_plot.LiveTimestamps"><code class="docutils literal notranslate"><span class="pre">LiveTimestamps</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.single_pixel_histogram.html">daplis_rtp.gui.tabs.single_pixel_histogram module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.tabs.single_pixel_histogram.html#daplis_rtp.gui.tabs.single_pixel_histogram.SinglePixelHistogram"><code class="docutils literal notranslate"><span class="pre">SinglePixelHistogram</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.tabs.synchronization.html">daplis_rtp.gui.tabs.synchronization module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.tabs.synchronization.html#daplis_rtp.gui.tabs.synchronization.AcquisitionWorker"><code class="docutils literal notranslate"><span class="pre">AcquisitionWorker</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.tabs.synchronization.html#daplis_rtp.gui.tabs.synchronization.Synchronization"><code class="docutils literal notranslate"><span class="pre">Synchronization</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.tabs.synchronization.html#daplis_rtp.gui.tabs.synchronization.is_locked"><code class="docutils literal notranslate"><span class="pre">is_locked()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.tabs.synchronization.html#daplis_rtp.gui.tabs.synchronization.send_cmd"><code class="docutils literal notranslate"><span class="pre">send_cmd()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="daplis_rtp.gui.widgets.html">daplis_rtp.gui.widgets package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.BoardOccupancy"><code class="docutils literal notranslate"><span class="pre">BoardOccupancy</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.BoardOccupancy.__init__"><code class="docutils literal notranslate"><span class="pre">BoardOccupancy.__init__()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.DirectoryPicker"><code class="docutils literal notranslate"><span class="pre">DirectoryPicker</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.DirectoryPicker.__init__"><code class="docutils literal notranslate"><span class="pre">DirectoryPicker.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.DirectoryPicker.changed"><code class="docutils literal notranslate"><span class="pre">DirectoryPicker.changed</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.DirectoryPicker.path"><code class="docutils literal notranslate"><span class="pre">DirectoryPicker.path()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.DirectoryPicker.set_path"><code class="docutils literal notranslate"><span class="pre">DirectoryPicker.set_path()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.FileSyncPanel"><code class="docutils literal notranslate"><span class="pre">FileSyncPanel</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.FileSyncPanel.LED_STATES"><code class="docutils literal notranslate"><span class="pre">FileSyncPanel.LED_STATES</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.FileSyncPanel.__init__"><code class="docutils literal notranslate"><span class="pre">FileSyncPanel.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.FileSyncPanel.is_enabled"><code class="docutils literal notranslate"><span class="pre">FileSyncPanel.is_enabled()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.FileSyncPanel.paths"><code class="docutils literal notranslate"><span class="pre">FileSyncPanel.paths()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.FileSyncPanel.problem"><code class="docutils literal notranslate"><span class="pre">FileSyncPanel.problem</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.FileSyncPanel.set_paths"><code class="docutils literal notranslate"><span class="pre">FileSyncPanel.set_paths()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.FileSyncPanel.start"><code class="docutils literal notranslate"><span class="pre">FileSyncPanel.start()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.FileSyncPanel.stop"><code class="docutils literal notranslate"><span class="pre">FileSyncPanel.stop()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.GaussianFitStrip"><code class="docutils literal notranslate"><span class="pre">GaussianFitStrip</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.GaussianFitStrip.__init__"><code class="docutils literal notranslate"><span class="pre">GaussianFitStrip.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.GaussianFitStrip.changed"><code class="docutils literal notranslate"><span class="pre">GaussianFitStrip.changed</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.GaussianFitStrip.clear"><code class="docutils literal notranslate"><span class="pre">GaussianFitStrip.clear()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.GaussianFitStrip.enabled"><code class="docutils literal notranslate"><span class="pre">GaussianFitStrip.enabled</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.GaussianFitStrip.show_fits"><code class="docutils literal notranslate"><span class="pre">GaussianFitStrip.show_fits()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.GaussianFitStrip.threshold"><code class="docutils literal notranslate"><span class="pre">GaussianFitStrip.threshold()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.LimitPair"><code class="docutils literal notranslate"><span class="pre">LimitPair</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.LimitPair.__init__"><code class="docutils literal notranslate"><span class="pre">LimitPair.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.LimitPair.changed"><code class="docutils literal notranslate"><span class="pre">LimitPair.changed</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.LimitPair.values"><code class="docutils literal notranslate"><span class="pre">LimitPair.values()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.PeakStatsPanel"><code class="docutils literal notranslate"><span class="pre">PeakStatsPanel</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.PeakStatsPanel.__init__"><code class="docutils literal notranslate"><span class="pre">PeakStatsPanel.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.PeakStatsPanel.clear"><code class="docutils literal notranslate"><span class="pre">PeakStatsPanel.clear()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.PeakStatsPanel.enabled"><code class="docutils literal notranslate"><span class="pre">PeakStatsPanel.enabled</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.PeakStatsPanel.show_stats"><code class="docutils literal notranslate"><span class="pre">PeakStatsPanel.show_stats()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.PixelMaskWindow"><code class="docutils literal notranslate"><span class="pre">PixelMaskWindow</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.PixelMaskWindow.__init__"><code class="docutils literal notranslate"><span class="pre">PixelMaskWindow.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.PixelMaskWindow.changed"><code class="docutils literal notranslate"><span class="pre">PixelMaskWindow.changed</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.PixelMaskWindow.clear_requested"><code class="docutils literal notranslate"><span class="pre">PixelMaskWindow.clear_requested</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.PixelMaskWindow.masked_counts"><code class="docutils literal notranslate"><span class="pre">PixelMaskWindow.masked_counts()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.PixelMaskWindow.open_beside"><code class="docutils literal notranslate"><span class="pre">PixelMaskWindow.open_beside()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.PixelMaskWindow.refresh_counts"><code class="docutils literal notranslate"><span class="pre">PixelMaskWindow.refresh_counts()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.PixelMaskWindow.set_all"><code class="docutils literal notranslate"><span class="pre">PixelMaskWindow.set_all()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.PixelMaskWindow.set_pixels"><code class="docutils literal notranslate"><span class="pre">PixelMaskWindow.set_pixels()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.ReadoutStrip"><code class="docutils literal notranslate"><span class="pre">ReadoutStrip</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.ReadoutStrip.__init__"><code class="docutils literal notranslate"><span class="pre">ReadoutStrip.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.ReadoutStrip.add"><code class="docutils literal notranslate"><span class="pre">ReadoutStrip.add()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.ReadoutStrip.add_stretch"><code class="docutils literal notranslate"><span class="pre">ReadoutStrip.add_stretch()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.ReadoutStrip.set"><code class="docutils literal notranslate"><span class="pre">ReadoutStrip.set()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.TdcOccupancyPanel"><code class="docutils literal notranslate"><span class="pre">TdcOccupancyPanel</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.TdcOccupancyPanel.LED_STATES"><code class="docutils literal notranslate"><span class="pre">TdcOccupancyPanel.LED_STATES</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.TdcOccupancyPanel.__init__"><code class="docutils literal notranslate"><span class="pre">TdcOccupancyPanel.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.TdcOccupancyPanel.attach_timestamps_spinbox"><code class="docutils literal notranslate"><span class="pre">TdcOccupancyPanel.attach_timestamps_spinbox()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.TdcOccupancyPanel.clear"><code class="docutils literal notranslate"><span class="pre">TdcOccupancyPanel.clear()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.TdcOccupancyPanel.enabled"><code class="docutils literal notranslate"><span class="pre">TdcOccupancyPanel.enabled</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.TdcOccupancyPanel.explicit_pixels"><code class="docutils literal notranslate"><span class="pre">TdcOccupancyPanel.explicit_pixels()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.TdcOccupancyPanel.problem"><code class="docutils literal notranslate"><span class="pre">TdcOccupancyPanel.problem</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.TdcOccupancyPanel.reset"><code class="docutils literal notranslate"><span class="pre">TdcOccupancyPanel.reset()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.TdcOccupancyPanel.show_result"><code class="docutils literal notranslate"><span class="pre">TdcOccupancyPanel.show_result()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.daughterboard_combo"><code class="docutils literal notranslate"><span class="pre">daughterboard_combo()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.describe_fit"><code class="docutils literal notranslate"><span class="pre">describe_fit()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.firmware_combo"><code class="docutils literal notranslate"><span class="pre">firmware_combo()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.fit_peaks"><code class="docutils literal notranslate"><span class="pre">fit_peaks()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.float_value"><code class="docutils literal notranslate"><span class="pre">float_value()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.info_badge"><code class="docutils literal notranslate"><span class="pre">info_badge()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.mask_summary"><code class="docutils literal notranslate"><span class="pre">mask_summary()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.masked_array"><code class="docutils literal notranslate"><span class="pre">masked_array()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.motherboard_combo"><code class="docutils literal notranslate"><span class="pre">motherboard_combo()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.peak_stats"><code class="docutils literal notranslate"><span class="pre">peak_stats()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.pixel_spin"><code class="docutils literal notranslate"><span class="pre">pixel_spin()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.pixels_of_interest"><code class="docutils literal notranslate"><span class="pre">pixels_of_interest()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.widgets.html#daplis_rtp.gui.widgets.timestamps_spin"><code class="docutils literal notranslate"><span class="pre">timestamps_spin()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.widgets.html#submodules">Submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.controls.html">daplis_rtp.gui.widgets.controls module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.widgets.controls.html#daplis_rtp.gui.widgets.controls.DirectoryPicker"><code class="docutils literal notranslate"><span class="pre">DirectoryPicker</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.widgets.controls.html#daplis_rtp.gui.widgets.controls.LimitPair"><code class="docutils literal notranslate"><span class="pre">LimitPair</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.widgets.controls.html#daplis_rtp.gui.widgets.controls.ReadoutStrip"><code class="docutils literal notranslate"><span class="pre">ReadoutStrip</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.widgets.controls.html#daplis_rtp.gui.widgets.controls.daughterboard_combo"><code class="docutils literal notranslate"><span class="pre">daughterboard_combo()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.widgets.controls.html#daplis_rtp.gui.widgets.controls.firmware_combo"><code class="docutils literal notranslate"><span class="pre">firmware_combo()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.widgets.controls.html#daplis_rtp.gui.widgets.controls.float_field"><code class="docutils literal notranslate"><span class="pre">float_field()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.widgets.controls.html#daplis_rtp.gui.widgets.controls.float_value"><code class="docutils literal notranslate"><span class="pre">float_value()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.widgets.controls.html#daplis_rtp.gui.widgets.controls.info_badge"><code class="docutils literal notranslate"><span class="pre">info_badge()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.widgets.controls.html#daplis_rtp.gui.widgets.controls.motherboard_combo"><code class="docutils literal notranslate"><span class="pre">motherboard_combo()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.widgets.controls.html#daplis_rtp.gui.widgets.controls.pixel_spin"><code class="docutils literal notranslate"><span class="pre">pixel_spin()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.widgets.controls.html#daplis_rtp.gui.widgets.controls.timestamps_spin"><code class="docutils literal notranslate"><span class="pre">timestamps_spin()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.file_sync.html">daplis_rtp.gui.widgets.file_sync module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.widgets.file_sync.html#daplis_rtp.gui.widgets.file_sync.FileSyncPanel"><code class="docutils literal notranslate"><span class="pre">FileSyncPanel</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.widgets.file_sync.html#daplis_rtp.gui.widgets.file_sync.FileSyncWorker"><code class="docutils literal notranslate"><span class="pre">FileSyncWorker</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.widgets.file_sync.html#daplis_rtp.gui.widgets.file_sync.SyncStatus"><code class="docutils literal notranslate"><span class="pre">SyncStatus</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.widgets.file_sync.html#daplis_rtp.gui.widgets.file_sync.baseline"><code class="docutils literal notranslate"><span class="pre">baseline()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.gaussian_fit.html">daplis_rtp.gui.widgets.gaussian_fit module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.widgets.gaussian_fit.html#daplis_rtp.gui.widgets.gaussian_fit.GaussianFitStrip"><code class="docutils literal notranslate"><span class="pre">GaussianFitStrip</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.widgets.gaussian_fit.html#daplis_rtp.gui.widgets.gaussian_fit.describe_fit"><code class="docutils literal notranslate"><span class="pre">describe_fit()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.widgets.gaussian_fit.html#daplis_rtp.gui.widgets.gaussian_fit.fit_peaks"><code class="docutils literal notranslate"><span class="pre">fit_peaks()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.widgets.gaussian_fit.html#daplis_rtp.gui.widgets.gaussian_fit.gaussian"><code class="docutils literal notranslate"><span class="pre">gaussian()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.peak_stats.html">daplis_rtp.gui.widgets.peak_stats module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.widgets.peak_stats.html#daplis_rtp.gui.widgets.peak_stats.PeakStatsPanel"><code class="docutils literal notranslate"><span class="pre">PeakStatsPanel</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.widgets.peak_stats.html#daplis_rtp.gui.widgets.peak_stats.peak_stats"><code class="docutils literal notranslate"><span class="pre">peak_stats()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.pixel_mask.html">daplis_rtp.gui.widgets.pixel_mask module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.widgets.pixel_mask.html#daplis_rtp.gui.widgets.pixel_mask.PixelMaskWindow"><code class="docutils literal notranslate"><span class="pre">PixelMaskWindow</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.widgets.pixel_mask.html#daplis_rtp.gui.widgets.pixel_mask.mask_summary"><code class="docutils literal notranslate"><span class="pre">mask_summary()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.widgets.pixel_mask.html#daplis_rtp.gui.widgets.pixel_mask.masked_array"><code class="docutils literal notranslate"><span class="pre">masked_array()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.tdc_occupancy.html">daplis_rtp.gui.widgets.tdc_occupancy module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.widgets.tdc_occupancy.html#daplis_rtp.gui.widgets.tdc_occupancy.BoardOccupancy"><code class="docutils literal notranslate"><span class="pre">BoardOccupancy</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.widgets.tdc_occupancy.html#daplis_rtp.gui.widgets.tdc_occupancy.TdcOccupancyPanel"><code class="docutils literal notranslate"><span class="pre">TdcOccupancyPanel</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.widgets.tdc_occupancy.html#daplis_rtp.gui.widgets.tdc_occupancy.pixels_of_interest"><code class="docutils literal notranslate"><span class="pre">pixels_of_interest()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="daplis_rtp.gui.app_icon.html">daplis_rtp.gui.app_icon module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.app_icon.html#daplis_rtp.gui.app_icon.app_icon"><code class="docutils literal notranslate"><span class="pre">app_icon()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.app_icon.html#daplis_rtp.gui.app_icon.claim_taskbar_identity"><code class="docutils literal notranslate"><span class="pre">claim_taskbar_identity()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.app_icon.html#daplis_rtp.gui.app_icon.icon_file"><code class="docutils literal notranslate"><span class="pre">icon_file()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="daplis_rtp.gui.layout.html">daplis_rtp.gui.layout module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.ActionBar"><code class="docutils literal notranslate"><span class="pre">ActionBar</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.ActionBar.__init__"><code class="docutils literal notranslate"><span class="pre">ActionBar.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.ActionBar.add_button"><code class="docutils literal notranslate"><span class="pre">ActionBar.add_button()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.ActionBar.apply_metrics"><code class="docutils literal notranslate"><span class="pre">ActionBar.apply_metrics()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.ControlColumn"><code class="docutils literal notranslate"><span class="pre">ControlColumn</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.ControlColumn.__init__"><code class="docutils literal notranslate"><span class="pre">ControlColumn.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.ControlColumn.add_group"><code class="docutils literal notranslate"><span class="pre">ControlColumn.add_group()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.ControlColumn.add_heading"><code class="docutils literal notranslate"><span class="pre">ControlColumn.add_heading()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.ControlColumn.add_pair_row"><code class="docutils literal notranslate"><span class="pre">ControlColumn.add_pair_row()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.ControlColumn.add_row"><code class="docutils literal notranslate"><span class="pre">ControlColumn.add_row()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.ControlColumn.add_stretch"><code class="docutils literal notranslate"><span class="pre">ControlColumn.add_stretch()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.ControlColumn.add_wide_row"><code class="docutils literal notranslate"><span class="pre">ControlColumn.add_wide_row()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.ControlColumn.add_widget"><code class="docutils literal notranslate"><span class="pre">ControlColumn.add_widget()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.ControlColumn.apply_metrics"><code class="docutils literal notranslate"><span class="pre">ControlColumn.apply_metrics()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.ElidedLabel"><code class="docutils literal notranslate"><span class="pre">ElidedLabel</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.ElidedLabel.__init__"><code class="docutils literal notranslate"><span class="pre">ElidedLabel.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.ElidedLabel.minimumSizeHint"><code class="docutils literal notranslate"><span class="pre">ElidedLabel.minimumSizeHint()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.ElidedLabel.paintEvent"><code class="docutils literal notranslate"><span class="pre">ElidedLabel.paintEvent()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.ElidedLabel.setText"><code class="docutils literal notranslate"><span class="pre">ElidedLabel.setText()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.TabShell"><code class="docutils literal notranslate"><span class="pre">TabShell</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.TabShell.__init__"><code class="docutils literal notranslate"><span class="pre">TabShell.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.TabShell.add_canvas_strip"><code class="docutils literal notranslate"><span class="pre">TabShell.add_canvas_strip()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.TabShell.apply_metrics"><code class="docutils literal notranslate"><span class="pre">TabShell.apply_metrics()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.TabShell.canvas_area"><code class="docutils literal notranslate"><span class="pre">TabShell.canvas_area</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.TabShell.footer_row"><code class="docutils literal notranslate"><span class="pre">TabShell.footer_row()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.TabShell.header_row"><code class="docutils literal notranslate"><span class="pre">TabShell.header_row()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.TabShell.set_canvas"><code class="docutils literal notranslate"><span class="pre">TabShell.set_canvas()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.TabShell.set_hint"><code class="docutils literal notranslate"><span class="pre">TabShell.set_hint()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.action_height"><code class="docutils literal notranslate"><span class="pre">action_height()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.allow_shrink"><code class="docutils literal notranslate"><span class="pre">allow_shrink()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.control_box_width"><code class="docutils literal notranslate"><span class="pre">control_box_width()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.control_column_width"><code class="docutils literal notranslate"><span class="pre">control_column_width()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.control_content_width"><code class="docutils literal notranslate"><span class="pre">control_content_width()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.fixed_row"><code class="docutils literal notranslate"><span class="pre">fixed_row()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.hint_height"><code class="docutils literal notranslate"><span class="pre">hint_height()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.label"><code class="docutils literal notranslate"><span class="pre">label()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.led"><code class="docutils literal notranslate"><span class="pre">led()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.row_height"><code class="docutils literal notranslate"><span class="pre">row_height()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.scale"><code class="docutils literal notranslate"><span class="pre">scale()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.set_led"><code class="docutils literal notranslate"><span class="pre">set_led()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.size_like_ui_tabs"><code class="docutils literal notranslate"><span class="pre">size_like_ui_tabs()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="daplis_rtp.gui.main_window.html">daplis_rtp.gui.main_window module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.main_window.html#daplis_rtp.gui.main_window.MainWindow"><code class="docutils literal notranslate"><span class="pre">MainWindow</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.main_window.html#daplis_rtp.gui.main_window.MainWindow.__init__"><code class="docutils literal notranslate"><span class="pre">MainWindow.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.main_window.html#daplis_rtp.gui.main_window.MainWindow.closeEvent"><code class="docutils literal notranslate"><span class="pre">MainWindow.closeEvent()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.main_window.html#daplis_rtp.gui.main_window.MainWindow.export_current_tab"><code class="docutils literal notranslate"><span class="pre">MainWindow.export_current_tab()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.main_window.html#daplis_rtp.gui.main_window.MainWindow.open_preferences"><code class="docutils literal notranslate"><span class="pre">MainWindow.open_preferences()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.main_window.html#daplis_rtp.gui.main_window.quiesce"><code class="docutils literal notranslate"><span class="pre">quiesce()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.main_window.html#daplis_rtp.gui.main_window.write_plotted_data"><code class="docutils literal notranslate"><span class="pre">write_plotted_data()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="daplis_rtp.gui.preferences.html">daplis_rtp.gui.preferences module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.preferences.html#daplis_rtp.gui.preferences.ColourButton"><code class="docutils literal notranslate"><span class="pre">ColourButton</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.preferences.html#daplis_rtp.gui.preferences.ColourButton.__init__"><code class="docutils literal notranslate"><span class="pre">ColourButton.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.preferences.html#daplis_rtp.gui.preferences.ColourButton.colour"><code class="docutils literal notranslate"><span class="pre">ColourButton.colour()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.preferences.html#daplis_rtp.gui.preferences.ColourButton.picked"><code class="docutils literal notranslate"><span class="pre">ColourButton.picked</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.preferences.html#daplis_rtp.gui.preferences.ColourButton.set_colour"><code class="docutils literal notranslate"><span class="pre">ColourButton.set_colour()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.preferences.html#daplis_rtp.gui.preferences.PreferencesDialog"><code class="docutils literal notranslate"><span class="pre">PreferencesDialog</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.preferences.html#daplis_rtp.gui.preferences.PreferencesDialog.__init__"><code class="docutils literal notranslate"><span class="pre">PreferencesDialog.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.preferences.html#daplis_rtp.gui.preferences.PreferencesDialog.open_beside"><code class="docutils literal notranslate"><span class="pre">PreferencesDialog.open_beside()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.preferences.html#daplis_rtp.gui.preferences.PreferencesDialog.reload"><code class="docutils literal notranslate"><span class="pre">PreferencesDialog.reload()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="daplis_rtp.gui.session.html">daplis_rtp.gui.session module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.session.html#daplis_rtp.gui.session.SessionStore"><code class="docutils literal notranslate"><span class="pre">SessionStore</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.session.html#daplis_rtp.gui.session.SessionStore.__init__"><code class="docutils literal notranslate"><span class="pre">SessionStore.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.session.html#daplis_rtp.gui.session.SessionStore.bind"><code class="docutils literal notranslate"><span class="pre">SessionStore.bind()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.session.html#daplis_rtp.gui.session.SessionStore.bind_all"><code class="docutils literal notranslate"><span class="pre">SessionStore.bind_all()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.session.html#daplis_rtp.gui.session.SessionStore.forget"><code class="docutils literal notranslate"><span class="pre">SessionStore.forget()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.session.html#daplis_rtp.gui.session.SessionStore.restore"><code class="docutils literal notranslate"><span class="pre">SessionStore.restore()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.session.html#daplis_rtp.gui.session.SessionStore.save"><code class="docutils literal notranslate"><span class="pre">SessionStore.save()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="daplis_rtp.gui.theme.html">daplis_rtp.gui.theme module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.theme.html#daplis_rtp.gui.theme.Theme"><code class="docutils literal notranslate"><span class="pre">Theme</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.theme.html#daplis_rtp.gui.theme.Theme.__init__"><code class="docutils literal notranslate"><span class="pre">Theme.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.theme.html#daplis_rtp.gui.theme.Theme.accent"><code class="docutils literal notranslate"><span class="pre">Theme.accent</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.theme.html#daplis_rtp.gui.theme.Theme.axes_bg"><code class="docutils literal notranslate"><span class="pre">Theme.axes_bg</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.theme.html#daplis_rtp.gui.theme.Theme.axes_edge"><code class="docutils literal notranslate"><span class="pre">Theme.axes_edge</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.theme.html#daplis_rtp.gui.theme.Theme.axes_fg"><code class="docutils literal notranslate"><span class="pre">Theme.axes_fg</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.theme.html#daplis_rtp.gui.theme.Theme.base"><code class="docutils literal notranslate"><span class="pre">Theme.base</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.theme.html#daplis_rtp.gui.theme.Theme.colour"><code class="docutils literal notranslate"><span class="pre">Theme.colour()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.theme.html#daplis_rtp.gui.theme.Theme.error"><code class="docutils literal notranslate"><span class="pre">Theme.error</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.theme.html#daplis_rtp.gui.theme.Theme.figure_bg"><code class="docutils literal notranslate"><span class="pre">Theme.figure_bg</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.theme.html#daplis_rtp.gui.theme.Theme.glow"><code class="docutils literal notranslate"><span class="pre">Theme.glow</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.theme.html#daplis_rtp.gui.theme.Theme.grid"><code class="docutils literal notranslate"><span class="pre">Theme.grid</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.theme.html#daplis_rtp.gui.theme.Theme.grid_on"><code class="docutils literal notranslate"><span class="pre">Theme.grid_on</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.theme.html#daplis_rtp.gui.theme.Theme.key"><code class="docutils literal notranslate"><span class="pre">Theme.key</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.theme.html#daplis_rtp.gui.theme.Theme.marker"><code class="docutils literal notranslate"><span class="pre">Theme.marker</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.theme.html#daplis_rtp.gui.theme.Theme.muted"><code class="docutils literal notranslate"><span class="pre">Theme.muted</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.theme.html#daplis_rtp.gui.theme.Theme.name"><code class="docutils literal notranslate"><span class="pre">Theme.name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.theme.html#daplis_rtp.gui.theme.Theme.ok"><code class="docutils literal notranslate"><span class="pre">Theme.ok</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.theme.html#daplis_rtp.gui.theme.Theme.series"><code class="docutils literal notranslate"><span class="pre">Theme.series</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.theme.html#daplis_rtp.gui.theme.Theme.surface"><code class="docutils literal notranslate"><span class="pre">Theme.surface</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.theme.html#daplis_rtp.gui.theme.Theme.text"><code class="docutils literal notranslate"><span class="pre">Theme.text</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.theme.html#daplis_rtp.gui.theme.Theme.warn"><code class="docutils literal notranslate"><span class="pre">Theme.warn</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.theme.html#daplis_rtp.gui.theme.Theme.window"><code class="docutils literal notranslate"><span class="pre">Theme.window</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.theme.html#daplis_rtp.gui.theme.ThemeManager"><code class="docutils literal notranslate"><span class="pre">ThemeManager</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.theme.html#daplis_rtp.gui.theme.ThemeManager.__init__"><code class="docutils literal notranslate"><span class="pre">ThemeManager.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.theme.html#daplis_rtp.gui.theme.ThemeManager.apply_to_app"><code class="docutils literal notranslate"><span class="pre">ThemeManager.apply_to_app()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.theme.html#daplis_rtp.gui.theme.ThemeManager.changed"><code class="docutils literal notranslate"><span class="pre">ThemeManager.changed</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.theme.html#daplis_rtp.gui.theme.ThemeManager.is_overridden"><code class="docutils literal notranslate"><span class="pre">ThemeManager.is_overridden()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.theme.html#daplis_rtp.gui.theme.ThemeManager.load"><code class="docutils literal notranslate"><span class="pre">ThemeManager.load()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.theme.html#daplis_rtp.gui.theme.ThemeManager.mpl_rc"><code class="docutils literal notranslate"><span class="pre">ThemeManager.mpl_rc()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.theme.html#daplis_rtp.gui.theme.ThemeManager.overrides"><code class="docutils literal notranslate"><span class="pre">ThemeManager.overrides()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.theme.html#daplis_rtp.gui.theme.ThemeManager.plot_font_size"><code class="docutils literal notranslate"><span class="pre">ThemeManager.plot_font_size</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.theme.html#daplis_rtp.gui.theme.ThemeManager.preset_key"><code class="docutils literal notranslate"><span class="pre">ThemeManager.preset_key</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.theme.html#daplis_rtp.gui.theme.ThemeManager.reset"><code class="docutils literal notranslate"><span class="pre">ThemeManager.reset()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.theme.html#daplis_rtp.gui.theme.ThemeManager.save"><code class="docutils literal notranslate"><span class="pre">ThemeManager.save()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.theme.html#daplis_rtp.gui.theme.ThemeManager.set_override"><code class="docutils literal notranslate"><span class="pre">ThemeManager.set_override()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.theme.html#daplis_rtp.gui.theme.ThemeManager.set_plot_font_size"><code class="docutils literal notranslate"><span class="pre">ThemeManager.set_plot_font_size()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.theme.html#daplis_rtp.gui.theme.ThemeManager.set_preset"><code class="docutils literal notranslate"><span class="pre">ThemeManager.set_preset()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.theme.html#daplis_rtp.gui.theme.ThemeManager.set_series_colour"><code class="docutils literal notranslate"><span class="pre">ThemeManager.set_series_colour()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.theme.html#daplis_rtp.gui.theme.ThemeManager.set_ui_font_size"><code class="docutils literal notranslate"><span class="pre">ThemeManager.set_ui_font_size()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.theme.html#daplis_rtp.gui.theme.ThemeManager.stylesheet"><code class="docutils literal notranslate"><span class="pre">ThemeManager.stylesheet()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.theme.html#daplis_rtp.gui.theme.ThemeManager.theme"><code class="docutils literal notranslate"><span class="pre">ThemeManager.theme</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.theme.html#daplis_rtp.gui.theme.ThemeManager.ui_font_size"><code class="docutils literal notranslate"><span class="pre">ThemeManager.ui_font_size</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.theme.html#daplis_rtp.gui.theme.current_theme"><code class="docutils literal notranslate"><span class="pre">current_theme()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.theme.html#daplis_rtp.gui.theme.preset_names"><code class="docutils literal notranslate"><span class="pre">preset_names()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.theme.html#daplis_rtp.gui.theme.theme_manager"><code class="docutils literal notranslate"><span class="pre">theme_manager()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="installation.html" class="btn btn-neutral float-left" title="Installation and usage" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="daplis_rtp.gui.canvas.html" class="btn btn-neutral float-right" title="daplis_rtp.gui.canvas package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Sergei Kulkov.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

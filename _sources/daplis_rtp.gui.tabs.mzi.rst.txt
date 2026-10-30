@@ -1,0 +1,7 @@
+daplis\_rtp.gui.tabs.mzi module
+===============================
+
+.. automodule:: daplis_rtp.gui.tabs.mzi
+   :members:
+   :show-inheritance:
+   :undoc-members:

@@ -1,0 +1,865 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>daplis_rtp.gui.layout &mdash; Data Analysis Package for LinoSPAD2 - Real-Time Plotting 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Data Analysis Package for LinoSPAD2 - Real-Time Plotting
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation and usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../daplis_rtp.gui.html">daplis_rtp.gui package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../daplis_rtp.functions.html">daplis_rtp.functions package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contribute.html">How to contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../license.html">License and contact info</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../acknowledgement.html">Acknowledgement</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Data Analysis Package for LinoSPAD2 - Real-Time Plotting</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">daplis_rtp.gui.layout</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for daplis_rtp.gui.layout</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""One set of geometry rules for every tab.</span>
+
+<span class="sd">Nothing in the old application decided how large it was. Five tabs each</span>
+<span class="sd">decided for themselves, in two different ways - three generated from</span>
+<span class="sd">``.ui`` files by ``pyuic``, two built by hand in Python - and the window</span>
+<span class="sd">took the largest minimum of the five. A panel added to the tab nobody</span>
+<span class="sd">was looking at set how tall the application opened, and a widget sized</span>
+<span class="sd">differently from its counterpart on another tab was invisible until the</span>
+<span class="sd">two were put side by side.</span>
+
+<span class="sd">That cost real time. A status box added to one control column made</span>
+<span class="sd">every tab open 70 px taller; three tabs carried a 500x425 placeholder</span>
+<span class="sd">widget that nothing drew; the "Full Sensor" combo boxes had drifted to</span>
+<span class="sd">80 px ``Expanding`` against everyone else's 100 px ``Fixed``. All three</span>
+<span class="sd">were found by measuring, not by looking.</span>
+
+<span class="sd">So the numbers live here, once, and the tabs are built from</span>
+<span class="sd">:class:`TabShell` rather than each inventing its own skeleton. What that</span>
+<span class="sd">buys is the thing the eye actually notices: the plot is the same size</span>
+<span class="sd">and in the same place on every tab, and so is every button.</span>
+
+<span class="sd">The rules that govern, none of them obvious and all of them learnt the</span>
+<span class="sd">expensive way:</span>
+
+<span class="sd">* **A control column's minimum height is the sum of the panels stacked</span>
+<span class="sd">  in it.** Nothing in a ``QVBoxLayout`` gives height back. So every box</span>
+<span class="sd">  added to a column used to be height the window could never lose, on</span>
+<span class="sd">  every tab, forever. Hence :class:`ControlColumn`, which is a scroll</span>
+<span class="sd">  area: a column too tall for the window scrolls instead of pushing the</span>
+<span class="sd">  window taller. That is what stops one tab's panel from setting the</span>
+<span class="sd">  size of all five.</span>
+<span class="sd">* **The canvas is the only other thing that yields.**</span>
+<span class="sd">  :data:`MIN_CANVAS_HEIGHT` is 240, tuned as the largest value that</span>
+<span class="sd">  costs the window no height of its own.</span>
+<span class="sd">* **The navigation toolbar does not push back.** Squeeze a ``QToolBar``</span>
+<span class="sd">  below its contents and it hides them behind an overflow button rather</span>
+<span class="sd">  than forcing its parent wider - and the cursor readout, which is how</span>
+<span class="sd">  pixel numbers are read off the plot, is the first thing to go. See</span>
+<span class="sd">  ``canvas.base.toolbar_min_width``.</span>
+<span class="sd">* **The window's minimum is the worst tab, per axis.** Height can come</span>
+<span class="sd">  from one tab and width from another, which is why</span>
+<span class="sd">  ``tests/test_tab_geometry.py`` measures all five.</span>
+
+<span class="sd">Sizes here are quoted at the default 10 pt interface font and scaled</span>
+<span class="sd">with it, so that turning the font up in Preferences moves the rows and</span>
+<span class="sd">the control column with it instead of clipping them.</span>
+
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">PyQt5</span><span class="w"> </span><span class="kn">import</span> <span class="n">QtCore</span><span class="p">,</span> <span class="n">QtGui</span><span class="p">,</span> <span class="n">QtWidgets</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">daplis_rtp.gui.theme</span><span class="w"> </span><span class="kn">import</span> <span class="n">DEFAULT_UI_FONT_SIZE</span><span class="p">,</span> <span class="n">theme_manager</span>
+
+<span class="c1"># Width of every combo and spin box in a control column. The label</span>
+<span class="c1"># beside it takes the slack instead, which is what makes a column line</span>
+<span class="c1"># up down its whole length and stay put as the window is resized.</span>
+<span class="n">CONTROL_BOX_WIDTH</span> <span class="o">=</span> <span class="mi">100</span>
+
+<span class="c1"># The whole right-hand column, scroll bar included. Wide enough for</span>
+<span class="c1"># "Daughterboard" plus a 100 px box without eliding the label.</span>
+<span class="n">CONTROL_COLUMN_WIDTH</span> <span class="o">=</span> <span class="mi">288</span>
+
+<span class="c1"># Room kept for the column's scroll bar whether or not it is showing.</span>
+<span class="c1"># Without this the controls shift 16 px left the moment one panel too</span>
+<span class="c1"># many is added - on that tab only - and the fixed-width boxes at the</span>
+<span class="c1"># right-hand end are the ones that get clipped.</span>
+<span class="n">SCROLLBAR_WIDTH</span> <span class="o">=</span> <span class="mi">16</span>
+
+<span class="c1"># One row height, replacing the 26/28 px mixture the old tabs carried</span>
+<span class="c1"># with no rule behind which was which.</span>
+<span class="n">ROW_HEIGHT</span> <span class="o">=</span> <span class="mi">26</span>
+
+<span class="c1"># The action buttons along the bottom of the control column.</span>
+<span class="n">ACTION_HEIGHT</span> <span class="o">=</span> <span class="mi">34</span>
+
+<span class="c1"># Rows above the plot, on every tab. Two, because "Full Sensor" needs</span>
+<span class="c1"># two browse rows and the plot has to start at the same height there as</span>
+<span class="c1"># everywhere else; the tabs that need only one put a readout in the</span>
+<span class="c1"># other.</span>
+<span class="n">HEADER_ROWS</span> <span class="o">=</span> <span class="mi">2</span>
+
+<span class="c1"># The one row below the plot, which is where axis limits live.</span>
+<span class="n">FOOTER_ROWS</span> <span class="o">=</span> <span class="mi">1</span>
+
+<span class="c1"># The hint line across the top of every tab.</span>
+<span class="n">HINT_HEIGHT</span> <span class="o">=</span> <span class="mi">20</span>
+
+<span class="c1"># Below this the plot is not worth looking at. Kept at the largest value</span>
+<span class="c1"># that costs the window no height of its own: above 240 the canvas,</span>
+<span class="c1"># rather than the controls beside it, starts deciding how tall the</span>
+<span class="c1"># application opens.</span>
+<span class="n">MIN_CANVAS_HEIGHT</span> <span class="o">=</span> <span class="mi">240</span>
+
+<span class="c1"># Slots in the action bar. Fixing the count rather than the sizes is</span>
+<span class="c1"># what puts "Refresh plot" in the same place on the tab that has one</span>
+<span class="c1"># button and on the tab that has three.</span>
+<span class="n">ACTION_SLOTS</span> <span class="o">=</span> <span class="mi">3</span>
+
+<span class="n">MARGIN</span> <span class="o">=</span> <span class="mi">8</span>
+<span class="n">SPACING</span> <span class="o">=</span> <span class="mi">6</span>
+
+<span class="c1"># What the window opens at, and the floor the geometry test holds it</span>
+<span class="c1"># under. The old window had no 'resize' at all, so it opened at its</span>
+<span class="c1"># minimum - which is why that minimum had been the subject of so much</span>
+<span class="c1"># attention. It opens at a comfortable size now, and the minimum is</span>
+<span class="c1"># only a floor.</span>
+<span class="n">WINDOW_DEFAULT_SIZE</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1500</span><span class="p">,</span> <span class="mi">900</span><span class="p">)</span>
+<span class="n">WINDOW_MIN_BUDGET</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1320</span><span class="p">,</span> <span class="mi">720</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="scale">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.scale">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">scale</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">"""How far the interface font is from the size the numbers assume."""</span>
+    <span class="k">return</span> <span class="n">theme_manager</span><span class="p">()</span><span class="o">.</span><span class="n">ui_font_size</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">DEFAULT_UI_FONT_SIZE</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_scaled</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">value</span> <span class="o">*</span> <span class="n">scale</span><span class="p">()))</span>
+
+
+<div class="viewcode-block" id="row_height">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.row_height">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">row_height</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">"""One control row, never shorter than the text it has to hold."""</span>
+    <span class="n">app</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QApplication</span><span class="o">.</span><span class="n">instance</span><span class="p">()</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QFontMetrics</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">font</span><span class="p">())</span><span class="o">.</span><span class="n">height</span><span class="p">()</span> <span class="k">if</span> <span class="n">app</span> <span class="k">else</span> <span class="mi">0</span>
+    <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="n">_scaled</span><span class="p">(</span><span class="n">ROW_HEIGHT</span><span class="p">),</span> <span class="n">text</span> <span class="o">+</span> <span class="mi">9</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="control_box_width">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.control_box_width">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">control_box_width</span><span class="p">():</span>
+    <span class="k">return</span> <span class="n">_scaled</span><span class="p">(</span><span class="n">CONTROL_BOX_WIDTH</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="control_column_width">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.control_column_width">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">control_column_width</span><span class="p">():</span>
+    <span class="k">return</span> <span class="n">_scaled</span><span class="p">(</span><span class="n">CONTROL_COLUMN_WIDTH</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="control_content_width">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.control_content_width">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">control_content_width</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">"""The column's width less the room kept for its scroll bar.</span>
+
+<span class="sd">    Everything in the column - the rows, the panels, the action buttons</span>
+<span class="sd">    - is laid out to this, so that the contents sit in the same place</span>
+<span class="sd">    on a tab whose column scrolls and one whose column does not.</span>
+
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">control_column_width</span><span class="p">()</span> <span class="o">-</span> <span class="n">_scaled</span><span class="p">(</span><span class="n">SCROLLBAR_WIDTH</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="action_height">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.action_height">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">action_height</span><span class="p">():</span>
+    <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="n">_scaled</span><span class="p">(</span><span class="n">ACTION_HEIGHT</span><span class="p">),</span> <span class="n">row_height</span><span class="p">()</span> <span class="o">+</span> <span class="mi">6</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="hint_height">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.hint_height">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">hint_height</span><span class="p">():</span>
+    <span class="n">app</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QApplication</span><span class="o">.</span><span class="n">instance</span><span class="p">()</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QFontMetrics</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">font</span><span class="p">())</span><span class="o">.</span><span class="n">height</span><span class="p">()</span> <span class="k">if</span> <span class="n">app</span> <span class="k">else</span> <span class="n">HINT_HEIGHT</span>
+    <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="n">_scaled</span><span class="p">(</span><span class="n">HINT_HEIGHT</span><span class="p">),</span> <span class="n">text</span> <span class="o">+</span> <span class="mi">2</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="size_like_ui_tabs">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.size_like_ui_tabs">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">size_like_ui_tabs</span><span class="p">(</span><span class="n">widget</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Give one control the width and height every other control has.</span>
+
+<span class="sd">    Named after what it was for: the two hand-built tabs had to be made</span>
+<span class="sd">    to agree with the three generated ones. Now it is the only way any</span>
+<span class="sd">    of them is sized.</span>
+
+<span class="sd">    """</span>
+    <span class="n">widget</span><span class="o">.</span><span class="n">setFixedWidth</span><span class="p">(</span><span class="n">control_box_width</span><span class="p">()</span> <span class="k">if</span> <span class="n">width</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">width</span><span class="p">)</span>
+    <span class="n">widget</span><span class="o">.</span><span class="n">setFixedHeight</span><span class="p">(</span><span class="n">row_height</span><span class="p">())</span>
+    <span class="n">widget</span><span class="o">.</span><span class="n">setSizePolicy</span><span class="p">(</span>
+        <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QSizePolicy</span><span class="o">.</span><span class="n">Fixed</span><span class="p">,</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QSizePolicy</span><span class="o">.</span><span class="n">Fixed</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">widget</span></div>
+
+
+
+<div class="viewcode-block" id="fixed_row">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.fixed_row">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">fixed_row</span><span class="p">(</span><span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""A widget of exactly one row's height, holding a horizontal box.</span>
+
+<span class="sd">    Used for the rows above and below the plot. Fixed rather than</span>
+<span class="sd">    minimum, so that a tab which leaves one empty still starts its plot</span>
+<span class="sd">    at the same height as the tab beside it.</span>
+
+<span class="sd">    """</span>
+    <span class="n">row</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QWidget</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+    <span class="n">row</span><span class="o">.</span><span class="n">setFixedHeight</span><span class="p">(</span><span class="n">row_height</span><span class="p">()</span> <span class="k">if</span> <span class="n">height</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">height</span><span class="p">)</span>
+    <span class="n">box</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QHBoxLayout</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+    <span class="n">box</span><span class="o">.</span><span class="n">setContentsMargins</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">box</span><span class="o">.</span><span class="n">setSpacing</span><span class="p">(</span><span class="n">SPACING</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">row</span><span class="p">,</span> <span class="n">box</span></div>
+
+
+
+<div class="viewcode-block" id="label">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.label">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">label</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">object_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="n">widget</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QLabel</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">parent</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">object_name</span><span class="p">:</span>
+        <span class="n">widget</span><span class="o">.</span><span class="n">setObjectName</span><span class="p">(</span><span class="n">object_name</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">widget</span></div>
+
+
+
+<div class="viewcode-block" id="allow_shrink">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.allow_shrink">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">allow_shrink</span><span class="p">(</span><span class="n">widget</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Let a widget be squeezed below the width of its own contents.</span>
+
+<span class="sd">    A row of readings, or a status line, must not be what decides how</span>
+<span class="sd">    narrow the window can be made: the plot is the thing being sized,</span>
+<span class="sd">    and a reading that is clipped at 1300 px is a smaller loss than a</span>
+<span class="sd">    window that cannot be made narrower than 1600. Qt's ``Ignored``</span>
+<span class="sd">    policy is exactly this - the layout stops counting the widget's</span>
+<span class="sd">    minimum, and it takes whatever space is left.</span>
+
+<span class="sd">    """</span>
+    <span class="n">widget</span><span class="o">.</span><span class="n">setSizePolicy</span><span class="p">(</span>
+        <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QSizePolicy</span><span class="o">.</span><span class="n">Ignored</span><span class="p">,</span>
+        <span class="n">widget</span><span class="o">.</span><span class="n">sizePolicy</span><span class="p">()</span><span class="o">.</span><span class="n">verticalPolicy</span><span class="p">(),</span>
+    <span class="p">)</span>
+    <span class="n">widget</span><span class="o">.</span><span class="n">setMinimumWidth</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">widget</span></div>
+
+
+
+<div class="viewcode-block" id="ElidedLabel">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.ElidedLabel">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ElidedLabel</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QLabel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""A one-line label that shortens itself rather than widening the window.</span>
+
+<span class="sd">    A plain ``QLabel`` reports a minimum width equal to the whole of its</span>
+<span class="sd">    text, and a layout never goes below that - so the sentence of</span>
+<span class="sd">    guidance across the top of each tab set the narrowest the whole</span>
+<span class="sd">    application could be made, at well over 2000 px. This one reports</span>
+<span class="sd">    almost no minimum and paints an ellipsis instead, keeping the full</span>
+<span class="sd">    text in its tooltip so nothing is actually lost.</span>
+
+<span class="sd">    """</span>
+
+<div class="viewcode-block" id="ElidedLabel.__init__">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.ElidedLabel.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">""</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">parent</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_full</span> <span class="o">=</span> <span class="n">text</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setToolTip</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="c1"># Horizontally the hint yields to everything; vertically it</span>
+        <span class="c1"># keeps its one line.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setSizePolicy</span><span class="p">(</span>
+            <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QSizePolicy</span><span class="o">.</span><span class="n">Ignored</span><span class="p">,</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QSizePolicy</span><span class="o">.</span><span class="n">Fixed</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ElidedLabel.setText">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.ElidedLabel.setText">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setText</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_full</span> <span class="o">=</span> <span class="n">text</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setToolTip</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="ElidedLabel.minimumSizeHint">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.ElidedLabel.minimumSizeHint">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">minimumSizeHint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">size</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">minimumSizeHint</span><span class="p">()</span>
+        <span class="n">size</span><span class="o">.</span><span class="n">setWidth</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">size</span></div>
+
+
+<div class="viewcode-block" id="ElidedLabel.paintEvent">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.ElidedLabel.paintEvent">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">paintEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="n">painter</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QPainter</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">metrics</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QFontMetrics</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">font</span><span class="p">())</span>
+        <span class="n">elided</span> <span class="o">=</span> <span class="n">metrics</span><span class="o">.</span><span class="n">elidedText</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_full</span><span class="p">,</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">ElideRight</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">()</span>
+        <span class="p">)</span>
+        <span class="n">painter</span><span class="o">.</span><span class="n">setPen</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">palette</span><span class="p">()</span><span class="o">.</span><span class="n">color</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">foregroundRole</span><span class="p">()))</span>
+        <span class="n">painter</span><span class="o">.</span><span class="n">drawText</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rect</span><span class="p">(),</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alignment</span><span class="p">()),</span> <span class="n">elided</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="led">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.led">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">led</span><span class="p">(</span><span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""The round status lamp used by the panels and the sync tab.</span>
+
+<span class="sd">    Its colour comes from the ``ledState`` property and the stylesheet</span>
+<span class="sd">    rather than from a per-widget palette, so it follows the theme.</span>
+
+<span class="sd">    """</span>
+    <span class="n">lamp</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QLabel</span><span class="p">(</span><span class="s2">"●"</span><span class="p">,</span> <span class="n">parent</span><span class="p">)</span>
+    <span class="n">lamp</span><span class="o">.</span><span class="n">setProperty</span><span class="p">(</span><span class="s2">"ledState"</span><span class="p">,</span> <span class="s2">"idle"</span><span class="p">)</span>
+    <span class="n">lamp</span><span class="o">.</span><span class="n">setFixedWidth</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span>
+    <span class="n">lamp</span><span class="o">.</span><span class="n">setAlignment</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">AlignCenter</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">lamp</span></div>
+
+
+
+<div class="viewcode-block" id="set_led">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.set_led">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">set_led</span><span class="p">(</span><span class="n">lamp</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Re-colour a lamp: 'idle', 'ok', 'warn' or 'error'.</span>
+
+<span class="sd">    The property alone changes nothing on screen - Qt only re-reads the</span>
+<span class="sd">    stylesheet when told to - so the widget is unpolished and polished</span>
+<span class="sd">    again, which is the documented way of doing this.</span>
+
+<span class="sd">    """</span>
+    <span class="n">lamp</span><span class="o">.</span><span class="n">setProperty</span><span class="p">(</span><span class="s2">"ledState"</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span>
+    <span class="n">lamp</span><span class="o">.</span><span class="n">style</span><span class="p">()</span><span class="o">.</span><span class="n">unpolish</span><span class="p">(</span><span class="n">lamp</span><span class="p">)</span>
+    <span class="n">lamp</span><span class="o">.</span><span class="n">style</span><span class="p">()</span><span class="o">.</span><span class="n">polish</span><span class="p">(</span><span class="n">lamp</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="ControlColumn">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.ControlColumn">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ControlColumn</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QScrollArea</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""The right-hand column of controls, identical on every tab.</span>
+
+<span class="sd">    A scroll area rather than a plain column, and that is the whole</span>
+<span class="sd">    point: a column with one panel too many scrolls, where before it</span>
+<span class="sd">    made every tab in the application open taller. The width is fixed,</span>
+<span class="sd">    so the plot beside it starts at the same x on all five tabs.</span>
+
+<span class="sd">    """</span>
+
+<div class="viewcode-block" id="ControlColumn.__init__">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.ControlColumn.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_body</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QWidget</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_column</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QVBoxLayout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_body</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_column</span><span class="o">.</span><span class="n">setContentsMargins</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">SPACING</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_column</span><span class="o">.</span><span class="n">setSpacing</span><span class="p">(</span><span class="n">SPACING</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_body</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setWidgetResizable</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setFrameShape</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QFrame</span><span class="o">.</span><span class="n">NoFrame</span><span class="p">)</span>
+        <span class="c1"># Off, not 'as needed': a horizontal bar here would mean the</span>
+        <span class="c1"># column is too narrow, and the fix for that is a wider column,</span>
+        <span class="c1"># not a bar for the user to drag.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setHorizontalScrollBarPolicy</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">ScrollBarAlwaysOff</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setVerticalScrollBarPolicy</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">ScrollBarAsNeeded</span><span class="p">)</span>
+        <span class="c1"># Widgets whose size is a function of the interface font, kept</span>
+        <span class="c1"># so that 'apply_metrics' can revisit them when it changes.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rows</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_boxes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">apply_metrics</span><span class="p">()</span></div>
+
+
+    <span class="c1"># -- building it ---------------------------------------------------</span>
+
+<div class="viewcode-block" id="ControlColumn.add_row">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.ControlColumn.add_row">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_row</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">widget</span><span class="p">,</span> <span class="n">tip</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""A label on the left, one fixed-width control on the right.</span>
+
+<span class="sd">        Every control column is this row repeated a dozen times, which</span>
+<span class="sd">        is why it is a function rather than four lines written out each</span>
+<span class="sd">        time.</span>
+
+<span class="sd">        """</span>
+        <span class="n">row</span><span class="p">,</span> <span class="n">box</span> <span class="o">=</span> <span class="n">fixed_row</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_body</span><span class="p">)</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">label</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">row</span><span class="p">)</span>
+        <span class="n">box</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">box</span><span class="o">.</span><span class="n">addStretch</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">box</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">widget</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">tip</span><span class="p">:</span>
+            <span class="n">name</span><span class="o">.</span><span class="n">setToolTip</span><span class="p">(</span><span class="n">tip</span><span class="p">)</span>
+            <span class="n">widget</span><span class="o">.</span><span class="n">setToolTip</span><span class="p">(</span><span class="n">tip</span><span class="p">)</span>
+        <span class="n">size_like_ui_tabs</span><span class="p">(</span><span class="n">widget</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_boxes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">widget</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_column</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">widget</span></div>
+
+
+<div class="viewcode-block" id="ControlColumn.add_wide_row">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.ControlColumn.add_wide_row">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_wide_row</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">widget</span><span class="p">,</span> <span class="n">tip</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""One control across the full width - a check box, a button."""</span>
+        <span class="n">row</span><span class="p">,</span> <span class="n">box</span> <span class="o">=</span> <span class="n">fixed_row</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_body</span><span class="p">)</span>
+        <span class="n">box</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">widget</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">tip</span><span class="p">:</span>
+            <span class="n">widget</span><span class="o">.</span><span class="n">setToolTip</span><span class="p">(</span><span class="n">tip</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_column</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">widget</span></div>
+
+
+<div class="viewcode-block" id="ControlColumn.add_pair_row">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.ControlColumn.add_pair_row">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_pair_row</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Two controls side by side, sharing one row's height."""</span>
+        <span class="n">row</span><span class="p">,</span> <span class="n">box</span> <span class="o">=</span> <span class="n">fixed_row</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_body</span><span class="p">)</span>
+        <span class="n">box</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">left</span><span class="p">)</span>
+        <span class="n">box</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">right</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_column</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">row</span></div>
+
+
+<div class="viewcode-block" id="ControlColumn.add_widget">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.ControlColumn.add_widget">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_widget</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">widget</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""A panel that brings its own height - a group box, a readout."""</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_column</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">widget</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">widget</span></div>
+
+
+<div class="viewcode-block" id="ControlColumn.add_group">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.ControlColumn.add_group">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_group</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">title</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""A titled box to put rows in, returned with its layout."""</span>
+        <span class="n">box</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QGroupBox</span><span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_body</span><span class="p">)</span>
+        <span class="n">inner</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QVBoxLayout</span><span class="p">(</span><span class="n">box</span><span class="p">)</span>
+        <span class="n">inner</span><span class="o">.</span><span class="n">setContentsMargins</span><span class="p">(</span><span class="n">SPACING</span><span class="p">,</span> <span class="n">SPACING</span><span class="p">,</span> <span class="n">SPACING</span><span class="p">,</span> <span class="n">SPACING</span><span class="p">)</span>
+        <span class="n">inner</span><span class="o">.</span><span class="n">setSpacing</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_column</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">box</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">box</span><span class="p">,</span> <span class="n">inner</span></div>
+
+
+<div class="viewcode-block" id="ControlColumn.add_heading">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.ControlColumn.add_heading">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_heading</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""A small caption dividing one run of rows from the next."""</span>
+        <span class="n">caption</span> <span class="o">=</span> <span class="n">label</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_body</span><span class="p">,</span> <span class="n">object_name</span><span class="o">=</span><span class="s2">"tabHint"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_column</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">caption</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">caption</span></div>
+
+
+<div class="viewcode-block" id="ControlColumn.add_stretch">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.ControlColumn.add_stretch">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_stretch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Push everything above it to the top of the column."""</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_column</span><span class="o">.</span><span class="n">addStretch</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span></div>
+
+
+    <span class="c1"># -- keeping it in step with the font -------------------------------</span>
+
+<div class="viewcode-block" id="ControlColumn.apply_metrics">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.ControlColumn.apply_metrics">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">apply_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setFixedWidth</span><span class="p">(</span><span class="n">control_column_width</span><span class="p">())</span>
+        <span class="c1"># The body is held to the width the scroll bar leaves, whether</span>
+        <span class="c1"># or not the bar is showing, so that adding one panel too many</span>
+        <span class="c1"># to a column does not shift every control on that tab 16 px</span>
+        <span class="c1"># left of where the same control sits on the tab beside it.</span>
+        <span class="n">content</span> <span class="o">=</span> <span class="n">control_content_width</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_body</span><span class="o">.</span><span class="n">setMinimumWidth</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_body</span><span class="o">.</span><span class="n">setMaximumWidth</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+        <span class="n">height</span> <span class="o">=</span> <span class="n">row_height</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rows</span><span class="p">:</span>
+            <span class="n">row</span><span class="o">.</span><span class="n">setFixedHeight</span><span class="p">(</span><span class="n">height</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">widget</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_boxes</span><span class="p">:</span>
+            <span class="n">size_like_ui_tabs</span><span class="p">(</span><span class="n">widget</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="ActionBar">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.ActionBar">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ActionBar</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QWidget</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""The buttons at the foot of the control column.</span>
+
+<span class="sd">    Three slots, stacked, on every tab. A tab with one button leaves two</span>
+<span class="sd">    empty rather than letting its button grow or the bar shrink - which</span>
+<span class="sd">    is what puts "Refresh plot" under the same pixels whichever tab is</span>
+<span class="sd">    in front.</span>
+
+<span class="sd">    Stacked rather than side by side because the column is 272 px wide:</span>
+<span class="sd">    three buttons across it get 85 px each, which is narrower than the</span>
+<span class="sd">    words on them. Full width each, and they are all legible and all</span>
+<span class="sd">    the same size.</span>
+
+<span class="sd">    The slots mean something, and the tabs fill them the same way:</span>
+
+<span class="sd">    ===== ===========================================================</span>
+<span class="sd">    slot  what goes in it</span>
+<span class="sd">    ===== ===========================================================</span>
+<span class="sd">    1     look again now - "Refresh plot", "Check clocks"</span>
+<span class="sd">    2     the thing the tab is for, and the one that runs - "Start</span>
+<span class="sd">          stream", "Acquire". Marked ``primary``.</span>
+<span class="sd">    3     the extra, if there is one - "Reset", "Launch boards"</span>
+<span class="sd">    ===== ===========================================================</span>
+
+<span class="sd">    """</span>
+
+<div class="viewcode-block" id="ActionBar.__init__">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.ActionBar.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_grid</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QGridLayout</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_grid</span><span class="o">.</span><span class="n">setContentsMargins</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">SPACING</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_grid</span><span class="o">.</span><span class="n">setSpacing</span><span class="p">(</span><span class="n">SPACING</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_buttons</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">apply_metrics</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="ActionBar.add_button">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.ActionBar.add_button">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_button</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">tip</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">primary</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">slot</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Put a button in a slot - the next free one unless told.</span>
+
+<span class="sd">        ``primary`` marks the one the tab is really for, which the</span>
+<span class="sd">        stylesheet outlines in the accent colour.</span>
+
+<span class="sd">        """</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_buttons</span><span class="p">)</span> <span class="k">if</span> <span class="n">slot</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">slot</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">index</span> <span class="o">&lt;</span> <span class="n">ACTION_SLOTS</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">"an action bar holds </span><span class="si">{}</span><span class="s2"> buttons; a tab needing more "</span>
+                <span class="s2">"wants a group box in the column instead"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">ACTION_SLOTS</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="n">button</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QPushButton</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">primary</span><span class="p">:</span>
+            <span class="n">button</span><span class="o">.</span><span class="n">setObjectName</span><span class="p">(</span><span class="s2">"primaryAction"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">tip</span><span class="p">:</span>
+            <span class="n">button</span><span class="o">.</span><span class="n">setToolTip</span><span class="p">(</span><span class="n">tip</span><span class="p">)</span>
+        <span class="n">button</span><span class="o">.</span><span class="n">setSizePolicy</span><span class="p">(</span>
+            <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QSizePolicy</span><span class="o">.</span><span class="n">Ignored</span><span class="p">,</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QSizePolicy</span><span class="o">.</span><span class="n">Fixed</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_grid</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">button</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_buttons</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">button</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">apply_metrics</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">button</span></div>
+
+
+<div class="viewcode-block" id="ActionBar.apply_metrics">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.ActionBar.apply_metrics">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">apply_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">height</span> <span class="o">=</span> <span class="n">action_height</span><span class="p">()</span>
+        <span class="c1"># Every slot keeps its height whether or not it holds a button,</span>
+        <span class="c1"># so the bar is the same size on a tab with one and a tab with</span>
+        <span class="c1"># three - and so the buttons of both line up.</span>
+        <span class="k">for</span> <span class="n">slot</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ACTION_SLOTS</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_grid</span><span class="o">.</span><span class="n">setRowMinimumHeight</span><span class="p">(</span><span class="n">slot</span><span class="p">,</span> <span class="n">height</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_grid</span><span class="o">.</span><span class="n">setRowStretch</span><span class="p">(</span><span class="n">slot</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="c1"># The same width as the column's contents, so the buttons line</span>
+        <span class="c1"># up with the rows above them rather than with the scroll bar.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setFixedWidth</span><span class="p">(</span><span class="n">control_content_width</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setFixedHeight</span><span class="p">(</span>
+            <span class="n">ACTION_SLOTS</span> <span class="o">*</span> <span class="n">height</span> <span class="o">+</span> <span class="p">(</span><span class="n">ACTION_SLOTS</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">SPACING</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">button</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_buttons</span><span class="p">:</span>
+            <span class="n">button</span><span class="o">.</span><span class="n">setFixedHeight</span><span class="p">(</span><span class="n">height</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="TabShell">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.TabShell">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TabShell</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QWidget</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""The skeleton every tab is built in.</span>
+
+<span class="sd">    ::</span>
+
+<span class="sd">        +------------------------------------------------------------+</span>
+<span class="sd">        | hint                                                       |</span>
+<span class="sd">        +-------------------------------------------+----------------+</span>
+<span class="sd">        | header row 0                              |                |</span>
+<span class="sd">        | header row 1                              |  control       |</span>
+<span class="sd">        |                                           |  column        |</span>
+<span class="sd">        |            canvas area                    |  (scrolls)     |</span>
+<span class="sd">        |                                           |                |</span>
+<span class="sd">        | footer row                                +----------------+</span>
+<span class="sd">        |                                           |  action bar    |</span>
+<span class="sd">        +-------------------------------------------+----------------+</span>
+
+<span class="sd">    Every one of those slots is the same height and width on all five</span>
+<span class="sd">    tabs, whether or not the tab has anything to put in it. A tab that</span>
+<span class="sd">    leaves the second header row empty still starts its plot at the</span>
+<span class="sd">    same y as the tab that fills it.</span>
+
+<span class="sd">    """</span>
+
+<div class="viewcode-block" id="TabShell.__init__">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.TabShell.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">hint</span><span class="o">=</span><span class="s2">""</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+
+        <span class="n">root</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QVBoxLayout</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">root</span><span class="o">.</span><span class="n">setContentsMargins</span><span class="p">(</span><span class="n">MARGIN</span><span class="p">,</span> <span class="n">MARGIN</span><span class="p">,</span> <span class="n">MARGIN</span><span class="p">,</span> <span class="n">MARGIN</span><span class="p">)</span>
+        <span class="n">root</span><span class="o">.</span><span class="n">setSpacing</span><span class="p">(</span><span class="n">SPACING</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">hint</span> <span class="o">=</span> <span class="n">ElidedLabel</span><span class="p">(</span><span class="n">hint</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hint</span><span class="o">.</span><span class="n">setObjectName</span><span class="p">(</span><span class="s2">"tabHint"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hint</span><span class="o">.</span><span class="n">setFixedHeight</span><span class="p">(</span><span class="n">hint_height</span><span class="p">())</span>
+        <span class="n">root</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hint</span><span class="p">)</span>
+
+        <span class="n">body</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QHBoxLayout</span><span class="p">()</span>
+        <span class="n">body</span><span class="o">.</span><span class="n">setContentsMargins</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">body</span><span class="o">.</span><span class="n">setSpacing</span><span class="p">(</span><span class="n">SPACING</span><span class="p">)</span>
+        <span class="n">root</span><span class="o">.</span><span class="n">addLayout</span><span class="p">(</span><span class="n">body</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># -- left: header rows, canvas, footer row --------------------</span>
+        <span class="n">left</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QVBoxLayout</span><span class="p">()</span>
+        <span class="n">left</span><span class="o">.</span><span class="n">setContentsMargins</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">left</span><span class="o">.</span><span class="n">setSpacing</span><span class="p">(</span><span class="n">SPACING</span><span class="p">)</span>
+        <span class="n">body</span><span class="o">.</span><span class="n">addLayout</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_header_rows</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_header_boxes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">HEADER_ROWS</span><span class="p">):</span>
+            <span class="n">row</span><span class="p">,</span> <span class="n">box</span> <span class="o">=</span> <span class="n">fixed_row</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_header_rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_header_boxes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">box</span><span class="p">)</span>
+            <span class="n">left</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_canvas_holder</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QWidget</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_canvas_holder</span><span class="o">.</span><span class="n">setMinimumHeight</span><span class="p">(</span><span class="n">MIN_CANVAS_HEIGHT</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_canvas_holder</span><span class="o">.</span><span class="n">setSizePolicy</span><span class="p">(</span>
+            <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QSizePolicy</span><span class="o">.</span><span class="n">Expanding</span><span class="p">,</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QSizePolicy</span><span class="o">.</span><span class="n">Expanding</span>
+        <span class="p">)</span>
+        <span class="n">holder_box</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QVBoxLayout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_canvas_holder</span><span class="p">)</span>
+        <span class="n">holder_box</span><span class="o">.</span><span class="n">setContentsMargins</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="c1"># Only felt on a tab with a strip above its plot; a lone canvas</span>
+        <span class="c1"># has nothing to be spaced from.</span>
+        <span class="n">holder_box</span><span class="o">.</span><span class="n">setSpacing</span><span class="p">(</span><span class="n">SPACING</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_canvas_box</span> <span class="o">=</span> <span class="n">holder_box</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_strip_rows</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">left</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_canvas_holder</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_footer_rows</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_footer_boxes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">FOOTER_ROWS</span><span class="p">):</span>
+            <span class="n">row</span><span class="p">,</span> <span class="n">box</span> <span class="o">=</span> <span class="n">fixed_row</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_footer_rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_footer_boxes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">box</span><span class="p">)</span>
+            <span class="n">left</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+
+        <span class="c1"># -- right: the control column and its buttons ----------------</span>
+        <span class="n">right</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QVBoxLayout</span><span class="p">()</span>
+        <span class="n">right</span><span class="o">.</span><span class="n">setContentsMargins</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">right</span><span class="o">.</span><span class="n">setSpacing</span><span class="p">(</span><span class="n">SPACING</span><span class="p">)</span>
+        <span class="n">body</span><span class="o">.</span><span class="n">addLayout</span><span class="p">(</span><span class="n">right</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">controls</span> <span class="o">=</span> <span class="n">ControlColumn</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">right</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">controls</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">actions</span> <span class="o">=</span> <span class="n">ActionBar</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">right</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">actions</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">AlignLeft</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_canvas</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">theme_manager</span><span class="p">()</span><span class="o">.</span><span class="n">changed</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">apply_metrics</span><span class="p">)</span></div>
+
+
+    <span class="c1"># -- filling it ----------------------------------------------------</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">canvas_area</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""The rectangle the plot occupies.</span>
+
+<span class="sd">        Exposed so that ``tests/test_tab_geometry.py`` can assert it is</span>
+<span class="sd">        the same rectangle on all five tabs, which is the one property</span>
+<span class="sd">        of this module the eye actually notices.</span>
+
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_canvas_holder</span>
+
+<div class="viewcode-block" id="TabShell.header_row">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.TabShell.header_row">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">header_row</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""The horizontal box of header row ``index`` (0 or 1)."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_header_boxes</span><span class="p">[</span><span class="n">index</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="TabShell.footer_row">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.TabShell.footer_row">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">footer_row</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""The horizontal box of the row under the plot."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_footer_boxes</span><span class="p">[</span><span class="n">index</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="TabShell.add_canvas_strip">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.TabShell.add_canvas_strip">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_canvas_strip</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">widget</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""A row of controls across the top of the plot, on this tab only.</span>
+
+<span class="sd">        Inside the canvas area rather than a third header row, so the</span>
+<span class="sd">        area itself stays the same rectangle on every tab: the row is</span>
+<span class="sd">        taken out of this tab's plot, and the tabs without one keep the</span>
+<span class="sd">        height.</span>
+
+<span class="sd">        """</span>
+        <span class="n">row</span><span class="p">,</span> <span class="n">box</span> <span class="o">=</span> <span class="n">fixed_row</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_canvas_holder</span><span class="p">)</span>
+        <span class="n">box</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">widget</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_canvas_box</span><span class="o">.</span><span class="n">insertWidget</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_strip_rows</span><span class="p">),</span> <span class="n">row</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_strip_rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">widget</span></div>
+
+
+<div class="viewcode-block" id="TabShell.set_canvas">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.TabShell.set_canvas">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_canvas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">widget</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Put the plot - or, on the Synchronization tab, the log - in.</span>
+
+<span class="sd">        Named for the plot because that is what it holds on four tabs</span>
+<span class="sd">        out of five, and because the point of the shell is that the</span>
+<span class="sd">        fifth occupies exactly the same rectangle.</span>
+
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_canvas</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_canvas_box</span><span class="o">.</span><span class="n">removeWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_canvas</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_canvas</span><span class="o">.</span><span class="n">setParent</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_canvas</span> <span class="o">=</span> <span class="n">widget</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_canvas_box</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">widget</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">widget</span></div>
+
+
+<div class="viewcode-block" id="TabShell.set_hint">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.TabShell.set_hint">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_hint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hint</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">text</span><span class="p">)</span></div>
+
+
+    <span class="c1"># -- keeping it in step with the font -------------------------------</span>
+
+<div class="viewcode-block" id="TabShell.apply_metrics">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.layout.html#daplis_rtp.gui.layout.TabShell.apply_metrics">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">apply_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Re-apply every font-dependent size.</span>
+
+<span class="sd">        Connected to the theme, so that changing the interface font in</span>
+<span class="sd">        Preferences moves the rows rather than clipping their contents.</span>
+
+<span class="sd">        """</span>
+        <span class="n">height</span> <span class="o">=</span> <span class="n">row_height</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_header_rows</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_footer_rows</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_strip_rows</span><span class="p">:</span>
+            <span class="n">row</span><span class="o">.</span><span class="n">setFixedHeight</span><span class="p">(</span><span class="n">height</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hint</span><span class="o">.</span><span class="n">setFixedHeight</span><span class="p">(</span><span class="n">hint_height</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">controls</span><span class="o">.</span><span class="n">apply_metrics</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">actions</span><span class="o">.</span><span class="n">apply_metrics</span><span class="p">()</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Sergei Kulkov.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

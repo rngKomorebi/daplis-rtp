@@ -1,0 +1,30 @@
+daplis\_rtp.gui package
+=======================
+
+.. automodule:: daplis_rtp.gui
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   daplis_rtp.gui.canvas
+   daplis_rtp.gui.tabs
+   daplis_rtp.gui.widgets
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   daplis_rtp.gui.app_icon
+   daplis_rtp.gui.layout
+   daplis_rtp.gui.main_window
+   daplis_rtp.gui.preferences
+   daplis_rtp.gui.session
+   daplis_rtp.gui.theme

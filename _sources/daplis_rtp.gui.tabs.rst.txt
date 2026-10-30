@@ -1,0 +1,20 @@
+daplis\_rtp.gui.tabs package
+============================
+
+.. automodule:: daplis_rtp.gui.tabs
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   daplis_rtp.gui.tabs.base
+   daplis_rtp.gui.tabs.full_sensor
+   daplis_rtp.gui.tabs.mzi
+   daplis_rtp.gui.tabs.online_plot
+   daplis_rtp.gui.tabs.single_pixel_histogram
+   daplis_rtp.gui.tabs.synchronization
