@@ -20,6 +20,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   *File → Export*. The threshold is set by hand to sit above the hot
   pixels and below the lines. Adds `scipy` as a dependency.
 
+### Fixed
+
+- **Python 3.8.** The app failed to import on 3.8, which it claims to
+  support: `importlib.resources.files` is 3.9+. On 3.8 it now comes from
+  the `importlib_resources` backport, a dependency for that version only.
+- **CI runs the tests again.** The workflow still called `tox` after
+  `tox.ini` was deleted, so it passed without testing anything; it now
+  runs `pytest`. Python 3.8 is tested on Ubuntu 22.04, as `ubuntu-latest`
+  (24.04) has no 3.8 build.
+
 ## [1.6.0] - 2026-09-18
 
 ### Added

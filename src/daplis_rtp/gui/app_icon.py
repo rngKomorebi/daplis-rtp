@@ -8,9 +8,10 @@ See 'tools/make_icons.py' for where those come from.
 """
 
 import sys
-from importlib.resources import files
 
 from PyQt5 import QtCore, QtGui
+
+from daplis_rtp._compat import files
 
 # Rendered by 'tools/make_icons.py'; keep in step with its 'PNG_SIZES'.
 ICON_SIZES = (16, 32, 48, 64, 128, 256)

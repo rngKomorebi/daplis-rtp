@@ -8,11 +8,11 @@ plotting can take minutes).
 
 import glob
 import os
-from importlib.resources import files
 
 import numpy as np
 from PyQt5 import QtCore, QtGui, QtWidgets, uic
 
+from daplis_rtp._compat import files
 from daplis_rtp.functions.sen_pop import sen_pop
 from daplis_rtp.functions.tdc_occupancy import pixel_to_tdc_map
 from daplis_rtp.gui._legacy.pixel_mask_window import PixelMaskWindow, mask_summary
