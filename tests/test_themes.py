@@ -109,3 +109,24 @@ def test_matplotlib_accepts_every_theme(key):
             figure.canvas.draw()
     finally:
         manager.set_preset(original)
+
+
+def test_the_marker_size_reaches_the_plots_and_survives_a_restart():
+    """Set in Preferences, read back by a fresh manager as on next start."""
+    from daplis_rtp.gui.theme import (
+        DEFAULT_MARKER_SIZE,
+        MARKER_SIZE_RANGE,
+        ThemeManager,
+        theme_manager,
+    )
+
+    manager = theme_manager()
+    try:
+        manager.set_marker_size(7)
+        assert manager.mpl_rc()["lines.markersize"] == 7
+        assert ThemeManager().marker_size == 7
+        # Out of range is held at the limit rather than refused.
+        manager.set_marker_size(MARKER_SIZE_RANGE[1] + 50)
+        assert manager.marker_size == MARKER_SIZE_RANGE[1]
+    finally:
+        manager.set_marker_size(DEFAULT_MARKER_SIZE)

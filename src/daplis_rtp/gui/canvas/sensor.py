@@ -13,7 +13,6 @@ from matplotlib.text import Annotation
 from PyQt5 import QtCore, QtWidgets
 
 from daplis_rtp.gui.canvas.base import BaseCanvas
-from daplis_rtp.gui.widgets.gaussian_fit import gaussian
 
 # Half width at half maximum, in sigmas: where a fitted line is half as
 # tall as its peak, which is where a label beside it goes.
@@ -182,7 +181,11 @@ class SensorCanvas(BaseCanvas):
         self.scientific_y()
 
     def _draw_fits(self, data):
-        """The threshold and the fitted lines, over the data.
+        """The threshold and each fitted line's sigma, over the data.
+
+        Only the sigma, not the fitted curve: drawn over the trace it
+        hides the very points whose shape it was fitted to, and the
+        number is what is read while aligning.
 
         After the glow, so that neither is glowed or filled under, and
         with autoscaling off, so that a threshold set above every pixel
@@ -206,14 +209,6 @@ class SensorCanvas(BaseCanvas):
         for fit in fits:
             if "error" in fit:
                 continue
-            x = np.linspace(fit["low"], fit["high"], 200)
-            self.ax.plot(
-                x,
-                gaussian(x, fit["amplitude"], fit["centre"], fit["sigma"],
-                         fit["background"]),
-                color=colour,
-                linewidth=1.6,
-            )
             # 'add_artist' clips it to the axes as a backstop: a peak
             # zoomed half out of view must not leave its label over the
             # tick labels.

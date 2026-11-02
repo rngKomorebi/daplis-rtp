@@ -5,6 +5,85 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.0] - 2026-11-02
+
+### Added
+
+- **A user guide**, under *Help → User guide* or **F1**, which opens it
+  at the page of the tab in front. One page per tab, describing every
+  control, reading and button and the columns each tab exports; pages
+  for the panels several tabs share (pixel mask, peak in view, Gaussian
+  fit, TDC memory, both boards in step), for exporting, themes and
+  Preferences, what is remembered between sessions, and the keyboard
+  and mouse; and a troubleshooting table that takes each error message
+  the application shows and says what to do about it. A search box
+  narrows the contents to the pages that mention a word and marks it on
+  the page; pages link to each other. The window is not modal, so it
+  can stay open beside the plot while a stream runs. The text lives in
+  its own module (`gui/help_content.py`), apart from the window.
+
+- **A dark title bar on every window** - the main window, Preferences,
+  the user guide, the pixel mask and the message boxes - on every
+  theme, light ones included. The bar is drawn by Windows rather than
+  by Qt, so the stylesheet never reached it and it stayed the light
+  system default over a dark application. It is set as each window is
+  first shown, so it never flashes light, and needs nothing doing for a
+  window added later. Windows 10 (20H1 and later) and Windows 11; the
+  native file dialogs follow the system setting instead, and elsewhere
+  than Windows nothing changes.
+
+- **The window's colours in Preferences**, one row per kind of thing,
+  after dapkel-rtp: *Window background*, *Panels* (the tab bar, the
+  menu and status bars, the log, the guide), *Input fields*, *Buttons*,
+  *Borders*, *Text*, *Secondary text* (labels, check boxes, the log)
+  and *Muted text* (hints, the tabs not in front, disabled controls),
+  beside the *Accent* that was there before. Panels, buttons, borders
+  and secondary text are worked out from the window background, the
+  text and the muted text - with dapkel-rtp's steps, so that the two
+  applications agree on the presets they share - and follow those
+  colours when they change, until they are set by hand.
+
+- **Status colours in Preferences**: *OK*, *Warning* and *Error*, the
+  lamps in "TDC memory", "Both boards in step" and the clock status on
+  Synchronization - worth changing when two of them are hard to tell
+  apart.
+
+### Changed
+
+- **Themes colour the whole window, not just the plots.** Every preset
+  has always defined its own window, text and dim-text colours, but the
+  window was drawn in qdarkstyle's stock palette whatever they said, so
+  the dark themes differed only in their accent. qdarkstyle's colours
+  are now swapped for the theme's - each shade rebuilt at the same place
+  between the theme's background and text, or background and accent,
+  so its hover, border and selection shades keep their relationships -
+  and the window's roles are laid over it in colour only: no size,
+  padding or border width changes, so the layout is exactly as before.
+  Cyberpunk's window is now near-black, Blueprint's navy, Earth's
+  parchment; Midnight, whose window is qdarkstyle's own, looks as it
+  did.
+
+- **Preferences is laid out in two columns**, as in dapkel-rtp: the
+  interface and status colours on the left, the plots and trace colours
+  on the right, with each column's fields lined up across its boxes. In
+  one column it ran off a laptop screen.
+
+- The *About* box points to the user guide.
+
+## [1.6.2] - 2026-10-30
+
+### Added
+
+- **Marker size in Preferences**, beside the plot font size: the size of
+  the dots on the traces, from 0 (line only) to 12 pt, remembered like
+  the other settings and applied to the plots as it is changed.
+
+### Changed
+
+- **The Gaussian fit shows sigma only.** The fitted curve is no longer
+  drawn over the trace, where it hid the points it was fitted to; each
+  line's sigma and the threshold stay on the plot.
+
 ## [1.6.1] - 2026-10-30
 
 ### Added

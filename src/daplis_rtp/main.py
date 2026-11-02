@@ -17,6 +17,7 @@ from PyQt5.QtWidgets import QApplication
 from daplis_rtp.gui.app_icon import app_icon, claim_taskbar_identity
 from daplis_rtp.gui.main_window import MainWindow
 from daplis_rtp.gui.theme import theme_manager
+from daplis_rtp.gui.title_bar import install_dark_title_bars
 
 # The QApplication and the window live here, not in 'main's locals, and
 # the reason is the crash you get otherwise. In an interpreter that
@@ -75,6 +76,10 @@ def main():
     # also sets the application font, which is what every row height
     # and column width in 'gui.layout' is measured from.
     theme_manager().apply_to_app(_APP)
+    # Before any window is shown, so that none of them - the main
+    # window, Preferences, the message boxes - first appears with the
+    # light system title bar.
+    install_dark_title_bars(_APP)
 
     if _WINDOW is not None:
         # Through 'closeEvent', so that a run left over from a previous

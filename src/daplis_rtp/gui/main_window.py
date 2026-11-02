@@ -15,6 +15,7 @@ import numpy as np
 from PyQt5 import QtCore, QtWidgets
 
 from daplis_rtp import __version__
+from daplis_rtp.gui.help_content import TAB_SECTIONS
 from daplis_rtp.gui.layout import WINDOW_DEFAULT_SIZE
 from daplis_rtp.gui.preferences import PreferencesDialog
 from daplis_rtp.gui.tabs import (
@@ -25,6 +26,7 @@ from daplis_rtp.gui.tabs import (
     Synchronization,
 )
 from daplis_rtp.gui.theme import PRESETS, preset_names, theme_manager
+from daplis_rtp.gui.user_guide import UserGuide
 
 # How long a worker thread is given to finish on its own when the window
 # closes, in milliseconds.
@@ -138,6 +140,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._manager.changed.connect(self._theme_changed)
 
         self._preferences = None
+        self._guide = None
 
         self.tabWidget = QtWidgets.QTabWidget(self)
         self.tabWidget.setObjectName("tabWidget")
@@ -209,6 +212,14 @@ class MainWindow(QtWidgets.QMainWindow):
         preferences.triggered.connect(self.open_preferences)
 
         help_menu = self.menuBar().addMenu("&Help")
+        guide = help_menu.addAction("&User guide")
+        guide.setShortcut("F1")
+        guide.setStatusTip(
+            "What every tab, setting and message means, opened at the "
+            "page of the tab in front."
+        )
+        guide.triggered.connect(self.open_user_guide)
+        help_menu.addSeparator()
         about = help_menu.addAction("&About")
         about.triggered.connect(self._about)
 
@@ -224,12 +235,23 @@ class MainWindow(QtWidgets.QMainWindow):
             self._preferences = PreferencesDialog(self)
         self._preferences.open_beside()
 
+    def open_user_guide(self):
+        """Open the guide at the page of the tab in front."""
+        # Built on first use, like Preferences: most sessions never
+        # open it.
+        if self._guide is None:
+            self._guide = UserGuide(self)
+        title = self.tabWidget.tabText(self.tabWidget.currentIndex())
+        self._guide.open_at(TAB_SECTIONS.get(title, "start"))
+
     def _about(self):
         QtWidgets.QMessageBox.about(
             self,
             "DAPLIS - Real Time Plotting",
             "<b>DAPLIS - Real Time Plotting {}</b>"
             "<p>Live plotting for the LinoSPAD2 detector.</p>"
+            "<p>Every tab and setting is explained under "
+            "<i>Help &rarr; User guide</i> (F1).</p>"
             "<p>Colours and font sizes are under "
             "<i>View &rarr; Preferences</i>, and are remembered per "
             "user.</p>".format(__version__),
@@ -334,4 +356,6 @@ class MainWindow(QtWidgets.QMainWindow):
             quiesce(self.tabWidget.widget(index))
         if self._preferences is not None:
             self._preferences.close()
+        if self._guide is not None:
+            self._guide.close()
         event.accept()

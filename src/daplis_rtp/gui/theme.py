@@ -29,6 +29,7 @@ sharing a machine keep their own.
 """
 
 import copy
+import re
 from dataclasses import dataclass, replace
 from typing import Dict, List, Tuple
 
@@ -48,11 +49,40 @@ PLOT_FONT_RANGE = (8, 32)
 DEFAULT_UI_FONT_SIZE = 10
 DEFAULT_PLOT_FONT_SIZE = 16
 
+# The dots on the traces, in points. Zero is allowed: it draws the line
+# alone, which reads better on a 512-pixel trace with the window small.
+MARKER_SIZE_RANGE = (0, 12)
+DEFAULT_MARKER_SIZE = 4
+
 # How many series colours a theme carries. Five is what the application
 # actually draws - board 1, board 2, the histogram, and the two MZI
 # pixels - with one spare, so that a new trace need not mean a new
 # theme.
 N_SERIES = 5
+
+
+# ----------------------------------------------------------------------
+# Colour arithmetic
+# ----------------------------------------------------------------------
+
+_HEX = re.compile(r"#[0-9a-fA-F]{6}\b")
+
+
+def _rgb(colour):
+    colour = colour.lstrip("#")
+    return tuple(int(colour[i:i + 2], 16) for i in (0, 2, 4))
+
+
+def _hex(rgb):
+    return "#{:02x}{:02x}{:02x}".format(
+        *(max(0, min(255, int(round(c)))) for c in rgb)
+    )
+
+
+def _mix(start, end, t):
+    """The colour a fraction ``t`` of the way from ``start`` to ``end``."""
+    a, b = _rgb(start), _rgb(end)
+    return _hex(tuple(x + (y - x) * t for x, y in zip(a, b)))
 
 
 @dataclass(frozen=True)
@@ -110,6 +140,23 @@ class Theme:
     glow: bool
     grid_on: bool
 
+    # --- interface, in finer steps ---------------------------------
+    # The roles the Preferences window offers beside the ones above,
+    # after dapkel-rtp's: each is one kind of thing in the window, set
+    # on its own. A preset may leave them empty, and every shipped one
+    # does - they are then worked out from the colours above when the
+    # preset is registered (see '_DERIVED'), and follow those colours
+    # when the user changes them.
+    #
+    # The tab bar, the menu and status bars, the log, the guide.
+    panel: str = ""
+    # Push buttons and spin-box arrows. 'surface' is the input fields.
+    button: str = ""
+    # Every thin border: fields, buttons, group boxes, the tab page.
+    border: str = ""
+    # Labels, check boxes, the log: text one step quieter than 'text'.
+    text_dim: str = ""
+
     def colour(self, index):
         """Series colour ``index``, wrapping round rather than raising."""
         return self.series[index % len(self.series)]
@@ -118,7 +165,40 @@ class Theme:
 PRESETS: Dict[str, Theme] = {}
 
 
+# Roles worked out from others, as (field, sources, rule). The steps are
+# dapkel-rtp's, where they were measured off its hand-picked default:
+# a panel a third of the way to black on a dark theme (a touch towards
+# the text on a light one), a button a tenth of the way to the text, a
+# border a third of the way to the dim text, and the secondary text
+# halfway between the dim text and the text.
+_DERIVED = (
+    (
+        "panel",
+        ("window", "text"),
+        lambda t: (
+            _mix(t.window, "#000000", 0.30)
+            if t.base == "dark"
+            else _mix(t.window, t.text, 0.05)
+        ),
+    ),
+    ("button", ("window", "text"), lambda t: _mix(t.window, t.text, 0.10)),
+    ("border", ("window", "muted"), lambda t: _mix(t.window, t.muted, 0.35)),
+    ("text_dim", ("muted", "text"), lambda t: _mix(t.muted, t.text, 0.50)),
+)
+
+
+def _complete(theme):
+    """Fill the derived roles a theme leaves empty."""
+    filled = {
+        field: rule(theme)
+        for field, _sources, rule in _DERIVED
+        if not getattr(theme, field)
+    }
+    return replace(theme, **filled) if filled else theme
+
+
 def _preset(theme):
+    theme = _complete(theme)
     PRESETS[theme.key] = theme
     return theme
 
@@ -455,6 +535,7 @@ class ThemeManager(QtCore.QObject):
         self._overrides: Dict[str, object] = {}
         self._ui_font_size = DEFAULT_UI_FONT_SIZE
         self._plot_font_size = DEFAULT_PLOT_FONT_SIZE
+        self._marker_size = DEFAULT_MARKER_SIZE
         self._settings = QtCore.QSettings(ORGANISATION, APPLICATION)
         self.load()
 
@@ -470,7 +551,19 @@ class ThemeManager(QtCore.QObject):
         base = PRESETS.get(self._preset_key, PRESETS[DEFAULT_PRESET])
         if not self._overrides:
             return base
-        return replace(base, **self._overrides)
+        theme = replace(base, **self._overrides)
+        # A derived role follows a source the user changed - a new window
+        # background brings its panels and buttons along - unless the
+        # user set that role too.
+        moved = {
+            field: ""
+            for field, sources, _rule in _DERIVED
+            if field not in self._overrides
+            and any(source in self._overrides for source in sources)
+        }
+        if moved:
+            theme = _complete(replace(theme, **moved))
+        return theme
 
     @property
     def ui_font_size(self):
@@ -479,6 +572,10 @@ class ThemeManager(QtCore.QObject):
     @property
     def plot_font_size(self):
         return self._plot_font_size
+
+    @property
+    def marker_size(self):
+        return self._marker_size
 
     def overrides(self):
         """A copy, so a caller editing it cannot change the theme."""
@@ -531,12 +628,17 @@ class ThemeManager(QtCore.QObject):
         self._plot_font_size = _clamp(points, PLOT_FONT_RANGE)
         self._emit()
 
+    def set_marker_size(self, points):
+        self._marker_size = _clamp(points, MARKER_SIZE_RANGE)
+        self._emit()
+
     def reset(self):
         """Back to the shipped defaults, overrides and fonts included."""
         self._preset_key = DEFAULT_PRESET
         self._overrides.clear()
         self._ui_font_size = DEFAULT_UI_FONT_SIZE
         self._plot_font_size = DEFAULT_PLOT_FONT_SIZE
+        self._marker_size = DEFAULT_MARKER_SIZE
         self._emit()
 
     def _emit(self):
@@ -567,6 +669,10 @@ class ThemeManager(QtCore.QObject):
             s.value("plot_font_size", DEFAULT_PLOT_FONT_SIZE, type=int),
             PLOT_FONT_RANGE,
         )
+        self._marker_size = _clamp(
+            s.value("marker_size", DEFAULT_MARKER_SIZE, type=int),
+            MARKER_SIZE_RANGE,
+        )
 
         self._overrides.clear()
         fields = set(Theme.__dataclass_fields__)
@@ -594,6 +700,7 @@ class ThemeManager(QtCore.QObject):
         s.setValue("preset", self._preset_key)
         s.setValue("ui_font_size", self._ui_font_size)
         s.setValue("plot_font_size", self._plot_font_size)
+        s.setValue("marker_size", self._marker_size)
         # Cleared rather than merged: an override the user has just
         # removed has to leave the stored settings too, or it comes
         # back on the next start.
@@ -631,10 +738,12 @@ class ThemeManager(QtCore.QObject):
         """qdarkstyle for the controls, our own rules on top.
 
         qdarkstyle is kept because it styles the sixty-odd widget
-        classes Qt ships and nobody wants to write that. What it does
-        not know about is this application's accent colour and the
-        handful of named widgets - the tab title, the hint line, the
-        log - that need to look different from their neighbours.
+        classes Qt ships and nobody wants to write that. Its colours are
+        swapped for the theme's (see :func:`retint`), so the window
+        background, the text and the selection follow the theme. What
+        it does not know about is the handful of named widgets - the
+        tab title, the hint line, the log - that need to look different
+        from their neighbours.
 
         """
         theme = self.theme
@@ -646,8 +755,10 @@ class ThemeManager(QtCore.QObject):
                 if theme.base == "light"
                 else qdarkstyle.DarkPalette
             )
-            base = qdarkstyle.load_stylesheet(
-                qt_api="pyqt5", palette=palette
+            base = retint(
+                qdarkstyle.load_stylesheet(qt_api="pyqt5", palette=palette),
+                palette,
+                theme,
             )
         except Exception:
             # An application with no stylesheet is plain, not broken -
@@ -655,10 +766,17 @@ class ThemeManager(QtCore.QObject):
             # styling package changed its API.
             base = ""
         return base + _OVERLAY_QSS.format(
-            accent=theme.accent,
-            text=theme.text,
-            muted=theme.muted,
+            panel=theme.panel,
             surface=theme.surface,
+            surface_low=_mix(theme.window, theme.text, 0.04),
+            button=theme.button,
+            button_hover=_mix(theme.button, theme.text, 0.07),
+            border=theme.border,
+            text=theme.text,
+            text_dim=theme.text_dim,
+            muted=theme.muted,
+            accent=theme.accent,
+            accent_dim=_mix(theme.window, theme.accent, 0.30),
             ok=theme.ok,
             warn=theme.warn,
             error=theme.error,
@@ -706,7 +824,7 @@ class ThemeManager(QtCore.QObject):
             "legend.facecolor": theme.axes_bg,
             "legend.edgecolor": theme.axes_fg,
             "lines.linewidth": 1.6,
-            "lines.markersize": 4,
+            "lines.markersize": self._marker_size,
         }
 
 
@@ -719,9 +837,186 @@ def _clamp(value, bounds):
     return max(low, min(high, value))
 
 
-# Rules qdarkstyle has no opinion about. Kept short on purpose: every
-# rule here is one more thing that can disagree with the base sheet.
+# ----------------------------------------------------------------------
+# The window in the theme's colours
+# ----------------------------------------------------------------------
+#
+# qdarkstyle ships two stylesheets compiled from one source, a dark and
+# a light, and every colour in them is one of its palette's named
+# colours: six background shades, four of text, five of accent, and
+# one for disabled controls. Its 'palette' argument only chooses which
+# of the two compiled sheets to load - a palette of our own would need
+# the SCSS compiler at run time - so the theme is put on the window by
+# swapping colours in the compiled text instead.
+#
+# Each palette colour is placed on the line between two of the
+# palette's anchor colours - a background shade between the window
+# background and the text, say - and rebuilt at the same place between
+# the theme's own two. A border that sat a fifth of the way from the
+# background to the text still does; only the two ends have moved. That
+# keeps qdarkstyle's careful relationships (hover a shade lighter than
+# rest, borders a step off the panel) whatever colours the theme picks.
+
+def _position(colour, start, end):
+    """Where ``colour`` lies between ``start`` and ``end``, from 0 to 1.
+
+    The point on the line between the two closest to the colour, which
+    is exact for a colour on the line and the best fit for one a little
+    off it - qdarkstyle's greys are slightly blue, and its text is not
+    quite on the line from its background.
+
+    """
+    c, a, b = _rgb(colour), _rgb(start), _rgb(end)
+    span = [y - x for x, y in zip(a, b)]
+    length = sum(s * s for s in span)
+    if not length:
+        return 0.0
+    t = sum((p - x) * s for p, x, s in zip(c, a, span)) / length
+    return max(0.0, min(1.0, t))
+
+
+def chrome_colours(palette, theme):
+    """``{qdarkstyle colour: theme colour}`` for every palette colour.
+
+    Backgrounds, borders and the greyed-out text of a disabled control
+    run from the theme's window background to its text; the softer
+    text shades from its text to its dim text; the accent shades from
+    the window background to its accent, so a selection is a deep tint
+    of the accent on a dark theme and a pale one on a light theme.
+
+    Disabled is placed between background and text, as qdarkstyle has
+    it, rather than taken from the dim text: on the light themes the
+    dim text is dark enough to read, and a disabled button drawn in it
+    looked like one that worked.
+
+    """
+    background = palette.COLOR_BACKGROUND_1
+    text = palette.COLOR_TEXT_1
+    disabled = palette.COLOR_DISABLED
+    accents = [
+        getattr(palette, "COLOR_ACCENT_{}".format(i)) for i in range(1, 6)
+    ]
+    # The accent shade furthest from the background is the accent
+    # itself; the others are steps towards the background.
+    strongest = max(
+        accents,
+        key=lambda a: sum(
+            (x - y) ** 2 for x, y in zip(_rgb(a), _rgb(background))
+        ),
+    )
+
+    mapping = {}
+    for name in dir(palette):
+        value = getattr(palette, name)
+        if not (name.startswith("COLOR_") and isinstance(value, str)):
+            continue
+        if not _HEX.fullmatch(value):
+            continue
+        if name.startswith("COLOR_TEXT_"):
+            new = _mix(
+                theme.text, theme.muted, _position(value, text, disabled)
+            )
+        elif name.startswith("COLOR_ACCENT_"):
+            new = _mix(
+                theme.window,
+                theme.accent,
+                _position(value, background, strongest),
+            )
+        else:
+            new = _mix(
+                theme.window, theme.text, _position(value, background, text)
+            )
+        mapping[value.lower()] = new
+    return mapping
+
+
+def retint(qss, palette, theme):
+    """qdarkstyle's stylesheet with its palette swapped for the theme's.
+
+    One pass over the text, so that a colour already swapped can never
+    be swapped again by a later rule - two palette shades can land on
+    each other's old values. A colour the palette does not name is left
+    as it is.
+
+    """
+    mapping = chrome_colours(palette, theme)
+    return _HEX.sub(
+        lambda m: mapping.get(m.group(0).lower(), m.group(0)), qss
+    )
+
+
+# Laid over qdarkstyle's sheet. Two kinds of rule:
+#
+# * The window's roles - panels, input fields, buttons, borders, the two
+#   quieter text colours - each put on the widgets that role names, so
+#   that one colour in Preferences changes one kind of thing. Colours
+#   only, never a size, a padding or a border width: qdarkstyle's
+#   geometry is what the tab-geometry tests budget for, and it stays.
+#   States qdarkstyle colours more specifically (focus, the selected
+#   tab) keep its rule, in the swapped colours.
+# * The handful of named widgets - the hint line, the readings, the
+#   lamps - that have to look different from their neighbours.
 _OVERLAY_QSS = """
+/* -- panels ------------------------------------------------------- */
+QTabBar, QTabBar::tab:!selected, QMenuBar, QStatusBar {{
+    background-color: {panel};
+}}
+QPlainTextEdit, QTextEdit, QTextBrowser, QTreeView, QListView {{
+    background-color: {panel};
+    color: {text_dim};
+}}
+/* -- input fields --------------------------------------------------- */
+QLineEdit, QSpinBox, QDoubleSpinBox, QComboBox,
+QComboBox QAbstractItemView {{
+    background-color: {surface};
+    border-color: {border};
+    color: {text};
+    selection-background-color: {accent_dim};
+}}
+QLineEdit:disabled, QSpinBox:disabled, QDoubleSpinBox:disabled,
+QComboBox:disabled {{
+    background-color: {surface_low};
+    color: {muted};
+}}
+/* -- buttons -------------------------------------------------------- */
+QPushButton, QSpinBox::up-button, QSpinBox::down-button,
+QDoubleSpinBox::up-button, QDoubleSpinBox::down-button {{
+    background-color: {button};
+    border-color: {border};
+}}
+QPushButton {{
+    color: {text};
+}}
+QPushButton:hover {{
+    background-color: {button_hover};
+    border-color: {muted};
+}}
+QPushButton:pressed {{
+    background-color: {accent_dim};
+    border-color: {accent};
+}}
+QPushButton:disabled {{
+    background-color: {surface_low};
+    border-color: {border};
+    color: {muted};
+}}
+/* -- borders -------------------------------------------------------- */
+QGroupBox, QTabWidget::pane, QAbstractScrollArea, QMenu {{
+    border-color: {border};
+}}
+/* -- text ----------------------------------------------------------- */
+QLabel, QCheckBox, QRadioButton {{
+    color: {text_dim};
+}}
+QLabel:disabled, QCheckBox:disabled, QRadioButton:disabled {{
+    color: {muted};
+}}
+QToolTip {{
+    background-color: {button};
+    border-color: {border};
+    color: {text};
+}}
+/* -- named widgets -------------------------------------------------- */
 QTabBar::tab:selected {{
     border-bottom: 2px solid {accent};
     color: {text};
@@ -751,7 +1046,7 @@ QPushButton#primaryAction {{
     font-weight: bold;
 }}
 QPushButton#primaryAction:hover {{
-    background-color: {surface};
+    background-color: {button_hover};
     border: 1px solid {accent};
 }}
 QLabel[ledState="ok"] {{ color: {ok}; }}

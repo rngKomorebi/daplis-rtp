@@ -16,6 +16,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 
 from daplis_rtp.gui.layout import MARGIN, SPACING
 from daplis_rtp.gui.theme import (
+    MARKER_SIZE_RANGE,
     N_SERIES,
     PLOT_FONT_RANGE,
     UI_FONT_RANGE,
@@ -24,12 +25,78 @@ from daplis_rtp.gui.theme import (
 )
 
 # The theme fields offered as colour pickers, as (field, caption, tip).
+# One row per kind of thing in the window, after dapkel-rtp: a colour
+# changed here changes that one kind of thing and nothing else.
 INTERFACE_COLOURS = (
+    (
+        "window",
+        "Window background",
+        "The tab pages, the control column and the selected tab.",
+    ),
+    (
+        "panel",
+        "Panels",
+        "The tab bar, the menu and status bars, the log, and the user "
+        "guide.",
+    ),
+    (
+        "surface",
+        "Input fields",
+        "Line edits, spin boxes and drop-down boxes.",
+    ),
+    (
+        "button",
+        "Buttons",
+        "Push buttons and spin-box arrows. The hover shade follows it.",
+    ),
+    (
+        "border",
+        "Borders",
+        "Every thin border: fields, buttons, group boxes and the tab "
+        "page.",
+    ),
+    (
+        "text",
+        "Text",
+        "The main text: values in the fields, button captions and "
+        "tooltips.",
+    ),
+    (
+        "text_dim",
+        "Secondary text",
+        "Field labels, check boxes and radio buttons, and the log.",
+    ),
+    (
+        "muted",
+        "Muted text",
+        "The hint line at the top of each tab, the tabs not in front, "
+        "disabled controls, and borders under the mouse.",
+    ),
     (
         "accent",
         "Accent",
-        "The selected tab, the group-box titles, and the outline round "
-        "the button each tab is really for.",
+        "The selected tab, the group-box titles, the readings, the "
+        "outline round the button each tab is really for, and the "
+        "highlight on whatever is selected or has the focus.",
+    ),
+)
+
+# The status lamps ('Both boards in step', 'TDC memory', the clock
+# lamps on Synchronization). Offered separately because changing them
+# is usually about telling them apart - for colour blindness, or a
+# projector that washes out green.
+STATUS_COLOURS = (
+    ("ok", "OK", "A lamp that says everything is in order."),
+    (
+        "warn",
+        "Warning",
+        "A lamp asking for attention: waiting, close to a limit, or "
+        "briefly out of step.",
+    ),
+    (
+        "error",
+        "Error",
+        "A lamp saying data are being lost or a run has gone wrong.",
     ),
 )
 
@@ -135,7 +202,7 @@ class ColourButton(QtWidgets.QPushButton):
 
 
 class PreferencesDialog(QtWidgets.QDialog):
-    """Theme, colours and font sizes, applied as they are chosen."""
+    """Theme, colours, font and marker sizes, applied as chosen."""
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -178,19 +245,38 @@ class PreferencesDialog(QtWidgets.QDialog):
         preset_row.addWidget(self.comboBox_preset, 1)
         outer.addLayout(preset_row)
 
-        outer.addWidget(self._interface_box())
-        outer.addWidget(self._plot_box())
-        outer.addWidget(self._series_box())
-
-        outer.addStretch(1)
+        # Two columns, as in dapkel-rtp: the window on the left, the
+        # plots on the right. One long list of colours ran off a laptop
+        # screen.
+        columns = QtWidgets.QHBoxLayout()
+        columns.setSpacing(SPACING)
+        left = QtWidgets.QVBoxLayout()
+        interface, status = self._interface_box(), self._status_box()
+        left.addWidget(interface)
+        left.addWidget(status)
+        left.addStretch(1)
+        right = QtWidgets.QVBoxLayout()
+        plots, series = self._plot_box(), self._series_box()
+        right.addWidget(plots)
+        right.addWidget(series)
+        right.addStretch(1)
+        columns.addLayout(left)
+        columns.addLayout(right, 1)
+        outer.addLayout(columns, 1)
+        # Each column's forms share one label width, so their fields
+        # start at the same x rather than each form's own.
+        self._aligned_forms = (
+            (interface.layout(), status.layout()),
+            (plots.layout(), series.layout()),
+        )
 
         buttons = QtWidgets.QHBoxLayout()
         self.pushButton_reset = QtWidgets.QPushButton(
             "Reset to defaults", self
         )
         self.pushButton_reset.setToolTip(
-            "Back to the shipped theme and font sizes, throwing away "
-            "every change made here."
+            "Back to the shipped theme, font sizes and marker size, "
+            "throwing away every change made here."
         )
         self.pushButton_reset.clicked.connect(self._reset)
         buttons.addWidget(self.pushButton_reset)
@@ -225,6 +311,14 @@ class PreferencesDialog(QtWidgets.QDialog):
         form.addRow("Font size", self.spinBox_uiFont)
         return box
 
+    def _status_box(self):
+        box = QtWidgets.QGroupBox("Status", self)
+        form = QtWidgets.QFormLayout(box)
+        form.setSpacing(SPACING)
+        for field, caption, tip in STATUS_COLOURS:
+            form.addRow(caption, self._colour_row(field, caption, tip, box))
+        return box
+
     def _plot_box(self):
         box = QtWidgets.QGroupBox("Plots", self)
         form = QtWidgets.QFormLayout(box)
@@ -243,6 +337,19 @@ class PreferencesDialog(QtWidgets.QDialog):
         )
         self.spinBox_plotFont.valueChanged.connect(self._plot_font_changed)
         form.addRow("Font size", self.spinBox_plotFont)
+
+        self.spinBox_markerSize = QtWidgets.QSpinBox(box)
+        self.spinBox_markerSize.setRange(*MARKER_SIZE_RANGE)
+        self.spinBox_markerSize.setSuffix(" pt")
+        self.spinBox_markerSize.setFixedWidth(FIELD_WIDTH)
+        self.spinBox_markerSize.setToolTip(
+            "Size of the dots on the traces. At 0 the trace is drawn "
+            "as a line alone."
+        )
+        self.spinBox_markerSize.valueChanged.connect(
+            self._marker_size_changed
+        )
+        form.addRow("Marker size", self.spinBox_markerSize)
 
         switches = QtWidgets.QHBoxLayout()
         self.checkBox_glow = QtWidgets.QCheckBox("Glow", box)
@@ -292,6 +399,29 @@ class PreferencesDialog(QtWidgets.QDialog):
             form.addRow("Trace {}".format(index + 1), holder)
         return box
 
+    def _align_labels(self):
+        """One label width per column, across the forms stacked in it.
+
+        Redone on every theme change: the width follows the font size.
+
+        """
+        for forms in self._aligned_forms:
+            labels = []
+            for form in forms:
+                for row in range(form.rowCount()):
+                    item = form.itemAt(row, QtWidgets.QFormLayout.LabelRole)
+                    if item is not None and item.widget() is not None:
+                        labels.append(item.widget())
+            if not labels:
+                continue
+            for label in labels:
+                # The stylesheet's font, not the default one
+                label.ensurePolished()
+                label.setMinimumWidth(0)
+            width = max(label.sizeHint().width() for label in labels)
+            for label in labels:
+                label.setMinimumWidth(width)
+
     def _colour_row(self, field, caption, tip, parent):
         button = ColourButton(
             "#000000", parent, "{} colour".format(caption)
@@ -327,8 +457,10 @@ class PreferencesDialog(QtWidgets.QDialog):
                 button.set_colour(theme.colour(index))
             self.spinBox_uiFont.setValue(self._manager.ui_font_size)
             self.spinBox_plotFont.setValue(self._manager.plot_font_size)
+            self.spinBox_markerSize.setValue(self._manager.marker_size)
             self.checkBox_glow.setChecked(theme.glow)
             self.checkBox_grid.setChecked(theme.grid_on)
+            self._align_labels()
         finally:
             self._loading = False
 
@@ -360,6 +492,11 @@ class PreferencesDialog(QtWidgets.QDialog):
         if self._loading:
             return
         self._manager.set_plot_font_size(value)
+
+    def _marker_size_changed(self, value):
+        if self._loading:
+            return
+        self._manager.set_marker_size(value)
 
     def _reset(self):
         self._manager.reset()
