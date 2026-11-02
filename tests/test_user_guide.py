@@ -83,11 +83,21 @@ def test_every_page_starts_with_its_title():
 
 def test_contents_list_every_section(app):
     guide = UserGuide()
+    # Walked item by item rather than with a QTreeWidgetItemIterator:
+    # the iterator is a C++ object watching the tree, and if Python
+    # frees the guide before it when the test returns, its destructor
+    # reads the deleted tree and crashes the run (seen on Linux, on
+    # Python 3.9-3.11, depending on what ran before).
     titles = []
-    iterator = QtWidgets.QTreeWidgetItemIterator(guide.treeWidget_contents)
-    while iterator.value():
-        titles.append(iterator.value().text(0))
-        iterator += 1
+
+    def walk(item):
+        titles.append(item.text(0))
+        for index in range(item.childCount()):
+            walk(item.child(index))
+
+    tree = guide.treeWidget_contents
+    for index in range(tree.topLevelItemCount()):
+        walk(tree.topLevelItem(index))
     assert titles == [item.title for item in SECTIONS]
 
 
