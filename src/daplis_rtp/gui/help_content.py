@@ -538,6 +538,12 @@ synchronize the two halves. There are no switches for either.</p>
                     "Board 2 folder",
                     "Where board 2 writes its files (pixels 256-511).",
                 ),
+                (
+                    "Gaussian fit",
+                    "Fits every spectral line above a threshold, across "
+                    "both halves - see <a href=\"#fit\">Gaussian "
+                    "fit</a>.",
+                ),
             ],
             head=("Item", "What it is"),
         )
@@ -549,8 +555,9 @@ synchronize the two halves. There are no switches for either.</p>
                 (
                     "x limits (pixel)",
                     "The range shown, 0 to 511 across both halves. It "
-                    "also sets what <a href=\"#peak\">Peak in view</a> "
-                    "and <a href=\"#tdc\">TDC memory</a> look at.",
+                    "also sets what <a href=\"#peak\">Peak in view</a>, "
+                    "the <a href=\"#fit\">Gaussian fit</a> and "
+                    "<a href=\"#tdc\">TDC memory</a> look at.",
                 ),
             ]
         )
@@ -757,7 +764,7 @@ each:</p>
 <ul>
 <li><a href="#mask">Pixel mask</a> - Online plot, Full Sensor.</li>
 <li><a href="#peak">Peak in view</a> - Online plot, Full Sensor.</li>
-<li><a href="#fit">Gaussian fit</a> - Online plot.</li>
+<li><a href="#fit">Gaussian fit</a> - Online plot, Full Sensor.</li>
 <li><a href="#tdc">TDC memory</a> - Online plot, Full Sensor.</li>
 <li><a href="#insync">Both boards in step</a> - Full Sensor,
 Synchronization.</li>
@@ -882,7 +889,8 @@ view" means every pixel between the limits reads zero.</p>
         "panels",
         """
 <h2>Gaussian fit</h2>
-<p>On the Online plot, the strip just above the plot fits a Gaussian to
+<p>On the Online plot and the Full Sensor tab, the strip just above
+the plot fits a Gaussian to
 every spectral line in view - for example while focusing a spectrometer
 on a neon lamp - and shows each line's width with its uncertainty, on
 every refresh.</p>
@@ -898,7 +906,8 @@ constant background, then fitted again over four sigmas either side of
 the first result.</p>
 <p>The strip shows one entry per line, such as
 <code>px 131.4: &sigma; = 1.82 &plusmn; 0.03</code> (centre and sigma,
-both in pixels). Each line's sigma is also written on the plot. Hover
+both in pixels; sigma and its error to two decimals). On the Full
+Sensor tab the centre is on the 0-511 axis. Each line's sigma is also written on the plot. Hover
 over the strip for the full result: centre, sigma, FWHM, amplitude and
 background.</p>
 """

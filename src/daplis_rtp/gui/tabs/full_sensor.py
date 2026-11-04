@@ -26,12 +26,15 @@ from daplis_rtp.gui.widgets import (
     BoardOccupancy,
     DirectoryPicker,
     FileSyncPanel,
+    GaussianFitStrip,
     LimitPair,
     PeakStatsPanel,
     PixelMaskWindow,
     TdcOccupancyPanel,
     daughterboard_combo,
+    describe_fit,
     firmware_combo,
+    fit_peaks,
     info_badge,
     mask_summary,
     masked_array,
@@ -64,6 +67,7 @@ class LinoSPAD2Dual(PlotTab):
         # than at the next pair of files.
         self._last_rates = None
         self._last_files = (None, None)
+        self._last_fits = []
         self.last_file_ctime_1 = 0
         self.last_file_ctime_2 = 0
 
@@ -92,6 +96,8 @@ class LinoSPAD2Dual(PlotTab):
                 "boards_in_step": self.fileSyncPanel,
                 "tdc_memory": self.panel_occupancy,
                 "peak_stats": self.panel_peak,
+                "gaussian_fit": self.fit_strip.checkBox,
+                "fit_threshold": self.fit_strip.thresholdEdit,
             }
         )
 
@@ -121,6 +127,14 @@ class LinoSPAD2Dual(PlotTab):
                 "pixel-address correction applied.",
         )
         self.header_row(1).addWidget(self.picker_2)
+
+        # The same strip as on the Online plot, over the same plot: the
+        # widths of the lines across both halves - more than one row
+        # holds, so this one scrolls sideways rather than eliding.
+        self.fit_strip = self.add_canvas_strip(
+            GaussianFitStrip(self, scrollable=True)
+        )
+        self.fit_strip.changed.connect(self._redraw_current)
 
     def _build_footer(self):
         self.xLimits = LimitPair(
@@ -295,18 +309,41 @@ class LinoSPAD2Dual(PlotTab):
 
     def _plot(self, rates):
         low, high = self.xLimits.values()
-        masked = rates * self.combined_mask()
+        mask = self.combined_mask()
+        masked = rates * mask
+        threshold, fits = self._fit_lines(masked, (low, high), mask)
         self.widget_figure.set_data(
             {
                 "rates": masked,
                 "x_lim": (low, high),
                 "grouping": self.checkBox_grouping_2.isChecked(),
+                "fit_threshold": threshold,
+                "fits": fits,
             }
         )
         if self.panel_peak.enabled:
             self.panel_peak.show_stats(peak_stats(masked, (low, high)))
         else:
             self.panel_peak.clear("switched off")
+
+    def _fit_lines(self, rates, x_lim, mask):
+        """The threshold to draw and the fits above it, or ``None, []``.
+
+        Pixels are numbered 0-511 across both halves, so a line's centre
+        reads directly against the plot's x-axis.
+
+        """
+        self._last_fits = []
+        if not self.fit_strip.enabled:
+            self.fit_strip.clear()
+            return None, []
+        threshold = self.fit_strip.threshold()
+        if threshold is None:
+            self.fit_strip.clear("set a threshold to fit")
+            return None, []
+        self._last_fits = fit_peaks(rates, threshold, x_lim, valid=mask > 0)
+        self.fit_strip.show_fits(self._last_fits)
+        return threshold, self._last_fits
 
     def combined_mask(self):
         """Both boards' masks laid end to end on the 0-511 axis."""
@@ -474,8 +511,18 @@ class LinoSPAD2Dual(PlotTab):
                 "x limits shown: {} to {}".format(*self.xLimits.values()),
                 "'masked' is 1 where the pixel was masked, and its rate "
                 "was forced to zero",
-            ],
+            ]
+            + self._fit_notes(),
         }
+
+    def _fit_notes(self):
+        if not self._last_fits:
+            return []
+        return [
+            "Gaussian fits above {} Hz (sigma in pixels):".format(
+                self.fit_strip.threshold()
+            )
+        ] + ["  " + describe_fit(f, short=False) for f in self._last_fits]
 
     # ------------------------------------------------------------------
     # Pixel mask

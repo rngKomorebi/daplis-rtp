@@ -209,7 +209,7 @@ def describe_fit(fit, short=True):
     """One line for one fit, as the strip and the export show it."""
     if "error" in fit:
         return "px {}: {}".format(fit["peak_pixel"], fit["error"])
-    sigma = _with_error(fit["sigma"], fit["sigma_err"])
+    sigma = _sigma_with_error(fit["sigma"], fit["sigma_err"])
     if short:
         return "px {:.1f}: σ = {}".format(fit["centre"], sigma)
     return (
@@ -224,14 +224,25 @@ def describe_fit(fit, short=True):
     )
 
 
+def _sigma_with_error(value, error):
+    """Sigma as ``x.xx ± x.xx``: two decimals for value and error alike.
+
+    A fixed width that does not shift as the error shrinks or grows from
+    one refresh to the next, so the figure being watched stays put.
+
+    """
+    if error is None:
+        return "{:.2f} ± ?".format(value)
+    return "{:.2f} ± {:.2f}".format(value, error)
+
+
 def _with_error(value, error):
     """``value ± error``, to as many decimals as the error deserves.
 
-    Two significant figures of the error, between two and four
-    decimals: a bright line's sigma is known to a few thousandths of a
-    pixel, and printing that as '± 0.00' hides exactly the figure being
-    watched. An error larger than the value - a hot pixel fitted as a
-    line - is left in scientific notation, where it is unmissable.
+    Used for the centre. Two significant figures of the error, between
+    two and four decimals: a bright line's centre is known to a few
+    thousandths of a pixel. An error of ten or more - a hot pixel fitted
+    as a line - is left in scientific notation, where it is unmissable.
 
     """
     if error is None:
@@ -244,6 +255,98 @@ def _with_error(value, error):
     return "{:.{d}f} ± {:.{d}f}".format(value, error, d=decimals)
 
 
+class ScrollingLabel(QtWidgets.QScrollArea):
+    """A one-line readout that scrolls sideways instead of eliding.
+
+    For a line of results that can outgrow the row: every line on the
+    full sensor is too many to fit, and an ellipsis hides exactly the
+    ones at the far end. The mouse wheel or a click-and-drag moves
+    along it. No scroll bar is drawn, since the row has the height of
+    one line of text and no more.
+
+    The position is kept across refreshes, so a line scrolled into view
+    stays in view while the stream runs.
+
+    """
+
+    def __init__(self, text="", parent=None):
+        super().__init__(parent)
+        self.setFrameShape(QtWidgets.QFrame.NoFrame)
+        self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.setWidgetResizable(True)
+        self.setSizePolicy(
+            QtWidgets.QSizePolicy.Ignored, QtWidgets.QSizePolicy.Preferred
+        )
+        # The row's own background shows through, as behind a label.
+        self.setStyleSheet(
+            "QScrollArea { background: transparent; border: none; }"
+        )
+        self.viewport().setAutoFillBackground(False)
+
+        self._label = QtWidgets.QLabel(text, self)
+        self._label.setObjectName("readoutValue")
+        self._label.setAutoFillBackground(False)
+        self._label.setAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
+        self.setWidget(self._label)
+        # The wheel is taken off the label directly rather than left to
+        # bubble up through the viewport, which not every event does.
+        self._label.installEventFilter(self)
+        self._drag_from = None
+
+    def eventFilter(self, watched, event):
+        # 'getattr': the scroll area filters its own viewport's events
+        # from inside its constructor, before '_label' exists - and an
+        # exception raised here takes the whole process down.
+        label = getattr(self, "_label", None)
+        if watched is label and event.type() == QtCore.QEvent.Wheel:
+            self.wheelEvent(event)
+            return event.isAccepted()
+        return super().eventFilter(watched, event)
+
+    def minimumSizeHint(self):
+        return QtCore.QSize(0, super().minimumSizeHint().height())
+
+    def text(self):
+        return self._label.text()
+
+    def setText(self, text):
+        self._label.setText(text)
+
+    def setToolTip(self, text):
+        super().setToolTip(text)
+        self._label.setToolTip(text)
+
+    def _bar(self):
+        return self.horizontalScrollBar()
+
+    def wheelEvent(self, event):
+        delta = event.angleDelta()
+        step = delta.x() if abs(delta.x()) > abs(delta.y()) else delta.y()
+        if step == 0 or self._bar().maximum() == 0:
+            event.ignore()
+            return
+        # One notch of the wheel moves a few characters' width.
+        notch = self.fontMetrics().averageCharWidth() * 8
+        self._bar().setValue(self._bar().value() - int(step / 120 * notch))
+        event.accept()
+
+    def mousePressEvent(self, event):
+        if event.button() == QtCore.Qt.LeftButton:
+            self._drag_from = (event.x(), self._bar().value())
+        super().mousePressEvent(event)
+
+    def mouseMoveEvent(self, event):
+        if self._drag_from is not None:
+            start_x, start_value = self._drag_from
+            self._bar().setValue(start_value - (event.x() - start_x))
+        super().mouseMoveEvent(event)
+
+    def mouseReleaseEvent(self, event):
+        self._drag_from = None
+        super().mouseReleaseEvent(event)
+
+
 class GaussianFitStrip(QtWidgets.QWidget):
     """The switch, the threshold, and one sigma per line, in one row.
 
@@ -251,11 +354,14 @@ class GaussianFitStrip(QtWidgets.QWidget):
     pixels, so that the widths being watched are read in the same glance
     as the peaks they belong to.
 
+    ``scrollable`` swaps the elided result line for one that scrolls
+    sideways, for the full sensor, where the lines outrun the row.
+
     """
 
     changed = QtCore.pyqtSignal()
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, scrollable=False):
         super().__init__(parent)
         box = QtWidgets.QHBoxLayout(self)
         box.setContentsMargins(0, 0, 0, 0)
@@ -285,8 +391,11 @@ class GaussianFitStrip(QtWidgets.QWidget):
         box.addWidget(self.thresholdEdit)
 
         box.addSpacing(SPACING)
-        self.result = ElidedLabel("", self)
-        self.result.setObjectName("readoutValue")
+        if scrollable:
+            self.result = ScrollingLabel("", self)
+        else:
+            self.result = ElidedLabel("", self)
+            self.result.setObjectName("readoutValue")
         box.addWidget(self.result, 1)
 
         self.checkBox.toggled.connect(self.changed.emit)
@@ -310,6 +419,7 @@ class GaussianFitStrip(QtWidgets.QWidget):
         self.result.setText("    ".join(describe_fit(f) for f in fits))
         # The full account goes in the tooltip, where the line itself
         # only has room for the width.
-        self.result.setToolTip(
-            "\n".join(describe_fit(f, short=False) for f in fits)
-        )
+        tip = "\n".join(describe_fit(f, short=False) for f in fits)
+        if isinstance(self.result, ScrollingLabel):
+            tip += "\n\nScroll or drag the line to see the rest."
+        self.result.setToolTip(tip)

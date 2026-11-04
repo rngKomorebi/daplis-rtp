@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.8.0] - 2026-11-04
+
+### Added
+
+- **Gaussian fit on the Full Sensor tab**, the same strip as on the
+  Online plot: a checkbox, a threshold, and one sigma per line, fitted
+  across both halves on the 0-511 pixel axis within the x limits, with
+  masked pixels left out. The threshold and each line's sigma are drawn
+  on the plot, the fits go into the exported notes, and both settings
+  are remembered between sessions.
+- On the Full Sensor tab the fit results line scrolls sideways - mouse
+  wheel or click-and-drag - instead of being cut off with an ellipsis,
+  and keeps its position across refreshes while a stream runs.
+
+### Changed
+
+- Sigma and its error are shown to two decimals, `x.xx ± x.xx`, in the
+  fit strip, its tooltip and the export notes, on both tabs. An error
+  below 0.005 now reads `± 0.00`; the centre keeps its adaptive
+  precision.
+- The user guide's Gaussian fit and Full Sensor pages describe the fit
+  on both tabs.
+
 ## [1.7.1] - 2026-11-02
 
 ### Fixed
