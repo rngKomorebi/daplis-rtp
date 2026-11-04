@@ -1,0 +1,220 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>daplis_rtp.gui.tabs.single_pixel_histogram module &mdash; Data Analysis Package for LinoSPAD2 - Real-Time Plotting 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=8d563738"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="daplis_rtp.gui.tabs.synchronization module" href="daplis_rtp.gui.tabs.synchronization.html" />
+    <link rel="prev" title="daplis_rtp.gui.tabs.online_plot module" href="daplis_rtp.gui.tabs.online_plot.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Data Analysis Package for LinoSPAD2 - Real-Time Plotting
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation and usage</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="daplis_rtp.gui.html">daplis_rtp.gui package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="daplis_rtp.gui.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.canvas.html">daplis_rtp.gui.canvas package</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="daplis_rtp.gui.tabs.html">daplis_rtp.gui.tabs package</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.tabs.html#daplis_rtp.gui.tabs.LinoSPAD2Dual"><code class="docutils literal notranslate"><span class="pre">LinoSPAD2Dual</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.tabs.html#daplis_rtp.gui.tabs.LiveTimestamps"><code class="docutils literal notranslate"><span class="pre">LiveTimestamps</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.tabs.html#daplis_rtp.gui.tabs.MZI"><code class="docutils literal notranslate"><span class="pre">MZI</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.tabs.html#daplis_rtp.gui.tabs.SinglePixelHistogram"><code class="docutils literal notranslate"><span class="pre">SinglePixelHistogram</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="daplis_rtp.gui.tabs.html#daplis_rtp.gui.tabs.Synchronization"><code class="docutils literal notranslate"><span class="pre">Synchronization</span></code></a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="daplis_rtp.gui.tabs.html#submodules">Submodules</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="daplis_rtp.gui.widgets.html">daplis_rtp.gui.widgets package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="daplis_rtp.gui.html#submodules">Submodules</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="daplis_rtp.functions.html">daplis_rtp.functions package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contribute.html">How to contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">License and contact info</a></li>
+<li class="toctree-l1"><a class="reference internal" href="acknowledgement.html">Acknowledgement</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Data Analysis Package for LinoSPAD2 - Real-Time Plotting</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="daplis_rtp.gui.html">daplis_rtp.gui package</a></li>
+          <li class="breadcrumb-item"><a href="daplis_rtp.gui.tabs.html">daplis_rtp.gui.tabs package</a></li>
+      <li class="breadcrumb-item active">daplis_rtp.gui.tabs.single_pixel_histogram module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/daplis_rtp.gui.tabs.single_pixel_histogram.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-daplis_rtp.gui.tabs.single_pixel_histogram">
+<span id="daplis-rtp-gui-tabs-single-pixel-histogram-module"></span><h1>daplis_rtp.gui.tabs.single_pixel_histogram module<a class="headerlink" href="#module-daplis_rtp.gui.tabs.single_pixel_histogram" title="Link to this heading"></a></h1>
+<p>Single-pixel histogram: when in the cycle one pixel’s photons arrive.</p>
+<p>Used to check that the output is homogeneous. A healthy pixel fires at a
+steady rate through the acquisition window, so its histogram has a flat
+top; a sloping or truncated one says the readout is filling up, or that
+the light is not steady.</p>
+<p>The unpacking lives here rather than in the canvas, which is where it
+used to be. A plot widget that cannot be drawn without a LinoSPAD2 file
+on disk is one that cannot be tested, and the firmware version and the
+timestamp count it needs are chosen on this tab anyway.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tabs.single_pixel_histogram.SinglePixelHistogram">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">daplis_rtp.gui.tabs.single_pixel_histogram.</span></span><span class="sig-name descname"><span class="pre">SinglePixelHistogram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/tabs/single_pixel_histogram.html#SinglePixelHistogram"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.tabs.single_pixel_histogram.SinglePixelHistogram" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="daplis_rtp.gui.tabs.base.html#daplis_rtp.gui.tabs.base.PlotTab" title="daplis_rtp.gui.tabs.base.PlotTab"><code class="xref py py-class docutils literal notranslate"><span class="pre">PlotTab</span></code></a></p>
+<p>Histogram of one pixel’s timestamps within the acquisition cycle.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tabs.single_pixel_histogram.SinglePixelHistogram.bind_session">
+<span class="sig-name descname"><span class="pre">bind_session</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/tabs/single_pixel_histogram.html#SinglePixelHistogram.bind_session"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.tabs.single_pixel_histogram.SinglePixelHistogram.bind_session" title="Link to this definition"></a></dt>
+<dd><p>Register the controls this tab should remember.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tabs.single_pixel_histogram.SinglePixelHistogram.build">
+<span class="sig-name descname"><span class="pre">build</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/tabs/single_pixel_histogram.html#SinglePixelHistogram.build"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.tabs.single_pixel_histogram.SinglePixelHistogram.build" title="Link to this definition"></a></dt>
+<dd><p>Fill the shell. Every tab writes this and nothing else.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tabs.single_pixel_histogram.SinglePixelHistogram.canvas_class">
+<span class="sig-name descname"><span class="pre">canvas_class</span></span><a class="headerlink" href="#daplis_rtp.gui.tabs.single_pixel_histogram.SinglePixelHistogram.canvas_class" title="Link to this definition"></a></dt>
+<dd><p>alias of <a class="reference internal" href="daplis_rtp.gui.canvas.histogram.html#daplis_rtp.gui.canvas.histogram.HistogramCanvas" title="daplis_rtp.gui.canvas.histogram.HistogramCanvas"><code class="xref py py-class docutils literal notranslate"><span class="pre">HistogramCanvas</span></code></a></p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tabs.single_pixel_histogram.SinglePixelHistogram.cycle_length_change">
+<span class="sig-name descname"><span class="pre">cycle_length_change</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/tabs/single_pixel_histogram.html#SinglePixelHistogram.cycle_length_change"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.tabs.single_pixel_histogram.SinglePixelHistogram.cycle_length_change" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tabs.single_pixel_histogram.SinglePixelHistogram.hint_text">
+<span class="sig-name descname"><span class="pre">hint_text</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&quot;Arrival</span> <span class="pre">times</span> <span class="pre">of</span> <span class="pre">one</span> <span class="pre">pixel's</span> <span class="pre">photons</span> <span class="pre">within</span> <span class="pre">the</span> <span class="pre">acquisition</span> <span class="pre">cycle.</span> <span class="pre">A</span> <span class="pre">healthy</span> <span class="pre">pixel</span> <span class="pre">gives</span> <span class="pre">a</span> <span class="pre">flat</span> <span class="pre">top.&quot;</span></span><a class="headerlink" href="#daplis_rtp.gui.tabs.single_pixel_histogram.SinglePixelHistogram.hint_text" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tabs.single_pixel_histogram.SinglePixelHistogram.on_session_restored">
+<span class="sig-name descname"><span class="pre">on_session_restored</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/tabs/single_pixel_histogram.html#SinglePixelHistogram.on_session_restored"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.tabs.single_pixel_histogram.SinglePixelHistogram.on_session_restored" title="Link to this definition"></a></dt>
+<dd><p>Re-read the cycle length out of its restored field.</p>
+<p>Silently, unlike ‘cycle_length_change’: this runs while the tab
+is still being built, and a warning box here would come up
+before the window it belongs to.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tabs.single_pixel_histogram.SinglePixelHistogram.plotted_data">
+<span class="sig-name descname"><span class="pre">plotted_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/tabs/single_pixel_histogram.html#SinglePixelHistogram.plotted_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.tabs.single_pixel_histogram.SinglePixelHistogram.plotted_data" title="Link to this definition"></a></dt>
+<dd><p>The numbers behind the plot, for <em>File -&gt; Export</em>.</p>
+<p>Returns <code class="docutils literal notranslate"><span class="pre">None</span></code> when there is nothing to export, or a dict:</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">stem</span></code></dt><dd><p>A suggested file name, without an extension.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">columns</span></code></dt><dd><p>Ordered <code class="docutils literal notranslate"><span class="pre">{heading:</span> <span class="pre">1-D</span> <span class="pre">array}</span></code>; every column the same
+length.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">notes</span></code></dt><dd><p>Lines describing where the numbers came from, written into
+the file as <code class="docutils literal notranslate"><span class="pre">#</span></code> comments so that a plot found on a disk
+six months later can still say what it was.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tabs.single_pixel_histogram.SinglePixelHistogram.refresh">
+<span class="sig-name descname"><span class="pre">refresh</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/daplis_rtp/gui/tabs/single_pixel_histogram.html#SinglePixelHistogram.refresh"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#daplis_rtp.gui.tabs.single_pixel_histogram.SinglePixelHistogram.refresh" title="Link to this definition"></a></dt>
+<dd><p>Read the newest file and rebuild the histogram.</p>
+<p>There is no stream on this tab: a histogram is something to look
+at, not something to watch move. The button reads the newest
+file every time it is pressed, so a run in progress is followed
+by pressing it again.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="daplis_rtp.gui.tabs.single_pixel_histogram.SinglePixelHistogram.session_scope">
+<span class="sig-name descname"><span class="pre">session_scope</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'single_pixel_histogram'</span></span><a class="headerlink" href="#daplis_rtp.gui.tabs.single_pixel_histogram.SinglePixelHistogram.session_scope" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="daplis_rtp.gui.tabs.online_plot.html" class="btn btn-neutral float-left" title="daplis_rtp.gui.tabs.online_plot module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="daplis_rtp.gui.tabs.synchronization.html" class="btn btn-neutral float-right" title="daplis_rtp.gui.tabs.synchronization module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Sergei Kulkov.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

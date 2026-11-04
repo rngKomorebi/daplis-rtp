@@ -1,0 +1,494 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>daplis_rtp.gui.canvas.base &mdash; Data Analysis Package for LinoSPAD2 - Real-Time Plotting 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            Data Analysis Package for LinoSPAD2 - Real-Time Plotting
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation and usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../daplis_rtp.gui.html">daplis_rtp.gui package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../daplis_rtp.functions.html">daplis_rtp.functions package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contribute.html">How to contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../license.html">License and contact info</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../acknowledgement.html">Acknowledgement</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">Data Analysis Package for LinoSPAD2 - Real-Time Plotting</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">daplis_rtp.gui.canvas.base</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for daplis_rtp.gui.canvas.base</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""The one plot widget every tab draws on.</span>
+
+<span class="sd">There used to be three of these - ``plot_figure``, ``plot_figure_dual``</span>
+<span class="sd">and ``plot_figure_MZI`` - which between them were the same eighty lines</span>
+<span class="sd">copied out three times, with the differences that mattered (a boundary</span>
+<span class="sd">line here, a second y-axis there) buried among the differences that did</span>
+<span class="sd">not (one called its styling method ``setplotparameters``, another</span>
+<span class="sd">``_setplotparameters``). A change to the look had to be made three</span>
+<span class="sd">times and usually was not.</span>
+
+<span class="sd">Here there is one base class holding the figure, the toolbar, the</span>
+<span class="sd">sizing and the theme, and one small subclass per kind of plot saying</span>
+<span class="sd">only what that plot draws.</span>
+
+<span class="sd">The pattern is *store, then render*. A tab hands in data; the canvas</span>
+<span class="sd">keeps it and draws. When the theme changes the canvas draws the same</span>
+<span class="sd">data again. That is what makes a colour picked in Preferences appear on</span>
+<span class="sd">a plot that was drawn ten minutes ago, and it is why the canvases hold</span>
+<span class="sd">no copies of theme colours.</span>
+
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.backends.backend_qt5agg</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">FigureCanvasQTAgg</span> <span class="k">as</span> <span class="n">FigureCanvas</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.backends.backend_qt5agg</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">NavigationToolbar2QT</span> <span class="k">as</span> <span class="n">NavigationToolbar</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.figure</span><span class="w"> </span><span class="kn">import</span> <span class="n">Figure</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">PyQt5</span><span class="w"> </span><span class="kn">import</span> <span class="n">QtCore</span><span class="p">,</span> <span class="n">QtWidgets</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">daplis_rtp.gui.layout</span><span class="w"> </span><span class="kn">import</span> <span class="n">MIN_CANVAS_HEIGHT</span><span class="p">,</span> <span class="n">SPACING</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">daplis_rtp.gui.theme</span><span class="w"> </span><span class="kn">import</span> <span class="n">theme_manager</span>
+
+<span class="c1"># The readout the navigation toolbar writes while the cursor is over the</span>
+<span class="c1"># axes: the pixel number under the mouse, which is the quickest way to</span>
+<span class="c1"># tell which pixel a peak belongs to. matplotlib writes it as two lines,</span>
+<span class="c1"># the coordinates and the colour beneath them.</span>
+<span class="n">TOOLBAR_READOUT_SAMPLE</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">"(x, y) = (255.0, 2000.0)</span><span class="se">\n</span><span class="s2">[0.957, 0.514, 0.514, 0.0857]"</span>
+<span class="p">)</span>
+
+<span class="c1"># How far the plot font is allowed to grow with the window, and the</span>
+<span class="c1"># canvas widths between which it does so. The old tabs each carried</span>
+<span class="c1"># their own copy of this interpolation, keyed to the width of the whole</span>
+<span class="c1"># window; keyed to the canvas it belongs to, it no longer changes when a</span>
+<span class="c1"># control column is added beside it.</span>
+<span class="n">FONT_GROWTH</span> <span class="o">=</span> <span class="mf">2.2</span>
+<span class="n">FONT_WIDTH_RANGE</span> <span class="o">=</span> <span class="p">(</span><span class="mi">640</span><span class="p">,</span> <span class="mi">3000</span><span class="p">)</span>
+
+<span class="c1"># A resize arrives as a stream of events, and a redraw is expensive</span>
+<span class="c1"># enough that doing one per event makes dragging a window edge crawl.</span>
+<span class="c1"># One redraw, once the dragging stops.</span>
+<span class="n">RESIZE_SETTLE_MS</span> <span class="o">=</span> <span class="mi">120</span>
+
+
+<div class="viewcode-block" id="toolbar_min_width">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.canvas.base.html#daplis_rtp.gui.canvas.toolbar_min_width">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">toolbar_min_width</span><span class="p">(</span><span class="n">toolbar</span><span class="p">,</span> <span class="n">sample</span><span class="o">=</span><span class="n">TOOLBAR_READOUT_SAMPLE</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Width at which every toolbar button and the readout still fit.</span>
+
+<span class="sd">    A ``QToolBar`` squeezed below its contents hides them behind a '&gt;&gt;'</span>
+<span class="sd">    overflow button rather than forcing its parent wider - its own</span>
+<span class="sd">    ``minimumSizeHint`` is barely wider than that button - and the</span>
+<span class="sd">    coordinate readout, being the widest item, is the first to go. It is</span>
+<span class="sd">    also empty until the cursor reaches the axes, so nothing in the</span>
+<span class="sd">    toolbar's size hints reserves room for it while it is not needed.</span>
+
+<span class="sd">    The width is measured rather than assumed: the readout is asked how</span>
+<span class="sd">    wide it would be with a full reading in it, which picks up the</span>
+<span class="sd">    application's font and any padding the style adds, both of which</span>
+<span class="sd">    differ between machines.</span>
+
+<span class="sd">    """</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">toolbar</span><span class="p">,</span> <span class="s2">"locLabel"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">readout</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="n">label</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">previous</span> <span class="o">=</span> <span class="n">label</span><span class="o">.</span><span class="n">text</span><span class="p">()</span>
+        <span class="n">label</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">sample</span><span class="p">)</span>
+        <span class="n">readout</span> <span class="o">=</span> <span class="n">label</span><span class="o">.</span><span class="n">sizeHint</span><span class="p">()</span><span class="o">.</span><span class="n">width</span><span class="p">()</span>
+        <span class="n">label</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">previous</span><span class="p">)</span>
+
+    <span class="n">buttons</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">toolbar</span><span class="o">.</span><span class="n">children</span><span class="p">():</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">child</span><span class="p">,</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QWidget</span><span class="p">)</span> <span class="ow">or</span> <span class="n">child</span> <span class="ow">is</span> <span class="n">label</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="c1"># The overflow button is the thing we are sizing to avoid</span>
+        <span class="k">if</span> <span class="n">child</span><span class="o">.</span><span class="n">objectName</span><span class="p">()</span> <span class="o">==</span> <span class="s2">"qt_toolbar_ext_button"</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">buttons</span> <span class="o">+=</span> <span class="n">child</span><span class="o">.</span><span class="n">sizeHint</span><span class="p">()</span><span class="o">.</span><span class="n">width</span><span class="p">()</span>
+
+    <span class="c1"># Layout margins, the spacing between the buttons, and the frame</span>
+    <span class="k">return</span> <span class="n">buttons</span> <span class="o">+</span> <span class="n">readout</span> <span class="o">+</span> <span class="mi">32</span></div>
+
+
+
+<div class="viewcode-block" id="BaseCanvas">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.canvas.base.html#daplis_rtp.gui.canvas.BaseCanvas">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">BaseCanvas</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QWidget</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""A matplotlib figure, its toolbar, and the current theme.</span>
+
+<span class="sd">    Subclasses override :meth:`draw_data` to say what to draw, and</span>
+<span class="sd">    :attr:`x_label` / :attr:`y_label` to say what the axes are. Nothing</span>
+<span class="sd">    else should need overriding.</span>
+
+<span class="sd">    """</span>
+
+    <span class="n">x_label</span> <span class="o">=</span> <span class="s2">""</span>
+    <span class="n">y_label</span> <span class="o">=</span> <span class="s2">""</span>
+    <span class="c1"># A second y-axis on the right, for the tabs that compare two</span>
+    <span class="c1"># quantities. Off by default because a twin axis that is never used</span>
+    <span class="c1"># still draws a second set of ticks.</span>
+    <span class="n">twin</span> <span class="o">=</span> <span class="kc">False</span>
+
+<div class="viewcode-block" id="BaseCanvas.__init__">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.canvas.base.html#daplis_rtp.gui.canvas.BaseCanvas.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+
+        <span class="c1"># 'constrained' rather than the fixed 'subplots_adjust'</span>
+        <span class="c1"># fractions the old canvases used. Those were tuned for one font</span>
+        <span class="c1"># size, so a large plot font - which is exactly what a big</span>
+        <span class="c1"># window produces - pushed the y-axis label off the edge of the</span>
+        <span class="c1"># figure. Constrained layout measures the labels instead.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">figure</span> <span class="o">=</span> <span class="n">Figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">),</span> <span class="n">dpi</span><span class="o">=</span><span class="n">dpi</span><span class="p">,</span>
+                             <span class="n">layout</span><span class="o">=</span><span class="s2">"constrained"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span> <span class="o">=</span> <span class="n">FigureCanvas</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">toolbar</span> <span class="o">=</span> <span class="n">NavigationToolbar</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ax2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">twinx</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">twin</span> <span class="k">else</span> <span class="kc">None</span>
+
+        <span class="n">box</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QVBoxLayout</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">box</span><span class="o">.</span><span class="n">setContentsMargins</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">box</span><span class="o">.</span><span class="n">setSpacing</span><span class="p">(</span><span class="n">SPACING</span> <span class="o">//</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">box</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">box</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">toolbar</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+        <span class="c1"># Keep the whole toolbar reachable: the pixel number under the</span>
+        <span class="c1"># cursor is read off it, and it is the first thing a narrow</span>
+        <span class="c1"># window hides.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setMinimumSize</span><span class="p">(</span>
+            <span class="n">toolbar_min_width</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">toolbar</span><span class="p">),</span> <span class="n">MIN_CANVAS_HEIGHT</span>
+        <span class="p">)</span>
+
+        <span class="c1"># What was last handed in, so that a theme change can be drawn</span>
+        <span class="c1"># rather than waiting for the next data file.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_scale_linear</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fontsize</span> <span class="o">=</span> <span class="n">theme_manager</span><span class="p">()</span><span class="o">.</span><span class="n">plot_font_size</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_resize_timer</span> <span class="o">=</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">QTimer</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_resize_timer</span><span class="o">.</span><span class="n">setSingleShot</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_resize_timer</span><span class="o">.</span><span class="n">setInterval</span><span class="p">(</span><span class="n">RESIZE_SETTLE_MS</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_resize_timer</span><span class="o">.</span><span class="n">timeout</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_settled</span><span class="p">)</span>
+
+        <span class="n">theme_manager</span><span class="p">()</span><span class="o">.</span><span class="n">changed</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">refresh_theme</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">render</span><span class="p">()</span></div>
+
+
+    <span class="c1"># -- the theme -----------------------------------------------------</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">theme</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">theme_manager</span><span class="p">()</span><span class="o">.</span><span class="n">theme</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fontsize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fontsize</span>
+
+<div class="viewcode-block" id="BaseCanvas.rc">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.canvas.base.html#daplis_rtp.gui.canvas.BaseCanvas.rc">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">rc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">theme_manager</span><span class="p">()</span><span class="o">.</span><span class="n">mpl_rc</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_fontsize</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="BaseCanvas.refresh_theme">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.canvas.base.html#daplis_rtp.gui.canvas.BaseCanvas.refresh_theme">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">refresh_theme</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Redraw in the new theme, keeping whatever is on the plot."""</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fontsize</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_grown_fontsize</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">render</span><span class="p">()</span></div>
+
+
+    <span class="c1"># -- drawing -------------------------------------------------------</span>
+
+<div class="viewcode-block" id="BaseCanvas.set_data">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.canvas.base.html#daplis_rtp.gui.canvas.BaseCanvas.set_data">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Hand in what to draw, and draw it."""</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="n">data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">render</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="BaseCanvas.clear">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.canvas.base.html#daplis_rtp.gui.canvas.BaseCanvas.clear">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">render</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="BaseCanvas.render">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.canvas.base.html#daplis_rtp.gui.canvas.BaseCanvas.render">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">render</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Draw the stored data in the current theme.</span>
+
+<span class="sd">        Everything is drawn inside one ``rc_context``: matplotlib reads</span>
+<span class="sd">        the parameters when an artist is *created*, so styling has to</span>
+<span class="sd">        wrap the drawing rather than follow it. The old code pushed</span>
+<span class="sd">        values into the global ``plt.rcParams`` from inside each draw,</span>
+<span class="sd">        which meant whichever canvas drew last decided how the others</span>
+<span class="sd">        looked.</span>
+
+<span class="sd">        """</span>
+        <span class="k">with</span> <span class="n">matplotlib</span><span class="o">.</span><span class="n">rc_context</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rc</span><span class="p">()):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ax2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ax2</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+                <span class="c1"># 'clear' resets a twin's label back to the left-hand</span>
+                <span class="c1"># side - the ticks stay on the right, but the words end</span>
+                <span class="c1"># up on top of the primary axis's label. Only the label</span>
+                <span class="c1"># needs putting back, and only after a clear.</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ax2</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_label_position</span><span class="p">(</span><span class="s2">"right"</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ax2</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_ticks_position</span><span class="p">(</span><span class="s2">"right"</span><span class="p">)</span>
+            <span class="c1"># Before the data, not after: changing the scale installs</span>
+            <span class="c1"># that scale's default locator and formatter, so a scale set</span>
+            <span class="c1"># afterwards throws away the scientific notation the draw</span>
+            <span class="c1"># asked for - which is how a rate of 430000 came to be</span>
+            <span class="c1"># labelled in full rather than as 4.3 against a '1e5'.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_apply_scale</span><span class="p">()</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">draw_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">style_axes</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_paint_frame</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw_idle</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="BaseCanvas.draw_data">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.canvas.base.html#daplis_rtp.gui.canvas.BaseCanvas.draw_data">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">draw_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""What this kind of plot draws. Overridden by every subclass."""</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+
+<div class="viewcode-block" id="BaseCanvas.style_axes">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.canvas.base.html#daplis_rtp.gui.canvas.BaseCanvas.style_axes">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">style_axes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Ticks, spines and labels, identical on every plot.</span>
+
+<span class="sd">        Inward ticks on all four sides with a minor set between them:</span>
+<span class="sd">        the convention the group's published figures use, and the reason</span>
+<span class="sd">        a plot lifted straight out of the application needs no editing.</span>
+
+<span class="sd">        """</span>
+        <span class="n">theme</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">theme</span>
+        <span class="n">axes</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="p">]</span> <span class="o">+</span> <span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">ax2</span><span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ax2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x_label</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y_label</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="n">axes</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">which</span><span class="o">=</span><span class="s2">"both"</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mf">1.6</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="s2">"in"</span><span class="p">,</span>
+                           <span class="n">colors</span><span class="o">=</span><span class="n">theme</span><span class="o">.</span><span class="n">axes_fg</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">which</span><span class="o">=</span><span class="s2">"major"</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="s2">"in"</span><span class="p">,</span>
+                           <span class="n">labelsize</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_fontsize</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">which</span><span class="o">=</span><span class="s2">"minor"</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="s2">"in"</span><span class="p">,</span>
+                           <span class="n">labelsize</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_fontsize</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">side</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"top"</span><span class="p">,</span> <span class="s2">"bottom"</span><span class="p">,</span> <span class="s2">"left"</span><span class="p">,</span> <span class="s2">"right"</span><span class="p">):</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="n">side</span><span class="p">]</span><span class="o">.</span><span class="n">set_linewidth</span><span class="p">(</span><span class="mf">1.6</span><span class="p">)</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="n">side</span><span class="p">]</span><span class="o">.</span><span class="n">set_color</span><span class="p">(</span><span class="n">theme</span><span class="o">.</span><span class="n">axes_edge</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_facecolor</span><span class="p">(</span><span class="n">theme</span><span class="o">.</span><span class="n">axes_bg</span><span class="p">)</span>
+
+        <span class="c1"># Ticks on all four sides, but only on the primary axes: the</span>
+        <span class="c1"># twin owns the right-hand side, and asking for both puts two</span>
+        <span class="c1"># sets of ticks on top of each other.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ax2</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_ticks_position</span><span class="p">(</span><span class="s2">"both"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_ticks_position</span><span class="p">(</span><span class="s2">"both"</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">theme</span><span class="o">.</span><span class="n">grid_on</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">theme</span><span class="o">.</span><span class="n">grid</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.45</span><span class="p">,</span>
+                         <span class="n">linestyle</span><span class="o">=</span><span class="s2">"--"</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="BaseCanvas.glow">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.canvas.base.html#daplis_rtp.gui.canvas.BaseCanvas.glow">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">glow</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gradient</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""The look the application is known for, when the theme wants it.</span>
+
+<span class="sd">        Off by default in every theme but "Cyberpunk", because it is not</span>
+<span class="sd">        free: each line is redrawn several times over, which is felt on</span>
+<span class="sd">        a stream refreshing as fast as the files arrive.</span>
+
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">theme</span><span class="o">.</span><span class="n">glow</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="kn">import</span><span class="w"> </span><span class="nn">mplcyberpunk</span>
+
+            <span class="n">mplcyberpunk</span><span class="o">.</span><span class="n">make_lines_glow</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="p">,</span> <span class="n">diff_linewidth</span><span class="o">=</span><span class="mf">1.1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">gradient</span><span class="p">:</span>
+                <span class="n">mplcyberpunk</span><span class="o">.</span><span class="n">add_gradient_fill</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="p">,</span> <span class="n">alpha_gradientglow</span><span class="o">=</span><span class="mf">0.3</span>
+                <span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="c1"># The glow is decoration. A version of mplcyberpunk that</span>
+            <span class="c1"># cannot fill under a log axis, or cannot be imported at</span>
+            <span class="c1"># all, must not stop the data being drawn.</span>
+            <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="BaseCanvas.scientific_y">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.canvas.base.html#daplis_rtp.gui.canvas.BaseCanvas.scientific_y">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">scientific_y</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">axes</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Label the y-axis as '4.3' against a '1e5', where that applies.</span>
+
+<span class="sd">        Photon rates run to a few million, and an axis labelled in full</span>
+<span class="sd">        needs more room beside the plot than the plot can spare.</span>
+
+<span class="sd">        Silently skipped on a logarithmic axis: ``ticklabel_format``</span>
+<span class="sd">        only understands the linear formatter and raises otherwise,</span>
+<span class="sd">        which used to mean that new data arriving while the plot was on</span>
+<span class="sd">        a log scale took the stream down with an ``AttributeError``.</span>
+
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scale_linear</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="n">axes</span> <span class="ow">or</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="p">,):</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">ticklabel_format</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">"y"</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">"sci"</span><span class="p">,</span> <span class="n">scilimits</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_paint_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Colour the parts of the figure no artist covers."""</span>
+        <span class="n">theme</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">theme</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">set_facecolor</span><span class="p">(</span><span class="n">theme</span><span class="o">.</span><span class="n">figure_bg</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">set_edgecolor</span><span class="p">(</span><span class="n">theme</span><span class="o">.</span><span class="n">figure_bg</span><span class="p">)</span>
+
+    <span class="c1"># -- scale ---------------------------------------------------------</span>
+
+<div class="viewcode-block" id="BaseCanvas.set_scale_linear">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.canvas.base.html#daplis_rtp.gui.canvas.BaseCanvas.set_scale_linear">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_scale_linear</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">linear</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Switch the left y-axis between linear and logarithmic."""</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_scale_linear</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">linear</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_apply_scale</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw_idle</span><span class="p">()</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_apply_scale</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">scale</span> <span class="o">=</span> <span class="s2">"linear"</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scale_linear</span> <span class="k">else</span> <span class="s2">"log"</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_yscale</span><span class="p">(</span><span class="n">scale</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ax2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ax2</span><span class="o">.</span><span class="n">set_yscale</span><span class="p">(</span><span class="n">scale</span><span class="p">)</span>
+
+    <span class="c1"># -- size ----------------------------------------------------------</span>
+
+<div class="viewcode-block" id="BaseCanvas.resizeEvent">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.canvas.base.html#daplis_rtp.gui.canvas.BaseCanvas.resizeEvent">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">resizeEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Grow the plot font with the plot, once the dragging stops.</span>
+
+<span class="sd">        Each tab used to do this for itself, off the width of the whole</span>
+<span class="sd">        window and with the same four magic numbers copied out five</span>
+<span class="sd">        times. Off the canvas's own width it is both in one place and</span>
+<span class="sd">        correct: adding a control column beside the plot no longer</span>
+<span class="sd">        changes the font on it.</span>
+
+<span class="sd">        """</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">resizeEvent</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_resize_timer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_settled</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">grown</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_grown_fontsize</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">grown</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fontsize</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">0.5</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fontsize</span> <span class="o">=</span> <span class="n">grown</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">render</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_grown_fontsize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">base</span> <span class="o">=</span> <span class="n">theme_manager</span><span class="p">()</span><span class="o">.</span><span class="n">plot_font_size</span>
+        <span class="n">low</span><span class="p">,</span> <span class="n">high</span> <span class="o">=</span> <span class="n">FONT_WIDTH_RANGE</span>
+        <span class="n">width</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">low</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="n">high</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">width</span><span class="p">()))</span>
+        <span class="n">share</span> <span class="o">=</span> <span class="p">(</span><span class="n">width</span> <span class="o">-</span> <span class="n">low</span><span class="p">)</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">high</span> <span class="o">-</span> <span class="n">low</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">base</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">share</span> <span class="o">*</span> <span class="p">(</span><span class="n">FONT_GROWTH</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Sergei Kulkov.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

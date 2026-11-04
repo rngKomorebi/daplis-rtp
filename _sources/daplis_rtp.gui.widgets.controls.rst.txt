@@ -1,0 +1,7 @@
+daplis\_rtp.gui.widgets.controls module
+=======================================
+
+.. automodule:: daplis_rtp.gui.widgets.controls
+   :members:
+   :show-inheritance:
+   :undoc-members:

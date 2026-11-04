@@ -1,0 +1,1507 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>daplis_rtp.gui.help_content &mdash; Data Analysis Package for LinoSPAD2 - Real-Time Plotting 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Data Analysis Package for LinoSPAD2 - Real-Time Plotting
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation and usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../daplis_rtp.gui.html">daplis_rtp.gui package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../daplis_rtp.functions.html">daplis_rtp.functions package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contribute.html">How to contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../license.html">License and contact info</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../acknowledgement.html">Acknowledgement</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Data Analysis Package for LinoSPAD2 - Real-Time Plotting</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">daplis_rtp.gui.help_content</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for daplis_rtp.gui.help_content</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""The text of the user guide, one section per page.</span>
+
+<span class="sd">Kept apart from the window that shows it, and free of Qt, so that the</span>
+<span class="sd">words can be edited - and tested - without touching a widget. Each</span>
+<span class="sd">section is a small piece of HTML in the subset Qt's rich text renders:</span>
+<span class="sd">headings, paragraphs, lists, simple tables, bold and links. No colours</span>
+<span class="sd">are set here, so the guide follows the theme like the rest of the</span>
+<span class="sd">window.</span>
+
+<span class="sd">A link to another section is written ``&lt;a href="#key"&gt;``; the window</span>
+<span class="sd">turns it into a jump to that section rather than a scroll within the</span>
+<span class="sd">page.</span>
+
+<span class="sd">The control names below are quoted exactly as they appear on screen.</span>
+<span class="sd">When a label changes in a tab, change it here too - the tests check</span>
+<span class="sd">that every tab has a section, not that the words still match.</span>
+
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">namedtuple</span>
+
+<span class="n">Section</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s2">"Section"</span><span class="p">,</span> <span class="s2">"key title parent html"</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_table</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">head</span><span class="o">=</span><span class="p">(</span><span class="s2">"Control"</span><span class="p">,</span> <span class="s2">"What it does"</span><span class="p">)):</span>
+<span class="w">    </span><span class="sd">"""A two-column table of control names and what they do."""</span>
+    <span class="n">cells</span> <span class="o">=</span> <span class="s2">""</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="s2">"&lt;tr&gt;&lt;td&gt;&lt;b&gt;</span><span class="si">{}</span><span class="s2">&lt;/b&gt;&lt;/td&gt;&lt;td&gt;</span><span class="si">{}</span><span class="s2">&lt;/td&gt;&lt;/tr&gt;"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">text</span> <span class="ow">in</span> <span class="n">rows</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="s1">'&lt;table cellspacing="0" cellpadding="4" border="1" width="100%"&gt;'</span>
+        <span class="s2">"&lt;tr&gt;&lt;th align=</span><span class="se">\"</span><span class="s2">left</span><span class="se">\"</span><span class="s2">&gt;</span><span class="si">{}</span><span class="s2">&lt;/th&gt;&lt;th align=</span><span class="se">\"</span><span class="s2">left</span><span class="se">\"</span><span class="s2">&gt;</span><span class="si">{}</span><span class="s2">&lt;/th&gt;&lt;/tr&gt;"</span>
+        <span class="s2">"</span><span class="si">{}</span><span class="s2">&lt;/table&gt;"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">head</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">head</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">cells</span><span class="p">)</span>
+    <span class="p">)</span>
+
+
+<span class="c1"># ----------------------------------------------------------------------</span>
+<span class="c1"># Rows shared by several tabs, so that they are described once</span>
+<span class="c1"># ----------------------------------------------------------------------</span>
+
+<span class="n">_BOARD_ROWS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">(</span>
+        <span class="s2">"Daughterboard"</span><span class="p">,</span>
+        <span class="s2">"The LinoSPAD2 daughterboard the data came from (B7d, NL11, A5, "</span>
+        <span class="s2">"D2b). The list is editable: type the name of a board that is "</span>
+        <span class="s2">"not on it. Used, with the motherboard, to look up the preset "</span>
+        <span class="s2">"mask."</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="p">(</span>
+        <span class="s2">"Motherboard"</span><span class="p">,</span>
+        <span class="s2">"The motherboard the data came from (#28, #33, #21, #36, #37, "</span>
+        <span class="s2">"#4, #29), also editable. Used to look up the preset mask."</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="p">(</span>
+        <span class="s2">"Firmware version"</span><span class="p">,</span>
+        <span class="s2">"&lt;b&gt;2212b&lt;/b&gt; or &lt;b&gt;2212s&lt;/b&gt;. It decides how the 256 pixels are "</span>
+        <span class="s2">"shared among the 64 TDCs, so a wrong choice gives a wrong "</span>
+        <span class="s2">"plot or an unreadable file."</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="p">(</span>
+        <span class="s2">"Timestamps"</span><span class="p">,</span>
+        <span class="s2">"Timestamps per pixel per acquisition cycle, 1 to 1536 "</span>
+        <span class="s2">"(300 when first opened). It must match the setting the data "</span>
+        <span class="s2">"were taken with. The &lt;a href=</span><span class="se">\"</span><span class="s2">#tdc</span><span class="se">\"</span><span class="s2">&gt;TDC memory&lt;/a&gt; box "</span>
+        <span class="s2">"suggests a value."</span><span class="p">,</span>
+    <span class="p">),</span>
+<span class="p">]</span>
+
+<span class="n">_ADDRESS_ROW</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">"Correct pixel addressing"</span><span class="p">,</span>
+    <span class="s2">"Undo the address scrambling of the sensor's second half, for data "</span>
+    <span class="s2">"that need it."</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">_ABSOLUTE_ROW</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">"Absolute timestamps"</span><span class="p">,</span>
+    <span class="s2">"Tick when the files were taken with absolute timestamps: two extra "</span>
+    <span class="s2">"32-bit words at the start of each acquisition cycle. Reading such "</span>
+    <span class="s2">"a file without the tick (or the other way round) fails."</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">_LINEAR_ROW</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">"Linear scale"</span><span class="p">,</span>
+    <span class="s2">"Clear it for a logarithmic y-axis - the one to use when a few "</span>
+    <span class="s2">"bright pixels flatten everything else."</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<span class="n">SECTIONS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="n">Section</span><span class="p">(</span>
+        <span class="s2">"start"</span><span class="p">,</span>
+        <span class="s2">"Getting started"</span><span class="p">,</span>
+        <span class="kc">None</span><span class="p">,</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">&lt;h2&gt;Getting started&lt;/h2&gt;</span>
+<span class="sd">&lt;p&gt;DAPLIS - Real Time Plotting shows what a LinoSPAD2 detector is</span>
+<span class="sd">recording while it records: the photon rate on every pixel, the arrival</span>
+<span class="sd">times on one pixel, two pixels against time, and both halves of the</span>
+<span class="sd">sensor at once. It reads the data files the board's own software</span>
+<span class="sd">writes; it does not control the camera, except on the</span>
+<span class="sd">&lt;a href="#sync"&gt;Synchronization&lt;/a&gt; tab.&lt;/p&gt;</span>
+
+<span class="sd">&lt;h3&gt;The five tabs&lt;/h3&gt;</span>
+<span class="sd">&lt;table cellspacing="0" cellpadding="4" border="1" width="100%"&gt;</span>
+<span class="sd">&lt;tr&gt;&lt;th align="left"&gt;Tab&lt;/th&gt;&lt;th align="left"&gt;Use it to&lt;/th&gt;&lt;/tr&gt;</span>
+<span class="sd">&lt;tr&gt;&lt;td&gt;&lt;a href="#online"&gt;&lt;b&gt;Online plot&lt;/b&gt;&lt;/a&gt;&lt;/td&gt;</span>
+<span class="sd">&lt;td&gt;align the optics: photon rate per pixel of one board, redrawn as</span>
+<span class="sd">files arrive.&lt;/td&gt;&lt;/tr&gt;</span>
+<span class="sd">&lt;tr&gt;&lt;td&gt;&lt;a href="#histogram"&gt;&lt;b&gt;Single Pixel Histogram&lt;/b&gt;&lt;/a&gt;&lt;/td&gt;</span>
+<span class="sd">&lt;td&gt;check that one pixel fires steadily through the acquisition</span>
+<span class="sd">cycle.&lt;/td&gt;&lt;/tr&gt;</span>
+<span class="sd">&lt;tr&gt;&lt;td&gt;&lt;a href="#mzi"&gt;&lt;b&gt;MZI&lt;/b&gt;&lt;/a&gt;&lt;/td&gt;</span>
+<span class="sd">&lt;td&gt;follow the two arms of an interferometer: two pixels' rates</span>
+<span class="sd">against time.&lt;/td&gt;&lt;/tr&gt;</span>
+<span class="sd">&lt;tr&gt;&lt;td&gt;&lt;a href="#full"&gt;&lt;b&gt;Full Sensor&lt;/b&gt;&lt;/a&gt;&lt;/td&gt;</span>
+<span class="sd">&lt;td&gt;see all 512 pixels from two boards side by side.&lt;/td&gt;&lt;/tr&gt;</span>
+<span class="sd">&lt;tr&gt;&lt;td&gt;&lt;a href="#sync"&gt;&lt;b&gt;Synchronization&lt;/b&gt;&lt;/a&gt;&lt;/td&gt;</span>
+<span class="sd">&lt;td&gt;start a two-board acquisition on both boards at the same</span>
+<span class="sd">moment.&lt;/td&gt;&lt;/tr&gt;</span>
+<span class="sd">&lt;/table&gt;</span>
+
+<span class="sd">&lt;h3&gt;A first plot in five steps&lt;/h3&gt;</span>
+<span class="sd">&lt;ol&gt;</span>
+<span class="sd">&lt;li&gt;Open the &lt;b&gt;Online plot&lt;/b&gt; tab.&lt;/li&gt;</span>
+<span class="sd">&lt;li&gt;Under &lt;b&gt;Data folder&lt;/b&gt;, click &lt;b&gt;Browse&lt;/b&gt; (or paste a path) and</span>
+<span class="sd">choose the folder the board writes its &lt;code&gt;.dat&lt;/code&gt; files to.&lt;/li&gt;</span>
+<span class="sd">&lt;li&gt;In the column on the right, set &lt;b&gt;Daughterboard&lt;/b&gt;,</span>
+<span class="sd">&lt;b&gt;Motherboard&lt;/b&gt;, &lt;b&gt;Firmware version&lt;/b&gt; and &lt;b&gt;Timestamps&lt;/b&gt; to</span>
+<span class="sd">match the acquisition.&lt;/li&gt;</span>
+<span class="sd">&lt;li&gt;Click &lt;b&gt;Start stream&lt;/b&gt;. The plot shows the newest file and</span>
+<span class="sd">redraws each time a new one lands. &lt;b&gt;Refresh plot&lt;/b&gt; takes a single</span>
+<span class="sd">look instead.&lt;/li&gt;</span>
+<span class="sd">&lt;li&gt;Hold &lt;b&gt;Ctrl&lt;/b&gt; and click a hot pixel on the plot to mask it, then</span>
+<span class="sd">narrow the &lt;b&gt;x limits&lt;/b&gt; under the plot onto the signal.&lt;/li&gt;</span>
+<span class="sd">&lt;/ol&gt;</span>
+<span class="sd">&lt;p&gt;To keep the numbers behind a plot, use</span>
+<span class="sd">&lt;a href="#export"&gt;File &amp;rarr; Export plotted data&lt;/a&gt;. Every setting</span>
+<span class="sd">you make is &lt;a href="#remembered"&gt;remembered&lt;/a&gt; for the next time.&lt;/p&gt;</span>
+<span class="sd">&lt;p&gt;Hovering over any control shows a short explanation of it. Press</span>
+<span class="sd">&lt;b&gt;F1&lt;/b&gt; on any tab to open this guide at that tab's page.&lt;/p&gt;</span>
+<span class="sd">"""</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="n">Section</span><span class="p">(</span>
+        <span class="s2">"window"</span><span class="p">,</span>
+        <span class="s2">"The window at a glance"</span><span class="p">,</span>
+        <span class="kc">None</span><span class="p">,</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">&lt;h2&gt;The window at a glance&lt;/h2&gt;</span>
+<span class="sd">&lt;p&gt;Every tab is laid out the same way, so a control is in the same</span>
+<span class="sd">place whichever tab is open:&lt;/p&gt;</span>
+<span class="sd">&lt;table cellspacing="0" cellpadding="4" border="1" width="100%"&gt;</span>
+<span class="sd">&lt;tr&gt;&lt;th align="left"&gt;Where&lt;/th&gt;&lt;th align="left"&gt;What is there&lt;/th&gt;&lt;/tr&gt;</span>
+<span class="sd">&lt;tr&gt;&lt;td&gt;&lt;b&gt;Top strip&lt;/b&gt;&lt;/td&gt;&lt;td&gt;A one-line reminder of what the tab</span>
+<span class="sd">shows.&lt;/td&gt;&lt;/tr&gt;</span>
+<span class="sd">&lt;tr&gt;&lt;td&gt;&lt;b&gt;Two rows under it&lt;/b&gt;&lt;/td&gt;&lt;td&gt;The data folder (two on</span>
+<span class="sd">&lt;a href="#full"&gt;Full Sensor&lt;/a&gt;) and a row of readings about the last</span>
+<span class="sd">file plotted.&lt;/td&gt;&lt;/tr&gt;</span>
+<span class="sd">&lt;tr&gt;&lt;td&gt;&lt;b&gt;Middle&lt;/b&gt;&lt;/td&gt;&lt;td&gt;The plot, with its toolbar beneath it</span>
+<span class="sd">(on Synchronization, a log of what the boards say).&lt;/td&gt;&lt;/tr&gt;</span>
+<span class="sd">&lt;tr&gt;&lt;td&gt;&lt;b&gt;Under the plot&lt;/b&gt;&lt;/td&gt;&lt;td&gt;The axis limits (on</span>
+<span class="sd">Synchronization, the clock lamps).&lt;/td&gt;&lt;/tr&gt;</span>
+<span class="sd">&lt;tr&gt;&lt;td&gt;&lt;b&gt;Right-hand column&lt;/b&gt;&lt;/td&gt;&lt;td&gt;The settings and status boxes.</span>
+<span class="sd">It scrolls when it is taller than the window.&lt;/td&gt;&lt;/tr&gt;</span>
+<span class="sd">&lt;tr&gt;&lt;td&gt;&lt;b&gt;Bottom of the column&lt;/b&gt;&lt;/td&gt;&lt;td&gt;The action buttons. The one</span>
+<span class="sd">the tab is mainly for is outlined.&lt;/td&gt;&lt;/tr&gt;</span>
+<span class="sd">&lt;tr&gt;&lt;td&gt;&lt;b&gt;Status bar&lt;/b&gt;&lt;/td&gt;&lt;td&gt;Messages such as "Exported to ...", and</span>
+<span class="sd">the current theme on the right.&lt;/td&gt;&lt;/tr&gt;</span>
+<span class="sd">&lt;/table&gt;</span>
+
+<span class="sd">&lt;h3&gt;The plot toolbar&lt;/h3&gt;</span>
+<span class="sd">&lt;p&gt;The toolbar under each plot is matplotlib's standard one:&lt;/p&gt;</span>
+<span class="sd">&lt;ul&gt;</span>
+<span class="sd">&lt;li&gt;&lt;b&gt;Home&lt;/b&gt;, &lt;b&gt;Back&lt;/b&gt;, &lt;b&gt;Forward&lt;/b&gt; - return to the full view,</span>
+<span class="sd">or step through earlier zooms.&lt;/li&gt;</span>
+<span class="sd">&lt;li&gt;&lt;b&gt;Pan&lt;/b&gt; - drag the plot; right-drag to stretch an axis.&lt;/li&gt;</span>
+<span class="sd">&lt;li&gt;&lt;b&gt;Zoom&lt;/b&gt; - draw a rectangle to zoom into it.&lt;/li&gt;</span>
+<span class="sd">&lt;li&gt;&lt;b&gt;Subplots&lt;/b&gt; and &lt;b&gt;Customize&lt;/b&gt; - adjust margins, axis ranges</span>
+<span class="sd">and line styles by hand.&lt;/li&gt;</span>
+<span class="sd">&lt;li&gt;&lt;b&gt;Save&lt;/b&gt; - save the plot as a picture (PNG, PDF, SVG). To save</span>
+<span class="sd">the numbers instead, use &lt;a href="#export"&gt;File &amp;rarr; Export&lt;/a&gt;.&lt;/li&gt;</span>
+<span class="sd">&lt;/ul&gt;</span>
+<span class="sd">&lt;p&gt;While the mouse is over the plot, the right end of the toolbar shows</span>
+<span class="sd">the coordinates under it - the quickest way to read off which pixel a</span>
+<span class="sd">peak is on.&lt;/p&gt;</span>
+<span class="sd">&lt;p&gt;A new file redraws the plot with the limits set under it, which</span>
+<span class="sd">undoes a toolbar zoom. To keep a zoom while streaming, set the axis</span>
+<span class="sd">limits instead.&lt;/p&gt;</span>
+<span class="sd">"""</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="n">Section</span><span class="p">(</span>
+        <span class="s2">"data"</span><span class="p">,</span>
+        <span class="s2">"Data files and common settings"</span><span class="p">,</span>
+        <span class="kc">None</span><span class="p">,</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">&lt;h2&gt;Data files and common settings&lt;/h2&gt;</span>
+<span class="sd">&lt;h3&gt;Which file is plotted&lt;/h3&gt;</span>
+<span class="sd">&lt;p&gt;The plotting tabs read the &lt;b&gt;newest&lt;/b&gt; data file in the chosen</span>
+<span class="sd">folder: the one with the latest creation time whose name contains</span>
+<span class="sd">&lt;code&gt;.dat&lt;/code&gt; (so &lt;code&gt;.dat0&lt;/code&gt;, &lt;code&gt;.dat1&lt;/code&gt; and so on</span>
+<span class="sd">count too). Older files are not read.&lt;/p&gt;</span>
+
+<span class="sd">&lt;h3&gt;Streaming&lt;/h3&gt;</span>
+<span class="sd">&lt;p&gt;&lt;b&gt;Start stream&lt;/b&gt; watches the folder and redraws whenever a newer</span>
+<span class="sd">file appears; the button then reads &lt;b&gt;Stop stream&lt;/b&gt;. A burst of</span>
+<span class="sd">changes is read once, a moment after it settles. On a network drive,</span>
+<span class="sd">where change notices can go missing, the folder is also checked every</span>
+<span class="sd">2 seconds.&lt;/p&gt;</span>
+<span class="sd">&lt;p&gt;It is fine to start the stream before the acquisition: an empty</span>
+<span class="sd">folder is waited on quietly ("waiting..." in the readings row).</span>
+<span class="sd">&lt;b&gt;Refresh plot&lt;/b&gt; on an empty folder, on the other hand, says so in a</span>
+<span class="sd">message.&lt;/p&gt;</span>
+<span class="sd">&lt;p&gt;When a file cannot be read, the stream stops and a message explains</span>
+<span class="sd">why; &lt;b&gt;Show Details...&lt;/b&gt; in that message gives the exact error.&lt;/p&gt;</span>
+
+<span class="sd">&lt;h3&gt;Settings found on most tabs&lt;/h3&gt;</span>
+<span class="sd">"""</span>
+        <span class="o">+</span> <span class="n">_table</span><span class="p">(</span><span class="n">_BOARD_ROWS</span> <span class="o">+</span> <span class="p">[</span><span class="n">_ADDRESS_ROW</span><span class="p">,</span> <span class="n">_ABSOLUTE_ROW</span><span class="p">,</span> <span class="n">_LINEAR_ROW</span><span class="p">])</span>
+        <span class="o">+</span> <span class="s2">"""</span>
+<span class="s2">&lt;p&gt;Pixels are numbered 0 to 255 on each board (0 to 511 across both</span>
+<span class="s2">halves on &lt;a href="#full"&gt;Full Sensor&lt;/a&gt;). Number fields under the</span>
+<span class="s2">plots accept decimals and scientific notation, such as</span>
+<span class="s2">&lt;code&gt;4e9&lt;/code&gt; or &lt;code&gt;10e3&lt;/code&gt;.&lt;/p&gt;</span>
+<span class="s2">"""</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="n">Section</span><span class="p">(</span>
+        <span class="s2">"tabs"</span><span class="p">,</span>
+        <span class="s2">"The tabs"</span><span class="p">,</span>
+        <span class="kc">None</span><span class="p">,</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">&lt;h2&gt;The tabs&lt;/h2&gt;</span>
+<span class="sd">&lt;ul&gt;</span>
+<span class="sd">&lt;li&gt;&lt;a href="#online"&gt;Online plot&lt;/a&gt; - photon rate per pixel of one</span>
+<span class="sd">board, live.&lt;/li&gt;</span>
+<span class="sd">&lt;li&gt;&lt;a href="#histogram"&gt;Single Pixel Histogram&lt;/a&gt; - arrival times of</span>
+<span class="sd">one pixel within the cycle.&lt;/li&gt;</span>
+<span class="sd">&lt;li&gt;&lt;a href="#mzi"&gt;MZI&lt;/a&gt; - two pixels' rates against time.&lt;/li&gt;</span>
+<span class="sd">&lt;li&gt;&lt;a href="#full"&gt;Full Sensor&lt;/a&gt; - both sensor halves from two</span>
+<span class="sd">boards.&lt;/li&gt;</span>
+<span class="sd">&lt;li&gt;&lt;a href="#sync"&gt;Synchronization&lt;/a&gt; - start a two-board</span>
+<span class="sd">acquisition.&lt;/li&gt;</span>
+<span class="sd">&lt;/ul&gt;</span>
+<span class="sd">"""</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="n">Section</span><span class="p">(</span>
+        <span class="s2">"online"</span><span class="p">,</span>
+        <span class="s2">"Online plot"</span><span class="p">,</span>
+        <span class="s2">"tabs"</span><span class="p">,</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">&lt;h2&gt;Online plot&lt;/h2&gt;</span>
+<span class="sd">&lt;p&gt;The photon rate on every pixel of one board, from the newest file in</span>
+<span class="sd">the folder. This is the tab for aligning a setup: a change to the</span>
+<span class="sd">optics shows up on the plot within a file or two.&lt;/p&gt;</span>
+
+<span class="sd">&lt;h3&gt;Above the plot&lt;/h3&gt;</span>
+<span class="sd">"""</span>
+        <span class="o">+</span> <span class="n">_table</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="p">(</span>
+                    <span class="s2">"Data folder"</span><span class="p">,</span>
+                    <span class="s2">"The folder the board writes its data files to. "</span>
+                    <span class="s2">"&lt;b&gt;Browse&lt;/b&gt; picks one; a pasted path works as "</span>
+                    <span class="s2">"well."</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">"Brightest pixel, Second"</span><span class="p">,</span>
+                    <span class="s2">"The two pixels with the highest rate in the last "</span>
+                    <span class="s2">"file, after masking."</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span><span class="s2">"Masked"</span><span class="p">,</span> <span class="s2">"How many pixels are masked."</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">"File"</span><span class="p">,</span> <span class="s2">"The file the plot was drawn from."</span><span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">"Gaussian fit"</span><span class="p">,</span>
+                    <span class="s2">"Fits every spectral line above a threshold - see "</span>
+                    <span class="s2">"&lt;a href=</span><span class="se">\"</span><span class="s2">#fit</span><span class="se">\"</span><span class="s2">&gt;Gaussian fit&lt;/a&gt;."</span><span class="p">,</span>
+                <span class="p">),</span>
+            <span class="p">],</span>
+            <span class="n">head</span><span class="o">=</span><span class="p">(</span><span class="s2">"Item"</span><span class="p">,</span> <span class="s2">"What it shows"</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="o">+</span> <span class="s2">"""</span>
+<span class="s2">&lt;h3&gt;Under the plot&lt;/h3&gt;</span>
+<span class="s2">"""</span>
+        <span class="o">+</span> <span class="n">_table</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="p">(</span>
+                    <span class="s2">"x limits (pixel)"</span><span class="p">,</span>
+                    <span class="s2">"The range of pixels shown, 0 to 255. It also sets "</span>
+                    <span class="s2">"which pixels &lt;a href=</span><span class="se">\"</span><span class="s2">#peak</span><span class="se">\"</span><span class="s2">&gt;Peak in view&lt;/a&gt;, "</span>
+                    <span class="s2">"the &lt;a href=</span><span class="se">\"</span><span class="s2">#fit</span><span class="se">\"</span><span class="s2">&gt;Gaussian fit&lt;/a&gt; and the "</span>
+                    <span class="s2">"&lt;a href=</span><span class="se">\"</span><span class="s2">#tdc</span><span class="se">\"</span><span class="s2">&gt;TDC memory&lt;/a&gt; check look at, so "</span>
+                    <span class="s2">"narrowing it onto the signal keeps a hot pixel "</span>
+                    <span class="s2">"elsewhere out of the numbers."</span><span class="p">,</span>
+                <span class="p">),</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+        <span class="o">+</span> <span class="s2">"""</span>
+<span class="s2">&lt;h3&gt;The column on the right&lt;/h3&gt;</span>
+<span class="s2">"""</span>
+        <span class="o">+</span> <span class="n">_table</span><span class="p">(</span>
+            <span class="n">_BOARD_ROWS</span>
+            <span class="o">+</span> <span class="p">[</span>
+                <span class="n">_ADDRESS_ROW</span><span class="p">,</span>
+                <span class="n">_ABSOLUTE_ROW</span><span class="p">,</span>
+                <span class="p">(</span>
+                    <span class="s2">"Pixel mask"</span><span class="p">,</span>
+                    <span class="s2">"&lt;b&gt;Preset mask&lt;/b&gt;, &lt;b&gt;Edit mask...&lt;/b&gt; and "</span>
+                    <span class="s2">"&lt;b&gt;Reset&lt;/b&gt; - see "</span>
+                    <span class="s2">"&lt;a href=</span><span class="se">\"</span><span class="s2">#mask</span><span class="se">\"</span><span class="s2">&gt;Pixel mask&lt;/a&gt;."</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="n">_LINEAR_ROW</span><span class="p">,</span>
+                <span class="p">(</span>
+                    <span class="s2">"Group of 64"</span><span class="p">,</span>
+                    <span class="s2">"Vertical lines at pixels 64, 128 and 192, to help "</span>
+                    <span class="s2">"line the peaks up within one group of 64."</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">"Peak in view"</span><span class="p">,</span>
+                    <span class="s2">"Position, width and brightness of the peak in "</span>
+                    <span class="s2">"view - see &lt;a href=</span><span class="se">\"</span><span class="s2">#peak</span><span class="se">\"</span><span class="s2">&gt;Peak in view&lt;/a&gt;."</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">"TDC memory"</span><span class="p">,</span>
+                    <span class="s2">"Warns when the readout is close to dropping data - "</span>
+                    <span class="s2">"see &lt;a href=</span><span class="se">\"</span><span class="s2">#tdc</span><span class="se">\"</span><span class="s2">&gt;TDC memory&lt;/a&gt;."</span><span class="p">,</span>
+                <span class="p">),</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+        <span class="o">+</span> <span class="s2">"""</span>
+<span class="s2">&lt;h3&gt;Buttons&lt;/h3&gt;</span>
+<span class="s2">"""</span>
+        <span class="o">+</span> <span class="n">_table</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="p">(</span><span class="s2">"Refresh plot"</span><span class="p">,</span> <span class="s2">"Read the newest file now and redraw."</span><span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">"Start stream / Stop stream"</span><span class="p">,</span>
+                    <span class="s2">"Follow the folder, redrawing whenever a newer file "</span>
+                    <span class="s2">"appears."</span><span class="p">,</span>
+                <span class="p">),</span>
+            <span class="p">],</span>
+            <span class="n">head</span><span class="o">=</span><span class="p">(</span><span class="s2">"Button"</span><span class="p">,</span> <span class="s2">"What it does"</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="o">+</span> <span class="s2">"""</span>
+<span class="s2">&lt;h3&gt;Tips&lt;/h3&gt;</span>
+<span class="s2">&lt;ul&gt;</span>
+<span class="s2">&lt;li&gt;&lt;b&gt;Ctrl+click&lt;/b&gt; a point on the plot to mask that pixel, and</span>
+<span class="s2">again to unmask it. The plot changes at once, without waiting for the</span>
+<span class="s2">next file.&lt;/li&gt;</span>
+<span class="s2">&lt;li&gt;Switch off the boxes you do not need (untick &lt;b&gt;Peak in view&lt;/b&gt;,</span>
+<span class="s2">&lt;b&gt;TDC memory&lt;/b&gt;) to make each refresh a little faster.&lt;/li&gt;</span>
+<span class="s2">&lt;li&gt;Exported columns: &lt;code&gt;pixel&lt;/code&gt;, &lt;code&gt;rate_Hz&lt;/code&gt; and</span>
+<span class="s2">&lt;code&gt;masked&lt;/code&gt; (1 where the pixel was masked and its rate set to</span>
+<span class="s2">zero). The fits, if any, are listed in the file's notes.&lt;/li&gt;</span>
+<span class="s2">&lt;/ul&gt;</span>
+<span class="s2">"""</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="n">Section</span><span class="p">(</span>
+        <span class="s2">"histogram"</span><span class="p">,</span>
+        <span class="s2">"Single Pixel Histogram"</span><span class="p">,</span>
+        <span class="s2">"tabs"</span><span class="p">,</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">&lt;h2&gt;Single Pixel Histogram&lt;/h2&gt;</span>
+<span class="sd">&lt;p&gt;When, within the acquisition cycle, one pixel's photons arrive. A</span>
+<span class="sd">healthy pixel under steady light fires at a steady rate through the</span>
+<span class="sd">whole cycle, so its histogram has a &lt;b&gt;flat top&lt;/b&gt;. A top that slopes</span>
+<span class="sd">down or stops early means the readout is filling up (see</span>
+<span class="sd">&lt;a href="#tdc"&gt;TDC memory&lt;/a&gt;) or that the light is not steady.&lt;/p&gt;</span>
+<span class="sd">&lt;p&gt;This tab has no stream: a histogram is something to look at rather</span>
+<span class="sd">than watch. Click &lt;b&gt;Refresh plot&lt;/b&gt; each time you want the newest</span>
+<span class="sd">file read again.&lt;/p&gt;</span>
+
+<span class="sd">&lt;h3&gt;Above the plot&lt;/h3&gt;</span>
+<span class="sd">"""</span>
+        <span class="o">+</span> <span class="n">_table</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="p">(</span><span class="s2">"Data folder"</span><span class="p">,</span> <span class="s2">"The folder the board writes to."</span><span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">"Timestamps"</span><span class="p">,</span>
+                    <span class="s2">"How many timestamps this pixel contributed. None "</span>
+                    <span class="s2">"means the pixel is masked off in the hardware, "</span>
+                    <span class="s2">"dead, or in the dark."</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span><span class="s2">"File"</span><span class="p">,</span> <span class="s2">"The file the histogram was built from."</span><span class="p">),</span>
+            <span class="p">],</span>
+            <span class="n">head</span><span class="o">=</span><span class="p">(</span><span class="s2">"Item"</span><span class="p">,</span> <span class="s2">"What it shows"</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="o">+</span> <span class="s2">"""</span>
+<span class="s2">&lt;h3&gt;Under the plot&lt;/h3&gt;</span>
+<span class="s2">"""</span>
+        <span class="o">+</span> <span class="n">_table</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="p">(</span>
+                    <span class="s2">"Cycle length (ps)"</span><span class="p">,</span>
+                    <span class="s2">"Length of one acquisition cycle, in picoseconds - "</span>
+                    <span class="s2">"the width of the histogram. The default "</span>
+                    <span class="s2">"&lt;code&gt;4e9&lt;/code&gt; is 4 ms. The cycle is always cut "</span>
+                    <span class="s2">"into 250 bins. Applied on the next "</span>
+                    <span class="s2">"&lt;b&gt;Refresh plot&lt;/b&gt;."</span><span class="p">,</span>
+                <span class="p">),</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+        <span class="o">+</span> <span class="s2">"""</span>
+<span class="s2">&lt;h3&gt;The column on the right&lt;/h3&gt;</span>
+<span class="s2">"""</span>
+        <span class="o">+</span> <span class="n">_table</span><span class="p">(</span>
+            <span class="n">_BOARD_ROWS</span>
+            <span class="o">+</span> <span class="p">[</span>
+                <span class="p">(</span>
+                    <span class="s2">"Pixel"</span><span class="p">,</span>
+                    <span class="s2">"The pixel to build the histogram for, 0 to 255."</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="n">_LINEAR_ROW</span><span class="p">,</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+        <span class="o">+</span> <span class="s2">"""</span>
+<span class="s2">&lt;p&gt;Exported columns: &lt;code&gt;time_ps&lt;/code&gt; (bin centre),</span>
+<span class="s2">&lt;code&gt;bin_low_ps&lt;/code&gt;, &lt;code&gt;bin_high_ps&lt;/code&gt; and</span>
+<span class="s2">&lt;code&gt;counts&lt;/code&gt;.&lt;/p&gt;</span>
+<span class="s2">"""</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="n">Section</span><span class="p">(</span>
+        <span class="s2">"mzi"</span><span class="p">,</span>
+        <span class="s2">"MZI"</span><span class="p">,</span>
+        <span class="s2">"tabs"</span><span class="p">,</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">&lt;h2&gt;MZI&lt;/h2&gt;</span>
+<span class="sd">&lt;p&gt;The photon rate on two pixels against time, for the two arms of a</span>
+<span class="sd">Mach-Zehnder interferometer. Each new data file adds one point to each</span>
+<span class="sd">trace, so the trace grows at whatever rate the acquisition writes.</span>
+<span class="sd">Time is counted from the first file read after the stream was</span>
+<span class="sd">started.&lt;/p&gt;</span>
+
+<span class="sd">&lt;h3&gt;Above the plot&lt;/h3&gt;</span>
+<span class="sd">"""</span>
+        <span class="o">+</span> <span class="n">_table</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="p">(</span><span class="s2">"Data folder"</span><span class="p">,</span> <span class="s2">"The folder the board writes to."</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">"Pixel 1, Pixel 2"</span><span class="p">,</span> <span class="s2">"The latest rate on each pixel."</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">"Elapsed"</span><span class="p">,</span> <span class="s2">"Seconds since the first file of this run."</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">"Points"</span><span class="p">,</span> <span class="s2">"How many points each trace has."</span><span class="p">),</span>
+            <span class="p">],</span>
+            <span class="n">head</span><span class="o">=</span><span class="p">(</span><span class="s2">"Item"</span><span class="p">,</span> <span class="s2">"What it shows"</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="o">+</span> <span class="s2">"""</span>
+<span class="s2">&lt;h3&gt;Under the plot&lt;/h3&gt;</span>
+<span class="s2">"""</span>
+        <span class="o">+</span> <span class="n">_table</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="p">(</span>
+                    <span class="s2">"x limits (s), y limits (Hz)"</span><span class="p">,</span>
+                    <span class="s2">"The edges of the plot. Leave an edge empty to let "</span>
+                    <span class="s2">"it follow the data. The right-hand y-axis always "</span>
+                    <span class="s2">"has the same limits as the left one, so the two "</span>
+                    <span class="s2">"arms can be compared directly."</span><span class="p">,</span>
+                <span class="p">),</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+        <span class="o">+</span> <span class="s2">"""</span>
+<span class="s2">&lt;h3&gt;The column on the right&lt;/h3&gt;</span>
+<span class="s2">"""</span>
+        <span class="o">+</span> <span class="n">_table</span><span class="p">(</span>
+            <span class="n">_BOARD_ROWS</span>
+            <span class="o">+</span> <span class="p">[</span>
+                <span class="n">_ADDRESS_ROW</span><span class="p">,</span>
+                <span class="p">(</span>
+                    <span class="s2">"First pixel"</span><span class="p">,</span>
+                    <span class="s2">"The pixel the first arm falls on; drawn against "</span>
+                    <span class="s2">"the left y-axis."</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">"Second pixel"</span><span class="p">,</span>
+                    <span class="s2">"The pixel the second arm falls on; drawn against "</span>
+                    <span class="s2">"the right y-axis."</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">"Linear scale"</span><span class="p">,</span>
+                    <span class="s2">"Clear it for logarithmic y-axes on both sides."</span><span class="p">,</span>
+                <span class="p">),</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+        <span class="o">+</span> <span class="s2">"""</span>
+<span class="s2">&lt;h3&gt;Buttons&lt;/h3&gt;</span>
+<span class="s2">"""</span>
+        <span class="o">+</span> <span class="n">_table</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="p">(</span><span class="s2">"Refresh plot"</span><span class="p">,</span> <span class="s2">"Read the newest file and add a point now."</span><span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">"Start stream / Stop stream"</span><span class="p">,</span>
+                    <span class="s2">"Follow the folder, adding a point whenever a newer "</span>
+                    <span class="s2">"file appears."</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">"Reset"</span><span class="p">,</span>
+                    <span class="s2">"Throw the traces away and start the clock again. A "</span>
+                    <span class="s2">"running stream keeps running."</span><span class="p">,</span>
+                <span class="p">),</span>
+            <span class="p">],</span>
+            <span class="n">head</span><span class="o">=</span><span class="p">(</span><span class="s2">"Button"</span><span class="p">,</span> <span class="s2">"What it does"</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="o">+</span> <span class="s2">"""</span>
+<span class="s2">&lt;p&gt;Stopping and starting the stream starts the clock again but keeps</span>
+<span class="s2">the points already drawn, so the time axis restarts in the middle of</span>
+<span class="s2">the trace. Click &lt;b&gt;Reset&lt;/b&gt; for a clean trace.&lt;/p&gt;</span>
+<span class="s2">&lt;p&gt;Exported columns: &lt;code&gt;time_s&lt;/code&gt; and one</span>
+<span class="s2">&lt;code&gt;rate_pixel_N_Hz&lt;/code&gt; column per pixel.&lt;/p&gt;</span>
+<span class="s2">"""</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="n">Section</span><span class="p">(</span>
+        <span class="s2">"full"</span><span class="p">,</span>
+        <span class="s2">"Full Sensor"</span><span class="p">,</span>
+        <span class="s2">"tabs"</span><span class="p">,</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">&lt;h2&gt;Full Sensor&lt;/h2&gt;</span>
+<span class="sd">&lt;p&gt;Both halves of the LinoSPAD2 sensor, 512 pixels, from two boards</span>
+<span class="sd">each writing to a folder of its own. Board 1 gives pixels 0-255 and</span>
+<span class="sd">board 2 pixels 256-511; a dashed line marks the seam between them.&lt;/p&gt;</span>
+<span class="sd">&lt;p&gt;Two things are fixed on this tab, as the sensor requires: board 2 is</span>
+<span class="sd">always address-corrected (board 1 never is), and the data are always</span>
+<span class="sd">read as having &lt;b&gt;absolute timestamps&lt;/b&gt;, since those are what</span>
+<span class="sd">synchronize the two halves. There are no switches for either.&lt;/p&gt;</span>
+
+<span class="sd">&lt;h3&gt;Above the plot&lt;/h3&gt;</span>
+<span class="sd">"""</span>
+        <span class="o">+</span> <span class="n">_table</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="p">(</span>
+                    <span class="s2">"Board 1 folder"</span><span class="p">,</span>
+                    <span class="s2">"Where board 1 writes its files (pixels 0-255)."</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">"Board 2 folder"</span><span class="p">,</span>
+                    <span class="s2">"Where board 2 writes its files (pixels 256-511)."</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">"Gaussian fit"</span><span class="p">,</span>
+                    <span class="s2">"Fits every spectral line above a threshold, across "</span>
+                    <span class="s2">"both halves - see &lt;a href=</span><span class="se">\"</span><span class="s2">#fit</span><span class="se">\"</span><span class="s2">&gt;Gaussian "</span>
+                    <span class="s2">"fit&lt;/a&gt;."</span><span class="p">,</span>
+                <span class="p">),</span>
+            <span class="p">],</span>
+            <span class="n">head</span><span class="o">=</span><span class="p">(</span><span class="s2">"Item"</span><span class="p">,</span> <span class="s2">"What it is"</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="o">+</span> <span class="s2">"""</span>
+<span class="s2">&lt;h3&gt;Under the plot&lt;/h3&gt;</span>
+<span class="s2">"""</span>
+        <span class="o">+</span> <span class="n">_table</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="p">(</span>
+                    <span class="s2">"x limits (pixel)"</span><span class="p">,</span>
+                    <span class="s2">"The range shown, 0 to 511 across both halves. It "</span>
+                    <span class="s2">"also sets what &lt;a href=</span><span class="se">\"</span><span class="s2">#peak</span><span class="se">\"</span><span class="s2">&gt;Peak in view&lt;/a&gt;, "</span>
+                    <span class="s2">"the &lt;a href=</span><span class="se">\"</span><span class="s2">#fit</span><span class="se">\"</span><span class="s2">&gt;Gaussian fit&lt;/a&gt; and "</span>
+                    <span class="s2">"&lt;a href=</span><span class="se">\"</span><span class="s2">#tdc</span><span class="se">\"</span><span class="s2">&gt;TDC memory&lt;/a&gt; look at."</span><span class="p">,</span>
+                <span class="p">),</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+        <span class="o">+</span> <span class="s2">"""</span>
+<span class="s2">&lt;h3&gt;The column on the right&lt;/h3&gt;</span>
+<span class="s2">"""</span>
+        <span class="o">+</span> <span class="n">_table</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="p">(</span>
+                    <span class="s2">"Daughterboard"</span><span class="p">,</span>
+                    <span class="s2">"Shared by both boards: one daughterboard carries "</span>
+                    <span class="s2">"the whole sensor."</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span><span class="s2">"Motherboard 1"</span><span class="p">,</span> <span class="s2">"Motherboard of board 1."</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">"Motherboard 2"</span><span class="p">,</span> <span class="s2">"Motherboard of board 2."</span><span class="p">),</span>
+                <span class="n">_BOARD_ROWS</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
+                <span class="p">(</span>
+                    <span class="s2">"Timestamps"</span><span class="p">,</span>
+                    <span class="s2">"Timestamps per pixel per cycle, the same on both "</span>
+                    <span class="s2">"boards."</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">"Pixel mask"</span><span class="p">,</span>
+                    <span class="s2">"As on the other tabs, but with one grid per board; "</span>
+                    <span class="s2">"the line under the buttons counts the masked pixels "</span>
+                    <span class="s2">"of each (&lt;code&gt;b1: 3, b2: 0&lt;/code&gt;). See "</span>
+                    <span class="s2">"&lt;a href=</span><span class="se">\"</span><span class="s2">#mask</span><span class="se">\"</span><span class="s2">&gt;Pixel mask&lt;/a&gt;."</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="n">_LINEAR_ROW</span><span class="p">,</span>
+                <span class="p">(</span>
+                    <span class="s2">"Group of 64"</span><span class="p">,</span>
+                    <span class="s2">"Vertical lines at every group boundary on both "</span>
+                    <span class="s2">"halves."</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">"Both boards in step"</span><span class="p">,</span>
+                    <span class="s2">"Checks in the background that both boards keep "</span>
+                    <span class="s2">"writing files together - see "</span>
+                    <span class="s2">"&lt;a href=</span><span class="se">\"</span><span class="s2">#insync</span><span class="se">\"</span><span class="s2">&gt;Both boards in step&lt;/a&gt;."</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">"Peak in view"</span><span class="p">,</span>
+                    <span class="s2">"See &lt;a href=</span><span class="se">\"</span><span class="s2">#peak</span><span class="se">\"</span><span class="s2">&gt;Peak in view&lt;/a&gt;."</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">"TDC memory"</span><span class="p">,</span>
+                    <span class="s2">"See &lt;a href=</span><span class="se">\"</span><span class="s2">#tdc</span><span class="se">\"</span><span class="s2">&gt;TDC memory&lt;/a&gt;. With two "</span>
+                    <span class="s2">"boards, the worse of the two is shown."</span><span class="p">,</span>
+                <span class="p">),</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+        <span class="o">+</span> <span class="s2">"""</span>
+<span class="s2">&lt;h3&gt;Buttons&lt;/h3&gt;</span>
+<span class="s2">"""</span>
+        <span class="o">+</span> <span class="n">_table</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="p">(</span>
+                    <span class="s2">"Refresh plot"</span><span class="p">,</span>
+                    <span class="s2">"Read the newest file of each board now."</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">"Start stream / Stop stream"</span><span class="p">,</span>
+                    <span class="s2">"Follow both folders, redrawing whenever either "</span>
+                    <span class="s2">"gets a newer file. Also starts the "</span>
+                    <span class="s2">"&lt;b&gt;Both boards in step&lt;/b&gt; check."</span><span class="p">,</span>
+                <span class="p">),</span>
+            <span class="p">],</span>
+            <span class="n">head</span><span class="o">=</span><span class="p">(</span><span class="s2">"Button"</span><span class="p">,</span> <span class="s2">"What it does"</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="o">+</span> <span class="s2">"""</span>
+<span class="s2">&lt;p&gt;&lt;b&gt;Ctrl+click&lt;/b&gt; a pixel on either half to mask it; the half it</span>
+<span class="s2">falls on decides which board's mask it goes to.&lt;/p&gt;</span>
+<span class="s2">&lt;p&gt;Exported columns: &lt;code&gt;pixel&lt;/code&gt; (0-511), &lt;code&gt;board&lt;/code&gt;</span>
+<span class="s2">(1 or 2), &lt;code&gt;rate_Hz&lt;/code&gt; and &lt;code&gt;masked&lt;/code&gt;.&lt;/p&gt;</span>
+<span class="s2">"""</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="n">Section</span><span class="p">(</span>
+        <span class="s2">"sync"</span><span class="p">,</span>
+        <span class="s2">"Synchronization"</span><span class="p">,</span>
+        <span class="s2">"tabs"</span><span class="p">,</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">&lt;h2&gt;Synchronization&lt;/h2&gt;</span>
+<span class="sd">&lt;p&gt;This tab starts an acquisition on two boards at the same moment. It</span>
+<span class="sd">talks to two running copies of &lt;code&gt;LinoSPAD_synchro.exe&lt;/code&gt;, one</span>
+<span class="sd">per board, over the network on this computer: it switches both to the</span>
+<span class="sd">external clock, checks that both are locked to it, then starts both</span>
+<span class="sd">acquisitions together.&lt;/p&gt;</span>
+<span class="sd">&lt;p&gt;It does not save any data itself. Each board's own window saves its</span>
+<span class="sd">files, when its &lt;b&gt;AutoSave&lt;/b&gt; is on, to the folder set there.&lt;/p&gt;</span>
+
+<span class="sd">&lt;h3&gt;Before you start&lt;/h3&gt;</span>
+<span class="sd">&lt;ul&gt;</span>
+<span class="sd">&lt;li&gt;Feed a &lt;b&gt;25 MHz&lt;/b&gt; square wave into &lt;b&gt;CLK_IN (J11)&lt;/b&gt; of both</span>
+<span class="sd">boards. 20 MHz does not work.&lt;/li&gt;</span>
+<span class="sd">&lt;li&gt;In each board's window, the &lt;b&gt;Ext MHz&lt;/b&gt; box should read 25</span>
+<span class="sd">(not about 50).&lt;/li&gt;</span>
+<span class="sd">&lt;/ul&gt;</span>
+
+<span class="sd">&lt;h3&gt;Step by step&lt;/h3&gt;</span>
+<span class="sd">&lt;ol&gt;</span>
+<span class="sd">&lt;li&gt;Check the path to &lt;b&gt;LinoSPAD_synchro.exe&lt;/b&gt; and the two settings</span>
+<span class="sd">files, then click &lt;b&gt;Launch boards&lt;/b&gt;. One window opens per board; a</span>
+<span class="sd">board already launched from here is skipped.&lt;/li&gt;</span>
+<span class="sd">&lt;li&gt;In each board's window, click &lt;b&gt;Listen&lt;/b&gt; (its port must match</span>
+<span class="sd">the one under &lt;b&gt;Connection&lt;/b&gt;) and set &lt;b&gt;25 MHz External&lt;/b&gt;.&lt;/li&gt;</span>
+<span class="sd">&lt;li&gt;Click &lt;b&gt;Check clocks&lt;/b&gt;. Both lamps under the log should turn to</span>
+<span class="sd">&lt;b&gt;EXT LOCKED&lt;/b&gt;. This only reads the boards; it changes nothing.&lt;/li&gt;</span>
+<span class="sd">&lt;li&gt;Under &lt;b&gt;Both boards in step&lt;/b&gt;, set each board's folder to the</span>
+<span class="sd">folder that board's window saves to, so that the run is watched (see</span>
+<span class="sd">&lt;a href="#insync"&gt;Both boards in step&lt;/a&gt;).&lt;/li&gt;</span>
+<span class="sd">&lt;li&gt;Click &lt;b&gt;Acquire&lt;/b&gt;. The tab puts both boards on the external</span>
+<span class="sd">clock, checks both are locked, and starts both acquisitions at once.</span>
+<span class="sd">If either board is not locked, nothing is acquired. The log says when</span>
+<span class="sd">both have finished.&lt;/li&gt;</span>
+<span class="sd">&lt;/ol&gt;</span>
+
+<span class="sd">&lt;h3&gt;Above the log&lt;/h3&gt;</span>
+<span class="sd">"""</span>
+        <span class="o">+</span> <span class="n">_table</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="p">(</span>
+                    <span class="s2">"LinoSPAD_synchro.exe"</span><span class="p">,</span>
+                    <span class="s2">"The board program. &lt;b&gt;Browse&lt;/b&gt; finds it."</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">"Board 0 settings, Board 1 settings"</span><span class="p">,</span>
+                    <span class="s2">"The settings file each board's window is started "</span>
+                    <span class="s2">"with, given relative to the folder of the "</span>
+                    <span class="s2">"program."</span><span class="p">,</span>
+                <span class="p">),</span>
+            <span class="p">],</span>
+            <span class="n">head</span><span class="o">=</span><span class="p">(</span><span class="s2">"Item"</span><span class="p">,</span> <span class="s2">"What it is"</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="o">+</span> <span class="s2">"""</span>
+<span class="s2">&lt;h3&gt;Under the log&lt;/h3&gt;</span>
+<span class="s2">&lt;p&gt;One lamp per board: green with &lt;b&gt;EXT LOCKED&lt;/b&gt; when the board is</span>
+<span class="s2">locked to the external clock, red with &lt;b&gt;NOT on external clock&lt;/b&gt;</span>
+<span class="s2">when it is not, and amber with &lt;b&gt;unreachable&lt;/b&gt; when the board's</span>
+<span class="s2">window could not be contacted. The number in brackets is the raw status</span>
+<span class="s2">word the board returned.&lt;/p&gt;</span>
+
+<span class="s2">&lt;h3&gt;The column on the right&lt;/h3&gt;</span>
+<span class="s2">"""</span>
+        <span class="o">+</span> <span class="n">_table</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="p">(</span>
+                    <span class="s2">"Connection: Board 0 / Board 1 Port"</span><span class="p">,</span>
+                    <span class="s2">"The port each board's window listens on (5555 and "</span>
+                    <span class="s2">"5556 to start with). Both run on this computer."</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">"Acq. timeout (s)"</span><span class="p">,</span>
+                    <span class="s2">"How long to wait for each board to finish its "</span>
+                    <span class="s2">"acquisition, 1 to 3600 s (300 to start with). Set "</span>
+                    <span class="s2">"it longer than the acquisition."</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">"Both boards in step"</span><span class="p">,</span>
+                    <span class="s2">"The two folders to watch during &lt;b&gt;Acquire&lt;/b&gt;, "</span>
+                    <span class="s2">"with the check's settings - see "</span>
+                    <span class="s2">"&lt;a href=</span><span class="se">\"</span><span class="s2">#insync</span><span class="se">\"</span><span class="s2">&gt;Both boards in step&lt;/a&gt;."</span><span class="p">,</span>
+                <span class="p">),</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+        <span class="o">+</span> <span class="s2">"""</span>
+<span class="s2">&lt;h3&gt;Buttons&lt;/h3&gt;</span>
+<span class="s2">"""</span>
+        <span class="o">+</span> <span class="n">_table</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="p">(</span>
+                    <span class="s2">"Check clocks"</span><span class="p">,</span>
+                    <span class="s2">"Read both boards' clock status without changing "</span>
+                    <span class="s2">"anything."</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">"Acquire"</span><span class="p">,</span>
+                    <span class="s2">"External clock on, check the lock, and start both "</span>
+                    <span class="s2">"acquisitions together."</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">"Launch boards"</span><span class="p">,</span>
+                    <span class="s2">"Start one copy of the board program per board, "</span>
+                    <span class="s2">"each with its own settings file."</span><span class="p">,</span>
+                <span class="p">),</span>
+            <span class="p">],</span>
+            <span class="n">head</span><span class="o">=</span><span class="p">(</span><span class="s2">"Button"</span><span class="p">,</span> <span class="s2">"What it does"</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="o">+</span> <span class="s2">"""</span>
+<span class="s2">&lt;p&gt;The boards are named Board 0 and Board 1 here, as the board program</span>
+<span class="s2">numbers them; &lt;a href="#full"&gt;Full Sensor&lt;/a&gt; calls the two halves</span>
+<span class="s2">Board 1 and Board 2.&lt;/p&gt;</span>
+<span class="s2">"""</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="n">Section</span><span class="p">(</span>
+        <span class="s2">"panels"</span><span class="p">,</span>
+        <span class="s2">"Shared panels"</span><span class="p">,</span>
+        <span class="kc">None</span><span class="p">,</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">&lt;h2&gt;Shared panels&lt;/h2&gt;</span>
+<span class="sd">&lt;p&gt;Some boxes appear on more than one tab and work the same way on</span>
+<span class="sd">each:&lt;/p&gt;</span>
+<span class="sd">&lt;ul&gt;</span>
+<span class="sd">&lt;li&gt;&lt;a href="#mask"&gt;Pixel mask&lt;/a&gt; - Online plot, Full Sensor.&lt;/li&gt;</span>
+<span class="sd">&lt;li&gt;&lt;a href="#peak"&gt;Peak in view&lt;/a&gt; - Online plot, Full Sensor.&lt;/li&gt;</span>
+<span class="sd">&lt;li&gt;&lt;a href="#fit"&gt;Gaussian fit&lt;/a&gt; - Online plot, Full Sensor.&lt;/li&gt;</span>
+<span class="sd">&lt;li&gt;&lt;a href="#tdc"&gt;TDC memory&lt;/a&gt; - Online plot, Full Sensor.&lt;/li&gt;</span>
+<span class="sd">&lt;li&gt;&lt;a href="#insync"&gt;Both boards in step&lt;/a&gt; - Full Sensor,</span>
+<span class="sd">Synchronization.&lt;/li&gt;</span>
+<span class="sd">&lt;/ul&gt;</span>
+<span class="sd">&lt;p&gt;The boxes with a tick in their title can be switched off with it;</span>
+<span class="sd">a switched-off box costs nothing on each refresh.&lt;/p&gt;</span>
+<span class="sd">"""</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="n">Section</span><span class="p">(</span>
+        <span class="s2">"mask"</span><span class="p">,</span>
+        <span class="s2">"Pixel mask"</span><span class="p">,</span>
+        <span class="s2">"panels"</span><span class="p">,</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">&lt;h2&gt;Pixel mask&lt;/h2&gt;</span>
+<span class="sd">&lt;p&gt;A masked pixel is drawn at zero and left out of the readings,</span>
+<span class="sd">&lt;a href="#peak"&gt;Peak in view&lt;/a&gt;, the &lt;a href="#fit"&gt;fits&lt;/a&gt; and the</span>
+<span class="sd">"unmasked, in view" choice of &lt;a href="#tdc"&gt;TDC memory&lt;/a&gt;. Masking</span>
+<span class="sd">takes effect on the plot at once, without waiting for the next</span>
+<span class="sd">file.&lt;/p&gt;</span>
+
+<span class="sd">&lt;h3&gt;Three ways to mask&lt;/h3&gt;</span>
+<span class="sd">&lt;ul&gt;</span>
+<span class="sd">&lt;li&gt;&lt;b&gt;Ctrl+click&lt;/b&gt; a pixel on the plot. Ctrl+click it again to</span>
+<span class="sd">unmask it.&lt;/li&gt;</span>
+<span class="sd">&lt;li&gt;&lt;b&gt;Preset mask&lt;/b&gt;: the warm pixels recorded for the chosen</span>
+<span class="sd">daughterboard and motherboard. If none is recorded for that pair, a</span>
+<span class="sd">message says so and the tick is cleared. On Full Sensor each board</span>
+<span class="sd">uses its own motherboard, and a board with nothing recorded is</span>
+<span class="sd">skipped.&lt;/li&gt;</span>
+<span class="sd">&lt;li&gt;&lt;b&gt;Edit mask...&lt;/b&gt;: a window with one check box per pixel (one grid</span>
+<span class="sd">per board on Full Sensor). It can stay open beside the plot while the</span>
+<span class="sd">stream runs.&lt;/li&gt;</span>
+<span class="sd">&lt;/ul&gt;</span>
+
+<span class="sd">&lt;h3&gt;The mask window&lt;/h3&gt;</span>
+<span class="sd">"""</span>
+        <span class="o">+</span> <span class="n">_table</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="p">(</span>
+                    <span class="s2">"Quick entry"</span><span class="p">,</span>
+                    <span class="s2">"Type pixels such as &lt;code&gt;12, 40-43&lt;/code&gt; and "</span>
+                    <span class="s2">"click &lt;b&gt;Mask&lt;/b&gt; or &lt;b&gt;Unmask&lt;/b&gt;; Enter means "</span>
+                    <span class="s2">"Mask."</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">"The grid"</span><span class="p">,</span>
+                    <span class="s2">"Four pixels per row, numbered across: the first row "</span>
+                    <span class="s2">"is 0-3. On firmware 2212b a row is exactly the "</span>
+                    <span class="s2">"four pixels that share one TDC."</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">"n of 256 pixels masked"</span><span class="p">,</span>
+                    <span class="s2">"The count under each grid."</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">"Clear all"</span><span class="p">,</span>
+                    <span class="s2">"Unmask everything on every board, and clear "</span>
+                    <span class="s2">"&lt;b&gt;Preset mask&lt;/b&gt;."</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span><span class="s2">"Close"</span><span class="p">,</span> <span class="s2">"Hide the window; the mask stays."</span><span class="p">),</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+        <span class="o">+</span> <span class="s2">"""</span>
+<span class="s2">&lt;p&gt;&lt;b&gt;Reset&lt;/b&gt; on the tab does the same as &lt;b&gt;Clear all&lt;/b&gt;.&lt;/p&gt;</span>
+<span class="s2">&lt;p&gt;Pixel lists, here and in &lt;a href="#tdc"&gt;TDC memory&lt;/a&gt;, are single</span>
+<span class="s2">numbers and inclusive ranges separated by commas, spaces or</span>
+<span class="s2">semicolons: &lt;code&gt;36, 40-43; 100&lt;/code&gt;. A range can also be written</span>
+<span class="s2">&lt;code&gt;40:43&lt;/code&gt;.&lt;/p&gt;</span>
+<span class="s2">&lt;p&gt;The mask is not remembered when the application closes; tick</span>
+<span class="s2">&lt;b&gt;Preset mask&lt;/b&gt; again next time.&lt;/p&gt;</span>
+<span class="s2">"""</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="n">Section</span><span class="p">(</span>
+        <span class="s2">"peak"</span><span class="p">,</span>
+        <span class="s2">"Peak in view"</span><span class="p">,</span>
+        <span class="s2">"panels"</span><span class="p">,</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">&lt;h2&gt;Peak in view&lt;/h2&gt;</span>
+<span class="sd">&lt;p&gt;Four numbers about the peak between the current x limits, updated</span>
+<span class="sd">with every file. They tell you whether an adjustment made the peak</span>
+<span class="sd">better, not only whether it moved.&lt;/p&gt;</span>
+<span class="sd">"""</span>
+        <span class="o">+</span> <span class="n">_table</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="p">(</span>
+                    <span class="s2">"Brightest"</span><span class="p">,</span>
+                    <span class="s2">"The pixel with the highest rate in view, and that "</span>
+                    <span class="s2">"rate."</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">"Centroid"</span><span class="p">,</span>
+                    <span class="s2">"The rate-weighted mean pixel: where the peak is, to "</span>
+                    <span class="s2">"better than one pixel. The one to watch while "</span>
+                    <span class="s2">"turning a mirror."</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">"FWHM"</span><span class="p">,</span>
+                    <span class="s2">"Full width at half maximum, in pixels, measured "</span>
+                    <span class="s2">"out from the brightest pixel. Blank when the peak "</span>
+                    <span class="s2">"runs off the edge of the view - widen the limits."</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">"Sum in view"</span><span class="p">,</span>
+                    <span class="s2">"All the rates in view added up: how much light gets "</span>
+                    <span class="s2">"through, however tightly it is focused."</span><span class="p">,</span>
+                <span class="p">),</span>
+            <span class="p">],</span>
+            <span class="n">head</span><span class="o">=</span><span class="p">(</span><span class="s2">"Reading"</span><span class="p">,</span> <span class="s2">"What it means"</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="o">+</span> <span class="s2">"""</span>
+<span class="s2">&lt;p&gt;Narrow the x limits onto the signal: otherwise a hot pixel elsewhere</span>
+<span class="s2">on the sensor can be the brightest and decide every number. "nothing in</span>
+<span class="s2">view" means every pixel between the limits reads zero.&lt;/p&gt;</span>
+<span class="s2">"""</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="n">Section</span><span class="p">(</span>
+        <span class="s2">"fit"</span><span class="p">,</span>
+        <span class="s2">"Gaussian fit"</span><span class="p">,</span>
+        <span class="s2">"panels"</span><span class="p">,</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">&lt;h2&gt;Gaussian fit&lt;/h2&gt;</span>
+<span class="sd">&lt;p&gt;On the Online plot and the Full Sensor tab, the strip just above</span>
+<span class="sd">the plot fits a Gaussian to</span>
+<span class="sd">every spectral line in view - for example while focusing a spectrometer</span>
+<span class="sd">on a neon lamp - and shows each line's width with its uncertainty, on</span>
+<span class="sd">every refresh.&lt;/p&gt;</span>
+<span class="sd">&lt;ol&gt;</span>
+<span class="sd">&lt;li&gt;Tick &lt;b&gt;Gaussian fit&lt;/b&gt;.&lt;/li&gt;</span>
+<span class="sd">&lt;li&gt;Type a &lt;b&gt;Threshold (Hz)&lt;/b&gt;, such as &lt;code&gt;2e5&lt;/code&gt;, and press</span>
+<span class="sd">Enter. It is drawn on the plot as a dashed line. Put it above the</span>
+<span class="sd">hot pixels and the dark floor, and below the lines.&lt;/li&gt;</span>
+<span class="sd">&lt;/ol&gt;</span>
+<span class="sd">&lt;p&gt;Each run of neighbouring, unmasked pixels above the threshold, within</span>
+<span class="sd">the x limits, counts as one line. It is fitted with a Gaussian on a</span>
+<span class="sd">constant background, then fitted again over four sigmas either side of</span>
+<span class="sd">the first result.&lt;/p&gt;</span>
+<span class="sd">&lt;p&gt;The strip shows one entry per line, such as</span>
+<span class="sd">&lt;code&gt;px 131.4: &amp;sigma; = 1.82 &amp;plusmn; 0.03&lt;/code&gt; (centre and sigma,</span>
+<span class="sd">both in pixels; sigma and its error to two decimals). On the Full</span>
+<span class="sd">Sensor tab the centre is on the 0-511 axis. Each line's sigma is also written on the plot. Hover</span>
+<span class="sd">over the strip for the full result: centre, sigma, FWHM, amplitude and</span>
+<span class="sd">background.&lt;/p&gt;</span>
+<span class="sd">"""</span>
+        <span class="o">+</span> <span class="n">_table</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="p">(</span>
+                    <span class="s2">"set a threshold to fit"</span><span class="p">,</span>
+                    <span class="s2">"The fit is ticked but no threshold is set."</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">"no lines above threshold"</span><span class="p">,</span>
+                    <span class="s2">"Nothing in view rises above the threshold."</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">"too few pixels"</span><span class="p">,</span>
+                    <span class="s2">"The line has fewer than 5 usable pixels - widen "</span>
+                    <span class="s2">"the limits or lower the threshold."</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span><span class="s2">"fit failed"</span><span class="p">,</span> <span class="s2">"The fit did not converge on this line."</span><span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">"a huge uncertainty"</span><span class="p">,</span>
+                    <span class="s2">"Shown in scientific notation. Usually a hot pixel "</span>
+                    <span class="s2">"fitted as a line: raise the threshold or mask it."</span><span class="p">,</span>
+                <span class="p">),</span>
+            <span class="p">],</span>
+            <span class="n">head</span><span class="o">=</span><span class="p">(</span><span class="s2">"Message"</span><span class="p">,</span> <span class="s2">"What it means"</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="o">+</span> <span class="s2">"""</span>
+<span class="s2">&lt;p&gt;Two lines close enough that the trace never drops below the</span>
+<span class="s2">threshold between them are fitted as one; raise the threshold to split</span>
+<span class="s2">them. The fits are written into the notes of an</span>
+<span class="s2">&lt;a href="#export"&gt;exported&lt;/a&gt; file.&lt;/p&gt;</span>
+<span class="s2">"""</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="n">Section</span><span class="p">(</span>
+        <span class="s2">"tdc"</span><span class="p">,</span>
+        <span class="s2">"TDC memory"</span><span class="p">,</span>
+        <span class="s2">"panels"</span><span class="p">,</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">&lt;h2&gt;TDC memory&lt;/h2&gt;</span>
+<span class="sd">&lt;p&gt;Each TDC records the photons of four pixels, and has room for</span>
+<span class="sd">&lt;b&gt;Timestamps&lt;/b&gt; of them per acquisition cycle. When that room is used</span>
+<span class="sd">up, the rest of the cycle is thrown away - and the data file gives no</span>
+<span class="sd">sign of it, since it is the same size either way. This box watches for</span>
+<span class="sd">that while the stream runs, and suggests a &lt;b&gt;Timestamps&lt;/b&gt; setting</span>
+<span class="sd">that fits the measurement.&lt;/p&gt;</span>
+
+<span class="sd">&lt;h3&gt;Which pixels are watched&lt;/h3&gt;</span>
+<span class="sd">"""</span>
+        <span class="o">+</span> <span class="n">_table</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="p">(</span>
+                    <span class="s2">"unmasked, in view"</span><span class="p">,</span>
+                    <span class="s2">"Every pixel that is not masked and lies between the "</span>
+                    <span class="s2">"x limits. Apply the preset mask or zoom onto the "</span>
+                    <span class="s2">"signal and this narrows down on its own."</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">"these:"</span><span class="p">,</span>
+                    <span class="s2">"The pixels you type, such as "</span>
+                    <span class="s2">"&lt;code&gt;143, 156-159&lt;/code&gt;, when the mask is not the "</span>
+                    <span class="s2">"whole story."</span><span class="p">,</span>
+                <span class="p">),</span>
+            <span class="p">],</span>
+            <span class="n">head</span><span class="o">=</span><span class="p">(</span><span class="s2">"Choice"</span><span class="p">,</span> <span class="s2">"What it watches"</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="o">+</span> <span class="s2">"""</span>
+<span class="s2">&lt;p&gt;All the traffic of a TDC holding a watched pixel counts, including</span>
+<span class="s2">that of a hot pixel sharing it - that is exactly the case that uses up</span>
+<span class="s2">the room the signal needs.&lt;/p&gt;</span>
+
+<span class="s2">&lt;h3&gt;The two readings&lt;/h3&gt;</span>
+<span class="s2">"""</span>
+        <span class="o">+</span> <span class="n">_table</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="p">(</span>
+                    <span class="s2">"First line"</span><span class="p">,</span>
+                    <span class="s2">"The busiest TDC among the watched pixels, such as "</span>
+                    <span class="s2">"&lt;code&gt;TDC 36: 54/150 slots (36 %)&lt;/code&gt;: the "</span>
+                    <span class="s2">"median number of slots used per cycle. This is the "</span>
+                    <span class="s2">"one that says whether &lt;i&gt;your&lt;/i&gt; measurement is "</span>
+                    <span class="s2">"affected."</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">"worst on sensor"</span><span class="p">,</span>
+                    <span class="s2">"The busiest TDC anywhere on the board, watched or "</span>
+                    <span class="s2">"not. Usually a hot pixel; it shows how close to the "</span>
+                    <span class="s2">"edge the board is running."</span><span class="p">,</span>
+                <span class="p">),</span>
+            <span class="p">],</span>
+            <span class="n">head</span><span class="o">=</span><span class="p">(</span><span class="s2">"Reading"</span><span class="p">,</span> <span class="s2">"What it means"</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="o">+</span> <span class="s2">"""</span>
+<span class="s2">&lt;p&gt;The lamps: &lt;b&gt;green&lt;/b&gt; - plenty of room; &lt;b&gt;amber&lt;/b&gt; - more than</span>
+<span class="s2">70 </span><span class="si">% o</span><span class="s2">f the slots used, or full in some cycles; &lt;b&gt;red&lt;/b&gt; - full in</span>
+<span class="s2">more than 1 </span><span class="si">% o</span><span class="s2">f cycles, so data are being lost. The text says</span>
+<span class="s2">"full in x </span><span class="si">% o</span><span class="s2">f cycles" whenever a TDC filled up.&lt;/p&gt;</span>
+
+<span class="s2">&lt;h3&gt;The suggestion&lt;/h3&gt;</span>
+<span class="s2">&lt;p&gt;&lt;b&gt;Timestamps suggested: N (now M)&lt;/b&gt; is the setting that would</span>
+<span class="s2">hold the watched pixels with about 30 % to spare, rounded up to a</span>
+<span class="s2">multiple of 50. &lt;b&gt;Apply&lt;/b&gt; puts it into the &lt;b&gt;Timestamps&lt;/b&gt; box;</span>
+<span class="s2">it takes effect on the next file, so the acquisition must be set to the</span>
+<span class="s2">same value. As a rule of thumb, the slots needed are about 4 &amp;times;</span>
+<span class="s2">rate per pixel &amp;times; the timestamping window: 4 &amp;times; 86 kHz</span>
+<span class="s2">&amp;times; 4 ms is about 1380.&lt;/p&gt;</span>
+<span class="s2">&lt;p&gt;If more than the 1536 slots the hardware has would be needed, no</span>
+<span class="s2">setting is enough: shorten the window or attenuate the light. If every</span>
+<span class="s2">cycle filled up, the file shows neither the true rate nor the window,</span>
+<span class="s2">so no suggestion can be made: raise &lt;b&gt;Timestamps&lt;/b&gt; well above its</span>
+<span class="s2">current value and measure again.&lt;/p&gt;</span>
+
+<span class="s2">&lt;h3&gt;The warning&lt;/h3&gt;</span>
+<span class="s2">&lt;p&gt;The first time a watched TDC is full in more than 1 </span><span class="si">% o</span><span class="s2">f cycles, a</span>
+<span class="s2">&lt;b&gt;Readout saturated&lt;/b&gt; message appears, once per run. It does not</span>
+<span class="s2">stop the stream. &lt;b&gt;Show Details...&lt;/b&gt; lists every TDC that filled up</span>
+<span class="s2">and when. Starting the stream again, or &lt;b&gt;Refresh plot&lt;/b&gt;, re-arms</span>
+<span class="s2">it.&lt;/p&gt;</span>
+<span class="s2">"""</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="n">Section</span><span class="p">(</span>
+        <span class="s2">"insync"</span><span class="p">,</span>
+        <span class="s2">"Both boards in step"</span><span class="p">,</span>
+        <span class="s2">"panels"</span><span class="p">,</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">&lt;h2&gt;Both boards in step&lt;/h2&gt;</span>
+<span class="sd">&lt;p&gt;In a good two-board run, each board writes one file per acquisition</span>
+<span class="sd">cycle into its own folder: the same number of files on both sides, each</span>
+<span class="sd">pair created within a couple of seconds of each other. If one board</span>
+<span class="sd">stalls or drops a cycle, the two halves can no longer be matched up</span>
+<span class="sd">afterwards - and the live plot of either half still looks healthy. This</span>
+<span class="sd">check watches for that in the background.&lt;/p&gt;</span>
+<span class="sd">"""</span>
+        <span class="o">+</span> <span class="n">_table</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="p">(</span>
+                    <span class="s2">"Board files (Synchronization only)"</span><span class="p">,</span>
+                    <span class="s2">"The folder each board's own window saves to. Only "</span>
+                    <span class="s2">"read, never written to. On Full Sensor the two "</span>
+                    <span class="s2">"plot folders are used instead."</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">"Pair tolerance (s)"</span><span class="p">,</span>
+                    <span class="s2">"How far apart the two files of one cycle may be "</span>
+                    <span class="s2">"created; 2.0 s to start with. Good runs stay "</span>
+                    <span class="s2">"within about 2 s."</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">"Check every (s)"</span><span class="p">,</span>
+                    <span class="s2">"How often the two folders are compared; 5 s to "</span>
+                    <span class="s2">"start with."</span><span class="p">,</span>
+                <span class="p">),</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+        <span class="o">+</span> <span class="s2">"""</span>
+<span class="s2">&lt;p&gt;The check runs while the stream runs (Full Sensor) or while</span>
+<span class="s2">&lt;b&gt;Acquire&lt;/b&gt; runs (Synchronization). Only files created after it</span>
+<span class="s2">started are counted, so leftovers from an earlier run do not matter.</span>
+<span class="s2">Its settings are locked while it runs.&lt;/p&gt;</span>
+<span class="s2">&lt;p&gt;The lamp is &lt;b&gt;green&lt;/b&gt; while both boards keep pace, &lt;b&gt;amber&lt;/b&gt;</span>
+<span class="s2">while it is waiting for the first files or one board is briefly ahead,</span>
+<span class="s2">and &lt;b&gt;red&lt;/b&gt; once the run has gone wrong. A short difference in the</span>
+<span class="s2">number of files is normal; it counts as a problem only after it has</span>
+<span class="s2">lasted 30 seconds. A pair further apart than the tolerance is a problem</span>
+<span class="s2">at once.&lt;/p&gt;</span>
+<span class="s2">&lt;p&gt;When that happens, a &lt;b&gt;Boards out of step&lt;/b&gt; message appears,</span>
+<span class="s2">once per run, without stopping anything. &lt;b&gt;Show Details...&lt;/b&gt; lists</span>
+<span class="s2">the pairs that are too far apart and the files only one board has. The</span>
+<span class="s2">run cannot be synchronized afterwards: stop it and measure again.&lt;/p&gt;</span>
+<span class="s2">&lt;p&gt;"no working directory set - not checking" and "both boards point at</span>
+<span class="s2">the same directory - not checking" mean the folders need setting.&lt;/p&gt;</span>
+<span class="s2">"""</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="n">Section</span><span class="p">(</span>
+        <span class="s2">"export"</span><span class="p">,</span>
+        <span class="s2">"Exporting data"</span><span class="p">,</span>
+        <span class="kc">None</span><span class="p">,</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">&lt;h2&gt;Exporting data&lt;/h2&gt;</span>
+<span class="sd">&lt;p&gt;&lt;b&gt;File &amp;rarr; Export plotted data...&lt;/b&gt; (&lt;b&gt;Ctrl+E&lt;/b&gt;) saves the</span>
+<span class="sd">numbers behind the plot on the current tab - not a picture of it. It</span>
+<span class="sd">is greyed out until the tab has plotted something, and on</span>
+<span class="sd">Synchronization, which has no plot.&lt;/p&gt;</span>
+<span class="sd">&lt;p&gt;Choose the format in the save dialog:&lt;/p&gt;</span>
+<span class="sd">&lt;ul&gt;</span>
+<span class="sd">&lt;li&gt;&lt;b&gt;CSV&lt;/b&gt; - one column per quantity, with a header row. Above it,</span>
+<span class="sd">lines starting with &lt;code&gt;#&lt;/code&gt; record the application version, the</span>
+<span class="sd">time of export, the source file, the boards, the firmware and the</span>
+<span class="sd">settings, so the file still says where it came from months later. In</span>
+<span class="sd">Python: &lt;code&gt;pandas.read_csv(path, comment="#")&lt;/code&gt;.&lt;/li&gt;</span>
+<span class="sd">&lt;li&gt;&lt;b&gt;NumPy archive (.npz)&lt;/b&gt; - one array per column, plus</span>
+<span class="sd">&lt;code&gt;notes&lt;/code&gt;: &lt;code&gt;numpy.load(path)&lt;/code&gt;.&lt;/li&gt;</span>
+<span class="sd">&lt;/ul&gt;</span>
+<span class="sd">&lt;p&gt;The suggested name is the tab and the date and time, such as</span>
+<span class="sd">&lt;code&gt;online-plot-20261101-143005&lt;/code&gt;. Without an extension, the</span>
+<span class="sd">format chosen in the dialog decides it.&lt;/p&gt;</span>
+<span class="sd">&lt;p&gt;A masked pixel exports with rate 0 and &lt;code&gt;masked = 1&lt;/code&gt;. The</span>
+<span class="sd">columns of each tab are listed on its page.&lt;/p&gt;</span>
+<span class="sd">&lt;p&gt;To save the plot as a picture, use the &lt;b&gt;Save&lt;/b&gt; button in the</span>
+<span class="sd">plot's toolbar.&lt;/p&gt;</span>
+<span class="sd">"""</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="n">Section</span><span class="p">(</span>
+        <span class="s2">"appearance"</span><span class="p">,</span>
+        <span class="s2">"Themes and Preferences"</span><span class="p">,</span>
+        <span class="kc">None</span><span class="p">,</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">&lt;h2&gt;Themes and Preferences&lt;/h2&gt;</span>
+<span class="sd">&lt;p&gt;&lt;b&gt;View &amp;rarr; Theme&lt;/b&gt; switches the whole look in one click. The</span>
+<span class="sd">dark themes are listed first, then a line, then the light ones.</span>
+<span class="sd">&lt;b&gt;Daplis (publication)&lt;/b&gt; gives plots ready to put in a paper.&lt;/p&gt;</span>
+<span class="sd">&lt;p&gt;&lt;b&gt;View &amp;rarr; Preferences...&lt;/b&gt; (&lt;b&gt;Ctrl+,&lt;/b&gt;) opens a window for</span>
+<span class="sd">finer changes. Every change is applied at once, to the window and to</span>
+<span class="sd">the plots already drawn, so keep it beside a plot and watch.&lt;/p&gt;</span>
+<span class="sd">"""</span>
+        <span class="o">+</span> <span class="n">_table</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="p">(</span>
+                    <span class="s2">"Theme"</span><span class="p">,</span>
+                    <span class="s2">"The starting point. Choosing a theme again throws "</span>
+                    <span class="s2">"away the changes made below."</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">"Interface: Window background"</span><span class="p">,</span>
+                    <span class="s2">"The tab pages and the control column."</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">"Interface: Panels"</span><span class="p">,</span>
+                    <span class="s2">"The tab bar, the menu and status bars, the log and "</span>
+                    <span class="s2">"this guide."</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">"Interface: Input fields"</span><span class="p">,</span>
+                    <span class="s2">"Line edits, spin boxes and drop-down boxes."</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">"Interface: Buttons"</span><span class="p">,</span>
+                    <span class="s2">"Push buttons and spin-box arrows; the hover shade "</span>
+                    <span class="s2">"follows."</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">"Interface: Borders"</span><span class="p">,</span>
+                    <span class="s2">"Every thin border: fields, buttons, boxes, the tab "</span>
+                    <span class="s2">"page."</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">"Interface: Text, Secondary text, Muted text"</span><span class="p">,</span>
+                    <span class="s2">"The main text; labels, check boxes and the log; "</span>
+                    <span class="s2">"hints, inactive tabs and disabled controls."</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">"Interface: Accent"</span><span class="p">,</span>
+                    <span class="s2">"The selected tab, the box titles, the readings, "</span>
+                    <span class="s2">"the outline of each tab's main button, and the "</span>
+                    <span class="s2">"highlight on whatever is selected."</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">"Interface: Font size"</span><span class="p">,</span>
+                    <span class="s2">"Size of the window's text, 7-16 pt. Rows and "</span>
+                    <span class="s2">"columns grow with it."</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">"Status"</span><span class="p">,</span>
+                    <span class="s2">"OK, Warning and Error: the colours of the "</span>
+                    <span class="s2">"lamps in &lt;b&gt;TDC memory&lt;/b&gt;, &lt;b&gt;Both boards in "</span>
+                    <span class="s2">"step&lt;/b&gt; and the Synchronization clock status - "</span>
+                    <span class="s2">"worth changing if two of them are hard to tell "</span>
+                    <span class="s2">"apart."</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">"Plots: colours"</span><span class="p">,</span>
+                    <span class="s2">"Figure background, Plot background, Ticks and "</span>
+                    <span class="s2">"labels, Axes frame, Grid, and Markers (the seam "</span>
+                    <span class="s2">"and group-of-64 lines, and the fit threshold)."</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">"Plots: Font size"</span><span class="p">,</span>
+                    <span class="s2">"Size of the plot labels on a small window, 8-32 pt; "</span>
+                    <span class="s2">"it grows as the window widens."</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">"Plots: Marker size"</span><span class="p">,</span>
+                    <span class="s2">"Size of the dots on the traces, 0-12 pt; 0 draws a "</span>
+                    <span class="s2">"line only."</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">"Glow"</span><span class="p">,</span>
+                    <span class="s2">"A glow under the traces. It redraws each line "</span>
+                    <span class="s2">"several times, which slows a fast stream."</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span><span class="s2">"Grid"</span><span class="p">,</span> <span class="s2">"Grid lines behind the data."</span><span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">"Trace colours"</span><span class="p">,</span>
+                    <span class="s2">"Trace 1: sensor population and the first MZI "</span>
+                    <span class="s2">"pixel. Trace 2: the second MZI pixel and the fit "</span>
+                    <span class="s2">"labels. Trace 3: the single-pixel histogram. "</span>
+                    <span class="s2">"Traces 4 and 5 are spare."</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">"Reset to defaults"</span><span class="p">,</span>
+                    <span class="s2">"Back to the shipped theme, font and marker sizes."</span><span class="p">,</span>
+                <span class="p">),</span>
+            <span class="p">],</span>
+            <span class="n">head</span><span class="o">=</span><span class="p">(</span><span class="s2">"Setting"</span><span class="p">,</span> <span class="s2">"What it changes"</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="o">+</span> <span class="s2">"""</span>
+<span class="s2">&lt;p&gt;Click a colour button to pick a colour. Panels, Buttons, Borders and</span>
+<span class="s2">Secondary text are worked out from the window background, the text and</span>
+<span class="s2">the muted text, and follow them when those change - until you set them</span>
+<span class="s2">yourself. Your theme and changes are remembered for your user account;</span>
+<span class="s2">the current theme is named at the right of the status bar.&lt;/p&gt;</span>
+<span class="s2">"""</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="n">Section</span><span class="p">(</span>
+        <span class="s2">"remembered"</span><span class="p">,</span>
+        <span class="s2">"What is remembered"</span><span class="p">,</span>
+        <span class="kc">None</span><span class="p">,</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">&lt;h2&gt;What is remembered&lt;/h2&gt;</span>
+<span class="sd">&lt;p&gt;Settings are saved as they are changed and restored when the</span>
+<span class="sd">application next starts, separately for each tab and for each user</span>
+<span class="sd">account on the computer:&lt;/p&gt;</span>
+<span class="sd">&lt;ul&gt;</span>
+<span class="sd">&lt;li&gt;the data folders, boards, firmware version and timestamps;&lt;/li&gt;</span>
+<span class="sd">&lt;li&gt;the check boxes, axis limits and cycle length;&lt;/li&gt;</span>
+<span class="sd">&lt;li&gt;which status boxes are switched on (but not the settings inside</span>
+<span class="sd">them, such as the pair tolerance or the typed pixels);&lt;/li&gt;</span>
+<span class="sd">&lt;li&gt;the Gaussian fit and its threshold;&lt;/li&gt;</span>
+<span class="sd">&lt;li&gt;on Synchronization: the program path, the settings files, the two</span>
+<span class="sd">board folders, the ports and the timeout. The path, settings files and</span>
+<span class="sd">folders are saved when &lt;b&gt;Launch boards&lt;/b&gt; or &lt;b&gt;Acquire&lt;/b&gt; is</span>
+<span class="sd">clicked;&lt;/li&gt;</span>
+<span class="sd">&lt;li&gt;the theme, colours and font sizes.&lt;/li&gt;</span>
+<span class="sd">&lt;/ul&gt;</span>
+<span class="sd">&lt;p&gt;Not remembered: the pixel mask, the plots and readings, and anything</span>
+<span class="sd">about the last run.&lt;/p&gt;</span>
+<span class="sd">"""</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="n">Section</span><span class="p">(</span>
+        <span class="s2">"keys"</span><span class="p">,</span>
+        <span class="s2">"Keyboard and mouse"</span><span class="p">,</span>
+        <span class="kc">None</span><span class="p">,</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">&lt;h2&gt;Keyboard and mouse&lt;/h2&gt;</span>
+<span class="sd">"""</span>
+        <span class="o">+</span> <span class="n">_table</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="p">(</span><span class="s2">"F1"</span><span class="p">,</span> <span class="s2">"Open this guide at the current tab's page."</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">"Ctrl+E"</span><span class="p">,</span> <span class="s2">"Export the numbers behind the current plot."</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">"Ctrl+,"</span><span class="p">,</span> <span class="s2">"Open Preferences."</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">"Ctrl+Q"</span><span class="p">,</span> <span class="s2">"Quit."</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">"Ctrl+click on a plot"</span><span class="p">,</span> <span class="s2">"Mask or unmask that pixel."</span><span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">"Enter in the mask window's quick entry"</span><span class="p">,</span>
+                    <span class="s2">"Mask the pixels typed."</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">"Mouse over a plot"</span><span class="p">,</span>
+                    <span class="s2">"The toolbar shows the coordinates under the "</span>
+                    <span class="s2">"cursor."</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">"Mouse over a control"</span><span class="p">,</span>
+                    <span class="s2">"A short explanation of it."</span><span class="p">,</span>
+                <span class="p">),</span>
+            <span class="p">],</span>
+            <span class="n">head</span><span class="o">=</span><span class="p">(</span><span class="s2">"Key or action"</span><span class="p">,</span> <span class="s2">"What it does"</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="o">+</span> <span class="s2">"""</span>
+<span class="s2">&lt;p&gt;Number boxes for pixels take their value when you press Enter or</span>
+<span class="s2">leave the box, so typing a number never jumps the plot halfway.&lt;/p&gt;</span>
+<span class="s2">"""</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="n">Section</span><span class="p">(</span>
+        <span class="s2">"trouble"</span><span class="p">,</span>
+        <span class="s2">"Troubleshooting"</span><span class="p">,</span>
+        <span class="kc">None</span><span class="p">,</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">&lt;h2&gt;Troubleshooting&lt;/h2&gt;</span>
+<span class="sd">"""</span>
+        <span class="o">+</span> <span class="n">_table</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="p">(</span>
+                    <span class="s2">"No data files found - check the working directory."</span><span class="p">,</span>
+                    <span class="s2">"The folder is wrong, empty, or its files' names do "</span>
+                    <span class="s2">"not contain &lt;code&gt;.dat&lt;/code&gt;. Check the folder "</span>
+                    <span class="s2">"path above the plot. While a stream runs, an "</span>
+                    <span class="s2">"empty folder is waited on instead."</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">"Cannot read data file - it may have been removed."</span><span class="p">,</span>
+                    <span class="s2">"Usually a setting that does not match the file: "</span>
+                    <span class="s2">"&lt;b&gt;Timestamps&lt;/b&gt;, &lt;b&gt;Firmware version&lt;/b&gt; or "</span>
+                    <span class="s2">"&lt;b&gt;Absolute timestamps&lt;/b&gt;. A file still being "</span>
+                    <span class="s2">"written can also do it; &lt;b&gt;Refresh plot&lt;/b&gt; again. "</span>
+                    <span class="s2">"&lt;b&gt;Show Details...&lt;/b&gt; gives the exact error."</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">"The plot does not update"</span><span class="p">,</span>
+                    <span class="s2">"Is the stream running (the button reads &lt;b&gt;Stop "</span>
+                    <span class="s2">"stream&lt;/b&gt;)? Only a file newer than the one shown "</span>
+                    <span class="s2">"is read. On a network drive allow a couple of "</span>
+                    <span class="s2">"seconds."</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">"One hot pixel flattens the plot"</span><span class="p">,</span>
+                    <span class="s2">"Ctrl+click it to mask it, tick &lt;b&gt;Preset mask&lt;/b&gt;, "</span>
+                    <span class="s2">"clear &lt;b&gt;Linear scale&lt;/b&gt;, or narrow the x limits."</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">"No mask data were found for this combination"</span><span class="p">,</span>
+                    <span class="s2">"No preset mask is recorded for that daughterboard "</span>
+                    <span class="s2">"and motherboard. Mask by hand instead."</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">"FWHM is blank"</span><span class="p">,</span>
+                    <span class="s2">"The peak runs off the edge of the view; widen the "</span>
+                    <span class="s2">"x limits."</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">"Readout saturated"</span><span class="p">,</span>
+                    <span class="s2">"A TDC is running out of room. Click &lt;b&gt;Apply&lt;/b&gt; "</span>
+                    <span class="s2">"in &lt;a href=</span><span class="se">\"</span><span class="s2">#tdc</span><span class="se">\"</span><span class="s2">&gt;TDC memory&lt;/a&gt; and set the "</span>
+                    <span class="s2">"same value in the acquisition, or attenuate the "</span>
+                    <span class="s2">"light."</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">"Boards out of step"</span><span class="p">,</span>
+                    <span class="s2">"One board stopped keeping pace. The run cannot be "</span>
+                    <span class="s2">"matched up; stop it and measure again. See "</span>
+                    <span class="s2">"&lt;a href=</span><span class="se">\"</span><span class="s2">#insync</span><span class="se">\"</span><span class="s2">&gt;Both boards in step&lt;/a&gt;."</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">"Synchronization: unreachable / cannot reach "</span>
+                    <span class="s2">"LinoSPAD_synchro.exe"</span><span class="p">,</span>
+                    <span class="s2">"The board's window is not running, is not "</span>
+                    <span class="s2">"&lt;b&gt;Listening&lt;/b&gt;, or listens on another port than "</span>
+                    <span class="s2">"the one under &lt;b&gt;Connection&lt;/b&gt;."</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">"Synchronization: NOT on external clock"</span><span class="p">,</span>
+                    <span class="s2">"Check the 25 MHz square wave on CLK_IN (J11) of "</span>
+                    <span class="s2">"both boards, that &lt;b&gt;Ext MHz&lt;/b&gt; reads 25 (not "</span>
+                    <span class="s2">"about 50), and that it is 25 MHz, not 20."</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">"Synchronization: acquisition stops with an error"</span><span class="p">,</span>
+                    <span class="s2">"If a board needs longer than &lt;b&gt;Acq. timeout "</span>
+                    <span class="s2">"(s)&lt;/b&gt;, raise it."</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">"Export is greyed out"</span><span class="p">,</span>
+                    <span class="s2">"Nothing is plotted on this tab yet, or the tab has "</span>
+                    <span class="s2">"no plot (Synchronization)."</span><span class="p">,</span>
+                <span class="p">),</span>
+            <span class="p">],</span>
+            <span class="n">head</span><span class="o">=</span><span class="p">(</span><span class="s2">"Problem or message"</span><span class="p">,</span> <span class="s2">"What to do"</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="o">+</span> <span class="s2">"""</span>
+<span class="s2">"""</span><span class="p">,</span>
+    <span class="p">),</span>
+<span class="p">]</span>
+
+<span class="c1"># The guide's page for each tab, by the tab's title in the window, so</span>
+<span class="c1"># that F1 opens the page of whatever tab is in front.</span>
+<span class="n">TAB_SECTIONS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"Online plot"</span><span class="p">:</span> <span class="s2">"online"</span><span class="p">,</span>
+    <span class="s2">"Single Pixel Histogram"</span><span class="p">:</span> <span class="s2">"histogram"</span><span class="p">,</span>
+    <span class="s2">"MZI"</span><span class="p">:</span> <span class="s2">"mzi"</span><span class="p">,</span>
+    <span class="s2">"Full Sensor"</span><span class="p">:</span> <span class="s2">"full"</span><span class="p">,</span>
+    <span class="s2">"Synchronization"</span><span class="p">:</span> <span class="s2">"sync"</span><span class="p">,</span>
+<span class="p">}</span>
+
+
+<div class="viewcode-block" id="section">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.help_content.html#daplis_rtp.gui.help_content.section">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">section</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""The section with this key, or ``None``."""</span>
+    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">SECTIONS</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">key</span> <span class="o">==</span> <span class="n">key</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">item</span>
+    <span class="k">return</span> <span class="kc">None</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Sergei Kulkov.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

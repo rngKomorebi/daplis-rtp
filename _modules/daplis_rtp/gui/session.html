@@ -1,0 +1,294 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>daplis_rtp.gui.session &mdash; Data Analysis Package for LinoSPAD2 - Real-Time Plotting 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Data Analysis Package for LinoSPAD2 - Real-Time Plotting
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation and usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../daplis_rtp.gui.html">daplis_rtp.gui package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../daplis_rtp.functions.html">daplis_rtp.functions package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contribute.html">How to contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../license.html">License and contact info</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../acknowledgement.html">Acknowledgement</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Data Analysis Package for LinoSPAD2 - Real-Time Plotting</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">daplis_rtp.gui.session</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for daplis_rtp.gui.session</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""What the tabs remember between runs.</span>
+
+<span class="sd">A tab is opened, a folder is chosen, the daughterboard and the firmware</span>
+<span class="sd">and the timestamp count are set - and until now all of it was thrown</span>
+<span class="sd">away when the window closed, so the next session began by typing the</span>
+<span class="sd">same six things again. The Synchronization tab already remembered its</span>
+<span class="sd">executable and its two folders; nothing else remembered anything.</span>
+
+<span class="sd">A widget is bound to a key here, and from then on it saves itself</span>
+<span class="sd">whenever it changes and restores itself when the tab is next built.</span>
+<span class="sd">Storage is ``QSettings``, the same per-user store the theme uses, under</span>
+<span class="sd">a ``session/&lt;tab&gt;`` group.</span>
+
+<span class="sd">Only *inputs* are bound. A readout, a status lamp or a plot is a</span>
+<span class="sd">statement about the data in front of you, and restoring one of those on</span>
+<span class="sd">a fresh start would be a statement about nothing.</span>
+
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">PyQt5</span><span class="w"> </span><span class="kn">import</span> <span class="n">QtCore</span><span class="p">,</span> <span class="n">QtWidgets</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">daplis_rtp.gui.theme</span><span class="w"> </span><span class="kn">import</span> <span class="n">APPLICATION</span><span class="p">,</span> <span class="n">ORGANISATION</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_combo_accessors</span><span class="p">(</span><span class="n">widget</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">read</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">widget</span><span class="o">.</span><span class="n">currentText</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">write</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="n">widget</span><span class="o">.</span><span class="n">findText</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">index</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">widget</span><span class="o">.</span><span class="n">setCurrentIndex</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">widget</span><span class="o">.</span><span class="n">isEditable</span><span class="p">():</span>
+            <span class="c1"># An editable combo is editable because the list is not</span>
+            <span class="c1"># exhaustive - a board that arrived after the last release</span>
+            <span class="c1"># still has to be usable, and still has to be remembered.</span>
+            <span class="n">widget</span><span class="o">.</span><span class="n">setCurrentText</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">read</span><span class="p">,</span> <span class="n">write</span><span class="p">,</span> <span class="n">widget</span><span class="o">.</span><span class="n">currentTextChanged</span><span class="p">,</span> <span class="nb">str</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_spin_accessors</span><span class="p">(</span><span class="n">widget</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">widget</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+        <span class="n">widget</span><span class="o">.</span><span class="n">setValue</span><span class="p">,</span>
+        <span class="n">widget</span><span class="o">.</span><span class="n">valueChanged</span><span class="p">,</span>
+        <span class="nb">float</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">widget</span><span class="p">,</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QDoubleSpinBox</span><span class="p">)</span> <span class="k">else</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_line_accessors</span><span class="p">(</span><span class="n">widget</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">widget</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="n">widget</span><span class="o">.</span><span class="n">setText</span><span class="p">,</span> <span class="n">widget</span><span class="o">.</span><span class="n">textChanged</span><span class="p">,</span> <span class="nb">str</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_check_accessors</span><span class="p">(</span><span class="n">widget</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">widget</span><span class="o">.</span><span class="n">isChecked</span><span class="p">,</span> <span class="n">widget</span><span class="o">.</span><span class="n">setChecked</span><span class="p">,</span> <span class="n">widget</span><span class="o">.</span><span class="n">toggled</span><span class="p">,</span> <span class="nb">bool</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_accessors</span><span class="p">(</span><span class="n">widget</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""How to read, write and watch one widget.</span>
+
+<span class="sd">    Returns ``(read, write, changed_signal, type)``. The type is what</span>
+<span class="sd">    ``QSettings.value`` is asked to hand back: it stores everything as</span>
+<span class="sd">    text on some platforms, so a bool read without it comes back as the</span>
+<span class="sd">    string "false", which is true.</span>
+
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">widget</span><span class="p">,</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QComboBox</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">_combo_accessors</span><span class="p">(</span><span class="n">widget</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">widget</span><span class="p">,</span> <span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QSpinBox</span><span class="p">,</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QDoubleSpinBox</span><span class="p">)):</span>
+        <span class="k">return</span> <span class="n">_spin_accessors</span><span class="p">(</span><span class="n">widget</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">widget</span><span class="p">,</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QLineEdit</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">_line_accessors</span><span class="p">(</span><span class="n">widget</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">widget</span><span class="p">,</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QCheckBox</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">_check_accessors</span><span class="p">(</span><span class="n">widget</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">widget</span><span class="p">,</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QGroupBox</span><span class="p">)</span> <span class="ow">and</span> <span class="n">widget</span><span class="o">.</span><span class="n">isCheckable</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">_check_accessors</span><span class="p">(</span><span class="n">widget</span><span class="p">)</span>
+    <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+        <span class="s2">"no idea how to remember a </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">widget</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+    <span class="p">)</span>
+
+
+<div class="viewcode-block" id="SessionStore">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.session.html#daplis_rtp.gui.session.SessionStore">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SessionStore</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""The settings one tab remembers, and the widgets they belong to.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    scope : str</span>
+<span class="sd">        Names the tab. Becomes the ``QSettings`` group, so it must not</span>
+<span class="sd">        change once a version has shipped or everyone's settings are</span>
+<span class="sd">        silently forgotten.</span>
+
+<span class="sd">    """</span>
+
+<div class="viewcode-block" id="SessionStore.__init__">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.session.html#daplis_rtp.gui.session.SessionStore.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scope</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_settings</span> <span class="o">=</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">QSettings</span><span class="p">(</span><span class="n">ORGANISATION</span><span class="p">,</span> <span class="n">APPLICATION</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_scope</span> <span class="o">=</span> <span class="s2">"session/</span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">scope</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_bound</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_restoring</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="SessionStore.bind">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.session.html#daplis_rtp.gui.session.SessionStore.bind">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">bind</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">widget</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Remember one widget under ``key``.</span>
+
+<span class="sd">        The key is given rather than taken from the widget's name: an</span>
+<span class="sd">        object name is a layout detail that gets renamed in a tidy-up,</span>
+<span class="sd">        and renaming one here would quietly lose what it stored.</span>
+
+<span class="sd">        """</span>
+        <span class="n">read</span><span class="p">,</span> <span class="n">write</span><span class="p">,</span> <span class="n">changed</span><span class="p">,</span> <span class="n">kind</span> <span class="o">=</span> <span class="n">_accessors</span><span class="p">(</span><span class="n">widget</span><span class="p">)</span>
+        <span class="n">entry</span> <span class="o">=</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">read</span><span class="p">,</span> <span class="n">write</span><span class="p">,</span> <span class="n">kind</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_bound</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
+        <span class="n">changed</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span> <span class="o">*</span><span class="n">_</span><span class="p">,</span> <span class="n">e</span><span class="o">=</span><span class="n">entry</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_save_one</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">widget</span></div>
+
+
+<div class="viewcode-block" id="SessionStore.bind_all">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.session.html#daplis_rtp.gui.session.SessionStore.bind_all">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">bind_all</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pairs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""``bind`` for a dict or a sequence of ``(key, widget)``."""</span>
+        <span class="n">items</span> <span class="o">=</span> <span class="n">pairs</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pairs</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="k">else</span> <span class="n">pairs</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">widget</span> <span class="ow">in</span> <span class="n">items</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">widget</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SessionStore.restore">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.session.html#daplis_rtp.gui.session.SessionStore.restore">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">restore</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Put back what was stored, for every bound widget.</span>
+
+<span class="sd">        Saving is suppressed while this runs. Writing a widget makes it</span>
+<span class="sd">        emit its change signal, and without the guard the first widget</span>
+<span class="sd">        restored would save the *unrestored* value of the ones after it</span>
+<span class="sd">        - which is only not a bug because they are about to be</span>
+<span class="sd">        overwritten anyway, and is exactly the kind of thing that stops</span>
+<span class="sd">        being true later.</span>
+
+<span class="sd">        """</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_restoring</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_settings</span><span class="o">.</span><span class="n">beginGroup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_scope</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">_read</span><span class="p">,</span> <span class="n">write</span><span class="p">,</span> <span class="n">kind</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bound</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_settings</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
+                    <span class="k">continue</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_settings</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">kind</span><span class="p">))</span>
+                <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+                    <span class="c1"># A stored value that no longer fits the widget - a</span>
+                    <span class="c1"># spin box whose range has narrowed since - is</span>
+                    <span class="c1"># skipped rather than raised. Settings are not</span>
+                    <span class="c1"># something a user can easily repair, so they must</span>
+                    <span class="c1"># never stop a tab being built.</span>
+                    <span class="k">continue</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_settings</span><span class="o">.</span><span class="n">endGroup</span><span class="p">()</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_restoring</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="SessionStore.save">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.session.html#daplis_rtp.gui.session.SessionStore.save">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Write every bound widget. Rarely needed; binding autosaves."""</span>
+        <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bound</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_save_one</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_save_one</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_restoring</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="n">key</span><span class="p">,</span> <span class="n">read</span><span class="p">,</span> <span class="n">_write</span><span class="p">,</span> <span class="n">_kind</span> <span class="o">=</span> <span class="n">entry</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_settings</span><span class="o">.</span><span class="n">beginGroup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_scope</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_settings</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">read</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_settings</span><span class="o">.</span><span class="n">endGroup</span><span class="p">()</span>
+
+<div class="viewcode-block" id="SessionStore.forget">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.session.html#daplis_rtp.gui.session.SessionStore.forget">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">forget</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Drop everything stored for this tab."""</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_settings</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_scope</span><span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Sergei Kulkov.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

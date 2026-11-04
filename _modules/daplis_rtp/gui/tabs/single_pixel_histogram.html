@@ -1,0 +1,461 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>daplis_rtp.gui.tabs.single_pixel_histogram &mdash; Data Analysis Package for LinoSPAD2 - Real-Time Plotting 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            Data Analysis Package for LinoSPAD2 - Real-Time Plotting
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation and usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../daplis_rtp.gui.html">daplis_rtp.gui package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../daplis_rtp.functions.html">daplis_rtp.functions package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contribute.html">How to contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../license.html">License and contact info</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../acknowledgement.html">Acknowledgement</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">Data Analysis Package for LinoSPAD2 - Real-Time Plotting</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">daplis_rtp.gui.tabs.single_pixel_histogram</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for daplis_rtp.gui.tabs.single_pixel_histogram</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Single-pixel histogram: when in the cycle one pixel's photons arrive.</span>
+
+<span class="sd">Used to check that the output is homogeneous. A healthy pixel fires at a</span>
+<span class="sd">steady rate through the acquisition window, so its histogram has a flat</span>
+<span class="sd">top; a sloping or truncated one says the readout is filling up, or that</span>
+<span class="sd">the light is not steady.</span>
+
+<span class="sd">The unpacking lives here rather than in the canvas, which is where it</span>
+<span class="sd">used to be. A plot widget that cannot be drawn without a LinoSPAD2 file</span>
+<span class="sd">on disk is one that cannot be tested, and the firmware version and the</span>
+<span class="sd">timestamp count it needs are chosen on this tab anyway.</span>
+
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">PyQt5</span><span class="w"> </span><span class="kn">import</span> <span class="n">QtWidgets</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">daplis_rtp.functions.unpack</span><span class="w"> </span><span class="kn">import</span> <span class="n">unpack_bin</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">daplis_rtp.gui.canvas</span><span class="w"> </span><span class="kn">import</span> <span class="n">HistogramCanvas</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">daplis_rtp.gui.tabs.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">PlotTab</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">daplis_rtp.gui.widgets</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">DirectoryPicker</span><span class="p">,</span>
+    <span class="n">ReadoutStrip</span><span class="p">,</span>
+    <span class="n">daughterboard_combo</span><span class="p">,</span>
+    <span class="n">firmware_combo</span><span class="p">,</span>
+    <span class="n">motherboard_combo</span><span class="p">,</span>
+    <span class="n">pixel_spin</span><span class="p">,</span>
+    <span class="n">timestamps_spin</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">daplis_rtp.gui.widgets.controls</span><span class="w"> </span><span class="kn">import</span> <span class="n">float_field</span>
+
+<span class="c1"># The acquisition cycle, in picoseconds, and how many bars the histogram</span>
+<span class="c1"># is drawn with. 250 over a 4 ms cycle is a bin of about 16 us, which is</span>
+<span class="c1"># fine enough to show the shape and coarse enough to stay smooth.</span>
+<span class="n">DEFAULT_CYCLE_LENGTH</span> <span class="o">=</span> <span class="mf">4e9</span>
+<span class="n">N_BINS</span> <span class="o">=</span> <span class="mi">250</span>
+
+<span class="n">N_PIXELS</span> <span class="o">=</span> <span class="mi">256</span>
+
+
+<div class="viewcode-block" id="SinglePixelHistogram">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.tabs.single_pixel_histogram.html#daplis_rtp.gui.tabs.SinglePixelHistogram">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SinglePixelHistogram</span><span class="p">(</span><span class="n">PlotTab</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Histogram of one pixel's timestamps within the acquisition cycle."""</span>
+
+    <span class="n">hint_text</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">"Arrival times of one pixel's photons within the acquisition "</span>
+        <span class="s2">"cycle. A healthy pixel gives a flat top."</span>
+    <span class="p">)</span>
+    <span class="n">canvas_class</span> <span class="o">=</span> <span class="n">HistogramCanvas</span>
+    <span class="n">session_scope</span> <span class="o">=</span> <span class="s2">"single_pixel_histogram"</span>
+
+<div class="viewcode-block" id="SinglePixelHistogram.build">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.tabs.single_pixel_histogram.html#daplis_rtp.gui.tabs.SinglePixelHistogram.build">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cycle_length</span> <span class="o">=</span> <span class="n">DEFAULT_CYCLE_LENGTH</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_last_histogram</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_last_file</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_build_header</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_build_footer</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_build_controls</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_build_actions</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="SinglePixelHistogram.bind_session">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.tabs.single_pixel_histogram.html#daplis_rtp.gui.tabs.SinglePixelHistogram.bind_session">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">bind_session</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">bind_all</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">"folder"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">picker</span><span class="o">.</span><span class="n">lineEdit</span><span class="p">,</span>
+                <span class="s2">"daughterboard"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">comboBox_boardNumber</span><span class="p">,</span>
+                <span class="s2">"motherboard"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">comboBox_mb_2</span><span class="p">,</span>
+                <span class="s2">"firmware"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">comboBox_FW</span><span class="p">,</span>
+                <span class="s2">"timestamps"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">spinBox_timestamps</span><span class="p">,</span>
+                <span class="s2">"pixel"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">spinBox_enterPixNumber</span><span class="p">,</span>
+                <span class="s2">"linear_scale"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">checkBox_linearScale_2</span><span class="p">,</span>
+                <span class="s2">"cycle_length"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_cycleLength</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SinglePixelHistogram.on_session_restored">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.tabs.single_pixel_histogram.html#daplis_rtp.gui.tabs.SinglePixelHistogram.on_session_restored">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">on_session_restored</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Re-read the cycle length out of its restored field.</span>
+
+<span class="sd">        Silently, unlike 'cycle_length_change': this runs while the tab</span>
+<span class="sd">        is still being built, and a warning box here would come up</span>
+<span class="sd">        before the window it belongs to.</span>
+
+<span class="sd">        """</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_cycleLength</span><span class="o">.</span><span class="n">text</span><span class="p">())</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cycle_length</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_cycleLength</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">"4e9"</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cycle_length</span> <span class="o">=</span> <span class="n">DEFAULT_CYCLE_LENGTH</span></div>
+
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="c1"># Export</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+
+<div class="viewcode-block" id="SinglePixelHistogram.plotted_data">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.tabs.single_pixel_histogram.html#daplis_rtp.gui.tabs.SinglePixelHistogram.plotted_data">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">plotted_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_last_histogram</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="n">counts</span><span class="p">,</span> <span class="n">edges</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_last_histogram</span>
+        <span class="n">centres</span> <span class="o">=</span> <span class="p">(</span><span class="n">edges</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">edges</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span> <span class="o">/</span> <span class="mi">2</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">"stem"</span><span class="p">:</span> <span class="s2">"single-pixel-histogram"</span><span class="p">,</span>
+            <span class="s2">"columns"</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">"time_ps"</span><span class="p">:</span> <span class="n">centres</span><span class="p">,</span>
+                <span class="s2">"bin_low_ps"</span><span class="p">:</span> <span class="n">edges</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+                <span class="s2">"bin_high_ps"</span><span class="p">:</span> <span class="n">edges</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span>
+                <span class="s2">"counts"</span><span class="p">:</span> <span class="n">counts</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="s2">"notes"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"Single pixel histogram - arrival times within the "</span>
+                <span class="s2">"acquisition cycle"</span><span class="p">,</span>
+                <span class="s2">"pixel </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spinBox_enterPixNumber</span><span class="o">.</span><span class="n">value</span><span class="p">()),</span>
+                <span class="s2">"source file: </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_last_file</span><span class="p">),</span>
+                <span class="s2">"daughterboard </span><span class="si">{}</span><span class="s2">, motherboard </span><span class="si">{}</span><span class="s2">, firmware </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">comboBox_boardNumber</span><span class="o">.</span><span class="n">currentText</span><span class="p">(),</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">comboBox_mb_2</span><span class="o">.</span><span class="n">currentText</span><span class="p">(),</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">comboBox_FW</span><span class="o">.</span><span class="n">currentText</span><span class="p">(),</span>
+                <span class="p">),</span>
+                <span class="s2">"timestamps </span><span class="si">{}</span><span class="s2">, cycle length </span><span class="si">{:g}</span><span class="s2"> ps in </span><span class="si">{}</span><span class="s2"> bins"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">spinBox_timestamps</span><span class="o">.</span><span class="n">value</span><span class="p">(),</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">cycle_length</span><span class="p">,</span>
+                    <span class="n">N_BINS</span><span class="p">,</span>
+                <span class="p">),</span>
+            <span class="p">],</span>
+        <span class="p">}</span></div>
+
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="c1"># Construction</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_build_header</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">picker</span> <span class="o">=</span> <span class="n">DirectoryPicker</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">caption</span><span class="o">=</span><span class="s2">"Data folder"</span><span class="p">,</span>
+            <span class="n">title</span><span class="o">=</span><span class="s2">"Select Directory"</span><span class="p">,</span>
+            <span class="n">tip</span><span class="o">=</span><span class="s2">"Folder the board writes its data files to. The newest "</span>
+                <span class="s2">"'.dat' file in it is the one read."</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">header_row</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">picker</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">readout</span> <span class="o">=</span> <span class="n">ReadoutStrip</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">readout</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+            <span class="s2">"count"</span><span class="p">,</span>
+            <span class="s2">"Timestamps"</span><span class="p">,</span>
+            <span class="n">tip</span><span class="o">=</span><span class="s2">"How many timestamps this pixel contributed to the "</span>
+                <span class="s2">"histogram. A pixel with none is either masked off, "</span>
+                <span class="s2">"dead, or in the dark."</span><span class="p">,</span>
+            <span class="n">width</span><span class="o">=</span><span class="mi">80</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">readout</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+            <span class="s2">"file"</span><span class="p">,</span> <span class="s2">"File"</span><span class="p">,</span> <span class="n">tip</span><span class="o">=</span><span class="s2">"The data file the histogram was built from."</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">readout</span><span class="o">.</span><span class="n">add_stretch</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">header_row</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">readout</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_build_footer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">row</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">footer_row</span><span class="p">()</span>
+        <span class="n">row</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QLabel</span><span class="p">(</span><span class="s2">"Cycle length (ps)"</span><span class="p">,</span> <span class="bp">self</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_cycleLength</span> <span class="o">=</span> <span class="n">float_field</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">placeholder</span><span class="o">=</span><span class="s2">"4e9"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_cycleLength</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">"4e9"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_cycleLength</span><span class="o">.</span><span class="n">setToolTip</span><span class="p">(</span>
+            <span class="s2">"Length of one acquisition cycle, which is the width of the "</span>
+            <span class="s2">"histogram. Accepts scientific notation, e.g. 4e9."</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_cycleLength</span><span class="o">.</span><span class="n">setFixedWidth</span><span class="p">(</span><span class="mi">120</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_cycleLength</span><span class="o">.</span><span class="n">editingFinished</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cycle_length_change</span>
+        <span class="p">)</span>
+        <span class="n">row</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_cycleLength</span><span class="p">)</span>
+        <span class="n">row</span><span class="o">.</span><span class="n">addStretch</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_build_controls</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">column</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">controls</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">comboBox_boardNumber</span> <span class="o">=</span> <span class="n">column</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span>
+            <span class="s2">"Daughterboard"</span><span class="p">,</span>
+            <span class="n">daughterboard_combo</span><span class="p">(),</span>
+            <span class="n">tip</span><span class="o">=</span><span class="s2">"The LinoSPAD2 daughterboard the data came from. "</span>
+                <span class="s2">"Used, with the motherboard, to pick the preset "</span>
+                <span class="s2">"mask."</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">comboBox_mb_2</span> <span class="o">=</span> <span class="n">column</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span>
+            <span class="s2">"Motherboard"</span><span class="p">,</span>
+            <span class="n">motherboard_combo</span><span class="p">(),</span>
+            <span class="n">tip</span><span class="o">=</span><span class="s2">"The LinoSPAD2 motherboard the data came from. "</span>
+                <span class="s2">"Used to pick the preset mask."</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">comboBox_FW</span> <span class="o">=</span> <span class="n">column</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span>
+            <span class="s2">"Firmware version"</span><span class="p">,</span> <span class="n">firmware_combo</span><span class="p">()</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spinBox_timestamps</span> <span class="o">=</span> <span class="n">column</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span>
+            <span class="s2">"Timestamps"</span><span class="p">,</span>
+            <span class="n">timestamps_spin</span><span class="p">(),</span>
+            <span class="n">tip</span><span class="o">=</span><span class="s2">"Number of timestamps per pixel per acquisition cycle."</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spinBox_enterPixNumber</span> <span class="o">=</span> <span class="n">column</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span>
+            <span class="s2">"Pixel"</span><span class="p">,</span>
+            <span class="n">pixel_spin</span><span class="p">(</span><span class="n">maximum</span><span class="o">=</span><span class="n">N_PIXELS</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span>
+            <span class="n">tip</span><span class="o">=</span><span class="s2">"The pixel to build the histogram for."</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">checkBox_linearScale_2</span> <span class="o">=</span> <span class="n">column</span><span class="o">.</span><span class="n">add_wide_row</span><span class="p">(</span>
+            <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QCheckBox</span><span class="p">(</span><span class="s2">"Linear scale"</span><span class="p">),</span>
+            <span class="n">tip</span><span class="o">=</span><span class="s2">"Clear for a logarithmic y-axis."</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">checkBox_linearScale_2</span><span class="o">.</span><span class="n">setChecked</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">checkBox_linearScale_2</span><span class="o">.</span><span class="n">toggled</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">widget_figure</span><span class="o">.</span><span class="n">set_scale_linear</span>
+        <span class="p">)</span>
+
+        <span class="n">column</span><span class="o">.</span><span class="n">add_stretch</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_build_actions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_refreshPlot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">actions</span><span class="o">.</span><span class="n">add_button</span><span class="p">(</span>
+            <span class="s2">"Refresh plot"</span><span class="p">,</span>
+            <span class="n">tip</span><span class="o">=</span><span class="s2">"Read the newest file again and rebuild the histogram."</span><span class="p">,</span>
+            <span class="n">primary</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_refreshPlot</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">slot_refresh</span><span class="p">)</span>
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="c1"># Cycle length</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+
+<div class="viewcode-block" id="SinglePixelHistogram.cycle_length_change">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.tabs.single_pixel_histogram.html#daplis_rtp.gui.tabs.SinglePixelHistogram.cycle_length_change">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">cycle_length_change</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_cycleLength</span><span class="o">.</span><span class="n">text</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">value</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"the cycle length must be positive"</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QMessageBox</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="bp">self</span><span class="p">,</span>
+                <span class="s2">"Cycle length"</span><span class="p">,</span>
+                <span class="s2">"The cycle length should be a positive number, e.g. 4e9. "</span>
+                <span class="s2">"Resetting it to the default."</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_cycleLength</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">"4e9"</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cycle_length</span> <span class="o">=</span> <span class="n">DEFAULT_CYCLE_LENGTH</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cycle_length</span> <span class="o">=</span> <span class="n">value</span></div>
+
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="c1"># Data</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+
+<div class="viewcode-block" id="SinglePixelHistogram.refresh">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.tabs.single_pixel_histogram.html#daplis_rtp.gui.tabs.SinglePixelHistogram.refresh">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">refresh</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Read the newest file and rebuild the histogram.</span>
+
+<span class="sd">        There is no stream on this tab: a histogram is something to look</span>
+<span class="sd">        at, not something to watch move. The button reads the newest</span>
+<span class="sd">        file every time it is pressed, so a run in progress is followed</span>
+<span class="sd">        by pressing it again.</span>
+
+<span class="sd">        """</span>
+        <span class="n">last_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_data_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">picker</span><span class="o">.</span><span class="n">path</span><span class="p">())</span>
+        <span class="k">if</span> <span class="n">last_file</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Always announced: this tab has no stream, so every look is</span>
+            <span class="c1"># one the user asked for.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">report_error</span><span class="p">(</span>
+                <span class="s2">"No data files found — check the working directory."</span>
+            <span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="n">pixel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spinBox_enterPixNumber</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
+        <span class="n">fw_ver</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comboBox_FW</span><span class="o">.</span><span class="n">currentText</span><span class="p">()</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">unpack_bin</span><span class="p">(</span>
+                <span class="n">last_file</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">comboBox_boardNumber</span><span class="o">.</span><span class="n">currentText</span><span class="p">(),</span>
+                <span class="n">fw_ver</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">spinBox_timestamps</span><span class="o">.</span><span class="n">value</span><span class="p">(),</span>
+            <span class="p">)</span>
+            <span class="n">values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pixel_timestamps</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">pixel</span><span class="p">,</span> <span class="n">fw_ver</span><span class="p">)</span>
+        <span class="c1"># ValueError: the firmware version or the timestamp count does</span>
+        <span class="c1"># not match the file - this used to call 'sys.exit()' deep in</span>
+        <span class="c1"># the plotting and take the whole application down with it;</span>
+        <span class="c1"># IndexError: a truncated file; OSError: the file went away</span>
+        <span class="c1"># between the listing and the read.</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">IndexError</span><span class="p">,</span> <span class="ne">OSError</span><span class="p">)</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">report_error</span><span class="p">(</span>
+                <span class="s2">"Cannot read data file — it may have been removed. "</span>
+                <span class="s2">"Check the timestamp setting and the firmware version."</span><span class="p">,</span>
+                <span class="n">err</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="c1"># 250 bars across the cycle, which is the same width the old</span>
+        <span class="c1"># three-step 'bin_rounder' arithmetic came out at. Binned here</span>
+        <span class="c1"># rather than inside the canvas so that 'File -&gt; Export' hands</span>
+        <span class="c1"># over the bars that were drawn, not a second histogram built</span>
+        <span class="c1"># from the same numbers with whatever defaults it happened to</span>
+        <span class="c1"># pick.</span>
+        <span class="n">edges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cycle_length</span><span class="p">,</span> <span class="n">N_BINS</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">counts</span><span class="p">,</span> <span class="n">edges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">histogram</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="n">edges</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_last_histogram</span> <span class="o">=</span> <span class="p">(</span><span class="n">counts</span><span class="p">,</span> <span class="n">edges</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_last_file</span> <span class="o">=</span> <span class="n">last_file</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">widget_figure</span><span class="o">.</span><span class="n">set_data</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">"counts"</span><span class="p">:</span> <span class="n">counts</span><span class="p">,</span>
+                <span class="s2">"edges"</span><span class="p">:</span> <span class="n">edges</span><span class="p">,</span>
+                <span class="s2">"x_lim"</span><span class="p">:</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cycle_length</span> <span class="o">+</span> <span class="mi">100</span><span class="p">),</span>
+                <span class="s2">"pixel"</span><span class="p">:</span> <span class="n">pixel</span><span class="p">,</span>
+                <span class="s2">"recorded"</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">values</span><span class="o">.</span><span class="n">size</span><span class="p">),</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">readout</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">"count"</span><span class="p">,</span> <span class="n">values</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">readout</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">"file"</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">last_file</span><span class="p">))</span></div>
+
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_pixel_timestamps</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">pixel</span><span class="p">,</span> <span class="n">fw_ver</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""One pixel's positive timestamps, out of its TDC's block.</span>
+
+<span class="sd">        The firmware decides how the 256 pixels are laid out across the</span>
+<span class="sd">        64 TDCs: 2212s groups them column-wise, 2212b row-wise. A</span>
+<span class="sd">        timestamp of -1 is an empty slot, not a photon.</span>
+
+<span class="sd">        """</span>
+        <span class="n">pix_coor</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">N_PIXELS</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">64</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+            <span class="k">if</span> <span class="n">fw_ver</span> <span class="o">==</span> <span class="s2">"2212s"</span>
+            <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">N_PIXELS</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">64</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">tdc</span><span class="p">,</span> <span class="n">pix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span><span class="n">pix_coor</span> <span class="o">==</span> <span class="n">pixel</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">block</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">tdc</span><span class="p">]</span><span class="o">.</span><span class="n">T</span>
+        <span class="n">in_pixel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">block</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">pix</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">recorded</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">block</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">in_pixel</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">block</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">in_pixel</span><span class="p">[</span><span class="n">recorded</span><span class="p">]]</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Sergei Kulkov.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,360 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>daplis_rtp.gui.widgets.peak_stats &mdash; Data Analysis Package for LinoSPAD2 - Real-Time Plotting 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            Data Analysis Package for LinoSPAD2 - Real-Time Plotting
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation and usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../daplis_rtp.gui.html">daplis_rtp.gui package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../daplis_rtp.functions.html">daplis_rtp.functions package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contribute.html">How to contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../license.html">License and contact info</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../acknowledgement.html">Acknowledgement</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">Data Analysis Package for LinoSPAD2 - Real-Time Plotting</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">daplis_rtp.gui.widgets.peak_stats</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for daplis_rtp.gui.widgets.peak_stats</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""What the peak in view is doing, in numbers.</span>
+
+<span class="sd">Aligning a setup means maximising something, and until now the only</span>
+<span class="sd">figure on screen was which pixel was brightest. That tells you a peak</span>
+<span class="sd">moved but not whether it got better: a peak that doubles in height while</span>
+<span class="sd">doubling in width has gained nothing, and one that shifts by half a</span>
+<span class="sd">pixel is invisible against the sample spacing.</span>
+
+<span class="sd">So four numbers, over the x-limits currently shown - which is what makes</span>
+<span class="sd">them useful, since narrowing the limits onto the signal is how you stop</span>
+<span class="sd">a hot pixel elsewhere on the sensor dominating the answer:</span>
+
+<span class="sd">* the brightest pixel and its rate - where the peak is,</span>
+<span class="sd">* the centroid - where it is to better than a pixel,</span>
+<span class="sd">* the FWHM - how tight it is,</span>
+<span class="sd">* the sum over the view - how much light is getting through at all.</span>
+
+<span class="sd">The arithmetic is a plain function so that it can be tested without a</span>
+<span class="sd">window; the group box below only displays what it returns.</span>
+
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">PyQt5</span><span class="w"> </span><span class="kn">import</span> <span class="n">QtWidgets</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">daplis_rtp.gui.layout</span><span class="w"> </span><span class="kn">import</span> <span class="n">SPACING</span><span class="p">,</span> <span class="n">allow_shrink</span>
+
+
+<div class="viewcode-block" id="peak_stats">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.widgets.peak_stats.html#daplis_rtp.gui.widgets.peak_stats">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">peak_stats</span><span class="p">(</span><span class="n">rates</span><span class="p">,</span> <span class="n">x_lim</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Describe the peak in ``rates`` between the given x-limits.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    rates : array-like</span>
+<span class="sd">        Photon rate per pixel, indexed by pixel number.</span>
+<span class="sd">    x_lim : tuple, optional</span>
+<span class="sd">        ``(low, high)`` pixel numbers, inclusive, as shown on the plot.</span>
+<span class="sd">        The whole array when omitted.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict or None</span>
+<span class="sd">        ``None`` when the window holds nothing to describe - no pixels,</span>
+<span class="sd">        or every one of them at zero. Otherwise ``peak_pixel``,</span>
+<span class="sd">        ``peak_rate``, ``centroid``, ``fwhm`` and ``total``, any of</span>
+<span class="sd">        which except the first two may be ``None`` where the window does</span>
+<span class="sd">        not support the figure.</span>
+
+<span class="sd">    """</span>
+    <span class="n">rates</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">rates</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">rates</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="n">low</span><span class="p">,</span> <span class="n">high</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">rates</span><span class="o">.</span><span class="n">size</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">x_lim</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">x_lim</span>
+    <span class="c1"># Both ends are worked out before either is stored: writing 'low'</span>
+    <span class="c1"># first and then taking 'max(low, high)' reads back the value just</span>
+    <span class="c1"># written, so limits given the wrong way round collapsed to a</span>
+    <span class="c1"># single pixel instead of being swapped.</span>
+    <span class="n">low</span><span class="p">,</span> <span class="n">high</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">low</span><span class="p">,</span> <span class="n">high</span><span class="p">)),</span> <span class="nb">int</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">low</span><span class="p">,</span> <span class="n">high</span><span class="p">))</span>
+    <span class="n">low</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">low</span><span class="p">)</span>
+    <span class="n">high</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">rates</span><span class="o">.</span><span class="n">size</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">high</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">high</span> <span class="o">&lt;</span> <span class="n">low</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="n">pixels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">low</span><span class="p">,</span> <span class="n">high</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">window</span> <span class="o">=</span> <span class="n">rates</span><span class="p">[</span><span class="n">low</span> <span class="p">:</span> <span class="n">high</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="c1"># A negative rate is not physical; it would only come from a masked</span>
+    <span class="c1"># pixel multiplied by something odd, and it would poison both the</span>
+    <span class="c1"># centroid and the sum.</span>
+    <span class="n">window</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">window</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">window</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="n">peak_index</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">window</span><span class="p">))</span>
+    <span class="n">peak_rate</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">window</span><span class="p">[</span><span class="n">peak_index</span><span class="p">])</span>
+    <span class="n">total</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">window</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+    <span class="n">centroid</span> <span class="o">=</span> <span class="nb">float</span><span class="p">((</span><span class="n">pixels</span> <span class="o">*</span> <span class="n">window</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">/</span> <span class="n">total</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">"peak_pixel"</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">pixels</span><span class="p">[</span><span class="n">peak_index</span><span class="p">]),</span>
+        <span class="s2">"peak_rate"</span><span class="p">:</span> <span class="n">peak_rate</span><span class="p">,</span>
+        <span class="s2">"centroid"</span><span class="p">:</span> <span class="n">centroid</span><span class="p">,</span>
+        <span class="s2">"fwhm"</span><span class="p">:</span> <span class="n">_fwhm</span><span class="p">(</span><span class="n">pixels</span><span class="p">,</span> <span class="n">window</span><span class="p">,</span> <span class="n">peak_index</span><span class="p">),</span>
+        <span class="s2">"total"</span><span class="p">:</span> <span class="n">total</span><span class="p">,</span>
+    <span class="p">}</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_fwhm</span><span class="p">(</span><span class="n">pixels</span><span class="p">,</span> <span class="n">window</span><span class="p">,</span> <span class="n">peak_index</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Full width at half maximum, in pixels, or ``None``.</span>
+
+<span class="sd">    Measured outwards from the peak to the first sample below half</span>
+<span class="sd">    height on each side, with the crossing interpolated between that</span>
+<span class="sd">    sample and its neighbour - so a peak a few pixels wide still gets a</span>
+<span class="sd">    width to a fraction of a pixel rather than to the nearest one.</span>
+
+<span class="sd">    ``None`` when the peak runs off either edge of the window, because</span>
+<span class="sd">    a half-height crossing that is not in view cannot be located: the</span>
+<span class="sd">    honest answer there is "widen the limits", not a number that is</span>
+<span class="sd">    wrong by however much was cut off.</span>
+
+<span class="sd">    """</span>
+    <span class="n">half</span> <span class="o">=</span> <span class="n">window</span><span class="p">[</span><span class="n">peak_index</span><span class="p">]</span> <span class="o">/</span> <span class="mf">2.0</span>
+
+    <span class="n">left</span> <span class="o">=</span> <span class="n">_crossing</span><span class="p">(</span><span class="n">pixels</span><span class="p">,</span> <span class="n">window</span><span class="p">,</span> <span class="n">peak_index</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">half</span><span class="p">)</span>
+    <span class="n">right</span> <span class="o">=</span> <span class="n">_crossing</span><span class="p">(</span><span class="n">pixels</span><span class="p">,</span> <span class="n">window</span><span class="p">,</span> <span class="n">peak_index</span><span class="p">,</span> <span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">half</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">left</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">right</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">right</span> <span class="o">-</span> <span class="n">left</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_crossing</span><span class="p">(</span><span class="n">pixels</span><span class="p">,</span> <span class="n">window</span><span class="p">,</span> <span class="n">peak_index</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">half</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Where the trace falls through ``half`` on one side of the peak."""</span>
+    <span class="n">index</span> <span class="o">=</span> <span class="n">peak_index</span>
+    <span class="k">while</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">index</span> <span class="o">+</span> <span class="n">step</span> <span class="o">&lt;</span> <span class="n">window</span><span class="o">.</span><span class="n">size</span><span class="p">:</span>
+        <span class="n">index</span> <span class="o">+=</span> <span class="n">step</span>
+        <span class="k">if</span> <span class="n">window</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">half</span><span class="p">:</span>
+            <span class="c1"># Linear interpolation between this sample and the one</span>
+            <span class="c1"># before it, which is still above half.</span>
+            <span class="n">previous</span> <span class="o">=</span> <span class="n">index</span> <span class="o">-</span> <span class="n">step</span>
+            <span class="n">span</span> <span class="o">=</span> <span class="n">window</span><span class="p">[</span><span class="n">previous</span><span class="p">]</span> <span class="o">-</span> <span class="n">window</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">span</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">pixels</span><span class="p">[</span><span class="n">index</span><span class="p">])</span>
+            <span class="n">fraction</span> <span class="o">=</span> <span class="p">(</span><span class="n">window</span><span class="p">[</span><span class="n">previous</span><span class="p">]</span> <span class="o">-</span> <span class="n">half</span><span class="p">)</span> <span class="o">/</span> <span class="n">span</span>
+            <span class="k">return</span> <span class="nb">float</span><span class="p">(</span>
+                <span class="n">pixels</span><span class="p">[</span><span class="n">previous</span><span class="p">]</span>
+                <span class="o">+</span> <span class="n">fraction</span> <span class="o">*</span> <span class="p">(</span><span class="n">pixels</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">-</span> <span class="n">pixels</span><span class="p">[</span><span class="n">previous</span><span class="p">])</span>
+            <span class="p">)</span>
+    <span class="k">return</span> <span class="kc">None</span>
+
+
+<div class="viewcode-block" id="PeakStatsPanel">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.widgets.peak_stats.html#daplis_rtp.gui.widgets.PeakStatsPanel">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">PeakStatsPanel</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QGroupBox</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""The four figures, in the control column.</span>
+
+<span class="sd">    Checkable, like the other two status boxes, and for the same reason:</span>
+<span class="sd">    the tick is a row of the column saved over a check box of its own.</span>
+<span class="sd">    Cleared, it stops the host asking for the arithmetic at all.</span>
+
+<span class="sd">    """</span>
+
+<div class="viewcode-block" id="PeakStatsPanel.__init__">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.widgets.peak_stats.html#daplis_rtp.gui.widgets.PeakStatsPanel.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">"Peak in view"</span><span class="p">,</span> <span class="n">parent</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setCheckable</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setChecked</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setToolTip</span><span class="p">(</span>
+            <span class="s2">"The peak between the current x-limits. Narrow the limits "</span>
+            <span class="s2">"onto the signal to stop a hot pixel elsewhere on the "</span>
+            <span class="s2">"sensor deciding these numbers."</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_values</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_build_ui</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_build_ui</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">grid</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QGridLayout</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="c1"># Top margin clears the group-box title, which is drawn over the</span>
+        <span class="c1"># frame rather than above it.</span>
+        <span class="n">grid</span><span class="o">.</span><span class="n">setContentsMargins</span><span class="p">(</span><span class="n">SPACING</span> <span class="o">+</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="n">SPACING</span> <span class="o">+</span> <span class="mi">2</span><span class="p">,</span> <span class="n">SPACING</span><span class="p">)</span>
+        <span class="n">grid</span><span class="o">.</span><span class="n">setVerticalSpacing</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+        <span class="n">grid</span><span class="o">.</span><span class="n">setHorizontalSpacing</span><span class="p">(</span><span class="n">SPACING</span><span class="p">)</span>
+
+        <span class="n">rows</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">(</span>
+                <span class="s2">"peak"</span><span class="p">,</span>
+                <span class="s2">"Brightest"</span><span class="p">,</span>
+                <span class="s2">"The pixel with the highest rate in view, and that rate."</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="p">(</span>
+                <span class="s2">"centroid"</span><span class="p">,</span>
+                <span class="s2">"Centroid"</span><span class="p">,</span>
+                <span class="s2">"The rate-weighted mean pixel: where the peak is to "</span>
+                <span class="s2">"better than one pixel, which is what to watch while "</span>
+                <span class="s2">"walking a mirror."</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="p">(</span>
+                <span class="s2">"fwhm"</span><span class="p">,</span>
+                <span class="s2">"FWHM"</span><span class="p">,</span>
+                <span class="s2">"Full width at half maximum, in pixels. Blank when the "</span>
+                <span class="s2">"peak runs off the edge of the view - widen the limits."</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="p">(</span>
+                <span class="s2">"total"</span><span class="p">,</span>
+                <span class="s2">"Sum in view"</span><span class="p">,</span>
+                <span class="s2">"Every rate between the limits added up: how much light "</span>
+                <span class="s2">"is getting through, independent of how tightly it is "</span>
+                <span class="s2">"focused."</span><span class="p">,</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">row</span><span class="p">,</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">caption</span><span class="p">,</span> <span class="n">tip</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">rows</span><span class="p">):</span>
+            <span class="n">label</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QLabel</span><span class="p">(</span><span class="n">caption</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+            <span class="n">label</span><span class="o">.</span><span class="n">setToolTip</span><span class="p">(</span><span class="n">tip</span><span class="p">)</span>
+            <span class="n">grid</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QLabel</span><span class="p">(</span><span class="s2">"—"</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+            <span class="n">value</span><span class="o">.</span><span class="n">setObjectName</span><span class="p">(</span><span class="s2">"readoutValue"</span><span class="p">)</span>
+            <span class="n">value</span><span class="o">.</span><span class="n">setToolTip</span><span class="p">(</span><span class="n">tip</span><span class="p">)</span>
+            <span class="n">allow_shrink</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+            <span class="n">grid</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_values</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="n">grid</span><span class="o">.</span><span class="n">setColumnStretch</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">enabled</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">isChecked</span><span class="p">()</span>
+
+<div class="viewcode-block" id="PeakStatsPanel.clear">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.widgets.peak_stats.html#daplis_rtp.gui.widgets.PeakStatsPanel.clear">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">"—"</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_values</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">value</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">text</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="PeakStatsPanel.show_stats">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.widgets.peak_stats.html#daplis_rtp.gui.widgets.PeakStatsPanel.show_stats">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">show_stats</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stats</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Render one refresh's figures, or blank them."""</span>
+        <span class="k">if</span> <span class="n">stats</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">clear</span><span class="p">(</span><span class="s2">"nothing in view"</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_values</span><span class="p">[</span><span class="s2">"peak"</span><span class="p">]</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span>
+            <span class="s2">"</span><span class="si">{}</span><span class="s2">  (</span><span class="si">{}</span><span class="s2">)"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">stats</span><span class="p">[</span><span class="s2">"peak_pixel"</span><span class="p">],</span> <span class="n">_hz</span><span class="p">(</span><span class="n">stats</span><span class="p">[</span><span class="s2">"peak_rate"</span><span class="p">])</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_values</span><span class="p">[</span><span class="s2">"centroid"</span><span class="p">]</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span>
+            <span class="s2">"</span><span class="si">{:.2f}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">stats</span><span class="p">[</span><span class="s2">"centroid"</span><span class="p">])</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_values</span><span class="p">[</span><span class="s2">"fwhm"</span><span class="p">]</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span>
+            <span class="s2">"—"</span> <span class="k">if</span> <span class="n">stats</span><span class="p">[</span><span class="s2">"fwhm"</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">"</span><span class="si">{:.2f}</span><span class="s2"> px"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">stats</span><span class="p">[</span><span class="s2">"fwhm"</span><span class="p">]</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_values</span><span class="p">[</span><span class="s2">"total"</span><span class="p">]</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">_hz</span><span class="p">(</span><span class="n">stats</span><span class="p">[</span><span class="s2">"total"</span><span class="p">]))</span></div>
+</div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_hz</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""A rate at three significant figures, with a unit that fits."""</span>
+    <span class="k">for</span> <span class="n">limit</span><span class="p">,</span> <span class="n">suffix</span><span class="p">,</span> <span class="n">scale</span> <span class="ow">in</span> <span class="p">(</span>
+        <span class="p">(</span><span class="mf">1e9</span><span class="p">,</span> <span class="s2">"G"</span><span class="p">,</span> <span class="mf">1e9</span><span class="p">),</span>
+        <span class="p">(</span><span class="mf">1e6</span><span class="p">,</span> <span class="s2">"M"</span><span class="p">,</span> <span class="mf">1e6</span><span class="p">),</span>
+        <span class="p">(</span><span class="mf">1e3</span><span class="p">,</span> <span class="s2">"k"</span><span class="p">,</span> <span class="mf">1e3</span><span class="p">),</span>
+    <span class="p">):</span>
+        <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">limit</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">"</span><span class="si">{:.3g}</span><span class="s2"> </span><span class="si">{}</span><span class="s2">Hz"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">value</span> <span class="o">/</span> <span class="n">scale</span><span class="p">,</span> <span class="n">suffix</span><span class="p">)</span>
+    <span class="k">return</span> <span class="s2">"</span><span class="si">{:.3g}</span><span class="s2"> Hz"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Sergei Kulkov.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

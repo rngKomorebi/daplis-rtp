@@ -1,0 +1,455 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>daplis_rtp.gui.tabs.base &mdash; Data Analysis Package for LinoSPAD2 - Real-Time Plotting 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            Data Analysis Package for LinoSPAD2 - Real-Time Plotting
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation and usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../daplis_rtp.gui.html">daplis_rtp.gui package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../daplis_rtp.functions.html">daplis_rtp.functions package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contribute.html">How to contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../license.html">License and contact info</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../acknowledgement.html">Acknowledgement</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">Data Analysis Package for LinoSPAD2 - Real-Time Plotting</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">daplis_rtp.gui.tabs.base</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for daplis_rtp.gui.tabs.base</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""What the four plotting tabs do the same way.</span>
+
+<span class="sd">Finding the newest data file, noticing when a new one lands, reporting a</span>
+<span class="sd">file that cannot be read, stopping cleanly when it goes wrong: each tab</span>
+<span class="sd">had its own copy of all four, and they had drifted. Only one of them</span>
+<span class="sd">guarded against the refresh firing again while one was still running,</span>
+<span class="sd">only one closed over the case of the directory disappearing mid-stream,</span>
+<span class="sd">and the three that showed an error box left the timer running behind it</span>
+<span class="sd">- so a modal box, which spins an event loop of its own, stacked a new</span>
+<span class="sd">box on top of itself every 100 ms until the stream was stopped by hand.</span>
+
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">glob</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">PyQt5</span><span class="w"> </span><span class="kn">import</span> <span class="n">QtCore</span><span class="p">,</span> <span class="n">QtWidgets</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">daplis_rtp.gui.layout</span><span class="w"> </span><span class="kn">import</span> <span class="n">TabShell</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">daplis_rtp.gui.session</span><span class="w"> </span><span class="kn">import</span> <span class="n">SessionStore</span>
+
+<span class="c1"># A directory that has just changed is a directory something is still</span>
+<span class="c1"># writing to, so the look is delayed by this much and restarted by every</span>
+<span class="c1"># further change - one read per burst of activity rather than one per</span>
+<span class="c1"># event.</span>
+<span class="n">SETTLE_MS</span> <span class="o">=</span> <span class="mi">150</span>
+
+<span class="c1"># How often the folder is looked at even when the watcher has said</span>
+<span class="c1"># nothing. QFileSystemWatcher is reliable on a local disk and decidedly</span>
+<span class="c1"># not on a network share, which is exactly where a board GUI writes when</span>
+<span class="c1"># the acquisition PC is not the analysis PC, so the poll stays as a</span>
+<span class="c1"># backstop. Slow enough to cost nothing; fast enough that a missed</span>
+<span class="c1"># notification is an inconvenience rather than a stalled plot.</span>
+<span class="n">FALLBACK_POLL_MS</span> <span class="o">=</span> <span class="mi">2000</span>
+
+
+<div class="viewcode-block" id="PlotTab">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.tabs.base.html#daplis_rtp.gui.tabs.base.PlotTab">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">PlotTab</span><span class="p">(</span><span class="n">TabShell</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""A tab with a plot, a folder of data files, and a live stream."""</span>
+
+    <span class="c1"># Shown in the strip across the top of the tab.</span>
+    <span class="n">hint_text</span> <span class="o">=</span> <span class="s2">""</span>
+    <span class="c1"># The canvas class this tab draws on.</span>
+    <span class="n">canvas_class</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="c1"># Names this tab's stored settings. Must not change once shipped.</span>
+    <span class="n">session_scope</span> <span class="o">=</span> <span class="s2">""</span>
+
+<div class="viewcode-block" id="PlotTab.__init__">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.tabs.base.html#daplis_rtp.gui.tabs.base.PlotTab.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">hint</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">hint_text</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">widget_figure</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">canvas_class</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_canvas</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">widget_figure</span><span class="p">)</span>
+
+        <span class="c1"># 'timer' and 'mask_window' are read by 'main_window.quiesce'</span>
+        <span class="c1"># when the window closes: a QTimer left running fires into a</span>
+        <span class="c1"># deleted object, and the mask is a window of its own that would</span>
+        <span class="c1"># otherwise outlive its tab.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timer</span> <span class="o">=</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">QTimer</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">setInterval</span><span class="p">(</span><span class="n">FALLBACK_POLL_MS</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">timeout</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">update_time_stamp</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timerRunning</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_updating</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="c1"># The folders are watched rather than swept. The old stream ran</span>
+        <span class="c1"># 'glob' plus a 'getctime' per entry ten times a second, which</span>
+        <span class="c1"># on a run of several thousand files is several thousand stat</span>
+        <span class="c1"># calls a second for the sake of noticing one new name.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_watcher</span> <span class="o">=</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">QFileSystemWatcher</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_watcher</span><span class="o">.</span><span class="n">directoryChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_folder_changed</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_settle</span> <span class="o">=</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">QTimer</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_settle</span><span class="o">.</span><span class="n">setSingleShot</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_settle</span><span class="o">.</span><span class="n">setInterval</span><span class="p">(</span><span class="n">SETTLE_MS</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_settle</span><span class="o">.</span><span class="n">timeout</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">update_time_stamp</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_file_ctime</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_startStream</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="c1"># Whether an empty folder is worth interrupting the user over.</span>
+        <span class="c1"># Set only around an explicit 'Refresh plot'.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_announce_missing</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">session</span> <span class="o">=</span> <span class="n">SessionStore</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">session_scope</span> <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
+
+        <span class="c1"># After 'build', so that every widget the tab wants remembered</span>
+        <span class="c1"># exists, and before anything is plotted.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bind_session</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">restore</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">on_session_restored</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="PlotTab.build">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.tabs.base.html#daplis_rtp.gui.tabs.base.PlotTab.build">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Fill the shell. Every tab writes this and nothing else."""</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+
+<div class="viewcode-block" id="PlotTab.bind_session">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.tabs.base.html#daplis_rtp.gui.tabs.base.PlotTab.bind_session">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">bind_session</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Register the controls this tab should remember."""</span></div>
+
+
+<div class="viewcode-block" id="PlotTab.on_session_restored">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.tabs.base.html#daplis_rtp.gui.tabs.base.PlotTab.on_session_restored">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">on_session_restored</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Hook: derive whatever the restored controls imply.</span>
+
+<span class="sd">        A control whose value the tab also keeps in a variable - a</span>
+<span class="sd">        cycle length parsed out of a line edit - has to be re-read once</span>
+<span class="sd">        the stored text is back in the widget.</span>
+
+<span class="sd">        """</span></div>
+
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="c1"># Streaming</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+
+<div class="viewcode-block" id="PlotTab.watched_paths">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.tabs.base.html#daplis_rtp.gui.tabs.base.PlotTab.watched_paths">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">watched_paths</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""The folders a running stream should watch. Tabs override."""</span>
+        <span class="k">return</span> <span class="p">[]</span></div>
+
+
+<div class="viewcode-block" id="PlotTab.toggle_stream">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.tabs.base.html#daplis_rtp.gui.tabs.base.PlotTab.toggle_stream">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">toggle_stream</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">timerRunning</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">stop_stream</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">start_stream</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="PlotTab.start_stream">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.tabs.base.html#daplis_rtp.gui.tabs.base.PlotTab.start_stream">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">start_stream</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_file_ctime</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">on_stream_start</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_watch</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">watched_paths</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timerRunning</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_startStream</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_startStream</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">"Stop stream"</span><span class="p">)</span>
+        <span class="c1"># Draw what is already there rather than waiting for the next</span>
+        <span class="c1"># file: starting a stream on a folder that is not being written</span>
+        <span class="c1"># to used to show nothing at all until something arrived.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_time_stamp</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="PlotTab.stop_stream">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.tabs.base.html#daplis_rtp.gui.tabs.base.PlotTab.stop_stream">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">stop_stream</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_settle</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_watch</span><span class="p">([])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timerRunning</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_file_ctime</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_startStream</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_startStream</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">"Start stream"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">on_stream_stop</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="PlotTab.on_stream_start">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.tabs.base.html#daplis_rtp.gui.tabs.base.PlotTab.on_stream_start">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">on_stream_start</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Hook: what this tab arms when a run starts."""</span></div>
+
+
+<div class="viewcode-block" id="PlotTab.on_stream_stop">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.tabs.base.html#daplis_rtp.gui.tabs.base.PlotTab.on_stream_stop">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">on_stream_stop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Hook: what this tab stands down when a run ends."""</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_watch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">paths</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Watch exactly ``paths`` and nothing else."""</span>
+        <span class="n">current</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_watcher</span><span class="o">.</span><span class="n">directories</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">current</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_watcher</span><span class="o">.</span><span class="n">removePaths</span><span class="p">(</span><span class="n">current</span><span class="p">)</span>
+        <span class="n">wanted</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">paths</span> <span class="k">if</span> <span class="n">p</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">p</span><span class="p">)]</span>
+        <span class="k">if</span> <span class="n">wanted</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_watcher</span><span class="o">.</span><span class="n">addPaths</span><span class="p">(</span><span class="n">wanted</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_folder_changed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Something landed in a watched folder; look once it settles."""</span>
+        <span class="c1"># A directory replaced wholesale - deleted and recreated by a</span>
+        <span class="c1"># board GUI starting a new run - is silently dropped by the</span>
+        <span class="c1"># watcher, so it is re-added on every notification.</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="ow">and</span> <span class="n">path</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_watcher</span><span class="o">.</span><span class="n">directories</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_watcher</span><span class="o">.</span><span class="n">addPath</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_settle</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+<div class="viewcode-block" id="PlotTab.slot_refresh">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.tabs.base.html#daplis_rtp.gui.tabs.base.PlotTab.slot_refresh">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">slot_refresh</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Look again now, whether or not a stream is running."""</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_file_ctime</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">on_refresh_requested</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_announce_missing</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_time_stamp</span><span class="p">()</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_announce_missing</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="PlotTab.on_refresh_requested">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.tabs.base.html#daplis_rtp.gui.tabs.base.PlotTab.on_refresh_requested">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">on_refresh_requested</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Hook: what an explicit 'look again' re-arms."""</span></div>
+
+
+<div class="viewcode-block" id="PlotTab.update_time_stamp">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.tabs.base.html#daplis_rtp.gui.tabs.base.PlotTab.update_time_stamp">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update_time_stamp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""One refresh, and never two at once.</span>
+
+<span class="sd">        Both the canvas redraw and a message box spin the event loop, so</span>
+<span class="sd">        another refresh can be asked for while this call is still</span>
+<span class="sd">        running; without the guard those calls stack up.</span>
+
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_updating</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_updating</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">refresh</span><span class="p">()</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_updating</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="PlotTab.refresh">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.tabs.base.html#daplis_rtp.gui.tabs.base.PlotTab.refresh">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">refresh</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Read the newest file and redraw. Written by every tab."""</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="c1"># Data files</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+
+<div class="viewcode-block" id="PlotTab.last_data_file">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.tabs.base.html#daplis_rtp.gui.tabs.base.PlotTab.last_data_file">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">last_data_file</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""The newest '.dat' file in ``path``, or ``None``.</span>
+
+<span class="sd">        ``None`` covers both a directory with no data files in it and</span>
+<span class="sd">        the files - or the directory itself - going away while the</span>
+<span class="sd">        stream runs: ``glob`` lists the directory first and</span>
+<span class="sd">        ``getctime`` is called on the result afterwards, so a file that</span>
+<span class="sd">        disappears in between raises ``OSError`` rather than simply</span>
+<span class="sd">        dropping out of the list.</span>
+
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="n">data_files</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">"*.dat*"</span><span class="p">))</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="n">data_files</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getctime</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">OSError</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="PlotTab.no_data">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.tabs.base.html#daplis_rtp.gui.tabs.base.PlotTab.no_data">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">no_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""There is nothing to read in the folder.</span>
+
+<span class="sd">        Silent while a stream is running, because that is the ordinary</span>
+<span class="sd">        way a run begins: the stream is started first and the</span>
+<span class="sd">        acquisition second, so the folder is empty for the first few</span>
+<span class="sd">        seconds by design. Interrupting that with a message box - and</span>
+<span class="sd">        stopping the stream to show it, as every error here must - meant</span>
+<span class="sd">        the stream could not be armed before the data it was waiting</span>
+<span class="sd">        for existed.</span>
+
+<span class="sd">        An explicit 'Refresh plot' is a different question, and gets a</span>
+<span class="sd">        different answer: nothing there is exactly what the user asked</span>
+<span class="sd">        about.</span>
+
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_announce_missing</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">report_error</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">on_waiting_for_data</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="PlotTab.on_waiting_for_data">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.tabs.base.html#daplis_rtp.gui.tabs.base.PlotTab.on_waiting_for_data">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">on_waiting_for_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Hook: say, quietly, that the folder is still empty."""</span></div>
+
+
+<div class="viewcode-block" id="PlotTab.report_error">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.tabs.base.html#daplis_rtp.gui.tabs.base.PlotTab.report_error">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">report_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">details</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Stop the stream, then say what went wrong.</span>
+
+<span class="sd">        In that order on purpose: a modal box runs an event loop of its</span>
+<span class="sd">        own, so a stream left running would ask for ``refresh`` again</span>
+<span class="sd">        behind it and stack a new box on top of this one for as long as</span>
+<span class="sd">        it stayed open.</span>
+
+<span class="sd">        """</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stop_stream</span><span class="p">()</span>
+        <span class="n">box</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QMessageBox</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">box</span><span class="o">.</span><span class="n">setIcon</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QMessageBox</span><span class="o">.</span><span class="n">Warning</span><span class="p">)</span>
+        <span class="n">box</span><span class="o">.</span><span class="n">setWindowTitle</span><span class="p">(</span><span class="s2">"Error"</span><span class="p">)</span>
+        <span class="n">box</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">details</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">box</span><span class="o">.</span><span class="n">setDetailedText</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">details</span><span class="p">))</span>
+        <span class="n">box</span><span class="o">.</span><span class="n">exec_</span><span class="p">()</span></div>
+
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="c1"># Export</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+
+<div class="viewcode-block" id="PlotTab.plotted_data">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.tabs.base.html#daplis_rtp.gui.tabs.base.PlotTab.plotted_data">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">plotted_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""The numbers behind the plot, for *File -&gt; Export*.</span>
+
+<span class="sd">        Returns ``None`` when there is nothing to export, or a dict:</span>
+
+<span class="sd">        ``stem``</span>
+<span class="sd">            A suggested file name, without an extension.</span>
+<span class="sd">        ``columns``</span>
+<span class="sd">            Ordered ``{heading: 1-D array}``; every column the same</span>
+<span class="sd">            length.</span>
+<span class="sd">        ``notes``</span>
+<span class="sd">            Lines describing where the numbers came from, written into</span>
+<span class="sd">            the file as ``#`` comments so that a plot found on a disk</span>
+<span class="sd">            six months later can still say what it was.</span>
+
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Sergei Kulkov.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,7 @@
+daplis\_rtp.gui.canvas.base module
+==================================
+
+.. automodule:: daplis_rtp.gui.canvas.base
+   :members:
+   :show-inheritance:
+   :undoc-members:

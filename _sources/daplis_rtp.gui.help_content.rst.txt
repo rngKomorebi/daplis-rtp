@@ -1,0 +1,7 @@
+daplis\_rtp.gui.help\_content module
+====================================
+
+.. automodule:: daplis_rtp.gui.help_content
+   :members:
+   :show-inheritance:
+   :undoc-members:

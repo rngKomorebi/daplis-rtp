@@ -1,0 +1,455 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>daplis_rtp.gui.tabs.mzi &mdash; Data Analysis Package for LinoSPAD2 - Real-Time Plotting 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            Data Analysis Package for LinoSPAD2 - Real-Time Plotting
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation and usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../daplis_rtp.gui.html">daplis_rtp.gui package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../daplis_rtp.functions.html">daplis_rtp.functions package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contribute.html">How to contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../license.html">License and contact info</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../acknowledgement.html">Acknowledgement</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">Data Analysis Package for LinoSPAD2 - Real-Time Plotting</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">daplis_rtp.gui.tabs.mzi</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for daplis_rtp.gui.tabs.mzi</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""MZI: the photon rate in two pixels, against time.</span>
+
+<span class="sd">The two arms of a Mach-Zehnder interferometer land on two pixels, and</span>
+<span class="sd">what is being watched is how their counts move against each other as the</span>
+<span class="sd">interferometer drifts or is driven. One point is added per data file, so</span>
+<span class="sd">the trace grows at whatever rate the acquisition writes.</span>
+
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">PyQt5</span><span class="w"> </span><span class="kn">import</span> <span class="n">QtWidgets</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">daplis_rtp.functions.sen_pop</span><span class="w"> </span><span class="kn">import</span> <span class="n">sen_pop</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">daplis_rtp.gui.canvas</span><span class="w"> </span><span class="kn">import</span> <span class="n">MziCanvas</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">daplis_rtp.gui.tabs.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">PlotTab</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">daplis_rtp.gui.widgets</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">DirectoryPicker</span><span class="p">,</span>
+    <span class="n">LimitPair</span><span class="p">,</span>
+    <span class="n">ReadoutStrip</span><span class="p">,</span>
+    <span class="n">daughterboard_combo</span><span class="p">,</span>
+    <span class="n">firmware_combo</span><span class="p">,</span>
+    <span class="n">motherboard_combo</span><span class="p">,</span>
+    <span class="n">pixel_spin</span><span class="p">,</span>
+    <span class="n">timestamps_spin</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">N_PIXELS</span> <span class="o">=</span> <span class="mi">256</span>
+
+
+<div class="viewcode-block" id="MZI">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.tabs.mzi.html#daplis_rtp.gui.tabs.MZI">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">MZI</span><span class="p">(</span><span class="n">PlotTab</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Two pixels' photon rate against elapsed time."""</span>
+
+    <span class="n">hint_text</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">"Photon rate in two pixels against time — one point per data "</span>
+        <span class="s2">"file. Start the stream and the trace grows as files arrive."</span>
+    <span class="p">)</span>
+    <span class="n">canvas_class</span> <span class="o">=</span> <span class="n">MziCanvas</span>
+    <span class="n">session_scope</span> <span class="o">=</span> <span class="s2">"mzi"</span>
+
+<div class="viewcode-block" id="MZI.build">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.tabs.mzi.html#daplis_rtp.gui.tabs.MZI.build">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># The trace, kept here rather than only on the plot: it is what</span>
+        <span class="c1"># a change of colour, of limits or of theme is redrawn from.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_t</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_y1</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_y2</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_stream_start_time</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_build_header</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_build_footer</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_build_controls</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_build_actions</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="MZI.bind_session">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.tabs.mzi.html#daplis_rtp.gui.tabs.MZI.bind_session">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">bind_session</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">bind_all</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">"folder"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">picker</span><span class="o">.</span><span class="n">lineEdit</span><span class="p">,</span>
+                <span class="s2">"daughterboard"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">comboBox_mask_2</span><span class="p">,</span>
+                <span class="s2">"motherboard"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">comboBox_mb_2</span><span class="p">,</span>
+                <span class="s2">"firmware"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">comboBox_FW_2</span><span class="p">,</span>
+                <span class="s2">"timestamps"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">spinBox_timestamps_2</span><span class="p">,</span>
+                <span class="s2">"pix_add_fix"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">checkBox_pix_add_fix</span><span class="p">,</span>
+                <span class="s2">"first_pixel"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">spinBox_FirstPixel</span><span class="p">,</span>
+                <span class="s2">"second_pixel"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">spinBox_SecondPixel</span><span class="p">,</span>
+                <span class="s2">"linear_scale"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">checkBox_linearScale_2</span><span class="p">,</span>
+                <span class="s2">"x_low"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">xLimits</span><span class="o">.</span><span class="n">low</span><span class="p">,</span>
+                <span class="s2">"x_high"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">xLimits</span><span class="o">.</span><span class="n">high</span><span class="p">,</span>
+                <span class="s2">"y_low"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">yLimits</span><span class="o">.</span><span class="n">low</span><span class="p">,</span>
+                <span class="s2">"y_high"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">yLimits</span><span class="o">.</span><span class="n">high</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MZI.on_waiting_for_data">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.tabs.mzi.html#daplis_rtp.gui.tabs.MZI.on_waiting_for_data">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">on_waiting_for_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">readout</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">"points"</span><span class="p">,</span> <span class="s2">"waiting…"</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MZI.watched_paths">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.tabs.mzi.html#daplis_rtp.gui.tabs.MZI.watched_paths">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">watched_paths</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">picker</span><span class="o">.</span><span class="n">path</span><span class="p">()]</span></div>
+
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="c1"># Export</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+
+<div class="viewcode-block" id="MZI.plotted_data">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.tabs.mzi.html#daplis_rtp.gui.tabs.MZI.plotted_data">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">plotted_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_t</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="n">first</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spinBox_FirstPixel</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
+        <span class="n">second</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spinBox_SecondPixel</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">"stem"</span><span class="p">:</span> <span class="s2">"mzi"</span><span class="p">,</span>
+            <span class="s2">"columns"</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">"time_s"</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_t</span><span class="p">),</span>
+                <span class="s2">"rate_pixel_</span><span class="si">{}</span><span class="s2">_Hz"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">first</span><span class="p">):</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_y1</span><span class="p">),</span>
+                <span class="s2">"rate_pixel_</span><span class="si">{}</span><span class="s2">_Hz"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">second</span><span class="p">):</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_y2</span><span class="p">),</span>
+            <span class="p">},</span>
+            <span class="s2">"notes"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"MZI - photon rate in two pixels against elapsed time"</span><span class="p">,</span>
+                <span class="s2">"one point per data file; time is measured from the "</span>
+                <span class="s2">"first file of this run"</span><span class="p">,</span>
+                <span class="s2">"folder: </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">picker</span><span class="o">.</span><span class="n">path</span><span class="p">()),</span>
+                <span class="s2">"daughterboard </span><span class="si">{}</span><span class="s2">, motherboard </span><span class="si">{}</span><span class="s2">, firmware </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">comboBox_mask_2</span><span class="o">.</span><span class="n">currentText</span><span class="p">(),</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">comboBox_mb_2</span><span class="o">.</span><span class="n">currentText</span><span class="p">(),</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">comboBox_FW_2</span><span class="o">.</span><span class="n">currentText</span><span class="p">(),</span>
+                <span class="p">),</span>
+                <span class="s2">"timestamps </span><span class="si">{}</span><span class="s2">, pixel addressing corrected: </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">spinBox_timestamps_2</span><span class="o">.</span><span class="n">value</span><span class="p">(),</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">checkBox_pix_add_fix</span><span class="o">.</span><span class="n">isChecked</span><span class="p">(),</span>
+                <span class="p">),</span>
+            <span class="p">],</span>
+        <span class="p">}</span></div>
+
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="c1"># Construction</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_build_header</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">picker</span> <span class="o">=</span> <span class="n">DirectoryPicker</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">caption</span><span class="o">=</span><span class="s2">"Data folder"</span><span class="p">,</span>
+            <span class="n">title</span><span class="o">=</span><span class="s2">"Select Directory"</span><span class="p">,</span>
+            <span class="n">tip</span><span class="o">=</span><span class="s2">"Folder the board writes its data files to. One point is "</span>
+                <span class="s2">"added to the trace per new file."</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">header_row</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">picker</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">readout</span> <span class="o">=</span> <span class="n">ReadoutStrip</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">readout</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">"rate1"</span><span class="p">,</span> <span class="s2">"Pixel 1"</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">90</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">readout</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">"rate2"</span><span class="p">,</span> <span class="s2">"Pixel 2"</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">90</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">readout</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+            <span class="s2">"elapsed"</span><span class="p">,</span>
+            <span class="s2">"Elapsed"</span><span class="p">,</span>
+            <span class="n">tip</span><span class="o">=</span><span class="s2">"Seconds since the first file of this run."</span><span class="p">,</span>
+            <span class="n">width</span><span class="o">=</span><span class="mi">70</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">readout</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">"points"</span><span class="p">,</span> <span class="s2">"Points"</span><span class="p">,</span> <span class="n">initial</span><span class="o">=</span><span class="s2">"0"</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">readout</span><span class="o">.</span><span class="n">add_stretch</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">header_row</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">readout</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_build_footer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">row</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">footer_row</span><span class="p">()</span>
+        <span class="n">auto</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">"Leave an edge empty to let it autoscale. Accepts decimals "</span>
+            <span class="s2">"and scientific notation, e.g. 10e3."</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xLimits</span> <span class="o">=</span> <span class="n">LimitPair</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">caption</span><span class="o">=</span><span class="s2">"x limits (s)"</span><span class="p">,</span> <span class="n">tip</span><span class="o">=</span><span class="n">auto</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">yLimits</span> <span class="o">=</span> <span class="n">LimitPair</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">caption</span><span class="o">=</span><span class="s2">"y limits (Hz)"</span><span class="p">,</span> <span class="n">tip</span><span class="o">=</span><span class="n">auto</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">pair</span> <span class="ow">in</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xLimits</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">yLimits</span><span class="p">):</span>
+            <span class="n">pair</span><span class="o">.</span><span class="n">changed</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_redraw_current</span><span class="p">)</span>
+            <span class="n">row</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">pair</span><span class="p">)</span>
+        <span class="n">row</span><span class="o">.</span><span class="n">addStretch</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_build_controls</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">column</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">controls</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">comboBox_mask_2</span> <span class="o">=</span> <span class="n">column</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span>
+            <span class="s2">"Daughterboard"</span><span class="p">,</span>
+            <span class="n">daughterboard_combo</span><span class="p">(),</span>
+            <span class="n">tip</span><span class="o">=</span><span class="s2">"The LinoSPAD2 daughterboard the data came from. "</span>
+                <span class="s2">"Used, with the motherboard, to pick the preset "</span>
+                <span class="s2">"mask."</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">comboBox_mb_2</span> <span class="o">=</span> <span class="n">column</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span>
+            <span class="s2">"Motherboard"</span><span class="p">,</span>
+            <span class="n">motherboard_combo</span><span class="p">(),</span>
+            <span class="n">tip</span><span class="o">=</span><span class="s2">"The LinoSPAD2 motherboard the data came from. "</span>
+                <span class="s2">"Used to pick the preset mask."</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">comboBox_FW_2</span> <span class="o">=</span> <span class="n">column</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span>
+            <span class="s2">"Firmware version"</span><span class="p">,</span> <span class="n">firmware_combo</span><span class="p">()</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spinBox_timestamps_2</span> <span class="o">=</span> <span class="n">column</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span>
+            <span class="s2">"Timestamps"</span><span class="p">,</span>
+            <span class="n">timestamps_spin</span><span class="p">(),</span>
+            <span class="n">tip</span><span class="o">=</span><span class="s2">"Number of timestamps per pixel per acquisition cycle."</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">checkBox_pix_add_fix</span> <span class="o">=</span> <span class="n">column</span><span class="o">.</span><span class="n">add_wide_row</span><span class="p">(</span>
+            <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QCheckBox</span><span class="p">(</span><span class="s2">"Correct pixel addressing"</span><span class="p">),</span>
+            <span class="n">tip</span><span class="o">=</span><span class="s2">"Undo the address scrambling of the sensor's second "</span>
+                <span class="s2">"half, for data that need it."</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">column</span><span class="o">.</span><span class="n">add_heading</span><span class="p">(</span><span class="s2">"Interferometer arms"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spinBox_FirstPixel</span> <span class="o">=</span> <span class="n">column</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span>
+            <span class="s2">"First pixel"</span><span class="p">,</span>
+            <span class="n">pixel_spin</span><span class="p">(</span><span class="n">maximum</span><span class="o">=</span><span class="n">N_PIXELS</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span>
+            <span class="n">tip</span><span class="o">=</span><span class="s2">"Pixel the first arm falls on; drawn on the left y-axis."</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spinBox_SecondPixel</span> <span class="o">=</span> <span class="n">column</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span>
+            <span class="s2">"Second pixel"</span><span class="p">,</span>
+            <span class="n">pixel_spin</span><span class="p">(</span><span class="n">maximum</span><span class="o">=</span><span class="n">N_PIXELS</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span>
+            <span class="n">tip</span><span class="o">=</span><span class="s2">"Pixel the second arm falls on; drawn on the right "</span>
+                <span class="s2">"y-axis, which always carries the same limits as the "</span>
+                <span class="s2">"left one so the two can be compared."</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">checkBox_linearScale_2</span> <span class="o">=</span> <span class="n">column</span><span class="o">.</span><span class="n">add_wide_row</span><span class="p">(</span>
+            <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QCheckBox</span><span class="p">(</span><span class="s2">"Linear scale"</span><span class="p">),</span>
+            <span class="n">tip</span><span class="o">=</span><span class="s2">"Clear for a logarithmic y-axis on both sides."</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">checkBox_linearScale_2</span><span class="o">.</span><span class="n">setChecked</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">checkBox_linearScale_2</span><span class="o">.</span><span class="n">toggled</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">widget_figure</span><span class="o">.</span><span class="n">set_scale_linear</span>
+        <span class="p">)</span>
+
+        <span class="n">column</span><span class="o">.</span><span class="n">add_stretch</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_build_actions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_refreshPlot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">actions</span><span class="o">.</span><span class="n">add_button</span><span class="p">(</span>
+            <span class="s2">"Refresh plot"</span><span class="p">,</span> <span class="n">tip</span><span class="o">=</span><span class="s2">"Read the newest file and add a point now."</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_refreshPlot</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">slot_refresh</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_startStream</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">actions</span><span class="o">.</span><span class="n">add_button</span><span class="p">(</span>
+            <span class="s2">"Start stream"</span><span class="p">,</span>
+            <span class="n">tip</span><span class="o">=</span><span class="s2">"Follow the folder, adding a point whenever a newer file "</span>
+                <span class="s2">"appears."</span><span class="p">,</span>
+            <span class="n">primary</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_startStream</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">toggle_stream</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_Reset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">actions</span><span class="o">.</span><span class="n">add_button</span><span class="p">(</span>
+            <span class="s2">"Reset"</span><span class="p">,</span>
+            <span class="n">tip</span><span class="o">=</span><span class="s2">"Throw the trace away and start the clock again. The "</span>
+                <span class="s2">"stream, if running, keeps running."</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_Reset</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">resetPlot</span><span class="p">)</span>
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="c1"># Stream</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+
+<div class="viewcode-block" id="MZI.on_stream_start">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.tabs.mzi.html#daplis_rtp.gui.tabs.MZI.on_stream_start">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">on_stream_start</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># A run's elapsed time is measured from its own first file, so</span>
+        <span class="c1"># starting the stream again starts the clock again - but the</span>
+        <span class="c1"># trace is kept, since 'Reset' is what throws it away.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_stream_start_time</span> <span class="o">=</span> <span class="mi">0</span></div>
+
+
+<div class="viewcode-block" id="MZI.resetPlot">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.tabs.mzi.html#daplis_rtp.gui.tabs.MZI.resetPlot">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">resetPlot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_t</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_y1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_y2</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_stream_start_time</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_file_ctime</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">readout</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">"points"</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">readout</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">"rate1"</span><span class="p">,</span> <span class="s2">"—"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">readout</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">"rate2"</span><span class="p">,</span> <span class="s2">"—"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">readout</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">"elapsed"</span><span class="p">,</span> <span class="s2">"—"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">widget_figure</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span></div>
+
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="c1"># Display</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_redraw_current</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_t</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">widget_figure</span><span class="o">.</span><span class="n">set_data</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">"t"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_t</span><span class="p">,</span>
+                <span class="s2">"y1"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_y1</span><span class="p">,</span>
+                <span class="s2">"y2"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_y2</span><span class="p">,</span>
+                <span class="s2">"x_lim"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">xLimits</span><span class="o">.</span><span class="n">values</span><span class="p">(),</span>
+                <span class="s2">"y_lim"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">yLimits</span><span class="o">.</span><span class="n">values</span><span class="p">(),</span>
+                <span class="s2">"labels"</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="s2">"Pixel </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spinBox_FirstPixel</span><span class="o">.</span><span class="n">value</span><span class="p">()),</span>
+                    <span class="s2">"Pixel </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spinBox_SecondPixel</span><span class="o">.</span><span class="n">value</span><span class="p">()),</span>
+                <span class="p">),</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="c1"># Data</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+
+<div class="viewcode-block" id="MZI.refresh">
+<a class="viewcode-back" href="../../../../daplis_rtp.gui.tabs.mzi.html#daplis_rtp.gui.tabs.MZI.refresh">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">refresh</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">last_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_data_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">picker</span><span class="o">.</span><span class="n">path</span><span class="p">())</span>
+        <span class="k">if</span> <span class="n">last_file</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">no_data</span><span class="p">(</span>
+                <span class="s2">"No data files found — check the working directory."</span>
+            <span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">new_ctime</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getctime</span><span class="p">(</span><span class="n">last_file</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+            <span class="c1"># The file went away between the listing and the question</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="n">new_ctime</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_file_ctime</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_file_ctime</span> <span class="o">=</span> <span class="n">new_ctime</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stream_start_time</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_stream_start_time</span> <span class="o">=</span> <span class="n">new_ctime</span>
+        <span class="n">elapsed</span> <span class="o">=</span> <span class="n">new_ctime</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stream_start_time</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">rates</span> <span class="o">=</span> <span class="n">sen_pop</span><span class="p">(</span>
+                <span class="n">last_file</span><span class="p">,</span>
+                <span class="n">board_number</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">comboBox_mask_2</span><span class="o">.</span><span class="n">currentText</span><span class="p">(),</span>
+                <span class="n">fw_ver</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">comboBox_FW_2</span><span class="o">.</span><span class="n">currentText</span><span class="p">(),</span>
+                <span class="n">timestamps</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">spinBox_timestamps_2</span><span class="o">.</span><span class="n">value</span><span class="p">(),</span>
+                <span class="n">pix_add_fix</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">checkBox_pix_add_fix</span><span class="o">.</span><span class="n">isChecked</span><span class="p">(),</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">IndexError</span><span class="p">,</span> <span class="ne">OSError</span><span class="p">)</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">report_error</span><span class="p">(</span>
+                <span class="s2">"Cannot read data file — it may have been removed. "</span>
+                <span class="s2">"Check the timestamp setting and the firmware version."</span><span class="p">,</span>
+                <span class="n">err</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="n">rate1</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">rates</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">spinBox_FirstPixel</span><span class="o">.</span><span class="n">value</span><span class="p">()])</span>
+        <span class="n">rate2</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">rates</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">spinBox_SecondPixel</span><span class="o">.</span><span class="n">value</span><span class="p">()])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_t</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">elapsed</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_y1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rate1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_y2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rate2</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_redraw_current</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">readout</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">"rate1"</span><span class="p">,</span> <span class="s2">"</span><span class="si">{:.3g}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rate1</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">readout</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">"rate2"</span><span class="p">,</span> <span class="s2">"</span><span class="si">{:.3g}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rate2</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">readout</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">"elapsed"</span><span class="p">,</span> <span class="s2">"</span><span class="si">{:.1f}</span><span class="s2"> s"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">elapsed</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">readout</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">"points"</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_t</span><span class="p">))</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Sergei Kulkov.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

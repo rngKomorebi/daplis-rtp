@@ -1,0 +1,18 @@
+daplis\_rtp.gui.canvas package
+==============================
+
+.. automodule:: daplis_rtp.gui.canvas
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   daplis_rtp.gui.canvas.base
+   daplis_rtp.gui.canvas.histogram
+   daplis_rtp.gui.canvas.mzi
+   daplis_rtp.gui.canvas.sensor

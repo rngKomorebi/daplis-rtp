@@ -1,0 +1,7 @@
+daplis\_rtp.gui.title\_bar module
+=================================
+
+.. automodule:: daplis_rtp.gui.title_bar
+   :members:
+   :show-inheritance:
+   :undoc-members:

@@ -1,0 +1,7 @@
+daplis\_rtp.gui.tabs.full\_sensor module
+========================================
+
+.. automodule:: daplis_rtp.gui.tabs.full_sensor
+   :members:
+   :show-inheritance:
+   :undoc-members:

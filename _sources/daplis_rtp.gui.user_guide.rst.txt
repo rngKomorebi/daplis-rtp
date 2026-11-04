@@ -1,0 +1,7 @@
+daplis\_rtp.gui.user\_guide module
+==================================
+
+.. automodule:: daplis_rtp.gui.user_guide
+   :members:
+   :show-inheritance:
+   :undoc-members:

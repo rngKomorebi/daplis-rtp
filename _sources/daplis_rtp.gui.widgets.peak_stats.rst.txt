@@ -1,0 +1,7 @@
+daplis\_rtp.gui.widgets.peak\_stats module
+==========================================
+
+.. automodule:: daplis_rtp.gui.widgets.peak_stats
+   :members:
+   :show-inheritance:
+   :undoc-members:

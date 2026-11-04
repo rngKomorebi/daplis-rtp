@@ -1,0 +1,7 @@
+daplis\_rtp.gui.canvas.histogram module
+=======================================
+
+.. automodule:: daplis_rtp.gui.canvas.histogram
+   :members:
+   :show-inheritance:
+   :undoc-members:

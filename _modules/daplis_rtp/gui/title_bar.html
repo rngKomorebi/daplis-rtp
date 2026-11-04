@@ -1,0 +1,220 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>daplis_rtp.gui.title_bar &mdash; Data Analysis Package for LinoSPAD2 - Real-Time Plotting 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Data Analysis Package for LinoSPAD2 - Real-Time Plotting
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation and usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../daplis_rtp.gui.html">daplis_rtp.gui package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../daplis_rtp.functions.html">daplis_rtp.functions package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contribute.html">How to contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../license.html">License and contact info</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../acknowledgement.html">Acknowledgement</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Data Analysis Package for LinoSPAD2 - Real-Time Plotting</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">daplis_rtp.gui.title_bar</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for daplis_rtp.gui.title_bar</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""A dark title bar on every window, whatever the theme.</span>
+
+<span class="sd">The title bar, the frame and the three buttons in its corner are drawn</span>
+<span class="sd">by Windows, not by Qt, so the stylesheet that themes everything inside</span>
+<span class="sd">the window never reaches them: left alone, the bar stays the light</span>
+<span class="sd">system default over a dark application. Windows 10 (20H1 and later) and</span>
+<span class="sd">Windows 11 let a program ask for the dark version of the bar, one</span>
+<span class="sd">window at a time, through the desktop window manager.</span>
+
+<span class="sd">The bar is dark on every theme, light ones included. It is part of the</span>
+<span class="sd">window rather than of the content, and one bar that never changes is</span>
+<span class="sd">calmer than one that flips with the colours below it.</span>
+
+<span class="sd">Every top-level window is caught as it is shown, through one event</span>
+<span class="sd">filter on the application: the main window, Preferences, the user</span>
+<span class="sd">guide, the pixel mask, and the message boxes Qt builds on the fly. A</span>
+<span class="sd">window added later needs nothing doing. The show event arrives before</span>
+<span class="sd">Windows first draws the frame, so the bar never flashes light.</span>
+
+<span class="sd">The native file dialogs ("Browse") are drawn by Windows itself and</span>
+<span class="sd">follow the system setting instead. Elsewhere than Windows this does</span>
+<span class="sd">nothing, and the desktop decides.</span>
+
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">PyQt5</span><span class="w"> </span><span class="kn">import</span> <span class="n">QtCore</span>
+
+<span class="c1"># Window attribute that asks for the dark title bar. Windows 10 builds</span>
+<span class="c1"># before 20H1 (19041) knew it as 19; asked for by the new number, they</span>
+<span class="c1"># answer with an error and the old one is tried.</span>
+<span class="n">DWMWA_USE_IMMERSIVE_DARK_MODE</span> <span class="o">=</span> <span class="mi">20</span>
+<span class="n">DWMWA_USE_IMMERSIVE_DARK_MODE_OLD</span> <span class="o">=</span> <span class="mi">19</span>
+
+<span class="c1"># Kept here so that a second run of 'main' in the same interpreter, which</span>
+<span class="c1"># reuses the QApplication, does not stack a second filter on it.</span>
+<span class="n">_FILTER</span> <span class="o">=</span> <span class="kc">None</span>
+
+
+<div class="viewcode-block" id="dark_title_bar">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.title_bar.html#daplis_rtp.gui.title_bar.dark_title_bar">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">dark_title_bar</span><span class="p">(</span><span class="n">window</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Ask Windows for a dark title bar on one top-level window.</span>
+
+<span class="sd">    Returns True when Windows accepted it, and False when it did not or</span>
+<span class="sd">    could not be asked: another platform, a Windows too old to know the</span>
+<span class="sd">    attribute, or a window without a real native handle (Qt's offscreen</span>
+<span class="sd">    platform, in the tests).</span>
+
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">platform</span> <span class="o">!=</span> <span class="s2">"win32"</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">ctypes</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">dwmapi</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">windll</span><span class="o">.</span><span class="n">dwmapi</span>
+    <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="c1"># 'winId' creates the native window if it does not exist yet, which</span>
+    <span class="c1"># is fine here: it is about to be shown anyway.</span>
+    <span class="n">hwnd</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_void_p</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">window</span><span class="o">.</span><span class="n">winId</span><span class="p">()))</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_int</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">attribute</span> <span class="ow">in</span> <span class="p">(</span>
+        <span class="n">DWMWA_USE_IMMERSIVE_DARK_MODE</span><span class="p">,</span>
+        <span class="n">DWMWA_USE_IMMERSIVE_DARK_MODE_OLD</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">dwmapi</span><span class="o">.</span><span class="n">DwmSetWindowAttribute</span><span class="p">(</span>
+            <span class="n">hwnd</span><span class="p">,</span>
+            <span class="n">attribute</span><span class="p">,</span>
+            <span class="n">ctypes</span><span class="o">.</span><span class="n">byref</span><span class="p">(</span><span class="n">value</span><span class="p">),</span>
+            <span class="n">ctypes</span><span class="o">.</span><span class="n">sizeof</span><span class="p">(</span><span class="n">value</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">result</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">return</span> <span class="kc">False</span></div>
+
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">_DarkTitleBars</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">QObject</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Darken each window's title bar the first time it is shown."""</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">eventFilter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">event</span><span class="o">.</span><span class="n">type</span><span class="p">()</span> <span class="o">==</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">QEvent</span><span class="o">.</span><span class="n">Show</span>
+            <span class="ow">and</span> <span class="n">obj</span><span class="o">.</span><span class="n">isWidgetType</span><span class="p">()</span>
+            <span class="ow">and</span> <span class="n">obj</span><span class="o">.</span><span class="n">isWindow</span><span class="p">()</span>
+            <span class="c1"># A window is shown many times - the mask and Preferences</span>
+            <span class="c1"># are hidden and shown again - but its bar only needs</span>
+            <span class="c1"># darkening once.</span>
+            <span class="ow">and</span> <span class="ow">not</span> <span class="n">obj</span><span class="o">.</span><span class="n">property</span><span class="p">(</span><span class="s2">"darkTitleBar"</span><span class="p">)</span>
+        <span class="p">):</span>
+            <span class="n">obj</span><span class="o">.</span><span class="n">setProperty</span><span class="p">(</span><span class="s2">"darkTitleBar"</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+            <span class="n">dark_title_bar</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+
+<div class="viewcode-block" id="install_dark_title_bars">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.title_bar.html#daplis_rtp.gui.title_bar.install_dark_title_bars">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">install_dark_title_bars</span><span class="p">(</span><span class="n">app</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Give every window of ``app`` a dark title bar from now on.</span>
+
+<span class="sd">    Safe to call more than once: the filter is installed the first time</span>
+<span class="sd">    and left alone after that, as long as the application is the same.</span>
+
+<span class="sd">    """</span>
+    <span class="k">global</span> <span class="n">_FILTER</span>
+    <span class="k">if</span> <span class="n">_FILTER</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">_FILTER</span><span class="o">.</span><span class="n">parent</span><span class="p">()</span> <span class="ow">is</span> <span class="n">app</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_FILTER</span>
+    <span class="n">_FILTER</span> <span class="o">=</span> <span class="n">_DarkTitleBars</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">installEventFilter</span><span class="p">(</span><span class="n">_FILTER</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_FILTER</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Sergei Kulkov.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

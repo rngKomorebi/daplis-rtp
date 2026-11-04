@@ -1,0 +1,408 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>daplis_rtp.gui.user_guide &mdash; Data Analysis Package for LinoSPAD2 - Real-Time Plotting 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Data Analysis Package for LinoSPAD2 - Real-Time Plotting
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation and usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../daplis_rtp.gui.html">daplis_rtp.gui package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../daplis_rtp.functions.html">daplis_rtp.functions package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contribute.html">How to contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../license.html">License and contact info</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../acknowledgement.html">Acknowledgement</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Data Analysis Package for LinoSPAD2 - Real-Time Plotting</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">daplis_rtp.gui.user_guide</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for daplis_rtp.gui.user_guide</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""The user guide window: contents on the left, the page on the right.</span>
+
+<span class="sd">Not modal, like Preferences and the pixel mask: the guide is read with</span>
+<span class="sd">the tab it describes still in front of you, and a stream keeps running</span>
+<span class="sd">behind it. F1 opens it at the page of whatever tab is current, which is</span>
+<span class="sd">nearly always the question being asked.</span>
+
+<span class="sd">The words live in :mod:`daplis_rtp.gui.help_content`; this module only</span>
+<span class="sd">shows them. The search box narrows the contents to the pages that</span>
+<span class="sd">mention a word and marks every place it occurs on the page shown -</span>
+<span class="sd">there is no index to keep up to date, so it cannot drift from the text.</span>
+
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">html</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">PyQt5</span><span class="w"> </span><span class="kn">import</span> <span class="n">QtCore</span><span class="p">,</span> <span class="n">QtGui</span><span class="p">,</span> <span class="n">QtWidgets</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">daplis_rtp.gui.help_content</span><span class="w"> </span><span class="kn">import</span> <span class="n">SECTIONS</span><span class="p">,</span> <span class="n">section</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">daplis_rtp.gui.layout</span><span class="w"> </span><span class="kn">import</span> <span class="n">MARGIN</span><span class="p">,</span> <span class="n">SPACING</span><span class="p">,</span> <span class="n">scale</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">daplis_rtp.gui.theme</span><span class="w"> </span><span class="kn">import</span> <span class="n">theme_manager</span>
+
+<span class="c1"># Width of the contents list, at the default interface font.</span>
+<span class="n">CONTENTS_WIDTH</span> <span class="o">=</span> <span class="mi">220</span>
+
+<span class="n">_TAG</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">"&lt;[^&gt;]+&gt;"</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="plain_text">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.user_guide.html#daplis_rtp.gui.user_guide.plain_text">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">plain_text</span><span class="p">(</span><span class="n">markup</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""The words of a page, without its tags, for searching."""</span>
+    <span class="k">return</span> <span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">html</span><span class="o">.</span><span class="n">unescape</span><span class="p">(</span><span class="n">_TAG</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">" "</span><span class="p">,</span> <span class="n">markup</span><span class="p">))</span><span class="o">.</span><span class="n">split</span><span class="p">())</span></div>
+
+
+
+<div class="viewcode-block" id="UserGuide">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.user_guide.html#daplis_rtp.gui.user_guide.UserGuide">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">UserGuide</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QDialog</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""The guide, one section at a time, with contents and search."""</span>
+
+<div class="viewcode-block" id="UserGuide.__init__">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.user_guide.html#daplis_rtp.gui.user_guide.UserGuide.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setWindowTitle</span><span class="p">(</span><span class="s2">"User guide - DAPLIS - Real Time Plotting"</span><span class="p">)</span>
+        <span class="c1"># A window of its own rather than a sheet over the tab, so it</span>
+        <span class="c1"># can be put beside the plot it explains.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setWindowFlags</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">Window</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setModal</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_items</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_words</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">item</span><span class="o">.</span><span class="n">key</span><span class="p">:</span> <span class="n">plain_text</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">html</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">SECTIONS</span>
+        <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_current</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_build_ui</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fill_contents</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_apply_style</span><span class="p">()</span>
+        <span class="n">theme_manager</span><span class="p">()</span><span class="o">.</span><span class="n">changed</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_apply_style</span><span class="p">)</span>
+
+        <span class="n">factor</span> <span class="o">=</span> <span class="n">scale</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="mi">900</span> <span class="o">*</span> <span class="n">factor</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="mi">640</span> <span class="o">*</span> <span class="n">factor</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">show_section</span><span class="p">(</span><span class="n">SECTIONS</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">key</span><span class="p">)</span></div>
+
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="c1"># Construction</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_build_ui</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">outer</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QVBoxLayout</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">outer</span><span class="o">.</span><span class="n">setContentsMargins</span><span class="p">(</span><span class="n">MARGIN</span><span class="p">,</span> <span class="n">MARGIN</span><span class="p">,</span> <span class="n">MARGIN</span><span class="p">,</span> <span class="n">MARGIN</span><span class="p">)</span>
+        <span class="n">outer</span><span class="o">.</span><span class="n">setSpacing</span><span class="p">(</span><span class="n">SPACING</span><span class="p">)</span>
+
+        <span class="n">splitter</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QSplitter</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">Horizontal</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+
+        <span class="n">left</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QWidget</span><span class="p">(</span><span class="n">splitter</span><span class="p">)</span>
+        <span class="n">left_box</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QVBoxLayout</span><span class="p">(</span><span class="n">left</span><span class="p">)</span>
+        <span class="n">left_box</span><span class="o">.</span><span class="n">setContentsMargins</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">left_box</span><span class="o">.</span><span class="n">setSpacing</span><span class="p">(</span><span class="n">SPACING</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_search</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QLineEdit</span><span class="p">(</span><span class="n">left</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_search</span><span class="o">.</span><span class="n">setPlaceholderText</span><span class="p">(</span><span class="s2">"Search the guide…"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_search</span><span class="o">.</span><span class="n">setClearButtonEnabled</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_search</span><span class="o">.</span><span class="n">setToolTip</span><span class="p">(</span>
+            <span class="s2">"Show only the pages that mention these words, and mark them "</span>
+            <span class="s2">"on the page."</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_search</span><span class="o">.</span><span class="n">textChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_search</span><span class="p">)</span>
+        <span class="n">left_box</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_search</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">treeWidget_contents</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QTreeWidget</span><span class="p">(</span><span class="n">left</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">treeWidget_contents</span><span class="o">.</span><span class="n">setHeaderHidden</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">treeWidget_contents</span><span class="o">.</span><span class="n">setRootIsDecorated</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">treeWidget_contents</span><span class="o">.</span><span class="n">currentItemChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_item_chosen</span>
+        <span class="p">)</span>
+        <span class="n">left_box</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">treeWidget_contents</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">label_matches</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QLabel</span><span class="p">(</span><span class="s2">""</span><span class="p">,</span> <span class="n">left</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">label_matches</span><span class="o">.</span><span class="n">setObjectName</span><span class="p">(</span><span class="s2">"tabHint"</span><span class="p">)</span>
+        <span class="n">left_box</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">label_matches</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">textBrowser_page</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QTextBrowser</span><span class="p">(</span><span class="n">splitter</span><span class="p">)</span>
+        <span class="c1"># Links are handled here: a link to another section is a jump to</span>
+        <span class="c1"># that page, which QTextBrowser's own handling would treat as an</span>
+        <span class="c1"># anchor on the page already shown.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">textBrowser_page</span><span class="o">.</span><span class="n">setOpenLinks</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">textBrowser_page</span><span class="o">.</span><span class="n">anchorClicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_link_clicked</span><span class="p">)</span>
+
+        <span class="n">splitter</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">left</span><span class="p">)</span>
+        <span class="n">splitter</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">textBrowser_page</span><span class="p">)</span>
+        <span class="n">splitter</span><span class="o">.</span><span class="n">setStretchFactor</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">splitter</span><span class="o">.</span><span class="n">setSizes</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="n">CONTENTS_WIDTH</span> <span class="o">*</span> <span class="n">scale</span><span class="p">()),</span> <span class="mi">1</span><span class="p">])</span>
+        <span class="n">outer</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">splitter</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">buttons</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QHBoxLayout</span><span class="p">()</span>
+        <span class="n">buttons</span><span class="o">.</span><span class="n">addStretch</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">close</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QPushButton</span><span class="p">(</span><span class="s2">"Close"</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="n">close</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hide</span><span class="p">)</span>
+        <span class="n">buttons</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">close</span><span class="p">)</span>
+        <span class="n">outer</span><span class="o">.</span><span class="n">addLayout</span><span class="p">(</span><span class="n">buttons</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_fill_contents</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">SECTIONS</span><span class="p">:</span>
+            <span class="n">parent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_items</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span>
+            <span class="n">node</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QTreeWidgetItem</span><span class="p">(</span>
+                <span class="n">parent</span> <span class="k">if</span> <span class="n">parent</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">treeWidget_contents</span><span class="p">,</span>
+                <span class="p">[</span><span class="n">item</span><span class="o">.</span><span class="n">title</span><span class="p">],</span>
+            <span class="p">)</span>
+            <span class="n">node</span><span class="o">.</span><span class="n">setData</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">UserRole</span><span class="p">,</span> <span class="n">item</span><span class="o">.</span><span class="n">key</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_items</span><span class="p">[</span><span class="n">item</span><span class="o">.</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">node</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">treeWidget_contents</span><span class="o">.</span><span class="n">expandAll</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_apply_style</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Table rules that suit the theme.</span>
+
+<span class="sd">        Qt's rich text draws table borders in a fixed grey, too strong</span>
+<span class="sd">        on some themes. The rule is taken from the palette, and nothing</span>
+<span class="sd">        is filled in: the dark themes paint the page with a stylesheet</span>
+<span class="sd">        and leave the palette light, so a palette background - tried</span>
+<span class="sd">        for the header row - came out white on a dark page. The header</span>
+<span class="sd">        is told apart by its bold type instead. Rebuilt on every theme</span>
+<span class="sd">        change.</span>
+
+<span class="sd">        """</span>
+        <span class="n">rule</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">textBrowser_page</span><span class="o">.</span><span class="n">palette</span><span class="p">()</span><span class="o">.</span><span class="n">color</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QPalette</span><span class="o">.</span><span class="n">Mid</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">textBrowser_page</span><span class="o">.</span><span class="n">document</span><span class="p">()</span><span class="o">.</span><span class="n">setDefaultStyleSheet</span><span class="p">(</span>
+            <span class="s2">"table {{ border-collapse: collapse; margin-top: 4px;"</span>
+            <span class="s2">" margin-bottom: 8px; }}"</span>
+            <span class="s2">"th, td {{ border: 1px solid </span><span class="si">{rule}</span><span class="s2">; }}"</span>
+            <span class="s2">"h2 {{ margin-top: 0; }}"</span>
+            <span class="s2">"code {{ font-family: monospace; }}"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rule</span><span class="o">=</span><span class="n">rule</span><span class="o">.</span><span class="n">name</span><span class="p">())</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_current</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_render</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_current</span><span class="p">)</span>
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="c1"># Navigation</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+
+<div class="viewcode-block" id="UserGuide.current_section">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.user_guide.html#daplis_rtp.gui.user_guide.UserGuide.current_section">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">current_section</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""The key of the page on show."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_current</span></div>
+
+
+<div class="viewcode-block" id="UserGuide.show_section">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.user_guide.html#daplis_rtp.gui.user_guide.UserGuide.show_section">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">show_section</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Show one page, and select it in the contents."""</span>
+        <span class="k">if</span> <span class="n">section</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="n">node</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_items</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">isHidden</span><span class="p">():</span>
+            <span class="c1"># A page asked for by name - by F1 or by a link - is shown</span>
+            <span class="c1"># even when the search has hidden it, so the search goes.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_search</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">treeWidget_contents</span><span class="o">.</span><span class="n">currentItem</span><span class="p">()</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">node</span><span class="p">:</span>
+            <span class="c1"># Selecting it calls '_item_chosen', which renders it.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">treeWidget_contents</span><span class="o">.</span><span class="n">setCurrentItem</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_render</span><span class="p">(</span><span class="n">key</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="UserGuide.open_at">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.user_guide.html#daplis_rtp.gui.user_guide.UserGuide.open_at">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">open_at</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Show a page and bring the window forward."""</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">show_section</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">raise_</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">activateWindow</span><span class="p">()</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_item_chosen</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">_previous</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">node</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_render</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">data</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">UserRole</span><span class="p">))</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_render</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_current</span> <span class="o">=</span> <span class="n">key</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">textBrowser_page</span><span class="o">.</span><span class="n">setHtml</span><span class="p">(</span><span class="n">section</span><span class="p">(</span><span class="n">key</span><span class="p">)</span><span class="o">.</span><span class="n">html</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">textBrowser_page</span><span class="o">.</span><span class="n">verticalScrollBar</span><span class="p">()</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mark_matches</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_link_clicked</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">):</span>
+        <span class="n">target</span> <span class="o">=</span> <span class="n">url</span><span class="o">.</span><span class="n">toString</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">target</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"#"</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">show_section</span><span class="p">(</span><span class="n">target</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">QtGui</span><span class="o">.</span><span class="n">QDesktopServices</span><span class="o">.</span><span class="n">openUrl</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="c1"># Search</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_terms</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_search</span><span class="o">.</span><span class="n">text</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+
+<div class="viewcode-block" id="UserGuide.matching_sections">
+<a class="viewcode-back" href="../../../daplis_rtp.gui.user_guide.html#daplis_rtp.gui.user_guide.UserGuide.matching_sections">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">matching_sections</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">terms</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Keys of the pages holding every one of the search words."""</span>
+        <span class="n">terms</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_terms</span><span class="p">()</span> <span class="k">if</span> <span class="n">terms</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">terms</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="n">item</span><span class="o">.</span><span class="n">key</span>
+            <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">SECTIONS</span>
+            <span class="k">if</span> <span class="nb">all</span><span class="p">(</span>
+                <span class="n">t</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_words</span><span class="p">[</span><span class="n">item</span><span class="o">.</span><span class="n">key</span><span class="p">]</span> <span class="ow">or</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">item</span><span class="o">.</span><span class="n">title</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+                <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">terms</span>
+            <span class="p">)</span>
+        <span class="p">]</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_search</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">terms</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_terms</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">terms</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_items</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                <span class="n">node</span><span class="o">.</span><span class="n">setHidden</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">label_matches</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">""</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_mark_matches</span><span class="p">()</span>
+            <span class="k">return</span>
+
+        <span class="n">found</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">matching_sections</span><span class="p">(</span><span class="n">terms</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">SECTIONS</span><span class="p">:</span>
+            <span class="n">node</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_items</span><span class="p">[</span><span class="n">item</span><span class="o">.</span><span class="n">key</span><span class="p">]</span>
+            <span class="c1"># A heading stays visible while any page under it matches,</span>
+            <span class="c1"># or there would be no way to reach that page.</span>
+            <span class="n">under</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">key</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">SECTIONS</span> <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">parent</span> <span class="o">==</span> <span class="n">item</span><span class="o">.</span><span class="n">key</span><span class="p">]</span>
+            <span class="n">node</span><span class="o">.</span><span class="n">setHidden</span><span class="p">(</span>
+                <span class="n">item</span><span class="o">.</span><span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">found</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">k</span> <span class="ow">in</span> <span class="n">found</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">under</span><span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="n">count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">found</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">label_matches</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span>
+            <span class="s2">"no page mentions that"</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">count</span>
+            <span class="k">else</span> <span class="s2">"</span><span class="si">{}</span><span class="s2"> page</span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">count</span><span class="p">,</span> <span class="s2">""</span> <span class="k">if</span> <span class="n">count</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="s2">"s"</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_current</span> <span class="ow">in</span> <span class="n">found</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_mark_matches</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">found</span><span class="p">:</span>
+            <span class="n">first</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">key</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">SECTIONS</span> <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">key</span> <span class="ow">in</span> <span class="n">found</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">treeWidget_contents</span><span class="o">.</span><span class="n">setCurrentItem</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_items</span><span class="p">[</span><span class="n">first</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_mark_matches</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_mark_matches</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Highlight every occurrence of the search words on the page."""</span>
+        <span class="n">browser</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">textBrowser_page</span>
+        <span class="n">marks</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">terms</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_terms</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">terms</span><span class="p">:</span>
+            <span class="n">fmt</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QTextCharFormat</span><span class="p">()</span>
+            <span class="n">fmt</span><span class="o">.</span><span class="n">setBackground</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">palette</span><span class="p">()</span><span class="o">.</span><span class="n">color</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QPalette</span><span class="o">.</span><span class="n">Highlight</span><span class="p">))</span>
+            <span class="n">fmt</span><span class="o">.</span><span class="n">setForeground</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">palette</span><span class="p">()</span><span class="o">.</span><span class="n">color</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QPalette</span><span class="o">.</span><span class="n">HighlightedText</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">document</span> <span class="o">=</span> <span class="n">browser</span><span class="o">.</span><span class="n">document</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">term</span> <span class="ow">in</span> <span class="n">terms</span><span class="p">:</span>
+                <span class="n">cursor</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QTextCursor</span><span class="p">(</span><span class="n">document</span><span class="p">)</span>
+                <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+                    <span class="n">cursor</span> <span class="o">=</span> <span class="n">document</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">term</span><span class="p">,</span> <span class="n">cursor</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">cursor</span><span class="o">.</span><span class="n">isNull</span><span class="p">():</span>
+                        <span class="k">break</span>
+                    <span class="n">mark</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QTextEdit</span><span class="o">.</span><span class="n">ExtraSelection</span><span class="p">()</span>
+                    <span class="n">mark</span><span class="o">.</span><span class="n">cursor</span> <span class="o">=</span> <span class="n">cursor</span>
+                    <span class="n">mark</span><span class="o">.</span><span class="n">format</span> <span class="o">=</span> <span class="n">fmt</span>
+                    <span class="n">marks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mark</span><span class="p">)</span>
+        <span class="n">browser</span><span class="o">.</span><span class="n">setExtraSelections</span><span class="p">(</span><span class="n">marks</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">marks</span><span class="p">:</span>
+            <span class="c1"># Scroll to the first match without selecting it: the mark</span>
+            <span class="c1"># is the highlight, and a selection on top would hide it.</span>
+            <span class="n">cursor</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QTextCursor</span><span class="p">(</span><span class="n">marks</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">cursor</span><span class="p">)</span>
+            <span class="n">cursor</span><span class="o">.</span><span class="n">clearSelection</span><span class="p">()</span>
+            <span class="n">browser</span><span class="o">.</span><span class="n">setTextCursor</span><span class="p">(</span><span class="n">cursor</span><span class="p">)</span>
+            <span class="n">browser</span><span class="o">.</span><span class="n">ensureCursorVisible</span><span class="p">()</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Sergei Kulkov.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

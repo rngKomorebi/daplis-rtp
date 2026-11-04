@@ -1,0 +1,7 @@
+daplis\_rtp.gui.tabs.online\_plot module
+========================================
+
+.. automodule:: daplis_rtp.gui.tabs.online_plot
+   :members:
+   :show-inheritance:
+   :undoc-members:

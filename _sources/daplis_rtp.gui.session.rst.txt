@@ -1,0 +1,7 @@
+daplis\_rtp.gui.session module
+==============================
+
+.. automodule:: daplis_rtp.gui.session
+   :members:
+   :show-inheritance:
+   :undoc-members:

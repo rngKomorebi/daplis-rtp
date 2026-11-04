@@ -1,0 +1,7 @@
+daplis\_rtp.gui.preferences module
+==================================
+
+.. automodule:: daplis_rtp.gui.preferences
+   :members:
+   :show-inheritance:
+   :undoc-members:
